@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35312.102
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SipNSign", "SipNSign\SipNSign.csproj", "{5FA9457F-9BB8-4BBA-AA1D-9C8FCE0552AF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5FA9457F-9BB8-4BBA-AA1D-9C8FCE0552AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FA9457F-9BB8-4BBA-AA1D-9C8FCE0552AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FA9457F-9BB8-4BBA-AA1D-9C8FCE0552AF}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{5FA9457F-9BB8-4BBA-AA1D-9C8FCE0552AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FA9457F-9BB8-4BBA-AA1D-9C8FCE0552AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FA9457F-9BB8-4BBA-AA1D-9C8FCE0552AF}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6569E3A2-E7CB-48ED-92AF-2613743F8355}
+	EndGlobalSection
+EndGlobal
