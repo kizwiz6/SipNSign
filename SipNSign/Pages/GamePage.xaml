@@ -5,26 +5,29 @@
              Title="SipNSign">
     <VerticalStackLayout Padding="20" Spacing="10">
         <!-- Score Display -->
-        <Label 
-            x:Name="ScoreLabel"
-            Text="{Binding CurrentScore}" 
-            FontSize="24" 
-            HorizontalOptions="Center" 
-            VerticalOptions="Start" 
-            TextColor="Black" 
-            SemanticProperties.HeadingLevel="Level1" 
-            AutomationId="ScoreLabel" />
+        <Frame Padding="10" CornerRadius="5" HasShadow="True" BackgroundColor="#E0E0E0">
+            <Label 
+                Text="{Binding CurrentScore}" 
+                FontSize="24" 
+                HorizontalOptions="Center" 
+                VerticalOptions="Center" 
+                TextColor="Black" 
+                SemanticProperties.HeadingLevel="Level1" 
+                AutomationId="ScoreLabel" />
+        </Frame>
 
-            <!-- Sign Image -->
-        <Image 
-            Source="{Binding CurrentSign.ImagePath}" 
-            Aspect="AspectFit" 
-            HeightRequest="200" 
-            HorizontalOptions="Center" 
-            VerticalOptions="CenterAndExpand" 
-            AutomationId="SignImage" />
+        <!-- Sign Image -->
+        <Frame Padding="5" CornerRadius="10" HasShadow="True" BackgroundColor="White">
+            <Image 
+                Source="{Binding CurrentSign.ImagePath}" 
+                Aspect="AspectFit" 
+                HeightRequest="200" 
+                HorizontalOptions="Center" 
+                VerticalOptions="CenterAndExpand" 
+                AutomationId="SignImage" />
+        </Frame>
 
-        <!-- Prompt for the user -->
+        <!-- Choices for Answering -->
         <Label 
             Text="What does this sign mean?" 
             FontSize="18" 
@@ -36,22 +39,65 @@
             Orientation="Vertical" 
             HorizontalOptions="FillAndExpand" 
             Spacing="10">
-            <!-- Answer Buttons with Names for Reference -->
+            <!-- Answer Buttons -->
             <Button 
                 x:Name="AnswerButton1"
                 Text="{Binding CurrentSign.Choices[0]}" 
                 Clicked="OnAnswerClicked" 
+                BackgroundColor="#007BFF"
+                TextColor="White"
+                HeightRequest="50"
+                CornerRadius="10"
                 AutomationId="AnswerButton1"/>
             <Button 
                 x:Name="AnswerButton2"
                 Text="{Binding CurrentSign.Choices[1]}" 
                 Clicked="OnAnswerClicked" 
+                BackgroundColor="#007BFF"
+                TextColor="White"
+                HeightRequest="50"
+                CornerRadius="10"
                 AutomationId="AnswerButton2"/>
             <Button 
                 x:Name="AnswerButton3"
                 Text="{Binding CurrentSign.Choices[2]}" 
                 Clicked="OnAnswerClicked" 
+                BackgroundColor="#007BFF"
+                TextColor="White"
+                HeightRequest="50"
+                CornerRadius="10"
                 AutomationId="AnswerButton3"/>
+        </StackLayout>
+
+        <!-- Feedback Label -->
+        <Label 
+            x:Name="FeedbackLabel"
+            Text=""
+            FontSize="18"
+            HorizontalOptions="Center"
+            VerticalOptions="EndAndExpand"
+            TextColor="Green"
+            AutomationId="FeedbackLabel" />
+
+        <!-- Game Over Section -->
+        <StackLayout x:Name="GameOverSection" IsVisible="False" HorizontalOptions="Center" VerticalOptions="Center">
+            <Label 
+                Text="Game Over!" 
+                FontSize="24" 
+                TextColor="Red"
+                AutomationId="GameOverLabel" />
+            <Label 
+                Text="{Binding CurrentScore, StringFormat='Final Score: {0}'}" 
+                FontSize="18" 
+                TextColor="Black" 
+                AutomationId="FinalScoreLabel"/>
+            <Button 
+                Text="Play Again" 
+                Clicked="OnPlayAgainClicked" 
+                BackgroundColor="#28a745"
+                TextColor="White"
+                HeightRequest="50"
+                CornerRadius="10" />
         </StackLayout>
     </VerticalStackLayout>
 </ContentPage>
