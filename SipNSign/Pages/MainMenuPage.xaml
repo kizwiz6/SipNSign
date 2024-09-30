@@ -4,6 +4,9 @@
              x:Class="SipNSign.Pages.MainMenuPage">
     <!-- This should match the namespace and class name -->
     <VerticalStackLayout>
+        <Label Text="Welcome to SipNSign!" 
+               VerticalOptions="CenterAndExpand" 
+               HorizontalOptions="CenterAndExpand" />
         <Button Text="Start Game" Clicked="OnStartGameClicked" />
         <Button Text="View Scores" Clicked="OnViewScoresClicked" />
         <Button Text="Settings" Clicked="OnSettingsClicked" />
