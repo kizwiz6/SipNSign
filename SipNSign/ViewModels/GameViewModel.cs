@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks; // For async/await usage
 
 namespace SipNSign.ViewModels
 {
@@ -16,6 +17,10 @@ namespace SipNSign.ViewModels
         private int _currentScore; // Current score of the player
         private SignModel _currentSign; // The current sign to guess
         private List<SignModel> _signs; // List of available signs
+        private const string GameOverMessage = "Game Over";
+        private const string PlayAgainMessage = "Do you want to play again?";
+        private const string YesOption = "Yes";
+        private const string NoOption = "No";
 
         /// <summary>
         /// Gets or sets the current score of the player.
@@ -79,8 +84,27 @@ namespace SipNSign.ViewModels
             {
                 new SignModel { ImagePath = "sign1.png", CorrectAnswer = "Hello", Choices = new List<string> { "Hello", "Bye", "Thanks" }},
                 new SignModel { ImagePath = "sign2.png", CorrectAnswer = "Drink", Choices = new List<string> { "Eat", "Drink", "Sleep" }},
+                new SignModel { ImagePath = "sign3.png", CorrectAnswer = "Eat", Choices = new List<string> { "Eat", "Drink", "Sleep" }},
+                new SignModel { ImagePath = "sign4.png", CorrectAnswer = "Goodbye", Choices = new List<string> { "Goodbye", "See you", "Take care" }},
+                new SignModel { ImagePath = "sign5.png", CorrectAnswer = "Thank you", Choices = new List<string> { "Thank you", "Please", "Sorry" }},
+                new SignModel { ImagePath = "sign6.png", CorrectAnswer = "Welcome", Choices = new List<string> { "Welcome", "Hello", "Goodbye" }},
+                new SignModel { ImagePath = "sign7.png", CorrectAnswer = "Yes", Choices = new List<string> { "Yes", "No", "Maybe" }},
+                new SignModel { ImagePath = "sign8.png", CorrectAnswer = "No", Choices = new List<string> { "Yes", "No", "Okay" }},
             };
+
+            // Randomize the signs to change their order
+            RandomizeSigns();
+
             CurrentSign = Signs.FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Randomizes the order of the signs in the list.
+        /// </summary>
+        private void RandomizeSigns()
+        {
+            var random = new Random();
+            Signs = Signs.OrderBy(x => random.Next()).ToList();
         }
 
         /// <summary>
@@ -96,7 +120,21 @@ namespace SipNSign.ViewModels
                 CurrentScore++;
                 return true;
             }
+            else
+            {
+                ShowCorrectAnswer();
+            }
             return false;
+        }
+
+        /// <summary>
+        /// Displays the correct answer when the user's answer is incorrect.
+        /// </summary>
+        private async void ShowCorrectAnswer()
+        {
+            await Application.Current.MainPage.DisplayAlert("Incorrect",
+                $"The correct answer was: {CurrentSign.CorrectAnswer}",
+                "OK");
         }
 
         /// <summary>
@@ -122,14 +160,18 @@ namespace SipNSign.ViewModels
         /// </summary>
         private async void ShowEndGameSummary()
         {
-            // Here you can use any method to show a summary.
-            // This example uses a simple alert.
-            await Application.Current.MainPage.DisplayAlert("Game Over",
-                $"Your final score is: {CurrentScore}\nDo you want to play again?",
-                "Yes", "No");
+            bool playAgain = await Application.Current.MainPage.DisplayAlert(GameOverMessage,
+                $"Your final score is: {CurrentScore}\n{PlayAgainMessage}",
+                YesOption, NoOption);
 
-            // Logic to reset the game or navigate to a different page
-            ResetGame();
+            if (playAgain)
+            {
+                ResetGame();
+            }
+            else
+            {
+                // Optionally, navigate to a different page or close the app
+            }
         }
 
         /// <summary>
@@ -141,7 +183,6 @@ namespace SipNSign.ViewModels
             LoadSigns(); // Reload signs to start a new game
             CurrentSign = Signs.FirstOrDefault(); // Reset current sign
         }
-
 
         /// <summary>
         /// Event that is raised when a property changes.

@@ -8,6 +8,7 @@ namespace SipNSign.Pages
     public partial class GamePage : ContentPage
     {
         private GameViewModel _viewModel;
+        private int _score; // To track the user's score
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GamePage"/> class.
@@ -17,6 +18,8 @@ namespace SipNSign.Pages
             InitializeComponent();
             _viewModel = new GameViewModel();
             BindingContext = _viewModel; // Set the ViewModel as the binding context
+            _score = 0; // Initialize score
+            UpdateScoreLabel(); // Update the score display
         }
 
         /// <summary>
@@ -36,6 +39,7 @@ namespace SipNSign.Pages
             if (isCorrect)
             {
                 answerButton.BackgroundColor = Colors.Green; // Correct answer
+                _score++; // Increase score for correct answer
                 await DisplayAlert("Correct!", "You got it right, nominate someone to sip!", "OK");
             }
             else
@@ -52,6 +56,9 @@ namespace SipNSign.Pages
 
             // Load the next sign
             _viewModel.LoadNextSign();
+
+            // Update the score display
+            UpdateScoreLabel();
         }
 
         /// <summary>
@@ -62,6 +69,33 @@ namespace SipNSign.Pages
             AnswerButton1.BackgroundColor = Colors.White;
             AnswerButton2.BackgroundColor = Colors.White;
             AnswerButton3.BackgroundColor = Colors.White;
+        }
+
+        /// <summary>
+        /// Updates the score label to show the current score.
+        /// </summary>
+        private void UpdateScoreLabel()
+        {
+            ScoreLabel.Text = $"Score: {_score}"; // Update the score display
+        }
+
+        /// <summary>
+        /// Displays the game over screen with the final score.
+        /// </summary>
+        private async void ShowGameOver()
+        {
+            await DisplayAlert("Game Over", $"Your final score is {_score}. Nominate someone to drink these sips!", "OK");
+            // Optionally: Reset the score and start a new game if needed
+            _score = 0;
+            UpdateScoreLabel(); // Reset score display for next game
+        }
+
+        /// <summary>
+        /// Call this method when the game ends to show the final score.
+        /// </summary>
+        public void EndGame()
+        {
+            ShowGameOver();
         }
     }
 }

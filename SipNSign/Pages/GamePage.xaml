@@ -6,6 +6,7 @@
     <VerticalStackLayout Padding="20" Spacing="10">
         <!-- Score Display -->
         <Label 
+            x:Name="ScoreLabel"
             Text="{Binding CurrentScore}" 
             FontSize="24" 
             HorizontalOptions="Center" 
@@ -14,7 +15,7 @@
             SemanticProperties.HeadingLevel="Level1" 
             AutomationId="ScoreLabel" />
 
-        <!-- Sign Image -->
+            <!-- Sign Image -->
         <Image 
             Source="{Binding CurrentSign.ImagePath}" 
             Aspect="AspectFit" 
@@ -23,7 +24,7 @@
             VerticalOptions="CenterAndExpand" 
             AutomationId="SignImage" />
 
-        <!-- Choices for Answering -->
+        <!-- Prompt for the user -->
         <Label 
             Text="What does this sign mean?" 
             FontSize="18" 
