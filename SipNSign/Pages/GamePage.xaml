@@ -7,6 +7,7 @@
         <!-- Score Display -->
         <Frame Padding="10" CornerRadius="5" HasShadow="True" BackgroundColor="#E0E0E0">
             <Label 
+                x:Name="ScoreLabel"
                 Text="{Binding CurrentScore}" 
                 FontSize="24" 
                 HorizontalOptions="Center" 

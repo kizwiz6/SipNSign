@@ -7,8 +7,7 @@ namespace SipNSign.Pages
     /// </summary>
     public partial class GamePage : ContentPage
     {
-        private GameViewModel _viewModel;
-        private int _score; // To track the user's score
+        private GameViewModel _viewModel; // The ViewModel that manages the game state
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GamePage"/> class.
@@ -18,8 +17,6 @@ namespace SipNSign.Pages
             InitializeComponent();
             _viewModel = new GameViewModel();
             BindingContext = _viewModel; // Set the ViewModel as the binding context
-            _score = 0; // Initialize score
-            UpdateScoreLabel(); // Update the score display
         }
 
         /// <summary>
@@ -31,34 +28,33 @@ namespace SipNSign.Pages
         /// <param name="e">Event arguments for the click event.</param>
         private async void OnAnswerClicked(object sender, EventArgs e)
         {
-            var answerButton = (Button)sender;
-            var answer = answerButton.Text;
-            bool isCorrect = _viewModel.CheckAnswer(answer);
+            var answerButton = (Button)sender; // Cast the sender to a Button
+            var answer = answerButton.Text; // Get the answer text from the button
+            bool isCorrect = _viewModel.CheckAnswer(answer); // Check if the answer is correct
 
             // Change the button color based on whether the answer is correct
             if (isCorrect)
             {
                 answerButton.BackgroundColor = Colors.Green; // Correct answer
-                _score++; // Increase score for correct answer
+                answerButton.TextColor = Colors.White;        // Ensure text is visible
                 await DisplayAlert("Correct!", "You got it right, nominate someone to sip!", "OK");
+                _viewModel.CurrentScore++; // Increment score in the ViewModel
             }
             else
             {
                 answerButton.BackgroundColor = Colors.Red; // Incorrect answer
+                answerButton.TextColor = Colors.White;        // Ensure text is visible
                 await DisplayAlert("Incorrect", "Wrong answer, take a drink!", "OK");
             }
 
-            // Delay before loading the next sign to allow the user to see the result
+            // Delay before resetting the button colors and loading the next sign
             await Task.Delay(1000); // 1 second delay
 
-            // Reset button colors before loading the next sign
+            // Reset button colors back to blue
             ResetButtonColors();
 
             // Load the next sign
             _viewModel.LoadNextSign();
-
-            // Update the score display
-            UpdateScoreLabel();
         }
 
         /// <summary>
@@ -66,17 +62,9 @@ namespace SipNSign.Pages
         /// </summary>
         private void ResetButtonColors()
         {
-            AnswerButton1.BackgroundColor = Colors.White;
-            AnswerButton2.BackgroundColor = Colors.White;
-            AnswerButton3.BackgroundColor = Colors.White;
-        }
-
-        /// <summary>
-        /// Updates the score label to show the current score.
-        /// </summary>
-        private void UpdateScoreLabel()
-        {
-            ScoreLabel.Text = $"Score: {_score}"; // Update the score display
+            AnswerButton1.BackgroundColor = Colors.Blue;
+            AnswerButton2.BackgroundColor = Colors.Blue;
+            AnswerButton3.BackgroundColor = Colors.Blue;
         }
 
         /// <summary>
@@ -84,10 +72,8 @@ namespace SipNSign.Pages
         /// </summary>
         private async void ShowGameOver()
         {
-            await DisplayAlert("Game Over", $"Your final score is {_score}. Nominate someone to drink these sips!", "OK");
-            // Optionally: Reset the score and start a new game if needed
-            _score = 0;
-            UpdateScoreLabel(); // Reset score display for next game
+            await DisplayAlert("Game Over", $"Your final score is {_viewModel.CurrentScore}. Nominate someone to drink these sips!", "OK");
+            _viewModel.ResetGame(); // Reset the game in the ViewModel
         }
 
         /// <summary>
@@ -96,6 +82,18 @@ namespace SipNSign.Pages
         public void EndGame()
         {
             ShowGameOver();
+        }
+
+        /// <summary>
+        /// Handles the click event for the Play Again button.
+        /// Resets the game state to start a new game.
+        /// </summary>
+        /// <param name="sender">The button that was clicked.</param>
+        /// <param name="e">Event arguments for the click event.</param>
+        private void OnPlayAgainClicked(object sender, EventArgs e)
+        {
+            GameOverSection.IsVisible = false; // Hide the game over section
+            _viewModel.ResetGame(); // Reset the game in the ViewModel
         }
     }
 }

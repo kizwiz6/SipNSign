@@ -86,4 +86,8 @@
 	  </MauiXaml>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Resources\Video\" />
+	</ItemGroup>
+
 </Project>
