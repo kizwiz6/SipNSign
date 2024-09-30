@@ -2,11 +2,52 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="SipNSign.Pages.GamePage"
-             Title="GamePage">
-    <VerticalStackLayout>
+             Title="SipNSign">
+    <VerticalStackLayout Padding="20" Spacing="10">
+        <!-- Score Display -->
         <Label 
-            Text="Welcome to .NET MAUI!"
+            Text="{Binding CurrentScore}" 
+            FontSize="24" 
+            HorizontalOptions="Center" 
+            VerticalOptions="Start" 
+            TextColor="Black" 
+            SemanticProperties.HeadingLevel="Level1" 
+            AutomationId="ScoreLabel" />
+
+        <!-- Sign Image -->
+        <Image 
+            Source="{Binding CurrentSign.ImagePath}" 
+            Aspect="AspectFit" 
+            HeightRequest="200" 
+            HorizontalOptions="Center" 
+            VerticalOptions="CenterAndExpand" 
+            AutomationId="SignImage" />
+
+        <!-- Choices for Answering -->
+        <Label 
+            Text="What does this sign mean?" 
+            FontSize="18" 
+            HorizontalOptions="Center" 
             VerticalOptions="Center" 
-            HorizontalOptions="Center" />
+            TextColor="Black" />
+
+        <StackLayout 
+            Orientation="Vertical" 
+            HorizontalOptions="FillAndExpand" 
+            Spacing="10">
+            <!-- Answer Buttons -->
+            <Button 
+                Text="{Binding CurrentSign.Choices[0]}" 
+                Clicked="OnAnswerClicked" 
+                AutomationId="AnswerButton1"/>
+            <Button 
+                Text="{Binding CurrentSign.Choices[1]}" 
+                Clicked="OnAnswerClicked" 
+                AutomationId="AnswerButton2"/>
+            <Button 
+                Text="{Binding CurrentSign.Choices[2]}" 
+                Clicked="OnAnswerClicked" 
+                AutomationId="AnswerButton3"/>
+        </StackLayout>
     </VerticalStackLayout>
 </ContentPage>
