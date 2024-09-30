@@ -7,9 +7,27 @@
     Shell.FlyoutBehavior="Disabled"
     Title="SipNSign">
 
+    <!-- Main Menu Page -->
     <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+        Title="Main Menu"
+        ContentTemplate="{DataTemplate local:MainMenuPage}"
+        Route="MainMenuPage" />
 
+    <!-- Game Page -->
+    <ShellContent
+        Title="Game"
+        ContentTemplate="{DataTemplate local:GamePage}"
+        Route="GamePage" />
+
+    <!-- High Scores Page -->
+    <ShellContent
+        Title="High Scores"
+        ContentTemplate="{DataTemplate local:HighScorePage}"
+        Route="HighScorePage" />
+
+    <!-- Settings Page -->
+    <ShellContent
+        Title="Settings"
+        ContentTemplate="{DataTemplate local:SettingsPage}"
+        Route="SettingsPage" />
 </Shell>
