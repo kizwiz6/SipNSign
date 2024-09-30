@@ -1,12 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SipNSign.Models
 {
-    class SignModel
+    /// <summary>
+    /// Represents a sign in the SipNSign game.
+    /// </summary>
+    public class SignModel
     {
+        /// <summary>
+        /// Gets or sets the path to the sign's image.
+        /// </summary>
+        public string ImagePath { get; set; }
+
+        /// <summary>
+        /// Gets or sets the correct answer for the sign (e.g., "Hello").
+        /// </summary>
+        public string CorrectAnswer { get; set; }
+
+        /// <summary>
+        /// Gets or sets the list of multiple choice options for the user to select from.
+        /// </summary>
+        public List<string> Choices { get; set; }
     }
 }
