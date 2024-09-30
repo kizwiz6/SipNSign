@@ -35,16 +35,19 @@
             Orientation="Vertical" 
             HorizontalOptions="FillAndExpand" 
             Spacing="10">
-            <!-- Answer Buttons -->
+            <!-- Answer Buttons with Names for Reference -->
             <Button 
+                x:Name="AnswerButton1"
                 Text="{Binding CurrentSign.Choices[0]}" 
                 Clicked="OnAnswerClicked" 
                 AutomationId="AnswerButton1"/>
             <Button 
+                x:Name="AnswerButton2"
                 Text="{Binding CurrentSign.Choices[1]}" 
                 Clicked="OnAnswerClicked" 
                 AutomationId="AnswerButton2"/>
             <Button 
+                x:Name="AnswerButton3"
                 Text="{Binding CurrentSign.Choices[2]}" 
                 Clicked="OnAnswerClicked" 
                 AutomationId="AnswerButton3"/>
