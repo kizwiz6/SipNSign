@@ -112,9 +112,36 @@ namespace SipNSign.ViewModels
             }
             else
             {
-                // End game logic (e.g., show final score, reset game, etc.)
+                // End game logic
+                ShowEndGameSummary();
             }
         }
+
+        /// <summary>
+        /// Displays a summary of the final score and allows the player to restart the game.
+        /// </summary>
+        private async void ShowEndGameSummary()
+        {
+            // Here you can use any method to show a summary.
+            // This example uses a simple alert.
+            await Application.Current.MainPage.DisplayAlert("Game Over",
+                $"Your final score is: {CurrentScore}\nDo you want to play again?",
+                "Yes", "No");
+
+            // Logic to reset the game or navigate to a different page
+            ResetGame();
+        }
+
+        /// <summary>
+        /// Resets the game state to allow the player to play again.
+        /// </summary>
+        private void ResetGame()
+        {
+            CurrentScore = 0;
+            LoadSigns(); // Reload signs to start a new game
+            CurrentSign = Signs.FirstOrDefault(); // Reset current sign
+        }
+
 
         /// <summary>
         /// Event that is raised when a property changes.
