@@ -1,5 +1,8 @@
 ﻿using SipNSign.Models;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Windows.Input;
 
 namespace SipNSign.ViewModels
 {
@@ -9,7 +12,12 @@ namespace SipNSign.ViewModels
     public class GameViewModel : INotifyPropertyChanged
     {
         private int _currentScore;
-        private SignModel _currentSign; // Assuming you have a Sign model
+        private SignModel _currentSign; // Current sign being displayed
+        private List<SignModel> _signs; // List of available signs
+        private int _currentSignIndex; // Index to track the current sign in the list
+        private string _feedbackText;
+        private Color _feedbackColor;
+        private bool _isGameOver;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -30,15 +38,120 @@ namespace SipNSign.ViewModels
         }
 
         /// <summary>
+        /// Gets the current sign.
+        /// </summary>
+        public SignModel CurrentSign
+        {
+            get => _currentSign;
+            private set
+            {
+                if (_currentSign != value)
+                {
+                    _currentSign = value;
+                    OnPropertyChanged(nameof(CurrentSign));
+                    OnPropertyChanged(nameof(IsImageAvailable));
+                    OnPropertyChanged(nameof(IsVideoAvailable));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the feedback text.
+        /// </summary>
+        public string FeedbackText
+        {
+            get => _feedbackText;
+            set
+            {
+                if (_feedbackText != value)
+                {
+                    _feedbackText = value;
+                    OnPropertyChanged(nameof(FeedbackText));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the feedback color.
+        /// </summary>
+        public Color FeedbackColor
+        {
+            get => _feedbackColor;
+            set
+            {
+                if (_feedbackColor != value)
+                {
+                    _feedbackColor = value;
+                    OnPropertyChanged(nameof(FeedbackColor));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks if the game is over.
+        /// </summary>
+        public bool IsGameOver
+        {
+            get => _isGameOver;
+            set
+            {
+                if (_isGameOver != value)
+                {
+                    _isGameOver = value;
+                    OnPropertyChanged(nameof(IsGameOver));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks if an image is available for the current sign.
+        /// </summary>
+        public bool IsImageAvailable => !string.IsNullOrEmpty(CurrentSign?.ImagePath);
+
+        /// <summary>
+        /// Checks if a video is available for the current sign.
+        /// </summary>
+        public bool IsVideoAvailable => !string.IsNullOrEmpty(CurrentSign?.VideoPath);
+
+        /// <summary>
+        /// Command to handle player's answer selection.
+        /// </summary>
+        public ICommand AnswerCommand => new Command<string>(CheckAndProvideFeedback);
+
+        /// <summary>
+        /// Command to restart the game.
+        /// </summary>
+        public ICommand PlayAgainCommand => new Command(ResetGame);
+
+        /// <summary>
+        /// Checks if the answer is correct and provides feedback.
+        /// </summary>
+        /// <param name="answer">The answer to check.</param>
+        private void CheckAndProvideFeedback(string answer)
+        {
+            if (CheckAnswer(answer))
+            {
+                FeedbackText = "Correct!";
+                FeedbackColor = Colors.Green;
+                CurrentScore++;
+            }
+            else
+            {
+                FeedbackText = "Incorrect. Try again!";
+                FeedbackColor = Colors.Red;
+            }
+
+            LoadNextSign(); // Load the next sign
+        }
+
+        /// <summary>
         /// Checks if the answer is correct.
         /// </summary>
         /// <param name="answer">The answer to check.</param>
         /// <returns>True if the answer is correct; otherwise, false.</returns>
         public bool CheckAnswer(string answer)
         {
-            // Implement your logic to check if the answer is correct
-            // Example:
-            return answer == _currentSign.CorrectAnswer;
+            return answer == CurrentSign.CorrectAnswer;
         }
 
         /// <summary>
@@ -46,9 +159,24 @@ namespace SipNSign.ViewModels
         /// </summary>
         public void LoadNextSign()
         {
-            // Implement your logic to load the next sign
-            // Example:
-            // CurrentSign = GetNextSign();
+            // Increment the sign index and loop back if necessary
+            _currentSignIndex++;
+            if (_currentSignIndex >= _signs.Count)
+            {
+                IsGameOver = true; // Set game over if there are no more signs
+                return;
+            }
+            CurrentSign = _signs[_currentSignIndex]; // Get the next sign
+        }
+
+        /// <summary>
+        /// Initializes the ViewModel with a list of signs.
+        /// </summary>
+        public GameViewModel()
+        {
+            _signs = InitializeSigns(); // Initialize the list of signs
+            _currentSignIndex = -1; // Start before the first sign
+            ResetGame(); // Load the first sign
         }
 
         /// <summary>
@@ -57,8 +185,43 @@ namespace SipNSign.ViewModels
         public void ResetGame()
         {
             CurrentScore = 0; // Reset score
-            LoadNextSign();   // Load the first sign
-            // Optionally, reset any other game state variables
+            _currentSignIndex = -1; // Reset index to load the first sign
+            IsGameOver = false; // Reset game over state
+            FeedbackText = string.Empty; // Clear feedback text
+            LoadNextSign(); // Load the first sign
+        }
+
+        /// <summary>
+        /// Initializes the list of signs with their properties.
+        /// </summary>
+        /// <returns>List of SignModel</returns>
+        private List<SignModel> InitializeSigns()
+        {
+            return new List<SignModel>
+            {
+                new SignModel
+                {
+                    // ImagePath = "resource://YourAppNamespace.Resources.Images.Again.png",
+                    VideoPath = "C:\\Users\\kizwi\\source\\repos\\SipNSign\\SipNSign\\Resources\\Video\\again.mp4",
+                    Choices = new List<string> { "Once", "Again", "Repeat" },
+                    CorrectAnswer = "Again"
+                },
+                new SignModel
+                {
+                    // ImagePath = "resource://YourAppNamespace.Resources.Images.Argue.png",
+                    VideoPath = "C:\\Users\\kizwi\\source\\repos\\SipNSign\\SipNSign\\Resources\\Video\\argue.mp4",
+                    Choices = new List<string> { "Fight", "Argue", "Discuss" },
+                    CorrectAnswer = "Argue"
+                },
+                new SignModel
+                {
+                    // ImagePath = "resource://YourAppNamespace.Resources.Images.Dance.png",
+                    VideoPath = "C:\\Users\\kizwi\\source\\repos\\SipNSign\\SipNSign\\Resources\\Video\\dance.mp4",
+                    Choices = new List<string> { "Jump", "Dance", "Move" },
+                    CorrectAnswer = "Dance"
+                },
+                // Add more signs...
+            };
         }
 
         /// <summary>

@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="SipNSign.Pages.GamePage"
              Title="SipNSign">
+
     <VerticalStackLayout Padding="20" Spacing="10">
+
         <!-- Score Display -->
         <Frame Padding="10" CornerRadius="5" HasShadow="True" BackgroundColor="#E0E0E0">
             <Label 
@@ -17,8 +20,8 @@
                 AutomationId="ScoreLabel" />
         </Frame>
 
-        <!-- Sign Image -->
-        <Frame Padding="5" CornerRadius="10" HasShadow="True" BackgroundColor="White">
+        <!-- Sign Image (Optional: Display if image is available) -->
+        <Frame Padding="5" CornerRadius="10" HasShadow="True" BackgroundColor="White" IsVisible="{Binding IsImageAvailable}">
             <Image 
                 Source="{Binding CurrentSign.ImagePath}" 
                 Aspect="AspectFit" 
@@ -26,6 +29,18 @@
                 HorizontalOptions="Center" 
                 VerticalOptions="CenterAndExpand" 
                 AutomationId="SignImage" />
+        </Frame>
+
+        <!-- Sign Video (Optional: Display if video is available) -->
+        <Frame Padding="5" CornerRadius="10" HasShadow="True" BackgroundColor="White" IsVisible="{Binding IsVideoAvailable}">
+            <toolkit:MediaElement
+                x:Name="SignVideo" 
+                Source="{Binding CurrentSign.VideoPath}" 
+                Aspect="AspectFit" 
+                HeightRequest="200" 
+                HorizontalOptions="Center" 
+                VerticalOptions="CenterAndExpand"
+                AutomationId="SignVideo" />
         </Frame>
 
         <!-- Choices for Answering -->
@@ -44,7 +59,8 @@
             <Button 
                 x:Name="AnswerButton1"
                 Text="{Binding CurrentSign.Choices[0]}" 
-                Clicked="OnAnswerClicked" 
+                Command="{Binding AnswerCommand}"
+                CommandParameter="{Binding CurrentSign.Choices[0]}" 
                 BackgroundColor="#007BFF"
                 TextColor="White"
                 HeightRequest="50"
@@ -53,7 +69,8 @@
             <Button 
                 x:Name="AnswerButton2"
                 Text="{Binding CurrentSign.Choices[1]}" 
-                Clicked="OnAnswerClicked" 
+                Command="{Binding AnswerCommand}"
+                CommandParameter="{Binding CurrentSign.Choices[1]}" 
                 BackgroundColor="#007BFF"
                 TextColor="White"
                 HeightRequest="50"
@@ -62,7 +79,8 @@
             <Button 
                 x:Name="AnswerButton3"
                 Text="{Binding CurrentSign.Choices[2]}" 
-                Clicked="OnAnswerClicked" 
+                Command="{Binding AnswerCommand}"
+                CommandParameter="{Binding CurrentSign.Choices[2]}" 
                 BackgroundColor="#007BFF"
                 TextColor="White"
                 HeightRequest="50"
@@ -73,15 +91,15 @@
         <!-- Feedback Label -->
         <Label 
             x:Name="FeedbackLabel"
-            Text=""
+            Text="{Binding FeedbackText}"
             FontSize="18"
             HorizontalOptions="Center"
             VerticalOptions="EndAndExpand"
-            TextColor="Green"
+            TextColor="{Binding FeedbackColor}" 
             AutomationId="FeedbackLabel" />
 
         <!-- Game Over Section -->
-        <StackLayout x:Name="GameOverSection" IsVisible="False" HorizontalOptions="Center" VerticalOptions="Center">
+        <StackLayout x:Name="GameOverSection" IsVisible="{Binding IsGameOver}" HorizontalOptions="Center" VerticalOptions="Center">
             <Label 
                 Text="Game Over!" 
                 FontSize="24" 
@@ -94,11 +112,13 @@
                 AutomationId="FinalScoreLabel"/>
             <Button 
                 Text="Play Again" 
-                Clicked="OnPlayAgainClicked" 
+                Command="{Binding PlayAgainCommand}" 
                 BackgroundColor="#28a745"
                 TextColor="White"
                 HeightRequest="50"
                 CornerRadius="10" />
         </StackLayout>
+
     </VerticalStackLayout>
+
 </ContentPage>

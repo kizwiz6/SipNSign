@@ -17,6 +17,7 @@ namespace SipNSign.Pages
             InitializeComponent();
             _viewModel = new GameViewModel();
             BindingContext = _viewModel; // Set the ViewModel as the binding context
+            SignVideo.Play();
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using CommunityToolkit.Maui; // Import the Maui Community Toolkit namespace  
 
 namespace SipNSign;
 
@@ -19,6 +20,8 @@ public static class MauiProgram
         // Use the App class as the entry point
         builder
             .UseMauiApp<App>() // Use the App class
+            .UseMauiCommunityToolkit() // Register the CommunityToolkit
+            .UseMauiCommunityToolkitMediaElement() // Register the MediaElement from the CommunityToolkit
             .ConfigureFonts(fonts =>
             {
                 // Add custom fonts for the application

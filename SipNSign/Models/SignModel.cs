@@ -14,6 +14,11 @@ namespace SipNSign.Models
         public string ImagePath { get; set; }
 
         /// <summary>
+        /// Gets or sets the path to the sign's video.
+        /// </summary>
+        public string VideoPath { get; set; }
+
+        /// <summary>
         /// Gets or sets the correct answer for the sign (e.g., "Hello").
         /// </summary>
         public string CorrectAnswer { get; set; }
