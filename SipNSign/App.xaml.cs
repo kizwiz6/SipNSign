@@ -18,7 +18,7 @@ namespace com.kizwiz.sipnsign
         public App()
         {
             InitializeComponent();
-            MainPage = new GamePage();
+            MainPage = new NavigationPage(new MainMenuPage());
         }
     }
 }

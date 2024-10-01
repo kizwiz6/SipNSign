@@ -24,6 +24,13 @@
                 SemanticProperties.HeadingLevel="Level2"
                 SemanticProperties.Description="Welcome to dot net Multi platform App U I" />
 
+            <!-- Friendly Reminder Label -->
+            <Label
+                Text="Reminder: This is just the template! Please set the MainPage to be a NavigationPage wrapping the MainMenuPage."
+                Style="{StaticResource SubHeadline}"
+                SemanticProperties.HeadingLevel="Level2"
+                SemanticProperties.Description="Reminder to set MainPage as NavigationPage." />
+
             <Button
                 x:Name="CounterBtn"
                 Text="Click me" 

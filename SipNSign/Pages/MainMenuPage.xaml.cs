@@ -20,10 +20,10 @@ namespace com.kizwiz.sipnsign.Pages
 
         /// <summary>
         /// Event handler for the "Start Game" button click.
-        /// Navigates to the game page when the button is clicked.
+        /// Navigates to the <see cref="GamePage"/> when the button is clicked.
         /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The event data.</param>
+        /// <param name="sender">The source of the event, typically the button that was clicked.</param>
+        /// <param name="e">The event data containing information about the click event.</param>
         private async void OnStartGameClicked(object sender, EventArgs e)
         {
             await Navigation.PushAsync(new GamePage());
@@ -31,10 +31,10 @@ namespace com.kizwiz.sipnsign.Pages
 
         /// <summary>
         /// Event handler for the "View Scores" button click.
-        /// Navigates to the scoreboard page when the button is clicked.
+        /// Navigates to the <see cref="ScoreboardPage"/> when the button is clicked.
         /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The event data.</param>
+        /// <param name="sender">The source of the event, typically the button that was clicked.</param>
+        /// <param name="e">The event data containing information about the click event.</param>
         private async void OnViewScoresClicked(object sender, EventArgs e)
         {
             await Navigation.PushAsync(new ScoreboardPage());
@@ -42,10 +42,10 @@ namespace com.kizwiz.sipnsign.Pages
 
         /// <summary>
         /// Event handler for the "Settings" button click.
-        /// Navigates to the settings page when the button is clicked.
+        /// Navigates to the <see cref="SettingsPage"/> when the button is clicked.
         /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The event data.</param>
+        /// <param name="sender">The source of the event, typically the button that was clicked.</param>
+        /// <param name="e">The event data containing information about the click event.</param>
         private async void OnSettingsClicked(object sender, EventArgs e)
         {
             await Navigation.PushAsync(new SettingsPage());

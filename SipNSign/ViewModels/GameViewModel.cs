@@ -201,26 +201,53 @@ namespace com.kizwiz.sipnsign.ViewModels
             {
                 new SignModel
                 {
-                    // ImagePath = "resource://YourAppNamespace.Resources.Images.Again.png",
-                    VideoPath = "C:\\Users\\kizwi\\source\\repos\\SipNSign\\SipNSign\\Resources\\Video\\again.mp4",
+                    VideoPath = "android.resource://com.kizwiz.sipnsign/raw/again", // No file extension needed
                     Choices = new List<string> { "Once", "Again", "Repeat" },
                     CorrectAnswer = "Again"
                 },
                 new SignModel
                 {
-                    // ImagePath = "resource://YourAppNamespace.Resources.Images.Argue.png",
-                    VideoPath = "C:\\Users\\kizwi\\source\\repos\\SipNSign\\SipNSign\\Resources\\Video\\argue.mp4",
+                    VideoPath = "android.resource://com.kizwiz.sipnsign/raw/argue",
                     Choices = new List<string> { "Fight", "Argue", "Discuss" },
                     CorrectAnswer = "Argue"
                 },
                 new SignModel
                 {
-                    // ImagePath = "resource://YourAppNamespace.Resources.Images.Dance.png",
-                    VideoPath = "C:\\Users\\kizwi\\source\\repos\\SipNSign\\SipNSign\\Resources\\Video\\dance.mp4",
+                    VideoPath = "android.resource://com.kizwiz.sipnsign/raw/dance",
                     Choices = new List<string> { "Jump", "Dance", "Move" },
                     CorrectAnswer = "Dance"
                 },
-                // Add more signs...
+                new SignModel
+                {
+                    VideoPath = "android.resource://com.kizwiz.sipnsign/raw/dog",
+                    Choices = new List<string> { "Dog", "Cat", "Animal" },
+                    CorrectAnswer = "Dog"
+                },
+                new SignModel
+                {
+                    VideoPath = "android.resource://com.kizwiz.sipnsign/raw/forget",
+                    Choices = new List<string> { "Remember", "Forget", "Recall" },
+                    CorrectAnswer = "Forget"
+                },
+                new SignModel
+                {
+                    VideoPath = "android.resource://com.kizwiz.sipnsign/raw/help",
+                    Choices = new List<string> { "Assist", "Help", "Support" },
+                    CorrectAnswer = "Help"
+                },
+                new SignModel
+                {
+                    VideoPath = "android.resource://com.kizwiz.sipnsign/raw/read",
+                    Choices = new List<string> { "Write", "Read", "Speak" },
+                    CorrectAnswer = "Read"
+                },
+                new SignModel
+                {
+                    VideoPath = "android.resource://com.kizwiz.sipnsign/raw/sun",
+                    Choices = new List<string> { "Sun", "Moon", "Star" },
+                    CorrectAnswer = "Sun"
+                },
+                // Add more signs as needed...
             };
         }
 
