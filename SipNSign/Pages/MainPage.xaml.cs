@@ -12,15 +12,24 @@ public partial class MainPage : ContentPage
         }
         catch (Exception ex)
         {
-            // Log the exception (you can use any logging mechanism)
+            // Log the exception
             Console.WriteLine($"Unhandled exception during initialization: {ex.Message}");
-            // Optionally, show a user-friendly message
-            Content = new Label
+
+            // Create a new Grid for layout instead of StackLayout and deprecated options
+            var grid = new Grid
+            {
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Center
+            };
+
+            grid.Children.Add(new Label
             {
                 Text = "An error occurred while initializing the page.",
-                VerticalOptions = LayoutOptions.CenterAndExpand,
-                HorizontalOptions = LayoutOptions.CenterAndExpand
-            };
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.Center
+            });
+
+            Content = grid;
         }
     }
 

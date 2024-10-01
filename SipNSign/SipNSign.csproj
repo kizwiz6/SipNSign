@@ -80,10 +80,11 @@
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Maui" Version="9.1.0" />
 		<PackageReference Include="CommunityToolkit.Maui.MediaElement" Version="4.1.1" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
 	</ItemGroup>
+
 
 	<ItemGroup>
 		<MauiXaml Update="App.xaml">
@@ -117,7 +118,16 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiImage Include="Resources\Raw\again.mp4" />
+	  <EmbeddedResource Include="Resources\Raw\again.mp4" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-android'">
+	  <PackageReference Include="Xamarin.AndroidX.AppCompat">
+	    <Version>1.7.0.3</Version>
+	  </PackageReference>
+	  <PackageReference Include="Xamarin.AndroidX.Media">
+	    <Version>1.7.0.7</Version>
+	  </PackageReference>
 	</ItemGroup>
 
 </Project>

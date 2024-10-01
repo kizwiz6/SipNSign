@@ -1,8 +1,4 @@
-﻿using com.kizwiz.sipnsign;
-using com.kizwiz.sipnsign.Pages;
-using Microsoft.Maui;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Hosting;
+﻿using com.kizwiz.sipnsign.Pages;
 
 namespace com.kizwiz.sipnsign
 {
@@ -10,7 +6,7 @@ namespace com.kizwiz.sipnsign
     /// Represents the main application for the SipNSign project.
     /// Initializes the application and sets the main page.
     /// </summary>
-    public partial class App : Application // Inherit from Application
+    public partial class App : Microsoft.Maui.Controls.Application // Fully qualify the Application class
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="App"/> class.
@@ -18,7 +14,31 @@ namespace com.kizwiz.sipnsign
         public App()
         {
             InitializeComponent();
+
+            // Set initial theme based on system preference
+            SetAppTheme(Application.Current.RequestedTheme);
+
+            Application.Current.RequestedThemeChanged += (s, e) =>
+            {
+                SetAppTheme(e.RequestedTheme);
+            };
+
             MainPage = new NavigationPage(new MainMenuPage());
+        }
+
+        public void SetAppTheme(AppTheme theme)
+        {
+            // Switch to Light or Dark Theme
+            if (theme == AppTheme.Light)
+            {
+                // Set the light theme
+                Resources = (ResourceDictionary)Resources.MergedDictionaries.First(x => x is ResourceDictionary dict && dict.ContainsKey("LightTheme"));
+            }
+            else
+            {
+                // Set the dark theme
+                Resources = (ResourceDictionary)Resources.MergedDictionaries.First(x => x is ResourceDictionary dict && dict.ContainsKey("DarkTheme"));
+            }
         }
     }
 }

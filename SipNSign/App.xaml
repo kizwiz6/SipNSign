@@ -4,6 +4,26 @@
              xmlns:local="clr-namespace:com.kizwiz.sipnsign"
              x:Class="com.kizwiz.sipnsign.App">
     <Application.Resources>
+        <!-- Light Theme -->
+        <ResourceDictionary x:Key="LightTheme">
+            <Color x:Key="PrimaryColor">#6200EE</Color>
+            <Color x:Key="BackgroundColor">#FFFFFF</Color>
+            <Color x:Key="TextColor">#000000</Color>
+            <Style TargetType="ContentPage">
+                <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}" />
+            </Style>
+        </ResourceDictionary>
+
+        <!-- Dark Theme -->
+        <ResourceDictionary x:Key="DarkTheme">
+            <Color x:Key="PrimaryColor">#BB86FC</Color>
+            <Color x:Key="BackgroundColor">#121212</Color>
+            <Color x:Key="TextColor">#FFFFFF</Color>
+            <Style TargetType="ContentPage">
+                <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}" />
+            </Style>
+        </ResourceDictionary>
+        
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />

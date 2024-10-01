@@ -2,11 +2,39 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="com.kizwiz.sipnsign.Pages.SettingsPage"
-             Title="SettingsPage">
-    <VerticalStackLayout>
+             Title="Settings">
+
+    <VerticalStackLayout Padding="20" Spacing="20">
+        <!-- Title -->
         <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
+            Text="Settings"
+            FontSize="24"
+            HorizontalOptions="Center" 
+            VerticalOptions="Start" />
+
+        <!-- Theme Selection Label -->
+        <Label 
+            Text="Select Theme:"
+            FontSize="18"
+            VerticalOptions="Start" />
+
+        <!-- Theme Picker for Light/Dark Mode -->
+        <Picker x:Name="ThemePicker" 
+                Title="Choose Theme" 
+                SelectedIndexChanged="OnThemeChanged"
+                VerticalOptions="Start">
+            <Picker.Items>
+                <x:String>Light</x:String>
+                <x:String>Dark</x:String>
+            </Picker.Items>
+        </Picker>
+
+        <!-- Info Label -->
+        <Label 
+            Text="Switch between Light and Dark modes to customise your app's appearance."
+            FontSize="14"
+            VerticalOptions="Start" 
+            HorizontalOptions="Fill" />
     </VerticalStackLayout>
+
 </ContentPage>
