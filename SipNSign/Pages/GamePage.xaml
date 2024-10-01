@@ -31,7 +31,7 @@
                 AutomationId="SignImage" />
         </Frame>
 
-        <!-- Sign Video (Optional: Display if video is available) -->
+        <!-- Sign Video -->
         <Frame Padding="5" CornerRadius="10" HasShadow="True" BackgroundColor="White" IsVisible="{Binding IsVideoAvailable}">
             <toolkit:MediaElement
                 x:Name="SignVideo" 
@@ -40,7 +40,9 @@
                 HeightRequest="200" 
                 HorizontalOptions="Center" 
                 VerticalOptions="CenterAndExpand"
-                AutomationId="SignVideo" />
+                AutomationId="SignVideo"
+                ShouldAutoPlay="True"
+                ShouldLoopPlayback="True"/>
         </Frame>
 
         <!-- Choices for Answering -->
