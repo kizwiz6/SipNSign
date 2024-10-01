@@ -1,10 +1,10 @@
-﻿using SipNSign.Models;
+﻿using com.kizwiz.sipnsign.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Input;
 
-namespace SipNSign.ViewModels
+namespace com.kizwiz.sipnsign.ViewModels
 {
     /// <summary>
     /// ViewModel for managing game logic and state.

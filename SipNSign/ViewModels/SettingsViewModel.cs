@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SipNSign.ViewModels
+namespace com.kizwiz.sipnsign.ViewModels
 {
     class SettingsViewModel
     {

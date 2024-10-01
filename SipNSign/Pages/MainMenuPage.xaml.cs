@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Maui.Controls;
 
-namespace SipNSign.Pages
+namespace com.kizwiz.sipnsign.Pages
 {
     /// <summary>
     /// Represents the main menu page of the SipNSign application.

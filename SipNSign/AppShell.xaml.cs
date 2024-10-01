@@ -1,4 +1,4 @@
-﻿namespace SipNSign;
+﻿namespace com.kizwiz.sipnsign;
 
 public partial class AppShell : Shell
 {

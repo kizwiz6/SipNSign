@@ -4,6 +4,17 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
+    <!-- Define colors -->
+    <Color x:Key="PrimaryColor">#007BFF</Color>
+    <Color x:Key="SecondaryColor">#6C757D</Color>
+    <Color x:Key="BackgroundColor">#FFFFFF</Color>
+
+    <!-- Define styles -->
+    <Style x:Key="SplashScreenStyle" TargetType="ContentPage">
+        <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
     <Style TargetType="ActivityIndicator">
         <Setter Property="Color" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource White}}" />
     </Style>
