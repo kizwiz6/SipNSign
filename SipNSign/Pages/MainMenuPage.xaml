@@ -4,40 +4,51 @@
              x:Class="com.kizwiz.sipnsign.Pages.MainMenuPage"
              Title="Main Menu">
 
-    <VerticalStackLayout Padding="20" Spacing="30" VerticalOptions="CenterAndExpand">
+    <VerticalStackLayout Grid.Row="1" Padding="20" Spacing="30" VerticalOptions="CenterAndExpand">
 
-        <Label Text="Welcome to SipNSign!" 
-               VerticalOptions="CenterAndExpand" 
-               HorizontalOptions="CenterAndExpand" 
-               FontSize="24"
-               FontAttributes="Bold" />
+        <!-- Logo at the top -->
+        <Image Source="logo.png" 
+                   HorizontalOptions="Center" 
+                   VerticalOptions="Center" 
+                   HeightRequest="300" 
+                   WidthRequest="300" />
 
+        <!-- Welcome label -->
+        <Label Text="SipNSign!" 
+                   VerticalOptions="CenterAndExpand" 
+                   HorizontalOptions="CenterAndExpand" 
+                   FontSize="40"
+                   FontAttributes="Bold"
+                   TextColor="#007BFF" />
+
+        <!-- Start Game button -->
         <Button Text="Start Game" 
-                Clicked="OnStartGameClicked" 
-                BackgroundColor="#007BFF" 
-                TextColor="White" 
-                HeightRequest="70" 
-                FontSize="24" 
-                CornerRadius="10" 
-                HorizontalOptions="FillAndExpand" />
+                    Clicked="OnStartGameClicked" 
+                    BackgroundColor="#007BFF" 
+                    TextColor="White" 
+                    HeightRequest="70" 
+                    FontSize="24" 
+                    CornerRadius="10" 
+                    HorizontalOptions="FillAndExpand" />
 
+        <!-- View Scores button -->
         <Button Text="View Scores" 
-                Clicked="OnViewScoresClicked" 
-                BackgroundColor="#007BFF" 
-                TextColor="White" 
-                HeightRequest="70" 
-                FontSize="24" 
-                CornerRadius="10" 
-                HorizontalOptions="FillAndExpand" />
+                    Clicked="OnViewScoresClicked" 
+                    BackgroundColor="#007BFF" 
+                    TextColor="White" 
+                    HeightRequest="70" 
+                    FontSize="24" 
+                    CornerRadius="10" 
+                    HorizontalOptions="FillAndExpand" />
 
+        <!-- Settings button -->
         <Button Text="Settings" 
-                Clicked="OnSettingsClicked" 
-                BackgroundColor="#007BFF" 
-                TextColor="White" 
-                HeightRequest="70" 
-                FontSize="24" 
-                CornerRadius="10" 
-                HorizontalOptions="FillAndExpand" />
-
+                    Clicked="OnSettingsClicked" 
+                    BackgroundColor="#007BFF" 
+                    TextColor="White" 
+                    HeightRequest="70" 
+                    FontSize="24" 
+                    CornerRadius="10" 
+                    HorizontalOptions="FillAndExpand" />
     </VerticalStackLayout>
 </ContentPage>

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using CommunityToolkit.Maui;
-using com.kizwiz.sipnsign; // Ensure this namespace is correct
+using com.kizwiz.sipnsign;
 
 namespace com.kizwiz.sipnsign;
 

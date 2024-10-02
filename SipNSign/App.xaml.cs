@@ -1,6 +1,6 @@
 ﻿using com.kizwiz.sipnsign.Pages;
 using Microsoft.Maui.ApplicationModel;
-using System.Diagnostics; // Ensure this is included
+using System.Diagnostics;
 
 namespace com.kizwiz.sipnsign
 {
@@ -10,6 +10,12 @@ namespace com.kizwiz.sipnsign
     /// </summary>
     public partial class App : Microsoft.Maui.Controls.Application
     {
+        // Define your preferred navigation bar background color
+        private readonly Color _navBarColor = Color.FromHex("#007BFF");
+
+        // Define your preferred navigation bar text color
+        private readonly Color _navBarTextColor = Color.FromHex("#FFFFFF");
+
         /// <summary>
         /// Initializes a new instance of the <see cref="App"/> class.
         /// This constructor retrieves the user's saved theme preference
@@ -26,8 +32,12 @@ namespace com.kizwiz.sipnsign
             // Set the initial theme based on the user's saved preference
             SetAppTheme(initialTheme);
 
-            // Set the main page of the application
-            MainPage = new NavigationPage(new MainMenuPage());
+            // Set the main page of the application with consistent navigation bar colors
+            MainPage = new NavigationPage(new MainMenuPage())
+            {
+                BarBackgroundColor = _navBarColor, // Apply the defined background color
+                BarTextColor = _navBarTextColor // Apply the defined text color
+            };
         }
 
         /// <summary>
@@ -61,6 +71,10 @@ namespace com.kizwiz.sipnsign
             Preferences.Set("UserTheme", theme == AppTheme.Dark ? "dark" : "light");
         }
 
+        /// <summary>
+        /// Updates the background color of the main page based on the specified theme.
+        /// </summary>
+        /// <param name="theme">The theme to apply, either "Light" or "Dark".</param>
         private void UpdateBackgroundColor(string theme)
         {
             // Check if the MainPage is set
