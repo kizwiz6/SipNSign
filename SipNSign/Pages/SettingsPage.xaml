@@ -14,24 +14,18 @@
 
         <!-- Theme Selection Label -->
         <Label 
-            Text="Select Theme:"
+            Text="Toggle Theme:"
             FontSize="18"
             VerticalOptions="Start" />
 
-        <!-- Theme Picker for Light/Dark Mode -->
-        <Picker x:Name="ThemePicker" 
-                Title="Choose Theme" 
-                SelectedIndexChanged="OnThemeChanged"
-                VerticalOptions="Start">
-            <Picker.Items>
-                <x:String>Light</x:String>
-                <x:String>Dark</x:String>
-            </Picker.Items>
-        </Picker>
+        <!-- Switch to toggle between Light and Dark Modes -->
+        <Switch x:Name="ThemeToggleSwitch" 
+                Toggled="OnThemeToggled" 
+                VerticalOptions="Start" />
 
         <!-- Info Label -->
         <Label 
-            Text="Switch between Light and Dark modes to customize your app's appearance."
+            Text="Switch between Light and Dark modes to customise your app's appearance."
             FontSize="14"
             VerticalOptions="Start" 
             HorizontalOptions="Fill" />

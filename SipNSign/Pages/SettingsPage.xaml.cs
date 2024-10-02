@@ -1,7 +1,7 @@
 using Microsoft.Maui.Storage; // For Preferences
 using Microsoft.Maui.ApplicationModel; // For AppTheme
 using System.Diagnostics;
-using CommunityToolkit.Maui.Extensions;
+using CommunityToolkit.Maui.Extensions; // Optional, if you use extensions
 using Microsoft.Maui.Controls;
 
 namespace com.kizwiz.sipnsign.Pages
@@ -13,7 +13,7 @@ namespace com.kizwiz.sipnsign.Pages
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SettingsPage"/> class.
-        /// This constructor retrieves the saved theme preference and sets the picker accordingly.
+        /// This constructor retrieves the saved theme preference and sets the switch accordingly.
         /// </summary>
         public SettingsPage()
         {
@@ -23,41 +23,48 @@ namespace com.kizwiz.sipnsign.Pages
             // If no preference is saved, default to "Light".
             string savedTheme = Preferences.Get("AppTheme", "Light");
 
-            // Set the current theme in the picker based on the saved preference.
-            // 0 corresponds to "Light", and 1 corresponds to "Dark".
-            ThemePicker.SelectedIndex = (savedTheme == "Light") ? 0 : 1;
+            // Set the switch based on the saved preference
+            ThemeToggleSwitch.IsToggled = (savedTheme == "Dark");
+
+            // Set the background color based on the theme
+            UpdateBackgroundColor(savedTheme);
         }
 
-        /// <summary>
-        /// Handles the event when the user changes the selected theme in the picker.
-        /// Updates the saved preference and applies the selected theme.
-        /// </summary>
-        /// <param name="sender">The Picker control that triggered the event.</param>
-        /// <param name="e">Event data for the selection change.</param>
-        private void OnThemeChanged(object sender, EventArgs e)
+        private void UpdateBackgroundColor(string theme)
         {
-            // Check if the selected index is for Light theme.
-            if (ThemePicker.SelectedIndex == 0)
+            if (theme == "Dark")
             {
-                // Save the selected theme preference as "Light".
-                Preferences.Set("AppTheme", "Light");
-
-                // Apply the Light theme by calling the SetAppTheme method.
-                ((App)Application.Current).SetAppTheme(AppTheme.Light);
-
-                // Log the change to the debug output.
-                Debug.WriteLine("Theme changed to Light");
+                this.BackgroundColor = Color.FromHex("#1E1E1E"); // Dark background
             }
             else
             {
-                // Save the selected theme preference as "Dark".
+                this.BackgroundColor = (Color)Application.Current.Resources["White"]; // Use resource dictionary
+            }
+        }
+
+
+        /// <summary>
+        /// Handles the event when the user toggles the switch for the theme.
+        /// Updates the saved preference and applies the selected theme.
+        /// </summary>
+        /// <param name="sender">The Switch control that triggered the event.</param>
+        /// <param name="e">Event data for the toggle change.</param>
+        private void OnThemeToggled(object sender, ToggledEventArgs e)
+        {
+            // Check the state of the switch
+            if (ThemeToggleSwitch.IsToggled)
+            {
                 Preferences.Set("AppTheme", "Dark");
-
-                // Apply the Dark theme by calling the SetAppTheme method.
                 ((App)Application.Current).SetAppTheme(AppTheme.Dark);
-
-                // Log the change to the debug output.
+                UpdateBackgroundColor("Dark");
                 Debug.WriteLine("Theme changed to Dark");
+            }
+            else
+            {
+                Preferences.Set("AppTheme", "Light");
+                ((App)Application.Current).SetAppTheme(AppTheme.Light);
+                UpdateBackgroundColor("Light");
+                Debug.WriteLine("Theme changed to Light");
             }
         }
     }
