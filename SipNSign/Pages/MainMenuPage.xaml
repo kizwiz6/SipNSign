@@ -3,7 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="com.kizwiz.sipnsign.Pages.MainMenuPage"
              Title="Main Menu">
-    <VerticalStackLayout>
+
+    <VerticalStackLayout Padding="20" Spacing="30" VerticalOptions="CenterAndExpand">
+
         <Label Text="Welcome to SipNSign!" 
                VerticalOptions="CenterAndExpand" 
                HorizontalOptions="CenterAndExpand" 
@@ -12,18 +14,30 @@
 
         <Button Text="Start Game" 
                 Clicked="OnStartGameClicked" 
-                VerticalOptions="Center" 
-                HorizontalOptions="Center" />
+                BackgroundColor="#007BFF" 
+                TextColor="White" 
+                HeightRequest="70" 
+                FontSize="24" 
+                CornerRadius="10" 
+                HorizontalOptions="FillAndExpand" />
 
         <Button Text="View Scores" 
                 Clicked="OnViewScoresClicked" 
-                VerticalOptions="Center" 
-                HorizontalOptions="Center" />
+                BackgroundColor="#007BFF" 
+                TextColor="White" 
+                HeightRequest="70" 
+                FontSize="24" 
+                CornerRadius="10" 
+                HorizontalOptions="FillAndExpand" />
 
         <Button Text="Settings" 
                 Clicked="OnSettingsClicked" 
-                VerticalOptions="Center" 
-                HorizontalOptions="Center" />
+                BackgroundColor="#007BFF" 
+                TextColor="White" 
+                HeightRequest="70" 
+                FontSize="24" 
+                CornerRadius="10" 
+                HorizontalOptions="FillAndExpand" />
 
     </VerticalStackLayout>
 </ContentPage>
