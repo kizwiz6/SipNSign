@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="com.kizwiz.sipnsign.Resources.Themes.DarkThemeResourceDictionary">
+
+    <!-- Background Colors -->
+    <Color x:Key="PageBackgroundColor">#121212</Color>
+    <Color x:Key="PrimaryTextColor">#FFFFFF</Color>
+
+    <!-- Define other color resources for dark theme -->
+    <Color x:Key="Primary">#512BD4</Color>
+    <Color x:Key="Secondary">#DFD8F7</Color>
+    <Color x:Key="Tertiary">#2B0B98</Color>
+    <Color x:Key="Black">Black</Color>
+    <Color x:Key="White">White</Color>
+
+    <Style TargetType="ContentPage">
+        <Setter Property="BackgroundColor" Value="{DynamicResource PageBackgroundColor}" />
+    </Style>
+
+    <Style TargetType="Label">
+        <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}" />
+    </Style>
+
+</ResourceDictionary>

@@ -34,23 +34,28 @@ namespace com.kizwiz.sipnsign
         /// <param name="theme">The theme to set (Light or Dark).</param>
         public void SetAppTheme(AppTheme theme)
         {
-            // Clear the existing merged dictionaries to remove the current theme
+            // Clear existing merged dictionaries to avoid conflicts
             Resources.MergedDictionaries.Clear();
 
-            // Add the global styles again since they were cleared
-            Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("Resources/Styles/Colors.xaml", UriKind.Relative) });
-            Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("Resources/Styles/Styles.xaml", UriKind.Relative) });
+            // Add global resource dictionaries (Colors and Styles) again
+            Resources.MergedDictionaries.Add(new com.kizwiz.sipnsign.Resources.Styles.ColoursResourceDictionary());
+            Resources.MergedDictionaries.Add(new com.kizwiz.sipnsign.Resources.Styles.StylesResourceDictionary());
 
-            // Load the appropriate theme ResourceDictionary
+            // Load the appropriate theme ResourceDictionary based on the current theme
             if (theme == AppTheme.Light)
             {
-                // Load LightTheme.xaml
-                Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("Resources/Themes/LightTheme.xaml", UriKind.Relative) });
+                // Add Light Theme resources
+                Resources.MergedDictionaries.Add(new com.kizwiz.sipnsign.Resources.Themes.LightThemeResourceDictionary());
+            }
+            else if (theme == AppTheme.Dark)
+            {
+                // Add Dark Theme resources
+                Resources.MergedDictionaries.Add(new com.kizwiz.sipnsign.Resources.Themes.DarkThemeResourceDictionary());
             }
             else
             {
-                // Load DarkTheme.xaml
-                Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("Resources/Themes/DarkTheme.xaml", UriKind.Relative) });
+                // If neither theme is detected, default to Light Theme
+                Resources.MergedDictionaries.Add(new com.kizwiz.sipnsign.Resources.Themes.LightThemeResourceDictionary());
             }
         }
     }
