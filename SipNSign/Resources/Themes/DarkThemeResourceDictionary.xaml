@@ -5,8 +5,10 @@
     x:Class="com.kizwiz.sipnsign.Resources.Themes.DarkThemeResourceDictionary">
 
     <!-- Background Colors -->
-    <Color x:Key="PageBackgroundColor">#121212</Color>
-    <Color x:Key="PrimaryTextColor">#FFFFFF</Color>
+    <Color x:Key="BackgroundColor">#121212</Color>
+    <!-- Same as Light theme's BackgroundColor -->
+    <Color x:Key="TextColor">#FFFFFF</Color>
+    <!-- Same as Light theme's TextColor -->
 
     <!-- Define other color resources for dark theme -->
     <Color x:Key="Primary">#512BD4</Color>
@@ -15,12 +17,13 @@
     <Color x:Key="Black">Black</Color>
     <Color x:Key="White">White</Color>
 
+    <!-- Apply to ContentPage and Label styles -->
     <Style TargetType="ContentPage">
-        <Setter Property="BackgroundColor" Value="{DynamicResource PageBackgroundColor}" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource BackgroundColor}" />
     </Style>
 
     <Style TargetType="Label">
-        <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}" />
+        <Setter Property="TextColor" Value="{DynamicResource TextColor}" />
     </Style>
 
 </ResourceDictionary>

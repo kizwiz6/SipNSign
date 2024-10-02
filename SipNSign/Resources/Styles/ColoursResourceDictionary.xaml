@@ -36,20 +36,20 @@
     <Color x:Key="Gray950">#141414</Color>
 
     <!-- Solid Color Brushes -->
-    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource LightPrimary}"/>
-    <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource LightSecondary}"/>
-    <SolidColorBrush x:Key="TertiaryBrush" Color="{StaticResource LightTertiary}"/>
-    <SolidColorBrush x:Key="WhiteBrush" Color="{StaticResource White}"/>
-    <SolidColorBrush x:Key="BlackBrush" Color="{StaticResource Black}"/>
-    <SolidColorBrush x:Key="MagentaBrush" Color="{StaticResource Magenta}"/>
-    <SolidColorBrush x:Key="MidnightBlueBrush" Color="{StaticResource MidnightBlue}"/>
-    <SolidColorBrush x:Key="OffBlackBrush" Color="{StaticResource OffBlack}"/>
-    <SolidColorBrush x:Key="Gray100Brush" Color="{StaticResource Gray100}"/>
-    <SolidColorBrush x:Key="Gray200Brush" Color="{StaticResource Gray200}"/>
-    <SolidColorBrush x:Key="Gray300Brush" Color="{StaticResource Gray300}"/>
-    <SolidColorBrush x:Key="Gray400Brush" Color="{StaticResource Gray400}"/>
-    <SolidColorBrush x:Key="Gray500Brush" Color="{StaticResource Gray500}"/>
-    <SolidColorBrush x:Key="Gray600Brush" Color="{StaticResource Gray600}"/>
-    <SolidColorBrush x:Key="Gray900Brush" Color="{StaticResource Gray900}"/>
-    <SolidColorBrush x:Key="Gray950Brush" Color="{StaticResource Gray950}"/>
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{DynamicResource LightPrimary}"/>
+    <SolidColorBrush x:Key="SecondaryBrush" Color="{DynamicResource LightSecondary}"/>
+    <SolidColorBrush x:Key="TertiaryBrush" Color="{DynamicResource LightTertiary}"/>
+    <SolidColorBrush x:Key="WhiteBrush" Color="{DynamicResource White}"/>
+    <SolidColorBrush x:Key="BlackBrush" Color="{DynamicResource Black}"/>
+    <SolidColorBrush x:Key="MagentaBrush" Color="{DynamicResource Magenta}"/>
+    <SolidColorBrush x:Key="MidnightBlueBrush" Color="{DynamicResource MidnightBlue}"/>
+    <SolidColorBrush x:Key="OffBlackBrush" Color="{DynamicResource OffBlack}"/>
+    <SolidColorBrush x:Key="Gray100Brush" Color="{DynamicResource Gray100}"/>
+    <SolidColorBrush x:Key="Gray200Brush" Color="{DynamicResource Gray200}"/>
+    <SolidColorBrush x:Key="Gray300Brush" Color="{DynamicResource Gray300}"/>
+    <SolidColorBrush x:Key="Gray400Brush" Color="{DynamicResource Gray400}"/>
+    <SolidColorBrush x:Key="Gray500Brush" Color="{DynamicResource Gray500}"/>
+    <SolidColorBrush x:Key="Gray600Brush" Color="{DynamicResource Gray600}"/>
+    <SolidColorBrush x:Key="Gray900Brush" Color="{DynamicResource Gray900}"/>
+    <SolidColorBrush x:Key="Gray950Brush" Color="{DynamicResource Gray950}"/>
 </ResourceDictionary>

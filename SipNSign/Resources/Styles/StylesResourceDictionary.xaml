@@ -6,7 +6,7 @@
 
     <!-- Example of a style for a Label -->
     <Style TargetType="Label">
-        <Setter Property="TextColor" Value="{StaticResource Black}" />
+        <Setter Property="TextColor" Value="{DynamicResource Black}" />
         <Setter Property="FontSize" Value="24" />
         <Setter Property="HorizontalOptions" Value="Center" />
         <Setter Property="VerticalOptions" Value="Center" />
@@ -14,8 +14,8 @@
 
     <!-- Example of a style for a Button -->
     <Style TargetType="Button">
-        <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
-        <Setter Property="TextColor" Value="{StaticResource White}" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource Primary}" />
+        <Setter Property="TextColor" Value="{DynamicResource White}" />
         <Setter Property="FontSize" Value="18" />
         <Setter Property="Padding" Value="10" />
         <Setter Property="CornerRadius" Value="5" />

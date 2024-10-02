@@ -1,22 +1,20 @@
 ﻿using com.kizwiz.sipnsign.Pages;
+using Microsoft.Maui.ApplicationModel; // Ensure this is included
 
 namespace com.kizwiz.sipnsign
 {
-    /// <summary>
-    /// Represents the main application for the SipNSign project.
-    /// Initializes the application and sets the main page.
-    /// </summary>
-    public partial class App : Microsoft.Maui.Controls.Application // Fully qualify the Application class
+    public partial class App : Microsoft.Maui.Controls.Application
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="App"/> class.
-        /// </summary>
         public App()
         {
             InitializeComponent();
 
-            // Set the initial theme based on the system's current preference
-            SetAppTheme(Application.Current.RequestedTheme);
+            // Retrieve the saved theme preference, defaulting to Light if not set
+            var savedTheme = Preferences.Get("UserTheme", "light");
+            AppTheme initialTheme = savedTheme == "dark" ? AppTheme.Dark : AppTheme.Light;
+
+            // Set the initial theme based on the user's saved preference
+            SetAppTheme(initialTheme);
 
             // Subscribe to the RequestedThemeChanged event to update the theme dynamically
             Application.Current.RequestedThemeChanged += (s, e) =>
@@ -28,10 +26,6 @@ namespace com.kizwiz.sipnsign
             MainPage = new NavigationPage(new MainMenuPage());
         }
 
-        /// <summary>
-        /// Sets the application theme based on the specified AppTheme.
-        /// </summary>
-        /// <param name="theme">The theme to set (Light or Dark).</param>
         public void SetAppTheme(AppTheme theme)
         {
             // Clear existing merged dictionaries to avoid conflicts
@@ -44,19 +38,15 @@ namespace com.kizwiz.sipnsign
             // Load the appropriate theme ResourceDictionary based on the current theme
             if (theme == AppTheme.Light)
             {
-                // Add Light Theme resources
                 Resources.MergedDictionaries.Add(new com.kizwiz.sipnsign.Resources.Themes.LightThemeResourceDictionary());
             }
             else if (theme == AppTheme.Dark)
             {
-                // Add Dark Theme resources
                 Resources.MergedDictionaries.Add(new com.kizwiz.sipnsign.Resources.Themes.DarkThemeResourceDictionary());
             }
-            else
-            {
-                // If neither theme is detected, default to Light Theme
-                Resources.MergedDictionaries.Add(new com.kizwiz.sipnsign.Resources.Themes.LightThemeResourceDictionary());
-            }
+
+            // Save the user's preference for future launches
+            Preferences.Set("UserTheme", theme == AppTheme.Dark ? "dark" : "light");
         }
     }
 }

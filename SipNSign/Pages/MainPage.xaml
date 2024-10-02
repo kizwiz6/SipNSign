@@ -26,7 +26,7 @@
             <!-- Headline Label -->
             <Label
                 Text="Hello, World!"
-                Style="{StaticResource Headline}"
+                Style="{DynamicResource Headline}"
                 SemanticProperties.HeadingLevel="Level1"
                 Grid.Row="1"
                 VerticalOptions="Center"
@@ -35,7 +35,7 @@
             <!-- Subheadline Label -->
             <Label
                 Text="Welcome to &#10;.NET Multi-platform App UI"
-                Style="{StaticResource SubHeadline}"
+                Style="{DynamicResource SubHeadline}"
                 SemanticProperties.HeadingLevel="Level2"
                 SemanticProperties.Description="Welcome to dot net Multi platform App U I"
                 Grid.Row="2"
@@ -45,7 +45,7 @@
             <!-- Friendly Reminder Label -->
             <Label
                 Text="Reminder: This is just the template! Please set the MainPage to be a NavigationPage wrapping the MainMenuPage."
-                Style="{StaticResource SubHeadline}"
+                Style="{DynamicResource SubHeadline}"
                 SemanticProperties.HeadingLevel="Level2"
                 SemanticProperties.Description="Reminder to set MainPage as NavigationPage."
                 Grid.Row="3"
