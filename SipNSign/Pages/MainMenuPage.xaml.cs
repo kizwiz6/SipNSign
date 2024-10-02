@@ -1,54 +1,49 @@
 using System;
+using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 
 namespace com.kizwiz.sipnsign.Pages
 {
-    /// <summary>
-    /// Represents the main menu page of the SipNSign application.
-    /// Provides navigation to other pages such as the game, scoreboard, and settings.
-    /// </summary>
     public partial class MainMenuPage : ContentPage
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MainMenuPage"/> class.
-        /// Sets up the user interface and initializes components.
-        /// </summary>
         public MainMenuPage()
         {
-            InitializeComponent(); // This should link to the XAML
+            InitializeComponent();
         }
 
-        /// <summary>
-        /// Event handler for the "Start Game" button click.
-        /// Navigates to the <see cref="GamePage"/> when the button is clicked.
-        /// </summary>
-        /// <param name="sender">The source of the event, typically the button that was clicked.</param>
-        /// <param name="e">The event data containing information about the click event.</param>
+        private bool isDarkTheme = false; // Track current theme
+
         private async void OnStartGameClicked(object sender, EventArgs e)
         {
             await Navigation.PushAsync(new GamePage());
         }
 
-        /// <summary>
-        /// Event handler for the "View Scores" button click.
-        /// Navigates to the <see cref="ScoreboardPage"/> when the button is clicked.
-        /// </summary>
-        /// <param name="sender">The source of the event, typically the button that was clicked.</param>
-        /// <param name="e">The event data containing information about the click event.</param>
         private async void OnViewScoresClicked(object sender, EventArgs e)
         {
             await Navigation.PushAsync(new ScoreboardPage());
         }
 
-        /// <summary>
-        /// Event handler for the "Settings" button click.
-        /// Navigates to the <see cref="SettingsPage"/> when the button is clicked.
-        /// </summary>
-        /// <param name="sender">The source of the event, typically the button that was clicked.</param>
-        /// <param name="e">The event data containing information about the click event.</param>
         private async void OnSettingsClicked(object sender, EventArgs e)
         {
             await Navigation.PushAsync(new SettingsPage());
+        }
+
+        /// <summary>
+        /// Event handler for the "Toggle Theme" button click.
+        /// Changes the application theme between light and dark.
+        /// </summary>
+        /// <param name="sender">The source of the event, typically the button that was clicked.</param>
+        /// <param name="e">The event data containing information about the click event.</param>
+        private void OnToggleThemeClicked(object sender, EventArgs e)
+        {
+            // Toggle the theme
+            isDarkTheme = !isDarkTheme;
+
+            // Apply the new theme
+            Application.Current.UserAppTheme = isDarkTheme ? AppTheme.Dark : AppTheme.Light;
+
+            // Optional: Log the current theme
+            Console.WriteLine($"Theme changed to: {(isDarkTheme ? "Dark" : "Light")}");
         }
     }
 }

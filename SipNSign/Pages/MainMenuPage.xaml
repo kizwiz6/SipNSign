@@ -1,14 +1,34 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="com.kizwiz.sipnsign.Pages.MainMenuPage">
-    <!-- This should match the namespace and class name -->
+             x:Class="com.kizwiz.sipnsign.Pages.MainMenuPage"
+             Title="Main Menu">
     <VerticalStackLayout>
         <Label Text="Welcome to SipNSign!" 
                VerticalOptions="CenterAndExpand" 
-               HorizontalOptions="CenterAndExpand" />
-        <Button Text="Start Game" Clicked="OnStartGameClicked" />
-        <Button Text="View Scores" Clicked="OnViewScoresClicked" />
-        <Button Text="Settings" Clicked="OnSettingsClicked" />
+               HorizontalOptions="CenterAndExpand" 
+               FontSize="24"
+               FontAttributes="Bold" />
+
+        <Button Text="Start Game" 
+                Clicked="OnStartGameClicked" 
+                VerticalOptions="Center" 
+                HorizontalOptions="Center" />
+
+        <Button Text="View Scores" 
+                Clicked="OnViewScoresClicked" 
+                VerticalOptions="Center" 
+                HorizontalOptions="Center" />
+
+        <Button Text="Settings" 
+                Clicked="OnSettingsClicked" 
+                VerticalOptions="Center" 
+                HorizontalOptions="Center" />
+
+        <!-- Add this button for toggling the theme -->
+        <Button Text="Toggle Theme" 
+                Clicked="OnToggleThemeClicked" 
+                VerticalOptions="Center" 
+                HorizontalOptions="Center" />
     </VerticalStackLayout>
 </ContentPage>
