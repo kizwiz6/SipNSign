@@ -10,6 +10,9 @@ namespace com.kizwiz.sipnsign.Pages
     /// </summary>
     public partial class SettingsPage : ContentPage
     {
+        private Color _primaryTextColor;
+        private Color _secondaryTextColor;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SettingsPage"/> class.
         /// This constructor retrieves the saved theme preference and sets the switch accordingly.
@@ -27,6 +30,7 @@ namespace com.kizwiz.sipnsign.Pages
 
             // Set the background color based on the theme
             UpdateBackgroundColor(savedTheme);
+            UpdateTextColor(savedTheme);
         }
 
         private void UpdateBackgroundColor(string theme)
@@ -34,14 +38,32 @@ namespace com.kizwiz.sipnsign.Pages
             // Set the background color based on the theme
             if (theme == "Dark")
             {
-                // Example dark background color
-                ThemeStackLayout.BackgroundColor = Color.FromHex("#1E1E1E");
+                ThemeStackLayout.BackgroundColor = Color.FromHex("#1E1E1E"); // Dark background
             }
             else
             {
-                // Use resource dictionary for light background
-                ThemeStackLayout.BackgroundColor = (Color)Application.Current.Resources["White"];
+                ThemeStackLayout.BackgroundColor = (Color)Application.Current.Resources["White"]; // Use resource dictionary
             }
+        }
+
+        private void UpdateTextColor(string theme)
+        {
+            // Update text colors based on the theme
+            if (theme == "Dark")
+            {
+                _primaryTextColor = (Color)Application.Current.Resources["PrimaryTextColor"];
+                _secondaryTextColor = (Color)Application.Current.Resources["SecondaryTextColor"];
+            }
+            else
+            {
+                _primaryTextColor = (Color)Application.Current.Resources["Black"]; // Assuming Black for light theme
+                _secondaryTextColor = (Color)Application.Current.Resources["SecondaryTextColor"]; // Light gray for secondary text
+            }
+
+            // Update the text colors immediately
+            SettingsTitleLabel.TextColor = _primaryTextColor; // Assuming you have named the title label in XAML
+            ThemeSelectionLabel.TextColor = _primaryTextColor; // Assuming you have named the toggle label in XAML
+            InfoLabel.TextColor = _secondaryTextColor; // Assuming you have named the info label in XAML
         }
 
         /// <summary>
@@ -59,6 +81,7 @@ namespace com.kizwiz.sipnsign.Pages
                 Application.Current.UserAppTheme = AppTheme.Dark; // Apply theme for the entire app
                 (Application.Current as App)?.SetAppTheme(AppTheme.Dark); // Set the app theme
                 UpdateBackgroundColor("Dark"); // Update the background color for SettingsPage
+                UpdateTextColor("Dark"); // Update the text colors immediately
                 Debug.WriteLine("Theme changed to Dark");
             }
             else
@@ -67,6 +90,7 @@ namespace com.kizwiz.sipnsign.Pages
                 Application.Current.UserAppTheme = AppTheme.Light; // Apply theme for the entire app
                 (Application.Current as App)?.SetAppTheme(AppTheme.Light); // Set the app theme
                 UpdateBackgroundColor("Light"); // Update the background color for SettingsPage
+                UpdateTextColor("Light"); // Update the text colors immediately
                 Debug.WriteLine("Theme changed to Light");
             }
         }

@@ -25,10 +25,5 @@
                 VerticalOptions="Center" 
                 HorizontalOptions="Center" />
 
-        <!-- Add this button for toggling the theme -->
-        <Button Text="Toggle Theme" 
-                Clicked="OnToggleThemeClicked" 
-                VerticalOptions="Center" 
-                HorizontalOptions="Center" />
     </VerticalStackLayout>
 </ContentPage>

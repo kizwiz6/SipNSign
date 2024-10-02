@@ -137,7 +137,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
             else
             {
-                FeedbackText = "Incorrect. Try again!";
+                FeedbackText = "Incorrect. Take a sip!";
                 FeedbackColor = Colors.Red;
             }
 

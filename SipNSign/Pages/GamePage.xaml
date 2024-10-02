@@ -15,7 +15,7 @@
                 FontSize="24" 
                 HorizontalOptions="Center" 
                 VerticalOptions="Center" 
-                TextColor="Black" 
+                TextColor="{DynamicResource PrimaryTextColor}" 
                 SemanticProperties.HeadingLevel="Level1" 
                 AutomationId="ScoreLabel" />
         </Frame>
@@ -51,7 +51,7 @@
             FontSize="18" 
             HorizontalOptions="Center" 
             VerticalOptions="Center" 
-            TextColor="Black" />
+            TextColor="{DynamicResource PrimaryTextColor}" />
 
         <StackLayout 
             Orientation="Vertical" 
@@ -110,7 +110,7 @@
             <Label 
                 Text="{Binding CurrentScore, StringFormat='Final Score: {0}'}" 
                 FontSize="18" 
-                TextColor="Black" 
+                TextColor="{DynamicResource PrimaryTextColor}" 
                 AutomationId="FinalScoreLabel"/>
             <Button 
                 Text="Play Again" 
