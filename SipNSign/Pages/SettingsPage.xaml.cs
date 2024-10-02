@@ -1,6 +1,8 @@
 using Microsoft.Maui.Storage; // For Preferences
 using Microsoft.Maui.ApplicationModel; // For AppTheme
 using System.Diagnostics;
+using CommunityToolkit.Maui.Extensions;
+using Microsoft.Maui.Controls;
 
 namespace com.kizwiz.sipnsign.Pages
 {

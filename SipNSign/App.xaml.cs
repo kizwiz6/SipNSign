@@ -16,12 +16,6 @@ namespace com.kizwiz.sipnsign
             // Set the initial theme based on the user's saved preference
             SetAppTheme(initialTheme);
 
-            // Subscribe to the RequestedThemeChanged event to update the theme dynamically
-            Application.Current.RequestedThemeChanged += (s, e) =>
-            {
-                SetAppTheme(e.RequestedTheme);
-            };
-
             // Set the main page of the application
             MainPage = new NavigationPage(new MainMenuPage());
         }
@@ -30,10 +24,6 @@ namespace com.kizwiz.sipnsign
         {
             // Clear existing merged dictionaries to avoid conflicts
             Resources.MergedDictionaries.Clear();
-
-            // Add global resource dictionaries (Colors and Styles) again
-            Resources.MergedDictionaries.Add(new com.kizwiz.sipnsign.Resources.Styles.ColoursResourceDictionary());
-            Resources.MergedDictionaries.Add(new com.kizwiz.sipnsign.Resources.Styles.StylesResourceDictionary());
 
             // Load the appropriate theme ResourceDictionary based on the current theme
             if (theme == AppTheme.Light)

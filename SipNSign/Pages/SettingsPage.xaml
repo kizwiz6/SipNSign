@@ -31,7 +31,7 @@
 
         <!-- Info Label -->
         <Label 
-            Text="Switch between Light and Dark modes to customise your app's appearance."
+            Text="Switch between Light and Dark modes to customize your app's appearance."
             FontSize="14"
             VerticalOptions="Start" 
             HorizontalOptions="Fill" />
