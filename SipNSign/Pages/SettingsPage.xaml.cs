@@ -34,11 +34,13 @@ namespace com.kizwiz.sipnsign.Pages
             // Set the background color based on the theme
             if (theme == "Dark")
             {
-                ThemeStackLayout.BackgroundColor = Color.FromHex("#1E1E1E"); // Dark background
+                // Example dark background color
+                ThemeStackLayout.BackgroundColor = Color.FromHex("#1E1E1E");
             }
             else
             {
-                ThemeStackLayout.BackgroundColor = (Color)Application.Current.Resources["White"]; // Use resource dictionary
+                // Use resource dictionary for light background
+                ThemeStackLayout.BackgroundColor = (Color)Application.Current.Resources["White"];
             }
         }
 
@@ -54,15 +56,17 @@ namespace com.kizwiz.sipnsign.Pages
             if (ThemeToggleSwitch.IsToggled)
             {
                 Preferences.Set("AppTheme", "Dark");
-                ((App)Application.Current).SetAppTheme(AppTheme.Dark);
-                UpdateBackgroundColor("Dark"); // Update background for this page
+                Application.Current.UserAppTheme = AppTheme.Dark; // Apply theme for the entire app
+                (Application.Current as App)?.SetAppTheme(AppTheme.Dark); // Set the app theme
+                UpdateBackgroundColor("Dark"); // Update the background color for SettingsPage
                 Debug.WriteLine("Theme changed to Dark");
             }
             else
             {
                 Preferences.Set("AppTheme", "Light");
-                ((App)Application.Current).SetAppTheme(AppTheme.Light);
-                UpdateBackgroundColor("Light"); // Update background for this page
+                Application.Current.UserAppTheme = AppTheme.Light; // Apply theme for the entire app
+                (Application.Current as App)?.SetAppTheme(AppTheme.Light); // Set the app theme
+                UpdateBackgroundColor("Light"); // Update the background color for SettingsPage
                 Debug.WriteLine("Theme changed to Light");
             }
         }

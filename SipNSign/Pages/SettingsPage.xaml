@@ -10,13 +10,17 @@
             Text="Settings"
             FontSize="24"
             HorizontalOptions="Center" 
-            VerticalOptions="Start" />
+            VerticalOptions="Start"
+            TextColor="{DynamicResource PrimaryTextColor}" />
+        <!-- Change to DynamicResource -->
 
         <!-- Theme Selection Label -->
         <Label 
             Text="Toggle Theme:"
             FontSize="18"
-            VerticalOptions="Start" />
+            VerticalOptions="Start"
+            TextColor="{DynamicResource PrimaryTextColor}" />
+        <!-- Change to DynamicResource -->
 
         <!-- Switch to toggle between Light and Dark Modes -->
         <Switch x:Name="ThemeToggleSwitch" 
@@ -28,7 +32,8 @@
             Text="Switch between Light and Dark modes to customise your app's appearance."
             FontSize="14"
             VerticalOptions="Start" 
-            HorizontalOptions="Fill" />
+            HorizontalOptions="Fill"
+            TextColor="{DynamicResource SecondaryTextColor}" />
+        <!-- Change to DynamicResource -->
     </VerticalStackLayout>
-
 </ContentPage>

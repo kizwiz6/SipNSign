@@ -8,11 +8,15 @@
     <Color x:Key="Primary">#512BD4</Color>
     <Color x:Key="Secondary">#DFD8F7</Color>
     <Color x:Key="Tertiary">#2B0B98</Color>
-    <Color x:Key="White">White</Color>
-    <Color x:Key="Black">Black</Color>
+    <Color x:Key="White">#FFFFFF</Color>
+    <Color x:Key="Black">#000000</Color>
 
     <Color x:Key="BackgroundColor">#FFFFFF</Color>
-    <Color x:Key="TextColor">#000000</Color>
+    <!-- Background color -->
+    <Color x:Key="PrimaryTextColor">#000000</Color>
+    <!-- Text color for primary labels -->
+    <Color x:Key="SecondaryTextColor">#666666</Color>
+    <!-- Light gray for secondary text -->
 
     <!-- Styles -->
     <Style TargetType="ContentPage">
@@ -20,6 +24,6 @@
     </Style>
 
     <Style TargetType="Label">
-        <Setter Property="TextColor" Value="{DynamicResource TextColor}" />
+        <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}" />
     </Style>
 </ResourceDictionary>
