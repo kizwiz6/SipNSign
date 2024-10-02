@@ -4,7 +4,7 @@
              x:Class="com.kizwiz.sipnsign.Pages.SettingsPage"
              Title="Settings">
 
-    <VerticalStackLayout Padding="20" Spacing="20">
+    <VerticalStackLayout x:Name="ThemeStackLayout" Padding="20" Spacing="20">
         <!-- Title -->
         <Label 
             Text="Settings"

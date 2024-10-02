@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 
@@ -25,7 +26,14 @@ namespace com.kizwiz.sipnsign.Pages
 
         private async void OnSettingsClicked(object sender, EventArgs e)
         {
-            await Navigation.PushAsync(new SettingsPage());
+            try
+            {
+                await Navigation.PushAsync(new SettingsPage());
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error navigating to SettingsPage: {ex.Message}");
+            }
         }
 
         /// <summary>

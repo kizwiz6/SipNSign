@@ -1,7 +1,6 @@
 using Microsoft.Maui.Storage; // For Preferences
 using Microsoft.Maui.ApplicationModel; // For AppTheme
 using System.Diagnostics;
-using CommunityToolkit.Maui.Extensions; // Optional, if you use extensions
 using Microsoft.Maui.Controls;
 
 namespace com.kizwiz.sipnsign.Pages
@@ -32,16 +31,16 @@ namespace com.kizwiz.sipnsign.Pages
 
         private void UpdateBackgroundColor(string theme)
         {
+            // Set the background color based on the theme
             if (theme == "Dark")
             {
-                this.BackgroundColor = Color.FromHex("#1E1E1E"); // Dark background
+                ThemeStackLayout.BackgroundColor = Color.FromHex("#1E1E1E"); // Dark background
             }
             else
             {
-                this.BackgroundColor = (Color)Application.Current.Resources["White"]; // Use resource dictionary
+                ThemeStackLayout.BackgroundColor = (Color)Application.Current.Resources["White"]; // Use resource dictionary
             }
         }
-
 
         /// <summary>
         /// Handles the event when the user toggles the switch for the theme.
@@ -56,14 +55,14 @@ namespace com.kizwiz.sipnsign.Pages
             {
                 Preferences.Set("AppTheme", "Dark");
                 ((App)Application.Current).SetAppTheme(AppTheme.Dark);
-                UpdateBackgroundColor("Dark");
+                UpdateBackgroundColor("Dark"); // Update background for this page
                 Debug.WriteLine("Theme changed to Dark");
             }
             else
             {
                 Preferences.Set("AppTheme", "Light");
                 ((App)Application.Current).SetAppTheme(AppTheme.Light);
-                UpdateBackgroundColor("Light");
+                UpdateBackgroundColor("Light"); // Update background for this page
                 Debug.WriteLine("Theme changed to Light");
             }
         }

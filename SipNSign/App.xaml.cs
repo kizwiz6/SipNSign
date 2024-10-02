@@ -3,8 +3,17 @@ using Microsoft.Maui.ApplicationModel; // Ensure this is included
 
 namespace com.kizwiz.sipnsign
 {
+    /// <summary>
+    /// The main application class that initializes the app, manages themes,
+    /// and sets the main page for the application.
+    /// </summary>
     public partial class App : Microsoft.Maui.Controls.Application
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="App"/> class.
+        /// This constructor retrieves the user's saved theme preference
+        /// and sets the initial application theme accordingly.
+        /// </summary>
         public App()
         {
             InitializeComponent();
@@ -20,6 +29,12 @@ namespace com.kizwiz.sipnsign
             MainPage = new NavigationPage(new MainMenuPage());
         }
 
+        /// <summary>
+        /// Sets the application's theme based on the specified <see cref="AppTheme"/>.
+        /// This method clears existing merged resource dictionaries and applies
+        /// the relevant theme dictionaries, updating the app's appearance.
+        /// </summary>
+        /// <param name="theme">The theme to apply, either Light or Dark.</param>
         public void SetAppTheme(AppTheme theme)
         {
             // Clear existing merged dictionaries to avoid conflicts
@@ -42,6 +57,5 @@ namespace com.kizwiz.sipnsign
             // Save the user's preference for future launches
             Preferences.Set("UserTheme", theme == AppTheme.Dark ? "dark" : "light");
         }
-
     }
 }
