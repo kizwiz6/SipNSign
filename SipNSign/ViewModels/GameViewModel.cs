@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows.Input;
 
 namespace com.kizwiz.sipnsign.ViewModels
@@ -14,7 +15,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private int _currentScore;
         private SignModel _currentSign; // Current sign being displayed
         private List<SignModel> _signs; // List of available signs
-        private int _currentSignIndex; // Index to track the current sign in the list
+        private List<int> _availableIndices; // Indices of signs that are still available
         private string _feedbackText;
         private Color _feedbackColor;
         private bool _isGameOver;
@@ -155,28 +156,33 @@ namespace com.kizwiz.sipnsign.ViewModels
         }
 
         /// <summary>
+        /// Initializes the ViewModel and loads signs from the SignRepository.
+        /// </summary>
+        public GameViewModel()
+        {
+            SignRepository signRepository = new SignRepository(); // Create instance of SignRepository
+            _signs = signRepository.GetSigns(); // Retrieve signs from the repository
+            ResetGame(); // Load the first sign
+        }
+
+        /// <summary>
         /// Loads the next sign for the player to guess.
         /// </summary>
         public void LoadNextSign()
         {
-            // Increment the sign index and loop back if necessary
-            _currentSignIndex++;
-            if (_currentSignIndex >= _signs.Count)
+            if (_availableIndices.Count == 0) // Check if there are any available signs left
             {
                 IsGameOver = true; // Set game over if there are no more signs
                 return;
             }
-            CurrentSign = _signs[_currentSignIndex]; // Get the next sign
-        }
 
-        /// <summary>
-        /// Initializes the ViewModel with a list of signs.
-        /// </summary>
-        public GameViewModel()
-        {
-            _signs = InitializeSigns(); // Initialize the list of signs
-            _currentSignIndex = -1; // Start before the first sign
-            ResetGame(); // Load the first sign
+            Random random = new Random();
+            int randomIndex = random.Next(_availableIndices.Count); // Get a random index from available indices
+            int selectedSignIndex = _availableIndices[randomIndex]; // Get the actual sign index
+            CurrentSign = _signs[selectedSignIndex]; // Get the next sign
+
+            // Remove the selected index from available indices
+            _availableIndices.RemoveAt(randomIndex);
         }
 
         /// <summary>
@@ -185,70 +191,10 @@ namespace com.kizwiz.sipnsign.ViewModels
         public void ResetGame()
         {
             CurrentScore = 0; // Reset score
-            _currentSignIndex = -1; // Reset index to load the first sign
+            _availableIndices = Enumerable.Range(0, _signs.Count).ToList(); // Create a list of all indices
             IsGameOver = false; // Reset game over state
             FeedbackText = string.Empty; // Clear feedback text
             LoadNextSign(); // Load the first sign
-        }
-
-        /// <summary>
-        /// Initializes the list of signs with their properties.
-        /// </summary>
-        /// <returns>List of SignModel</returns>
-        private List<SignModel> InitializeSigns()
-        {
-            return new List<SignModel>
-            {
-                new SignModel
-                {
-                    VideoPath = "android.resource://com.kizwiz.sipnsign/raw/again", // No file extension needed
-                    Choices = new List<string> { "Once", "Again", "Repeat" },
-                    CorrectAnswer = "Again"
-                },
-                new SignModel
-                {
-                    VideoPath = "android.resource://com.kizwiz.sipnsign/raw/argue",
-                    Choices = new List<string> { "Fight", "Argue", "Discuss" },
-                    CorrectAnswer = "Argue"
-                },
-                new SignModel
-                {
-                    VideoPath = "android.resource://com.kizwiz.sipnsign/raw/dance",
-                    Choices = new List<string> { "Jump", "Dance", "Move" },
-                    CorrectAnswer = "Dance"
-                },
-                new SignModel
-                {
-                    VideoPath = "android.resource://com.kizwiz.sipnsign/raw/dog",
-                    Choices = new List<string> { "Dog", "Cat", "Animal" },
-                    CorrectAnswer = "Dog"
-                },
-                new SignModel
-                {
-                    VideoPath = "android.resource://com.kizwiz.sipnsign/raw/forget",
-                    Choices = new List<string> { "Remember", "Forget", "Recall" },
-                    CorrectAnswer = "Forget"
-                },
-                new SignModel
-                {
-                    VideoPath = "android.resource://com.kizwiz.sipnsign/raw/help",
-                    Choices = new List<string> { "Assist", "Help", "Support" },
-                    CorrectAnswer = "Help"
-                },
-                new SignModel
-                {
-                    VideoPath = "android.resource://com.kizwiz.sipnsign/raw/read",
-                    Choices = new List<string> { "Write", "Read", "Speak" },
-                    CorrectAnswer = "Read"
-                },
-                new SignModel
-                {
-                    VideoPath = "android.resource://com.kizwiz.sipnsign/raw/sun",
-                    Choices = new List<string> { "Sun", "Moon", "Star" },
-                    CorrectAnswer = "Sun"
-                },
-                // Add more signs as needed...
-            };
         }
 
         /// <summary>
