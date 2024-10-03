@@ -4,13 +4,14 @@
              x:Class="com.kizwiz.sipnsign.MainPage">
 
     <ScrollView>
-        <Grid Padding="30,0">
+        <Grid Padding="30,20" VerticalOptions="FillAndExpand">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <!-- Changed to Auto for better layout -->
             </Grid.RowDefinitions>
 
             <!-- Image -->
@@ -59,7 +60,7 @@
                 SemanticProperties.Hint="Counts the number of times you click"
                 Clicked="OnCounterClicked"
                 Grid.Row="4"
-                VerticalOptions="Center"
+                VerticalOptions="End"
                 HorizontalOptions="Center" />
         </Grid>
     </ScrollView>

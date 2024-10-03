@@ -10,8 +10,8 @@ namespace com.kizwiz.sipnsign.Pages
     /// </summary>
     public partial class SettingsPage : ContentPage
     {
-        private Color _primaryTextColor;
-        private Color _secondaryTextColor;
+        private Color _primaryTextColor; // Primary color for text
+        private Color _secondaryTextColor; // Secondary color for text
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SettingsPage"/> class.
@@ -22,48 +22,66 @@ namespace com.kizwiz.sipnsign.Pages
             InitializeComponent();
 
             // Retrieve the saved theme preference from Preferences storage.
-            // If no preference is saved, default to "Light".
             string savedTheme = Preferences.Get("AppTheme", "Light");
 
             // Set the switch based on the saved preference
-            ThemeToggleSwitch.IsToggled = (savedTheme == "Dark");
+            if (ThemeToggleSwitch != null) // Check if the ThemeToggleSwitch is initialized
+            {
+                ThemeToggleSwitch.IsToggled = (savedTheme == "Dark");
+            }
 
             // Set the background color based on the theme
             UpdateBackgroundColor(savedTheme);
             UpdateTextColor(savedTheme);
         }
 
+        /// <summary>
+        /// Updates the background color of the settings page based on the selected theme.
+        /// </summary>
+        /// <param name="theme">The theme (Light or Dark).</param>
         private void UpdateBackgroundColor(string theme)
         {
-            // Set the background color based on the theme
             if (theme == "Dark")
             {
                 ThemeStackLayout.BackgroundColor = Color.FromArgb("#1E1E1E"); // Dark background
             }
             else
             {
-                ThemeStackLayout.BackgroundColor = (Color)Application.Current.Resources["White"]; // Use resource dictionary
+                ThemeStackLayout.BackgroundColor = (Color)Application.Current.Resources["White"]; // Light background
             }
         }
 
+        /// <summary>
+        /// Updates the text colors based on the selected theme.
+        /// </summary>
+        /// <param name="theme">The theme (Light or Dark).</param>
         private void UpdateTextColor(string theme)
         {
             // Update text colors based on the theme
             if (theme == "Dark")
             {
-                _primaryTextColor = (Color)Application.Current.Resources["PrimaryTextColor"];
-                _secondaryTextColor = (Color)Application.Current.Resources["SecondaryTextColor"];
+                _primaryTextColor = Application.Current.Resources["PrimaryTextColor"] is Color color ? color : Colors.Transparent; // Fallback to transparent
+                _secondaryTextColor = Application.Current.Resources["SecondaryTextColor"] is Color secColor ? secColor : Colors.Gray; // Fallback to gray
             }
             else
             {
-                _primaryTextColor = (Color)Application.Current.Resources["Black"]; // Assuming Black for light theme
-                _secondaryTextColor = (Color)Application.Current.Resources["SecondaryTextColor"]; // Light gray for secondary text
+                _primaryTextColor = Application.Current.Resources["Black"] is Color blackColor ? blackColor : Colors.Black; // Fallback to black
+                _secondaryTextColor = Application.Current.Resources["SecondaryTextColor"] is Color secColor ? secColor : Colors.LightGray; // Fallback to light gray
             }
 
             // Update the text colors immediately
-            SettingsTitleLabel.TextColor = _primaryTextColor; // Assuming you have named the title label in XAML
-            ThemeSelectionLabel.TextColor = _primaryTextColor; // Assuming you have named the toggle label in XAML
-            InfoLabel.TextColor = _secondaryTextColor; // Assuming you have named the info label in XAML
+            if (SettingsTitleLabel != null) // Check if the label is initialized
+            {
+                SettingsTitleLabel.TextColor = _primaryTextColor; // Set title label color
+            }
+            if (ThemeSelectionLabel != null) // Check if the label is initialized
+            {
+                ThemeSelectionLabel.TextColor = _primaryTextColor; // Set selection label color
+            }
+            if (InfoLabel != null) // Check if the label is initialized
+            {
+                InfoLabel.TextColor = _secondaryTextColor; // Set info label color
+            }
         }
 
         /// <summary>
@@ -74,24 +92,14 @@ namespace com.kizwiz.sipnsign.Pages
         /// <param name="e">Event data for the toggle change.</param>
         private void OnThemeToggled(object sender, ToggledEventArgs e)
         {
-            // Check the state of the switch
-            if (ThemeToggleSwitch.IsToggled)
+            if (ThemeToggleSwitch != null) // Check if the ThemeToggleSwitch is initialized
             {
-                Preferences.Set("AppTheme", "Dark");
-                Application.Current.UserAppTheme = AppTheme.Dark; // Apply theme for the entire app
-                (Application.Current as App)?.SetAppTheme(AppTheme.Dark); // Set the app theme
-                UpdateBackgroundColor("Dark"); // Update the background color for SettingsPage
-                UpdateTextColor("Dark"); // Update the text colors immediately
-                Debug.WriteLine("Theme changed to Dark");
-            }
-            else
-            {
-                Preferences.Set("AppTheme", "Light");
-                Application.Current.UserAppTheme = AppTheme.Light; // Apply theme for the entire app
-                (Application.Current as App)?.SetAppTheme(AppTheme.Light); // Set the app theme
-                UpdateBackgroundColor("Light"); // Update the background color for SettingsPage
-                UpdateTextColor("Light"); // Update the text colors immediately
-                Debug.WriteLine("Theme changed to Light");
+                string theme = ThemeToggleSwitch.IsToggled ? "Dark" : "Light";
+                Preferences.Set("AppTheme", theme);
+                Application.Current.UserAppTheme = (AppTheme)Enum.Parse(typeof(AppTheme), theme);
+                UpdateBackgroundColor(theme);
+                UpdateTextColor(theme);
+                Debug.WriteLine($"Theme changed to {theme}"); // Log theme change
             }
         }
     }
