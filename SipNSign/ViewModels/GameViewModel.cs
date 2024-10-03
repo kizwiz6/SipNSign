@@ -13,14 +13,14 @@ namespace com.kizwiz.sipnsign.ViewModels
     public class GameViewModel : INotifyPropertyChanged
     {
         private int _currentScore;
-        private SignModel _currentSign; // Current sign being displayed
+        private SignModel? _currentSign; // Changed to nullable
         private List<SignModel> _signs; // List of available signs
         private List<int> _availableIndices; // Indices of signs that are still available
-        private string _feedbackText;
-        private Color _feedbackColor;
+        private string _feedbackText = string.Empty; // Initialized with an empty string
+        private Color _feedbackColor; // Ensure this is assigned a default value if necessary
         private bool _isGameOver;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged; // Nullable event
 
         /// <summary>
         /// Gets or sets the current score.
@@ -41,7 +41,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         /// <summary>
         /// Gets the current sign.
         /// </summary>
-        public SignModel CurrentSign
+        public SignModel? CurrentSign // Changed to nullable
         {
             get => _currentSign;
             private set
@@ -152,7 +152,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         /// <returns>True if the answer is correct; otherwise, false.</returns>
         public bool CheckAnswer(string answer)
         {
-            return answer == CurrentSign.CorrectAnswer;
+            return answer == CurrentSign?.CorrectAnswer; // Safely access CurrentSign
         }
 
         /// <summary>
@@ -161,7 +161,9 @@ namespace com.kizwiz.sipnsign.ViewModels
         public GameViewModel()
         {
             SignRepository signRepository = new SignRepository(); // Create instance of SignRepository
-            _signs = signRepository.GetSigns(); // Retrieve signs from the repository
+            _signs = signRepository.GetSigns() ?? new List<SignModel>(); // Ensure _signs is initialized
+            _availableIndices = new List<int>(); // Initialize to an empty list
+            _feedbackColor = Colors.Transparent;
             ResetGame(); // Load the first sign
         }
 

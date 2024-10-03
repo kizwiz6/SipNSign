@@ -38,7 +38,7 @@ namespace com.kizwiz.sipnsign.Pages
             // Set the background color based on the theme
             if (theme == "Dark")
             {
-                ThemeStackLayout.BackgroundColor = Color.FromHex("#1E1E1E"); // Dark background
+                ThemeStackLayout.BackgroundColor = Color.FromArgb("#1E1E1E"); // Dark background
             }
             else
             {

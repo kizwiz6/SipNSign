@@ -11,10 +11,10 @@ namespace com.kizwiz.sipnsign
     public partial class App : Microsoft.Maui.Controls.Application
     {
         // Define your preferred navigation bar background color
-        private readonly Color _navBarColor = Color.FromHex("#007BFF");
+        private readonly Color _navBarColor = Color.FromArgb("#007BFF");
 
         // Define your preferred navigation bar text color
-        private readonly Color _navBarTextColor = Color.FromHex("#FFFFFF");
+        private readonly Color _navBarTextColor = Color.FromArgb("#FFFFFF");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="App"/> class.
@@ -78,21 +78,21 @@ namespace com.kizwiz.sipnsign
         private void UpdateBackgroundColor(string theme)
         {
             // Check if the MainPage is set
-            if (Application.Current.MainPage != null)
+            if (Application.Current.MainPage is not null && Application.Current.MainPage is not null)
             {
                 // Set the background color based on the theme
                 if (theme == "Light")
                 {
-                    Application.Current.MainPage.BackgroundColor = Color.FromHex("#FFFFFF");
+                    Application.Current.MainPage.BackgroundColor = Color.FromArgb("#FFFFFF");
                 }
                 else if (theme == "Dark")
                 {
-                    Application.Current.MainPage.BackgroundColor = Color.FromHex("#121212");
+                    Application.Current.MainPage.BackgroundColor = Color.FromArgb("#121212");
                 }
             }
             else
             {
-                Debug.WriteLine("MainPage is not set. Cannot update background color.");
+                Debug.WriteLine("Application.Current or MainPage is not set. Cannot update background color.");
             }
         }
     }

@@ -12,8 +12,6 @@ namespace com.kizwiz.sipnsign.Pages
             InitializeComponent();
         }
 
-        private bool isDarkTheme = false; // Track current theme
-
         private async void OnStartGameClicked(object sender, EventArgs e)
         {
             await Navigation.PushAsync(new GamePage());
