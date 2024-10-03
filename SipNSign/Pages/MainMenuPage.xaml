@@ -4,25 +4,26 @@
              x:Class="com.kizwiz.sipnsign.Pages.MainMenuPage"
              Title="Main Menu">
 
-    <VerticalStackLayout Grid.Row="1" Padding="20" Spacing="30" VerticalOptions="CenterAndExpand">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="30" VerticalOptions="CenterAndExpand">
 
-        <!-- Logo at the top -->
-        <Image Source="logo.png" 
+            <!-- Logo at the top -->
+            <Image Source="logo.png" 
                    HorizontalOptions="Center" 
                    VerticalOptions="Center" 
                    HeightRequest="300" 
                    WidthRequest="300" />
 
-        <!-- Welcome label -->
-        <Label Text="SipNSign!" 
+            <!-- Welcome label -->
+            <Label Text="SipNSign!" 
                    VerticalOptions="CenterAndExpand" 
                    HorizontalOptions="CenterAndExpand" 
                    FontSize="40"
                    FontAttributes="Bold"
                    TextColor="#007BFF" />
 
-        <!-- Start Game button -->
-        <Button Text="Start Game" 
+            <!-- Start Game button -->
+            <Button Text="Start Game" 
                     Clicked="OnStartGameClicked" 
                     BackgroundColor="#007BFF" 
                     TextColor="White" 
@@ -31,8 +32,8 @@
                     CornerRadius="10" 
                     HorizontalOptions="FillAndExpand" />
 
-        <!-- View Scores button -->
-        <Button Text="View Scores" 
+            <!-- View Scores button -->
+            <Button Text="View Scores" 
                     Clicked="OnViewScoresClicked" 
                     BackgroundColor="#007BFF" 
                     TextColor="White" 
@@ -41,8 +42,8 @@
                     CornerRadius="10" 
                     HorizontalOptions="FillAndExpand" />
 
-        <!-- Settings button -->
-        <Button Text="Settings" 
+            <!-- Settings button -->
+            <Button Text="Settings" 
                     Clicked="OnSettingsClicked" 
                     BackgroundColor="#007BFF" 
                     TextColor="White" 
@@ -50,5 +51,6 @@
                     FontSize="24" 
                     CornerRadius="10" 
                     HorizontalOptions="FillAndExpand" />
-    </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>
