@@ -1,6 +1,6 @@
-using SipNSign.ViewModels;
+using com.kizwiz.sipnsign.ViewModels;
 
-namespace SipNSign.Pages
+namespace com.kizwiz.sipnsign.Pages
 {
     /// <summary>
     /// Represents the game page where users guess the signs and track their scores.

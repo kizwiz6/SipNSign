@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SipNSign.Models
+namespace com.kizwiz.sipnsign.Models
 {
     /// <summary>
     /// Represents a sign in the SipNSign game.

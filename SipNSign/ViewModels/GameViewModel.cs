@@ -1,10 +1,8 @@
-﻿using SipNSign.Models;
-using System;
-using System.Collections.Generic;
+﻿using com.kizwiz.sipnsign.Models;
 using System.ComponentModel;
 using System.Windows.Input;
 
-namespace SipNSign.ViewModels
+namespace com.kizwiz.sipnsign.ViewModels
 {
     /// <summary>
     /// ViewModel for managing game logic and state.
@@ -12,14 +10,14 @@ namespace SipNSign.ViewModels
     public class GameViewModel : INotifyPropertyChanged
     {
         private int _currentScore;
-        private SignModel _currentSign; // Current sign being displayed
+        private SignModel? _currentSign; // Changed to nullable
         private List<SignModel> _signs; // List of available signs
-        private int _currentSignIndex; // Index to track the current sign in the list
-        private string _feedbackText;
-        private Color _feedbackColor;
+        private List<int> _availableIndices; // Indices of signs that are still available
+        private string _feedbackText = string.Empty; // Initialized with an empty string
+        private Color _feedbackColor; // Ensure this is assigned a default value if necessary
         private bool _isGameOver;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged; // Nullable event
 
         /// <summary>
         /// Gets or sets the current score.
@@ -40,7 +38,7 @@ namespace SipNSign.ViewModels
         /// <summary>
         /// Gets the current sign.
         /// </summary>
-        public SignModel CurrentSign
+        public SignModel? CurrentSign // Changed to nullable
         {
             get => _currentSign;
             private set
@@ -137,7 +135,7 @@ namespace SipNSign.ViewModels
             }
             else
             {
-                FeedbackText = "Incorrect. Try again!";
+                FeedbackText = "Incorrect. Take a sip!";
                 FeedbackColor = Colors.Red;
             }
 
@@ -151,7 +149,19 @@ namespace SipNSign.ViewModels
         /// <returns>True if the answer is correct; otherwise, false.</returns>
         public bool CheckAnswer(string answer)
         {
-            return answer == CurrentSign.CorrectAnswer;
+            return answer == CurrentSign?.CorrectAnswer; // Safely access CurrentSign
+        }
+
+        /// <summary>
+        /// Initializes the ViewModel and loads signs from the SignRepository.
+        /// </summary>
+        public GameViewModel()
+        {
+            SignRepository signRepository = new SignRepository(); // Create instance of SignRepository
+            _signs = signRepository.GetSigns() ?? new List<SignModel>(); // Ensure _signs is initialized
+            _availableIndices = new List<int>(); // Initialize to an empty list
+            _feedbackColor = Colors.Transparent;
+            ResetGame(); // Load the first sign
         }
 
         /// <summary>
@@ -159,24 +169,19 @@ namespace SipNSign.ViewModels
         /// </summary>
         public void LoadNextSign()
         {
-            // Increment the sign index and loop back if necessary
-            _currentSignIndex++;
-            if (_currentSignIndex >= _signs.Count)
+            if (_availableIndices.Count == 0) // Check if there are any available signs left
             {
                 IsGameOver = true; // Set game over if there are no more signs
                 return;
             }
-            CurrentSign = _signs[_currentSignIndex]; // Get the next sign
-        }
 
-        /// <summary>
-        /// Initializes the ViewModel with a list of signs.
-        /// </summary>
-        public GameViewModel()
-        {
-            _signs = InitializeSigns(); // Initialize the list of signs
-            _currentSignIndex = -1; // Start before the first sign
-            ResetGame(); // Load the first sign
+            Random random = new Random();
+            int randomIndex = random.Next(_availableIndices.Count); // Get a random index from available indices
+            int selectedSignIndex = _availableIndices[randomIndex]; // Get the actual sign index
+            CurrentSign = _signs[selectedSignIndex]; // Get the next sign
+
+            // Remove the selected index from available indices
+            _availableIndices.RemoveAt(randomIndex);
         }
 
         /// <summary>
@@ -185,43 +190,10 @@ namespace SipNSign.ViewModels
         public void ResetGame()
         {
             CurrentScore = 0; // Reset score
-            _currentSignIndex = -1; // Reset index to load the first sign
+            _availableIndices = Enumerable.Range(0, _signs.Count).ToList(); // Create a list of all indices
             IsGameOver = false; // Reset game over state
             FeedbackText = string.Empty; // Clear feedback text
             LoadNextSign(); // Load the first sign
-        }
-
-        /// <summary>
-        /// Initializes the list of signs with their properties.
-        /// </summary>
-        /// <returns>List of SignModel</returns>
-        private List<SignModel> InitializeSigns()
-        {
-            return new List<SignModel>
-            {
-                new SignModel
-                {
-                    // ImagePath = "resource://YourAppNamespace.Resources.Images.Again.png",
-                    VideoPath = "C:\\Users\\kizwi\\source\\repos\\SipNSign\\SipNSign\\Resources\\Video\\again.mp4",
-                    Choices = new List<string> { "Once", "Again", "Repeat" },
-                    CorrectAnswer = "Again"
-                },
-                new SignModel
-                {
-                    // ImagePath = "resource://YourAppNamespace.Resources.Images.Argue.png",
-                    VideoPath = "C:\\Users\\kizwi\\source\\repos\\SipNSign\\SipNSign\\Resources\\Video\\argue.mp4",
-                    Choices = new List<string> { "Fight", "Argue", "Discuss" },
-                    CorrectAnswer = "Argue"
-                },
-                new SignModel
-                {
-                    // ImagePath = "resource://YourAppNamespace.Resources.Images.Dance.png",
-                    VideoPath = "C:\\Users\\kizwi\\source\\repos\\SipNSign\\SipNSign\\Resources\\Video\\dance.mp4",
-                    Choices = new List<string> { "Jump", "Dance", "Move" },
-                    CorrectAnswer = "Dance"
-                },
-                // Add more signs...
-            };
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-namespace SipNSign.Pages;
+namespace com.kizwiz.sipnsign.Pages;
 
 public partial class ScoreboardPage : ContentPage
 {

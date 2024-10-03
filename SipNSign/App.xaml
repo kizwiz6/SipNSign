@@ -1,13 +1,18 @@
-﻿<?xml version = "1.0" encoding = "UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:local="clr-namespace:SipNSign"
-             x:Class="SipNSign.App">
+             x:Class="com.kizwiz.sipnsign.App">
+
     <Application.Resources>
+        <!-- Global ResourceDictionary -->
         <ResourceDictionary>
+            <!-- Global styles and theme dictionaries -->
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+                <!-- Theme dictionaries -->
+                <ResourceDictionary Source="Resources/Themes/LightThemeResourceDictionary.xaml" />
+                <ResourceDictionary Source="Resources/Themes/DarkThemeResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

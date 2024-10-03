@@ -1,0 +1,7 @@
+﻿<resources>
+    <style name="Maui.SplashTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_screen</item> <!-- Points to your custom splash screen drawable -->
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+</resources>

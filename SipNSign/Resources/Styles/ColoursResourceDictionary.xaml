@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="com.kizwiz.sipnsign.Resources.Styles.ColoursResourceDictionary">
+
+    <!-- Light Theme Colors -->
+    <Color x:Key="LightBackgroundColor">White</Color>
+    <Color x:Key="LightTextColor">Black</Color>
+    <Color x:Key="LightPrimary">#512BD4</Color>
+    <Color x:Key="LightSecondary">#DFD8F7</Color>
+    <Color x:Key="LightTertiary">#2B0B98</Color>
+
+    <!-- Dark Theme Colors -->
+    <Color x:Key="DarkBackgroundColor">#121212</Color>
+    <Color x:Key="DarkTextColor">White</Color>
+    <Color x:Key="DarkPrimary">#AC99EA</Color>
+    <Color x:Key="DarkSecondary">#9880E5</Color>
+    <Color x:Key="DarkTertiary">#2B0B98</Color>
+
+    <!-- Neutral Colors -->
+    <Color x:Key="White">White</Color>
+    <Color x:Key="Black">Black</Color>
+    <Color x:Key="Magenta">#D600AA</Color>
+    <Color x:Key="MidnightBlue">#190649</Color>
+    <Color x:Key="OffBlack">#1F1F1F</Color>
+
+    <!-- Grayscale Colors -->
+    <Color x:Key="Gray100">#E1E1E1</Color>
+    <Color x:Key="Gray200">#C8C8C8</Color>
+    <Color x:Key="Gray300">#ACACAC</Color>
+    <Color x:Key="Gray400">#919191</Color>
+    <Color x:Key="Gray500">#6E6E6E</Color>
+    <Color x:Key="Gray600">#404040</Color>
+    <Color x:Key="Gray900">#212121</Color>
+    <Color x:Key="Gray950">#141414</Color>
+
+    <!-- Solid Color Brushes -->
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{DynamicResource LightPrimary}"/>
+    <SolidColorBrush x:Key="SecondaryBrush" Color="{DynamicResource LightSecondary}"/>
+    <SolidColorBrush x:Key="TertiaryBrush" Color="{DynamicResource LightTertiary}"/>
+    <SolidColorBrush x:Key="WhiteBrush" Color="{DynamicResource White}"/>
+    <SolidColorBrush x:Key="BlackBrush" Color="{DynamicResource Black}"/>
+    <SolidColorBrush x:Key="MagentaBrush" Color="{DynamicResource Magenta}"/>
+    <SolidColorBrush x:Key="MidnightBlueBrush" Color="{DynamicResource MidnightBlue}"/>
+    <SolidColorBrush x:Key="OffBlackBrush" Color="{DynamicResource OffBlack}"/>
+    <SolidColorBrush x:Key="Gray100Brush" Color="{DynamicResource Gray100}"/>
+    <SolidColorBrush x:Key="Gray200Brush" Color="{DynamicResource Gray200}"/>
+    <SolidColorBrush x:Key="Gray300Brush" Color="{DynamicResource Gray300}"/>
+    <SolidColorBrush x:Key="Gray400Brush" Color="{DynamicResource Gray400}"/>
+    <SolidColorBrush x:Key="Gray500Brush" Color="{DynamicResource Gray500}"/>
+    <SolidColorBrush x:Key="Gray600Brush" Color="{DynamicResource Gray600}"/>
+    <SolidColorBrush x:Key="Gray900Brush" Color="{DynamicResource Gray900}"/>
+    <SolidColorBrush x:Key="Gray950Brush" Color="{DynamicResource Gray950}"/>
+</ResourceDictionary>

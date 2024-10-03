@@ -1,7 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
-using CommunityToolkit.Maui; // Import the Maui Community Toolkit namespace  
+using CommunityToolkit.Maui;
+using com.kizwiz.sipnsign;
 
-namespace SipNSign;
+namespace com.kizwiz.sipnsign;
 
 /// <summary>
 /// The main entry point for the SipNSign application.
@@ -33,6 +34,9 @@ public static class MauiProgram
         // Enable debugging logging in the DEBUG configuration
         builder.Logging.AddDebug();
 #endif
+
+        // Register MainPage
+        builder.Services.AddSingleton<MainPage>();
 
         // Build and return the configured MauiApp instance
         return builder.Build();

@@ -1,14 +1,56 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="SipNSign.Pages.MainMenuPage">
-    <!-- This should match the namespace and class name -->
-    <VerticalStackLayout>
-        <Label Text="Welcome to SipNSign!" 
-               VerticalOptions="CenterAndExpand" 
-               HorizontalOptions="CenterAndExpand" />
-        <Button Text="Start Game" Clicked="OnStartGameClicked" />
-        <Button Text="View Scores" Clicked="OnViewScoresClicked" />
-        <Button Text="Settings" Clicked="OnSettingsClicked" />
-    </VerticalStackLayout>
+             x:Class="com.kizwiz.sipnsign.Pages.MainMenuPage"
+             Title="Main Menu">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="30" VerticalOptions="CenterAndExpand">
+
+            <!-- Logo at the top -->
+            <Image Source="logo.png" 
+                   HorizontalOptions="Center" 
+                   VerticalOptions="Center" 
+                   HeightRequest="300" 
+                   WidthRequest="300" />
+
+            <!-- Welcome label -->
+            <Label Text="SipNSign!" 
+                   VerticalOptions="CenterAndExpand" 
+                   HorizontalOptions="CenterAndExpand" 
+                   FontSize="40"
+                   FontAttributes="Bold"
+                   TextColor="#007BFF" />
+
+            <!-- Start Game button -->
+            <Button Text="Start Game" 
+                    Clicked="OnStartGameClicked" 
+                    BackgroundColor="#007BFF" 
+                    TextColor="White" 
+                    HeightRequest="70" 
+                    FontSize="24" 
+                    CornerRadius="10" 
+                    HorizontalOptions="FillAndExpand" />
+
+            <!-- View Scores button -->
+            <Button Text="View Scores" 
+                    Clicked="OnViewScoresClicked" 
+                    BackgroundColor="#007BFF" 
+                    TextColor="White" 
+                    HeightRequest="70" 
+                    FontSize="24" 
+                    CornerRadius="10" 
+                    HorizontalOptions="FillAndExpand" />
+
+            <!-- Settings button -->
+            <Button Text="Settings" 
+                    Clicked="OnSettingsClicked" 
+                    BackgroundColor="#007BFF" 
+                    TextColor="White" 
+                    HeightRequest="70" 
+                    FontSize="24" 
+                    CornerRadius="10" 
+                    HorizontalOptions="FillAndExpand" />
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

@@ -1,6 +1,6 @@
 ﻿using Foundation;
 
-namespace SipNSign;
+namespace com.kizwiz.sipnsign;
 
 [Register("AppDelegate")]
 public class AppDelegate : MauiUIApplicationDelegate

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SipNSign.Services
+namespace com.kizwiz.sipnsign.Services
 {
     class ScoreboardService
     {
