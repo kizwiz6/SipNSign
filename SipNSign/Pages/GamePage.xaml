@@ -5,122 +5,123 @@
              x:Class="com.kizwiz.sipnsign.Pages.GamePage"
              Title="SipNSign">
 
-    <VerticalStackLayout Padding="20" Spacing="10">
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!-- Header with Progress and Score -->
+        <Grid Grid.Row="0" Padding="20,10" ColumnDefinitions="*,Auto">
+            <ProgressBar x:Name="GameProgress" 
+                Progress="{Binding ProgressPercentage}"
+                ProgressColor="{DynamicResource Primary}"
+                HeightRequest="10"/>
 
-        <!-- Score Display -->
-        <Frame Padding="10" CornerRadius="5" HasShadow="True" BackgroundColor="#E0E0E0">
-            <Label 
-                x:Name="ScoreLabel"
-                Text="{Binding CurrentScore}" 
-                FontSize="24" 
-                HorizontalOptions="Center" 
-                VerticalOptions="Center" 
-                TextColor="{DynamicResource PrimaryTextColor}" 
-                SemanticProperties.HeadingLevel="Level1" 
-                AutomationId="ScoreLabel" />
-        </Frame>
+            <Frame Grid.Column="1" Padding="15,5" CornerRadius="20" BackgroundColor="{DynamicResource Primary}">
+                <Label x:Name="ScoreLabel" 
+               Text="{Binding CurrentScore, StringFormat='Score: {0}'}"
+               TextColor="White"
+               FontSize="18"
+               FontAttributes="Bold"/>
+            </Frame>
+        </Grid>
 
-        <!-- Sign Image (Optional: Display if image is available) -->
-        <Frame Padding="5" CornerRadius="10" HasShadow="True" BackgroundColor="White" IsVisible="{Binding IsImageAvailable}">
-            <Image 
-                Source="{Binding CurrentSign.ImagePath}" 
-                Aspect="AspectFit" 
-                HeightRequest="200" 
-                HorizontalOptions="Center" 
-                VerticalOptions="CenterAndExpand" 
-                AutomationId="SignImage" />
-        </Frame>
+        <!-- Main Content -->
+        <Grid Grid.Row="1" Padding="20" RowSpacing="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <!-- Sign Video -->
-        <Frame Padding="5" CornerRadius="10" HasShadow="True" BackgroundColor="White" IsVisible="{Binding IsVideoAvailable}">
-            <toolkit:MediaElement
-                x:Name="SignVideo" 
-                Source="{Binding CurrentSign.VideoPath}" 
-                Aspect="AspectFit" 
-                HeightRequest="200" 
-                HorizontalOptions="Center" 
-                VerticalOptions="CenterAndExpand"
-                AutomationId="SignVideo"
-                ShouldAutoPlay="True"
-                ShouldLoopPlayback="True"/>
-        </Frame>
+            <!-- Sign Video -->
+            <Frame Grid.Row="1" 
+                   Padding="10" 
+                   CornerRadius="15" 
+                   HasShadow="True"
+                   BorderColor="{DynamicResource Primary}"
+                   BackgroundColor="White">
+                <toolkit:MediaElement
+                    x:Name="SignVideo" 
+                    Source="{Binding CurrentSign.VideoPath}"
+                    Aspect="AspectFit"
+                    HeightRequest="300"
+                    HorizontalOptions="Center"
+                    ShouldAutoPlay="True"
+                    ShouldLoopPlayback="True"/>
+            </Frame>
 
-        <!-- Choices for Answering -->
-        <Label 
-            Text="What does this sign mean?" 
-            FontSize="18" 
-            HorizontalOptions="Center" 
-            VerticalOptions="Center" 
-            TextColor="{DynamicResource PrimaryTextColor}" />
+            <!-- Answer Section -->
+            <VerticalStackLayout Grid.Row="2" Spacing="15">
+                <Label Text="What does this sign mean?"
+                       FontSize="20"
+                       HorizontalOptions="Center"
+                       Margin="0,0,0,10"/>
 
-        <StackLayout 
-            Orientation="Vertical" 
-            HorizontalOptions="FillAndExpand" 
-            Spacing="10">
-            <!-- Answer Buttons -->
-            <Button 
-                x:Name="AnswerButton1"
-                Text="{Binding CurrentSign.Choices[0]}" 
-                Command="{Binding AnswerCommand}"
-                CommandParameter="{Binding CurrentSign.Choices[0]}" 
-                BackgroundColor="#007BFF"
-                TextColor="White"
-                HeightRequest="50"
-                CornerRadius="10"
-                AutomationId="AnswerButton1"/>
-            <Button 
-                x:Name="AnswerButton2"
-                Text="{Binding CurrentSign.Choices[1]}" 
-                Command="{Binding AnswerCommand}"
-                CommandParameter="{Binding CurrentSign.Choices[1]}" 
-                BackgroundColor="#007BFF"
-                TextColor="White"
-                HeightRequest="50"
-                CornerRadius="10"
-                AutomationId="AnswerButton2"/>
-            <Button 
-                x:Name="AnswerButton3"
-                Text="{Binding CurrentSign.Choices[2]}" 
-                Command="{Binding AnswerCommand}"
-                CommandParameter="{Binding CurrentSign.Choices[2]}" 
-                BackgroundColor="#007BFF"
-                TextColor="White"
-                HeightRequest="50"
-                CornerRadius="10"
-                AutomationId="AnswerButton3"/>
-        </StackLayout>
+                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" RowSpacing="15" ColumnSpacing="15">
+                    <Button x:Name="AnswerButton1"
+                            Grid.Column="0" Grid.Row="0"
+                            Text="{Binding CurrentSign.Choices[0]}"
+                            Command="{Binding AnswerCommand}"
+                            CommandParameter="{Binding CurrentSign.Choices[0]}"
+                            Style="{StaticResource AnswerButtonStyle}"
+                            BackgroundColor="{Binding Button1Color}"
+                            TextColor="White"/>
 
-        <!-- Feedback Label -->
-        <Label 
-            x:Name="FeedbackLabel"
-            Text="{Binding FeedbackText}"
-            FontSize="18"
-            HorizontalOptions="Center"
-            VerticalOptions="EndAndExpand"
-            TextColor="{Binding FeedbackColor}" 
-            AutomationId="FeedbackLabel" />
+                    <Button x:Name="AnswerButton2"
+                            Grid.Column="1" Grid.Row="0"
+                            Text="{Binding CurrentSign.Choices[1]}"
+                            Command="{Binding AnswerCommand}"
+                            CommandParameter="{Binding CurrentSign.Choices[1]}"
+                            Style="{StaticResource AnswerButtonStyle}"
+                            BackgroundColor="{Binding Button2Color}"
+                            TextColor="White"/>
+
+                    <Button x:Name="AnswerButton3"
+                            Grid.Column="0" Grid.Row="1"
+                            Text="{Binding CurrentSign.Choices[2]}"
+                            Command="{Binding AnswerCommand}"
+                            CommandParameter="{Binding CurrentSign.Choices[2]}"
+                            Style="{StaticResource AnswerButtonStyle}"
+                            BackgroundColor="{Binding Button3Color}"
+                            TextColor="White"/>
+                </Grid>
+            </VerticalStackLayout>
+        </Grid>
+
+        <!-- Feedback Section -->
+        <Grid Grid.Row="2" 
+              BackgroundColor="{Binding FeedbackBackgroundColor}"
+              IsVisible="{Binding IsFeedbackVisible}">
+            <Label x:Name="FeedbackLabel"
+                   Text="{Binding FeedbackText}"
+                   TextColor="White"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+        </Grid>
 
         <!-- Game Over Section -->
-        <StackLayout x:Name="GameOverSection" IsVisible="{Binding IsGameOver}" HorizontalOptions="Center" VerticalOptions="Center">
-            <Label 
-                Text="Game Over!" 
-                FontSize="24" 
-                TextColor="Red"
-                AutomationId="GameOverLabel" />
-            <Label 
-                Text="{Binding CurrentScore, StringFormat='Final Score: {0}'}" 
-                FontSize="18" 
-                TextColor="{DynamicResource PrimaryTextColor}" 
-                AutomationId="FinalScoreLabel"/>
-            <Button 
-                Text="Play Again" 
-                Command="{Binding PlayAgainCommand}" 
-                BackgroundColor="#28a745"
-                TextColor="White"
-                HeightRequest="50"
-                CornerRadius="10" />
-        </StackLayout>
+        <Grid x:Name="GameOverSection"
+              Grid.RowSpan="3" 
+              BackgroundColor="#80000000"
+              IsVisible="{Binding IsGameOver}">
+            <Frame CornerRadius="20" 
+                   Margin="20"
+                   BackgroundColor="White"
+                   HasShadow="True">
+                <VerticalStackLayout Spacing="20">
+                    <Label Text="Game Over!"
+                           FontSize="32"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"/>
 
-    </VerticalStackLayout>
+                    <Label Text="{Binding FinalScore, StringFormat='Final Score: {0}'}"
+                           FontSize="24"
+                           HorizontalOptions="Center"/>
 
+                    <Button Text="Play Again"
+                            Command="{Binding PlayAgainCommand}"
+                            Style="{StaticResource PrimaryButton}"/>
+                </VerticalStackLayout>
+            </Frame>
+        </Grid>
+    </Grid>
 </ContentPage>

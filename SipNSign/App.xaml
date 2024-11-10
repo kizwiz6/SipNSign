@@ -1,19 +1,40 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
 <Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:com.kizwiz.sipnsign"
+             xmlns:android="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;assembly=Microsoft.Maui.Controls"
+             xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
+             xmlns:windows="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.WindowsSpecific;assembly=Microsoft.Maui.Controls"
              x:Class="com.kizwiz.sipnsign.App">
 
     <Application.Resources>
-        <!-- Global ResourceDictionary -->
         <ResourceDictionary>
-            <!-- Global styles and theme dictionaries -->
             <ResourceDictionary.MergedDictionaries>
+                <!-- Core Styles -->
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
-                <!-- Theme dictionaries -->
+
+                <!-- Theme Dictionaries -->
                 <ResourceDictionary Source="Resources/Themes/LightThemeResourceDictionary.xaml" />
                 <ResourceDictionary Source="Resources/Themes/DarkThemeResourceDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- Global Animation Values -->
+            <x:Double x:Key="StandardAnimationDuration">250</x:Double>
+
+            <!-- Global Corner Radius -->
+            <x:Double x:Key="StandardCornerRadius">10</x:Double>
+
+            <!-- Global Spacing -->
+            <x:Double x:Key="StandardSpacing">16</x:Double>
+            <x:Double x:Key="SmallSpacing">8</x:Double>
+            <x:Double x:Key="LargeSpacing">24</x:Double>
+
+            <!-- Global Font Sizes -->
+            <x:Double x:Key="TitleFontSize">24</x:Double>
+            <x:Double x:Key="SubtitleFontSize">20</x:Double>
+            <x:Double x:Key="BodyFontSize">16</x:Double>
+            <x:Double x:Key="CaptionFontSize">14</x:Double>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
