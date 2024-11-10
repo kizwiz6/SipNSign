@@ -6,6 +6,10 @@ namespace com.kizwiz.sipnsign.ViewModels
 {
     public class GameViewModel : INotifyPropertyChanged
     {
+        private readonly IDispatcherTimer _timer;
+        private const int QuestionTimeLimit = 10; // seconds
+        private int _remainingTime;
+        private bool _isLoading;
         private int _currentScore;
         private SignModel? _currentSign;
         private List<SignModel> _signs;
@@ -22,6 +26,32 @@ namespace com.kizwiz.sipnsign.ViewModels
         private Color _button3Color = Colors.Blue;
 
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        public int RemainingTime
+        {
+            get => _remainingTime;
+            set
+            {
+                if (_remainingTime != value)
+                {
+                    _remainingTime = value;
+                    OnPropertyChanged(nameof(RemainingTime));
+                }
+            }
+        }
+
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                if (_isLoading != value)
+                {
+                    _isLoading = value;
+                    OnPropertyChanged(nameof(IsLoading));
+                }
+            }
+        }
 
         public int CurrentScore
         {
@@ -188,6 +218,11 @@ namespace com.kizwiz.sipnsign.ViewModels
             _availableIndices = new List<int>();
             _feedbackColor = Colors.Transparent;
 
+            // Initialise timer
+            _timer = Application.Current.Dispatcher.CreateTimer();
+            _timer.Interval = TimeSpan.FromSeconds(1);
+            _timer.Tick += Timer_Tick;
+
             // Initialize commands
             AnswerCommand = new Command<string>(HandleAnswer);
             PlayAgainCommand = new Command(ResetGame);
@@ -202,8 +237,36 @@ namespace com.kizwiz.sipnsign.ViewModels
             ResetGame();
         }
 
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            if (RemainingTime > 0)
+            {
+                RemainingTime--;
+            }
+            else
+            {
+                _timer.Stop();
+                HandleTimeOut();
+            }
+        }
+
+        private void HandleTimeOut()
+        {
+            FeedbackText = $"Time's up! The sign means '{CurrentSign?.CorrectAnswer}'. Take a sip!";
+            FeedbackBackgroundColor = Colors.Red;
+            IsFeedbackVisible = true;
+
+            Task.Delay(3000).ContinueWith(_ =>
+            {
+                IsFeedbackVisible = false;
+                LoadNextSign();
+            }, TaskScheduler.FromCurrentSynchronizationContext());
+        }
+
         private void HandleAnswer(string answer)
         {
+            _timer.Stop(); // Stop the timer when answer is given
+
             if (CheckAnswer(answer))
             {
                 FeedbackText = "Correct!";
@@ -213,7 +276,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
             else
             {
-                FeedbackText = "Incorrect. Take a sip!";
+                FeedbackText = $"Incorrect. The sign means '{CurrentSign?.CorrectAnswer}'. Take a sip!";
                 FeedbackBackgroundColor = Colors.Red;
                 UpdateButtonColor(answer, false);
             }
@@ -221,7 +284,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             IsFeedbackVisible = true;
 
             // Hide feedback after a delay
-            Task.Delay(2000).ContinueWith(_ =>
+            Task.Delay(3000).ContinueWith(_ =>
             {
                 IsFeedbackVisible = false;
                 ResetButtonColors();
@@ -252,17 +315,35 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         public void LoadNextSign()
         {
-            if (_availableIndices.Count == 0)
-            {
-                IsGameOver = true;
-                return;
-            }
+            IsLoading = true;
 
-            Random random = new Random();
-            int randomIndex = random.Next(_availableIndices.Count);
-            int selectedSignIndex = _availableIndices[randomIndex];
-            CurrentSign = _signs[selectedSignIndex];
-            _availableIndices.RemoveAt(randomIndex);
+            try
+            {
+                if (_availableIndices.Count == 0)
+                {
+                    IsGameOver = true;
+                    return;
+                }
+
+                Random random = new Random();
+                int randomIndex = random.Next(_availableIndices.Count);
+                int selectedSignIndex = _availableIndices[randomIndex];
+                CurrentSign = _signs[selectedSignIndex];
+                _availableIndices.RemoveAt(randomIndex);
+
+                // Start the timer for the new sign
+                StartTimer();
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        private void StartTimer()
+        {
+            RemainingTime = QuestionTimeLimit;
+            _timer.Start();
         }
 
         public void ResetGame()
