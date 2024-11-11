@@ -52,17 +52,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="Resources\Raw\argue.mp4" />
-        <EmbeddedResource Include="Resources\Raw\dance.mp4" />
-        <EmbeddedResource Include="Resources\Raw\dog.mp4" />
-        <EmbeddedResource Include="Resources\Raw\forget.mp4" />
-        <EmbeddedResource Include="Resources\Raw\guitar.mp4" />
-        <EmbeddedResource Include="Resources\Raw\help.mp4" />
-        <EmbeddedResource Include="Resources\Raw\know.mp4" />
-        <EmbeddedResource Include="Resources\Raw\radio.mp4" />
-        <EmbeddedResource Include="Resources\Raw\read.mp4" />
-        <EmbeddedResource Include="Resources\Raw\sex.mp4" />
-        <EmbeddedResource Include="Resources\Raw\sun.mp4" />
-        <EmbeddedResource Include="Resources\Raw\again.mp4" />
+      <PackageReference Update="Microsoft.Maui.Controls.Compatibility" Version="8.0.93" />
     </ItemGroup>
 </Project>
