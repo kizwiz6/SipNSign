@@ -1,7 +1,5 @@
-using System;
+using com.kizwiz.sipnsign.Enums;
 using System.Diagnostics;
-using Microsoft.Maui.ApplicationModel;
-using Microsoft.Maui.Controls;
 
 namespace com.kizwiz.sipnsign.Pages
 {
@@ -12,9 +10,18 @@ namespace com.kizwiz.sipnsign.Pages
             InitializeComponent();
         }
 
-        private async void OnStartGameClicked(object sender, EventArgs e)
+        private async void OnGuessGameClicked(object sender, EventArgs e)
         {
-            await Navigation.PushAsync(new GamePage());
+            var gamePage = new GamePage();
+            gamePage.ViewModel.CurrentMode = GameMode.Guess;
+            await Navigation.PushAsync(gamePage);
+        }
+
+        private async void OnPerformGameClicked(object sender, EventArgs e)
+        {
+            var gamePage = new GamePage();
+            gamePage.ViewModel.CurrentMode = GameMode.Perform;
+            await Navigation.PushAsync(gamePage);
         }
 
         private async void OnViewScoresClicked(object sender, EventArgs e)

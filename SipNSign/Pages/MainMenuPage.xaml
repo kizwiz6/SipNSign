@@ -22,30 +22,52 @@
                    FontAttributes="Bold"
                    TextColor="#007BFF" />
 
-            <!-- Start Game button -->
-            <Button Text="Start Game" 
-                    Clicked="OnStartGameClicked" 
+            <!-- Game Mode Selection -->
+            <Button Text="Guess &amp; Gulp"
+                    Clicked="OnGuessGameClicked" 
                     BackgroundColor="#007BFF" 
                     TextColor="White" 
                     HeightRequest="70" 
                     FontSize="24" 
                     CornerRadius="10" 
-                    HorizontalOptions="FillAndExpand" />
+                    HorizontalOptions="FillAndExpand">
+                <Button.Shadow>
+                    <Shadow Brush="Black"
+                           Offset="2,2"
+                           Radius="4"
+                           Opacity="0.2"/>
+                </Button.Shadow>
+            </Button>
 
-            <!-- View Scores button -->
+            <Button Text="Sign &amp; Sip"
+                    Clicked="OnPerformGameClicked" 
+                    BackgroundColor="#28a745" 
+                    TextColor="White" 
+                    HeightRequest="70" 
+                    FontSize="24" 
+                    CornerRadius="10" 
+                    HorizontalOptions="FillAndExpand">
+                <Button.Shadow>
+                    <Shadow Brush="Black"
+                           Offset="2,2"
+                           Radius="4"
+                           Opacity="0.2"/>
+                </Button.Shadow>
+            </Button>
+
+            <!-- Other menu buttons -->
             <Button Text="View Scores" 
                     Clicked="OnViewScoresClicked" 
-                    BackgroundColor="#007BFF" 
+                    BackgroundColor="#6c757d" 
                     TextColor="White" 
                     HeightRequest="70" 
                     FontSize="24" 
                     CornerRadius="10" 
                     HorizontalOptions="FillAndExpand" />
 
-            <!-- Settings button -->
             <Button Text="Settings" 
                     Clicked="OnSettingsClicked" 
-                    BackgroundColor="#007BFF" 
+                    BackgroundColor="#6c757d" 
                     TextColor="White" 
                     HeightRequest="70" 
                     FontSize="24" 

@@ -1,4 +1,5 @@
 ﻿using com.kizwiz.sipnsign.Models;
+using com.kizwiz.sipnsign.Enums;
 using System.ComponentModel;
 using System.Windows.Input;
 
@@ -6,8 +7,15 @@ namespace com.kizwiz.sipnsign.ViewModels
 {
     public class GameViewModel : INotifyPropertyChanged
     {
+        // Color constants
+        private readonly Color _guessPrimaryColor = Color.FromArgb("#007BFF");
+        private readonly Color _performPrimaryColor = Color.FromArgb("#28a745");
+        private readonly Color _successColor = Color.FromArgb("#28a745");
+        private readonly Color _errorColor = Color.FromArgb("#dc3545");
+
+        // Existing fields
         private readonly IDispatcherTimer _timer;
-        private const int QuestionTimeLimit = 10; // seconds
+        private const int QuestionTimeLimit = 10;
         private int _remainingTime;
         private bool _isLoading;
         private int _currentScore;
@@ -21,151 +29,49 @@ namespace com.kizwiz.sipnsign.ViewModels
         private string _feedbackBackgroundColor;
         private bool _isFeedbackVisible;
         private int _finalScore;
-        private Color _button1Color = Colors.Blue;
-        private Color _button2Color = Colors.Blue;
-        private Color _button3Color = Colors.Blue;
+        private Color _button1Color;
+        private Color _button2Color;
+        private Color _button3Color;
+        private GameMode _currentMode = GameMode.Guess;
+        private bool _isSignHidden = true;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public int RemainingTime
+        // Color-related properties
+        public Color PrimaryColor => _currentMode == GameMode.Guess ? _guessPrimaryColor : _performPrimaryColor;
+
+        public Color ProgressBarColor => PrimaryColor;
+
+        public Color ButtonBaseColor => PrimaryColor;
+
+        public Color FeedbackSuccessColor => _successColor.WithAlpha(0.9f);
+
+        public Color FeedbackErrorColor => _errorColor.WithAlpha(0.9f);
+
+        public string ModeTitle => _currentMode == GameMode.Guess ? "Guess & Gulp" : "Sign & Sip";
+
+        public GameMode CurrentMode
         {
-            get => _remainingTime;
+            get => _currentMode;
             set
             {
-                if (_remainingTime != value)
+                if (_currentMode != value)
                 {
-                    _remainingTime = value;
-                    OnPropertyChanged(nameof(RemainingTime));
+                    _currentMode = value;
+                    OnPropertyChanged(nameof(CurrentMode));
+                    OnPropertyChanged(nameof(PrimaryColor));
+                    OnPropertyChanged(nameof(ProgressBarColor));
+                    OnPropertyChanged(nameof(ButtonBaseColor));
+                    OnPropertyChanged(nameof(ModeTitle));
+                    OnPropertyChanged(nameof(IsGuessMode));
+                    OnPropertyChanged(nameof(IsPerformMode));
+                    ResetButtonColors();
+                    ResetGame();
                 }
             }
         }
 
-        public bool IsLoading
-        {
-            get => _isLoading;
-            set
-            {
-                if (_isLoading != value)
-                {
-                    _isLoading = value;
-                    OnPropertyChanged(nameof(IsLoading));
-                }
-            }
-        }
-
-        public int CurrentScore
-        {
-            get => _currentScore;
-            set
-            {
-                if (_currentScore != value)
-                {
-                    _currentScore = value;
-                    OnPropertyChanged(nameof(CurrentScore));
-                    // Update progress when score changes
-                    ProgressPercentage = _signs.Count > 0 ? (double)value / _signs.Count : 0;
-                }
-            }
-        }
-
-        public SignModel? CurrentSign
-        {
-            get => _currentSign;
-            private set
-            {
-                if (_currentSign != value)
-                {
-                    _currentSign = value;
-                    OnPropertyChanged(nameof(CurrentSign));
-                    OnPropertyChanged(nameof(IsImageAvailable));
-                    OnPropertyChanged(nameof(IsVideoAvailable));
-                }
-            }
-        }
-
-        public bool IsGameOver
-        {
-            get => _isGameOver;
-            set
-            {
-                if (_isGameOver != value)
-                {
-                    _isGameOver = value;
-                    if (value)
-                    {
-                        FinalScore = CurrentScore;
-                    }
-                    OnPropertyChanged(nameof(IsGameOver));
-                }
-            }
-        }
-
-        public double ProgressPercentage
-        {
-            get => _progressPercentage;
-            set
-            {
-                if (_progressPercentage != value)
-                {
-                    _progressPercentage = value;
-                    OnPropertyChanged(nameof(ProgressPercentage));
-                }
-            }
-        }
-
-        public Color FeedbackBackgroundColor
-        {
-            get => Color.FromArgb(_feedbackBackgroundColor);
-            set
-            {
-                var colorString = value.ToArgbHex();
-                if (_feedbackBackgroundColor != colorString)
-                {
-                    _feedbackBackgroundColor = colorString;
-                    OnPropertyChanged(nameof(FeedbackBackgroundColor));
-                }
-            }
-        }
-
-        public bool IsFeedbackVisible
-        {
-            get => _isFeedbackVisible;
-            set
-            {
-                if (_isFeedbackVisible != value)
-                {
-                    _isFeedbackVisible = value;
-                    OnPropertyChanged(nameof(IsFeedbackVisible));
-                }
-            }
-        }
-
-        public string FeedbackText
-        {
-            get => _feedbackText;
-            set
-            {
-                if (_feedbackText != value)
-                {
-                    _feedbackText = value;
-                    OnPropertyChanged(nameof(FeedbackText));
-                }
-            }
-        }
-
-        public int FinalScore
-        {
-            get => _finalScore;
-            set
-            {
-                if (_finalScore != value)
-                {
-                    _finalScore = value;
-                    OnPropertyChanged(nameof(FinalScore));
-                }
-            }
-        }
-
+        // Existing properties remain the same but use new color properties
         public Color Button1Color
         {
             get => _button1Color;
@@ -205,12 +111,6 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
 
-        public bool IsImageAvailable => !string.IsNullOrEmpty(CurrentSign?.ImagePath);
-        public bool IsVideoAvailable => !string.IsNullOrEmpty(CurrentSign?.VideoPath);
-
-        public ICommand AnswerCommand { get; private set; }
-        public ICommand PlayAgainCommand { get; private set; }
-
         public GameViewModel()
         {
             SignRepository signRepository = new SignRepository();
@@ -218,7 +118,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             _availableIndices = new List<int>();
             _feedbackColor = Colors.Transparent;
 
-            // Initialise timer
+            // Initialize timer
             _timer = Application.Current.Dispatcher.CreateTimer();
             _timer.Interval = TimeSpan.FromSeconds(1);
             _timer.Tick += Timer_Tick;
@@ -226,64 +126,61 @@ namespace com.kizwiz.sipnsign.ViewModels
             // Initialize commands
             AnswerCommand = new Command<string>(HandleAnswer);
             PlayAgainCommand = new Command(ResetGame);
+            VideoLoadedCommand = new Command(() => IsLoading = false);
+            RevealSignCommand = new Command(RevealSign);
+            CorrectPerformCommand = new Command(HandleCorrectPerform);
+            IncorrectPerformCommand = new Command(HandleIncorrectPerform);
+            SwitchModeCommand = new Command<GameMode>(SwitchMode);
+
+            // Initialise colors
+            ResetButtonColors();
 
             // Initialize properties
             ProgressPercentage = 0;
             IsFeedbackVisible = false;
             FeedbackBackgroundColor = Colors.Transparent;
-            ResetButtonColors();
 
             // Start the game
             ResetGame();
         }
 
-        private void Timer_Tick(object sender, EventArgs e)
+        private void ResetButtonColors()
         {
-            if (RemainingTime > 0)
-            {
-                RemainingTime--;
-            }
-            else
-            {
-                _timer.Stop();
-                HandleTimeOut();
-            }
+            Button1Color = ButtonBaseColor;
+            Button2Color = ButtonBaseColor;
+            Button3Color = ButtonBaseColor;
         }
 
-        private void HandleTimeOut()
+        private void UpdateButtonColor(string answer, bool isCorrect)
         {
-            FeedbackText = $"Time's up! The sign means '{CurrentSign?.CorrectAnswer}'. Take a sip!";
-            FeedbackBackgroundColor = Colors.Red;
-            IsFeedbackVisible = true;
+            Color newColor = isCorrect ? FeedbackSuccessColor : FeedbackErrorColor;
 
-            Task.Delay(3000).ContinueWith(_ =>
-            {
-                IsFeedbackVisible = false;
-                LoadNextSign();
-            }, TaskScheduler.FromCurrentSynchronizationContext());
+            if (CurrentSign?.Choices[0] == answer) Button1Color = newColor;
+            if (CurrentSign?.Choices[1] == answer) Button2Color = newColor;
+            if (CurrentSign?.Choices[2] == answer) Button3Color = newColor;
         }
 
         private void HandleAnswer(string answer)
         {
-            _timer.Stop(); // Stop the timer when answer is given
+            _timer.Stop();
 
-            if (CheckAnswer(answer))
+            bool isCorrect = CheckAnswer(answer);
+            UpdateButtonColor(answer, isCorrect);
+
+            if (isCorrect)
             {
                 FeedbackText = "Correct!";
-                FeedbackBackgroundColor = Colors.Green;
+                FeedbackBackgroundColor = FeedbackSuccessColor.ToArgbHex();
                 CurrentScore++;
-                UpdateButtonColor(answer, true);
             }
             else
             {
                 FeedbackText = $"Incorrect. The sign means '{CurrentSign?.CorrectAnswer}'. Take a sip!";
-                FeedbackBackgroundColor = Colors.Red;
-                UpdateButtonColor(answer, false);
+                FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
             }
 
             IsFeedbackVisible = true;
 
-            // Hide feedback after a delay
             Task.Delay(3000).ContinueWith(_ =>
             {
                 IsFeedbackVisible = false;
@@ -292,58 +189,30 @@ namespace com.kizwiz.sipnsign.ViewModels
             }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
-        private void UpdateButtonColor(string answer, bool isCorrect)
+        private void HandleCorrectPerform()
         {
-            Color newColor = isCorrect ? Colors.Green : Colors.Red;
-
-            if (CurrentSign?.Choices[0] == answer) Button1Color = newColor;
-            if (CurrentSign?.Choices[1] == answer) Button2Color = newColor;
-            if (CurrentSign?.Choices[2] == answer) Button3Color = newColor;
+            CurrentScore++;
+            FeedbackText = "Nice work! Your sign was correct!";
+            FeedbackBackgroundColor = FeedbackSuccessColor.ToArgbHex();
+            ShowFeedbackAndContinue();
         }
 
-        private void ResetButtonColors()
+        private void HandleIncorrectPerform()
         {
-            Button1Color = Colors.Blue;
-            Button2Color = Colors.Blue;
-            Button3Color = Colors.Blue;
+            FeedbackText = "Keep practicing! Take a sip!";
+            FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
+            ShowFeedbackAndContinue();
         }
 
-        public bool CheckAnswer(string answer)
+        private void ShowFeedbackAndContinue()
         {
-            return answer == CurrentSign?.CorrectAnswer;
-        }
-
-        public void LoadNextSign()
-        {
-            IsLoading = true;
-
-            try
+            IsFeedbackVisible = true;
+            Task.Delay(2000).ContinueWith(_ =>
             {
-                if (_availableIndices.Count == 0)
-                {
-                    IsGameOver = true;
-                    return;
-                }
-
-                Random random = new Random();
-                int randomIndex = random.Next(_availableIndices.Count);
-                int selectedSignIndex = _availableIndices[randomIndex];
-                CurrentSign = _signs[selectedSignIndex];
-                _availableIndices.RemoveAt(randomIndex);
-
-                // Start the timer for the new sign
-                StartTimer();
-            }
-            finally
-            {
-                IsLoading = false;
-            }
-        }
-
-        private void StartTimer()
-        {
-            RemainingTime = QuestionTimeLimit;
-            _timer.Start();
+                IsFeedbackVisible = false;
+                IsSignHidden = true;
+                LoadNextSign();
+            }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         public void ResetGame()
@@ -354,8 +223,12 @@ namespace com.kizwiz.sipnsign.ViewModels
             FeedbackText = string.Empty;
             IsFeedbackVisible = false;
             ProgressPercentage = 0;
-            FeedbackBackgroundColor = Colors.Transparent;
+            FeedbackBackgroundColor = Colors.Transparent.ToArgbHex();
             ResetButtonColors();
+            if (IsPerformMode)
+            {
+                IsSignHidden = true;
+            }
             LoadNextSign();
         }
 
