@@ -25,10 +25,13 @@
             <Style x:Key="AnimatedButtonStyle" TargetType="Button">
                 <Setter Property="BackgroundColor" Value="{DynamicResource Primary}"/>
                 <Setter Property="TextColor" Value="White"/>
-                <Setter Property="FontSize" Value="18"/>
+                <Setter Property="FontSize" Value="24"/>
+                <Setter Property="Margin" Value="8"/>
                 <Setter Property="CornerRadius" Value="10"/>
-                <Setter Property="HeightRequest" Value="50"/>
-                <Setter Property="Padding" Value="20"/>
+                <Setter Property="HeightRequest" Value="70"/>
+                <Setter Property="Padding" Value="10"/>
+                <Setter Property="LineBreakMode" Value="WordWrap"/>
+                <Setter Property="HorizontalOptions"  Value="Fill"/>
             </Style>
 
             <Style x:Key="SuccessButton" TargetType="Button" BasedOn="{StaticResource AnimatedButtonStyle}">
@@ -109,7 +112,8 @@
                     <Grid ColumnDefinitions="*,*" 
                           RowDefinitions="Auto,Auto" 
                           RowSpacing="15" 
-                          ColumnSpacing="15">
+                          ColumnSpacing="15"
+                          HorizontalOptions="Fill">
                         <Button x:Name="AnswerButton1"
                                 Grid.Column="0" Grid.Row="0"
                                 Style="{StaticResource AnimatedButtonStyle}"

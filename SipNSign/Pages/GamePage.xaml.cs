@@ -10,6 +10,7 @@ namespace com.kizwiz.sipnsign.Pages
     {
         private readonly GameViewModel _viewModel;
         private MediaElement? _currentVideo;
+        public GameViewModel ViewModel => _viewModel;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GamePage"/> class.
