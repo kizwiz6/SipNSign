@@ -35,6 +35,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private Color _button1Color;
         private Color _button2Color;
         private Color _button3Color;
+        private Color _button4Color;
         private GameMode _currentMode = GameMode.Guess;
         private bool _isSignHidden = true;
         #endregion
@@ -245,6 +246,19 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
 
+        public Color Button4Color
+        {
+            get => _button4Color;
+            set
+            {
+                if (_button4Color != value)
+                {
+                    _button4Color = value;
+                    OnPropertyChanged(nameof(Button4Color));
+                }
+            }
+        }
+
         public bool IsSignHidden
         {
             get => _isSignHidden;
@@ -280,18 +294,38 @@ namespace com.kizwiz.sipnsign.ViewModels
         #region Constructor
         public GameViewModel()
         {
-            SignRepository signRepository = new SignRepository();
-            _signs = signRepository.GetSigns() ?? new List<SignModel>();
-            _availableIndices = new List<int>();
-            _feedbackBackgroundColor = Colors.Transparent.ToArgbHex();
+            try
+            {
+                SignRepository signRepository = new SignRepository();
+                _signs = signRepository.GetSigns();
+                if (!_signs.Any())
+                {
+                    System.Diagnostics.Debug.WriteLine("No signs loaded");
+                    return;
+                }
 
-            _timer = Application.Current.Dispatcher.CreateTimer();
-            _timer.Interval = TimeSpan.FromSeconds(1);
-            _timer.Tick += Timer_Tick;
+                foreach (var sign in _signs)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Video path: {sign.VideoPath}");
+                }
 
-            InitializeCommands();
-            ResetButtonColors();
-            InitializeGame();
+                _availableIndices = new List<int>();
+                _feedbackBackgroundColor = Colors.Transparent.ToArgbHex();
+
+                _timer = Application.Current.Dispatcher.CreateTimer();
+                _timer.Interval = TimeSpan.FromSeconds(1);
+                _timer.Tick += Timer_Tick;
+
+                InitializeCommands();
+                ResetButtonColors();
+                InitializeGame();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in GameViewModel: {ex}");
+            }
+            
+            
         }
         #endregion
 
@@ -405,6 +439,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             if (CurrentSign?.Choices[0] == answer) Button1Color = newColor;
             if (CurrentSign?.Choices[1] == answer) Button2Color = newColor;
             if (CurrentSign?.Choices[2] == answer) Button3Color = newColor;
+            if (CurrentSign?.Choices[3] == answer) Button4Color = newColor;
         }
 
         private void ResetButtonColors()
@@ -412,6 +447,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             Button1Color = ButtonBaseColor;
             Button2Color = ButtonBaseColor;
             Button3Color = ButtonBaseColor;
+            Button4Color = ButtonBaseColor;
         }
 
         private void StartTimer()
