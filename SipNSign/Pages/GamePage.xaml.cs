@@ -57,6 +57,16 @@ namespace com.kizwiz.sipnsign.Pages
             }
         }
 
+        private void OnMediaFailed(object sender, EventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine($"Media failed to load: {(sender as MediaElement)?.Source}");
+        }
+
+        private void OnMediaOpened(object sender, EventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine($"Media opened successfully: {(sender as MediaElement)?.Source}");
+        }
+
         /// <summary>
         /// Call this method when the game ends to show the final score.
         /// </summary>
