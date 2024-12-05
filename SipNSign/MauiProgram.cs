@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using CommunityToolkit.Maui;
 using com.kizwiz.sipnsign;
+using com.kizwiz.sipnsign.Services;
+using com.kizwiz.sipnsign.Pages;
 
 namespace com.kizwiz.sipnsign;
 
@@ -37,6 +39,9 @@ public static class MauiProgram
 
         // Register MainPage
         builder.Services.AddSingleton<MainPage>();
+
+        builder.Services.AddSingleton<IProgressService, ProgressService>();
+        builder.Services.AddTransient<ScoreboardPage>();
 
         // Build and return the configured MauiApp instance
         return builder.Build();

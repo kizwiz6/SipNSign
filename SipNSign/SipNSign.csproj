@@ -66,5 +66,8 @@
     <PackageReference Include="Xamarin.AndroidX.Collection" Version="1.4.5.1" />
     <PackageReference Include="Xamarin.AndroidX.Collection.Ktx" Version="1.4.5.1" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Platforms\Android\Resources\Images\" />
+  </ItemGroup>
 
 </Project>
