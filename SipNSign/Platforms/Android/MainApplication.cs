@@ -2,7 +2,6 @@
 using Android.Runtime;
 using Microsoft.Maui;
 using Microsoft.Maui.Hosting;
-using System;
 
 namespace com.kizwiz.sipnsign
 {
@@ -10,7 +9,7 @@ namespace com.kizwiz.sipnsign
     public class MainApplication : MauiApplication
     {
         public MainApplication(IntPtr handle, JniHandleOwnership ownership)
-            : base(handle, ownership)
+             : base(handle, ownership)
         {
         }
 
