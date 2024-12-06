@@ -1,5 +1,8 @@
+using com.kizwiz.sipnsign.Enums;
+using com.kizwiz.sipnsign.Services;
 using com.kizwiz.sipnsign.ViewModels;
 using CommunityToolkit.Maui.Views;
+using System.Diagnostics;
 
 namespace com.kizwiz.sipnsign.Pages
 {
@@ -9,35 +12,98 @@ namespace com.kizwiz.sipnsign.Pages
     public partial class GamePage : ContentPage
     {
         private readonly GameViewModel _viewModel;
+        private readonly IVideoService _videoService;
         private MediaElement? _currentVideo;
+
         public GameViewModel ViewModel => _viewModel;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GamePage"/> class.
+        /// Initialises a new instance of the <see cref="GamePage"/> class.
         /// </summary>
-        public GamePage()
+        public GamePage(IVideoService videoService)
         {
             try
             {
+                _videoService = videoService;
                 InitializeComponent();
                 _viewModel = new GameViewModel();
                 BindingContext = _viewModel;
+
+                // Subscribe to sign changes
+                _viewModel.PropertyChanged += async (s, e) =>
+                {
+                    if (e.PropertyName == nameof(GameViewModel.CurrentSign))
+                    {
+                        await LoadCurrentVideo();
+                    }
+                };
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error initializing GamePage: {ex}");
+                Debug.WriteLine($"Error initializing GamePage: {ex}");
             }
         }
 
-        protected override void OnAppearing()
+        private async Task LoadCurrentVideo()
+        {
+            try
+            {
+                if (_viewModel.CurrentSign != null)
+                {
+                    var videoFileName = Path.GetFileName(_viewModel.CurrentSign.VideoPath);
+                    var fullPath = await _videoService.GetVideoPath(videoFileName);
+                    Debug.WriteLine($"Setting video source to: {fullPath}");
+
+                    if (IsGuessMode)
+                    {
+                        SignVideo.Source = MediaSource.FromFile(fullPath);
+                        SignVideo.Play();
+                    }
+                    else
+                    {
+                        PerformModeVideo.Source = MediaSource.FromFile(fullPath);
+                        PerformModeVideo.Play();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error loading video: {ex}");
+            }
+        }
+
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
             _viewModel.ResetGame();
+            await LoadCurrentVideo();
         }
 
         protected override void OnDisappearing()
         {
             base.OnDisappearing();
+        }
+
+        private bool IsGuessMode => _viewModel.CurrentMode == GameMode.Guess;
+
+        /// <summary>
+        /// Plays the video file using the injected VideoService.
+        /// </summary>
+        private async Task PlayVideo(string videoFileName)
+        {
+            try
+            {
+                var fullPath = await _videoService.GetVideoPath(videoFileName);
+                if (_currentVideo != null)
+                {
+                    _currentVideo.Source = fullPath;
+                    _currentVideo.Play();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error playing video {videoFileName}: {ex}");
+            }
         }
 
         /// <summary>

@@ -212,11 +212,8 @@ namespace com.kizwiz.sipnsign.ViewModels
             get => _button1Color;
             set
             {
-                if (_button1Color != value)
-                {
-                    _button1Color = value;
-                    OnPropertyChanged(nameof(Button1Color));
-                }
+                _button1Color = value;
+                OnPropertyChanged(nameof(Button1Color));
             }
         }
 
@@ -225,11 +222,8 @@ namespace com.kizwiz.sipnsign.ViewModels
             get => _button2Color;
             set
             {
-                if (_button2Color != value)
-                {
-                    _button2Color = value;
-                    OnPropertyChanged(nameof(Button2Color));
-                }
+                _button2Color = value;
+                OnPropertyChanged(nameof(Button2Color));
             }
         }
 
@@ -238,11 +232,8 @@ namespace com.kizwiz.sipnsign.ViewModels
             get => _button3Color;
             set
             {
-                if (_button3Color != value)
-                {
-                    _button3Color = value;
-                    OnPropertyChanged(nameof(Button3Color));
-                }
+                _button3Color = value;
+                OnPropertyChanged(nameof(Button3Color));
             }
         }
 
@@ -251,11 +242,8 @@ namespace com.kizwiz.sipnsign.ViewModels
             get => _button4Color;
             set
             {
-                if (_button4Color != value)
-                {
-                    _button4Color = value;
-                    OnPropertyChanged(nameof(Button4Color));
-                }
+                _button4Color = value;
+                OnPropertyChanged(nameof(Button4Color));
             }
         }
 
@@ -426,6 +414,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             IsFeedbackVisible = true;
             Task.Delay(2000).ContinueWith(_ =>
             {
+                ResetButtonColors();
                 IsFeedbackVisible = false;
                 if (IsPerformMode) IsSignHidden = true;
                 LoadNextSign();
@@ -469,6 +458,9 @@ namespace com.kizwiz.sipnsign.ViewModels
 
             try
             {
+                // Reset button colors before loading new sign
+                ResetButtonColors();
+
                 if (_availableIndices.Count == 0)
                 {
                     IsGameOver = true;

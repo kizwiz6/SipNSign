@@ -73,7 +73,7 @@
             <!-- Start Button -->
             <Button Text="Start Playing!"
                 Style="{StaticResource PrimaryButton}"
-                Clicked="OnStartPlaying"
+                Clicked="OnStartGameClicked"
                 Margin="0,20"/>
         </VerticalStackLayout>
     </ScrollView>

@@ -19,31 +19,29 @@ public static class MauiProgram
     public static MauiApp CreateMauiApp()
     {
         var builder = MauiApp.CreateBuilder();
-
-        // Use the App class as the entry point
         builder
-            .UseMauiApp<App>() // Use the App class
-            .UseMauiCommunityToolkit() // Register the CommunityToolkit
-            .UseMauiCommunityToolkitMediaElement() // Register the MediaElement from the CommunityToolkit
+            .UseMauiApp<App>()
+            .UseMauiCommunityToolkit() 
+            .UseMauiCommunityToolkitMediaElement()  
             .ConfigureFonts(fonts =>
             {
-                // Add custom fonts for the application
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
-#if DEBUG
-        // Enable debugging logging in the DEBUG configuration
-        builder.Logging.AddDebug();
-#endif
+        // Register all services
+        builder.Services.AddSingleton<IVideoService, VideoService>();
 
-        // Register MainPage
-        builder.Services.AddSingleton<MainPage>();
-
-        builder.Services.AddSingleton<IProgressService, ProgressService>();
+        // Register all pages
+        builder.Services.AddTransient<MainMenuPage>();
+        builder.Services.AddTransient<GamePage>();
+        builder.Services.AddTransient<HowToPlayPage>();
         builder.Services.AddTransient<ScoreboardPage>();
+        builder.Services.AddTransient<SettingsPage>();
 
-        // Build and return the configured MauiApp instance
+        // Register repositories
+        builder.Services.AddSingleton<SignRepository>();
+
         return builder.Build();
     }
 }

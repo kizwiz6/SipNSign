@@ -1,6 +1,11 @@
 ﻿using com.kizwiz.sipnsign.Pages;
 using Microsoft.Maui.ApplicationModel;
 using System.Diagnostics;
+using Microsoft.Maui;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Controls.Xaml;
+using com.kizwiz.sipnsign.Services;
+[assembly: XamlCompilation(XamlCompilationOptions.Compile)]
 
 namespace com.kizwiz.sipnsign
 {
@@ -8,36 +13,54 @@ namespace com.kizwiz.sipnsign
     /// The main application class that initializes the app, manages themes,
     /// and sets the main page for the application.
     /// </summary>
-    public partial class App : Microsoft.Maui.Controls.Application
+    [XamlCompilation(XamlCompilationOptions.Compile)]
+    public partial class App : Application
     {
-        // Define your preferred navigation bar background color
+        private readonly IServiceProvider _serviceProvider;
         private readonly Color _navBarColor = Color.FromArgb("#007BFF");
-
-        // Define your preferred navigation bar text color
         private readonly Color _navBarTextColor = Color.FromArgb("#FFFFFF");
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="App"/> class.
-        /// This constructor retrieves the user's saved theme preference
-        /// and sets the initial application theme accordingly.
+        /// Initialises a new instance of the <see cref="App"/> class.
+        /// This constructor retrieves the user's saved theme preference,
+        /// sets the initial application theme, and configures dependency injection.
         /// </summary>
-        public App()
+        public App(IServiceProvider serviceProvider)
         {
+            _serviceProvider = serviceProvider;
             InitializeComponent();
 
-            // Retrieve the saved theme preference, defaulting to Light if not set
-            var savedTheme = Preferences.Get("UserTheme", "light");
-            AppTheme initialTheme = savedTheme == "dark" ? AppTheme.Dark : AppTheme.Light;
-
-            // Set the initial theme based on the user's saved preference
-            SetAppTheme(initialTheme);
-
-            // Set the main page of the application with consistent navigation bar colors
-            MainPage = new NavigationPage(new MainMenuPage())
+            // Create the main page using dependency injection
+            var mainPage = _serviceProvider.GetRequiredService<MainMenuPage>();
+            MainPage = new NavigationPage(mainPage)
             {
-                BarBackgroundColor = _navBarColor, // Apply the defined background color
-                BarTextColor = _navBarTextColor // Apply the defined text color
+                BarBackgroundColor = Color.FromArgb("#007BFF"),
+                BarTextColor = Colors.White
             };
+
+            // Initialize videos in background
+            Task.Run(async () =>
+            {
+                try
+                {
+                    var videoService = _serviceProvider.GetRequiredService<IVideoService>();
+                    await videoService.InitializeVideos();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error initialising videos: {ex}");
+                }
+            });
+        }
+
+        /// <summary>
+        /// Gets a service of type T from the service provider.
+        /// </summary>
+        /// <typeparam name="T">The type of service to retrieve.</typeparam>
+        /// <returns>An instance of the requested service type.</returns>
+        public T GetService<T>() where T : class
+        {
+            return _serviceProvider.GetService<T>();
         }
 
         /// <summary>
@@ -59,12 +82,12 @@ namespace com.kizwiz.sipnsign
             if (theme == AppTheme.Light)
             {
                 Resources.MergedDictionaries.Add(new com.kizwiz.sipnsign.Resources.Themes.LightThemeResourceDictionary());
-                UpdateBackgroundColor("Light"); // Ensure background color is updated for Light theme
+                UpdateBackgroundColor("Light");
             }
             else if (theme == AppTheme.Dark)
             {
                 Resources.MergedDictionaries.Add(new com.kizwiz.sipnsign.Resources.Themes.DarkThemeResourceDictionary());
-                UpdateBackgroundColor("Dark"); // Ensure background color is updated for Dark theme
+                UpdateBackgroundColor("Dark");
             }
 
             // Save the user's preference for future launches
@@ -77,23 +100,16 @@ namespace com.kizwiz.sipnsign
         /// <param name="theme">The theme to apply, either "Light" or "Dark".</param>
         private void UpdateBackgroundColor(string theme)
         {
-            // Check if the MainPage is set
-            if (Application.Current.MainPage is not null && Application.Current.MainPage is not null)
+            // Wait for the MainPage to be fully initialised
+            MainThread.BeginInvokeOnMainThread(() =>
             {
-                // Set the background color based on the theme
-                if (theme == "Light")
+                if (Application.Current?.MainPage != null)
                 {
-                    Application.Current.MainPage.BackgroundColor = Color.FromArgb("#FFFFFF");
+                    Application.Current.MainPage.BackgroundColor = theme == "Light"
+                        ? Color.FromArgb("#FFFFFF")
+                        : Color.FromArgb("#121212");
                 }
-                else if (theme == "Dark")
-                {
-                    Application.Current.MainPage.BackgroundColor = Color.FromArgb("#121212");
-                }
-            }
-            else
-            {
-                Debug.WriteLine("Application.Current or MainPage is not set. Cannot update background color.");
-            }
+            });
         }
     }
 }

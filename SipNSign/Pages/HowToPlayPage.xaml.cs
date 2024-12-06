@@ -1,14 +1,21 @@
+using com.kizwiz.sipnsign.Services;
+
 namespace com.kizwiz.sipnsign.Pages;
 
 public partial class HowToPlayPage : ContentPage
 {
-	public HowToPlayPage()
-	{
-		InitializeComponent();
-	}
+    private readonly IServiceProvider _serviceProvider;
 
-    private async void OnStartPlaying(object sender, EventArgs e)
+    public HowToPlayPage(IServiceProvider serviceProvider)
     {
-        await Navigation.PushAsync(new GamePage());
+        _serviceProvider = serviceProvider;
+        InitializeComponent();
+    }
+
+    private void OnStartGameClicked(object sender, EventArgs e)
+    {
+        var videoService = _serviceProvider.GetRequiredService<IVideoService>();
+        var gamePage = new GamePage(videoService);
+        Navigation.PushAsync(gamePage);
     }
 }

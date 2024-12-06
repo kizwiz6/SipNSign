@@ -52,14 +52,12 @@
                 <ProgressBar x:Name="GameProgress"
                           Style="{StaticResource ProgressBarStyle}"
                           Progress="{Binding ProgressPercentage}"/>
-
                 <Label Text="{Binding RemainingTime}"
                      HorizontalOptions="Center"
                      VerticalOptions="Center"
                      FontSize="12"
                      TextColor="{DynamicResource Primary}"/>
             </Grid>
-
             <Frame Grid.Column="1" 
                  Padding="15,5" 
                  CornerRadius="20" 
@@ -88,8 +86,7 @@
 
                         <toolkit:MediaElement 
                            x:Name="SignVideo"
-                            Source="{Binding CurrentSign.VideoPath}"
-                            Aspect="AspectFit"
+                           Aspect="AspectFit"
                            HeightRequest="300"
                            HorizontalOptions="Center"
                            ShouldAutoPlay="True"
@@ -179,7 +176,6 @@
                      BackgroundColor="White">
                     <toolkit:MediaElement 
                        x:Name="PerformModeVideo"
-                       Source="{Binding CurrentSign.VideoPath}"
                        HeightRequest="300"
                        HorizontalOptions="Center"
                        ShouldAutoPlay="True"
