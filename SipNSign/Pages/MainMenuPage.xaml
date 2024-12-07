@@ -4,75 +4,74 @@
              x:Class="com.kizwiz.sipnsign.Pages.MainMenuPage"
              Title="Main Menu">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="30" VerticalOptions="CenterAndExpand">
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#1a237e" Offset="0.0" />
+            <GradientStop Color="#0d47a1" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
 
-            <!-- Logo at the top -->
-            <Image Source="logo.png" 
-                   HorizontalOptions="Center" 
-                   VerticalOptions="Center" 
-                   HeightRequest="300" 
-                   WidthRequest="300" />
-
-            <!-- Welcome label -->
-            <Label Text="SipNSign!" 
-                   VerticalOptions="CenterAndExpand" 
-                   HorizontalOptions="CenterAndExpand" 
-                   FontSize="40"
-                   FontAttributes="Bold"
-                   TextColor="#007BFF" />
-
-            <!-- Game Mode Selection -->
-            <Button Text="Guess &amp; Gulp"
-                    Clicked="OnGuessGameClicked" 
-                    BackgroundColor="#007BFF" 
-                    TextColor="White" 
-                    HeightRequest="70" 
-                    FontSize="24" 
-                    CornerRadius="10" 
-                    HorizontalOptions="FillAndExpand">
-                <Button.Shadow>
+    <!-- Add the button style in Resources -->
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style x:Key="MenuButton" TargetType="Button">
+                <Setter Property="Margin" Value="20,10"/>
+                <Setter Property="HeightRequest" Value="60"/>
+                <Setter Property="CornerRadius" Value="30"/>
+                <Setter Property="FontSize" Value="20"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="Shadow">
                     <Shadow Brush="Black"
-                           Offset="2,2"
-                           Radius="4"
-                           Opacity="0.2"/>
-                </Button.Shadow>
-            </Button>
+                            Offset="0,3"
+                            Radius="3"
+                            Opacity="0.3"/>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <!-- Main content with logo and buttons -->
+        <VerticalStackLayout Spacing="20" Padding="20">
+            <!-- Logo container -->
+            <Frame BackgroundColor="White"
+               CornerRadius="20"
+               Margin="20,10"
+               Padding="20"
+               HasShadow="True">
+                <Image Source="logo.png"
+                   HeightRequest="200"
+                   Aspect="AspectFit"/>
+            </Frame>
+
+            <!-- Title -->
+            <Label Text="SipNSign!"
+               FontSize="48"
+               FontAttributes="Bold"
+               TextColor="White"
+               HorizontalOptions="Center"/>
+
+            <!-- Menu Buttons -->
+            <Button Text="Guess &amp; Gulp"
+                Style="{StaticResource MenuButton}"
+                BackgroundColor="#2196F3"
+                Clicked="OnGuessGameClicked"/>
 
             <Button Text="Sign &amp; Sip"
-                    Clicked="OnPerformGameClicked" 
-                    BackgroundColor="#28a745" 
-                    TextColor="White" 
-                    HeightRequest="70" 
-                    FontSize="24" 
-                    CornerRadius="10" 
-                    HorizontalOptions="FillAndExpand">
-                <Button.Shadow>
-                    <Shadow Brush="Black"
-                           Offset="2,2"
-                           Radius="4"
-                           Opacity="0.2"/>
-                </Button.Shadow>
-            </Button>
+                Style="{StaticResource MenuButton}"
+                BackgroundColor="#4CAF50"
+                Clicked="OnPerformGameClicked"/>
 
-            <!-- Other menu buttons -->
-            <Button Text="View Scores" 
-                    Clicked="OnViewScoresClicked" 
-                    BackgroundColor="#6c757d" 
-                    TextColor="White" 
-                    HeightRequest="70" 
-                    FontSize="24" 
-                    CornerRadius="10" 
-                    HorizontalOptions="FillAndExpand" />
+            <Button Text="View Scores"
+                Style="{StaticResource MenuButton}"
+                BackgroundColor="#9E9E9E"
+                Clicked="OnViewScoresClicked"/>
 
-            <Button Text="Settings" 
-                    Clicked="OnSettingsClicked" 
-                    BackgroundColor="#6c757d" 
-                    TextColor="White" 
-                    HeightRequest="70" 
-                    FontSize="24" 
-                    CornerRadius="10" 
-                    HorizontalOptions="FillAndExpand" />
+            <Button Text="Settings"
+                Style="{StaticResource MenuButton}"
+                BackgroundColor="#9E9E9E"
+                Clicked="OnSettingsClicked"/>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

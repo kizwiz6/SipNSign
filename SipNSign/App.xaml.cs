@@ -32,11 +32,17 @@ namespace com.kizwiz.sipnsign
 
             // Create the main page using dependency injection
             var mainPage = _serviceProvider.GetRequiredService<MainMenuPage>();
+
             MainPage = new NavigationPage(mainPage)
             {
-                BarBackgroundColor = Color.FromArgb("#007BFF"),
-                BarTextColor = Colors.White
+                BarBackgroundColor = _navBarColor,
+                BarTextColor = _navBarTextColor
             };
+
+            // Load theme after setting MainPage
+            var savedTheme = Preferences.Get("UserTheme", "light");
+            AppTheme initialTheme = savedTheme == "dark" ? AppTheme.Dark : AppTheme.Light;
+            SetAppTheme(initialTheme);
 
             // Initialize videos in background
             Task.Run(async () =>

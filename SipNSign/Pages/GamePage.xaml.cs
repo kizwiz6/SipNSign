@@ -20,13 +20,13 @@ namespace com.kizwiz.sipnsign.Pages
         /// <summary>
         /// Initialises a new instance of the <see cref="GamePage"/> class.
         /// </summary>
-        public GamePage(IVideoService videoService)
+        public GamePage(IVideoService videoService, ILoggingService logger)
         {
             try
             {
                 _videoService = videoService;
                 InitializeComponent();
-                _viewModel = new GameViewModel();
+                _viewModel = new GameViewModel(logger);
                 BindingContext = _viewModel;
 
                 // Subscribe to sign changes

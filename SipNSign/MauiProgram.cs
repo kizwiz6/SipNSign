@@ -29,18 +29,19 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
-        // Register all services
+        // Register services
         builder.Services.AddSingleton<IVideoService, VideoService>();
+        builder.Services.AddSingleton<ILoggingService, LoggingService>();
+        builder.Services.AddSingleton<IProgressService, ProgressService>();
+        builder.Services.AddSingleton<SignRepository>();
 
-        // Register all pages
+        // Register pages
+        builder.Services.AddSingleton<App>();
         builder.Services.AddTransient<MainMenuPage>();
         builder.Services.AddTransient<GamePage>();
         builder.Services.AddTransient<HowToPlayPage>();
         builder.Services.AddTransient<ScoreboardPage>();
         builder.Services.AddTransient<SettingsPage>();
-
-        // Register repositories
-        builder.Services.AddSingleton<SignRepository>();
 
         return builder.Build();
     }
