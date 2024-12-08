@@ -440,12 +440,34 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private void UpdateButtonColor(string answer, bool isCorrect)
         {
-            Color newColor = isCorrect ? FeedbackSuccessColor : FeedbackErrorColor;
+            // Always show the correct answer in green
+            int correctAnswerIndex = -1;
+            for (int i = 0; i < 4; i++)
+            {
+                if (CurrentSign?.Choices[i] == CurrentSign?.CorrectAnswer)
+                {
+                    correctAnswerIndex = i;
+                    break;
+                }
+            }
 
-            if (CurrentSign?.Choices[0] == answer) Button1Color = newColor;
-            if (CurrentSign?.Choices[1] == answer) Button2Color = newColor;
-            if (CurrentSign?.Choices[2] == answer) Button3Color = newColor;
-            if (CurrentSign?.Choices[3] == answer) Button4Color = newColor;
+            // Set the correct answer button to green
+            switch (correctAnswerIndex)
+            {
+                case 0: Button1Color = FeedbackSuccessColor; break;
+                case 1: Button2Color = FeedbackSuccessColor; break;
+                case 2: Button3Color = FeedbackSuccessColor; break;
+                case 3: Button4Color = FeedbackSuccessColor; break;
+            }
+
+            // If answer was incorrect, also highlight the wrong choice in red
+            if (!isCorrect)
+            {
+                if (CurrentSign?.Choices[0] == answer) Button1Color = FeedbackErrorColor;
+                if (CurrentSign?.Choices[1] == answer) Button2Color = FeedbackErrorColor;
+                if (CurrentSign?.Choices[2] == answer) Button3Color = FeedbackErrorColor;
+                if (CurrentSign?.Choices[3] == answer) Button4Color = FeedbackErrorColor;
+            }
         }
 
         private void ResetButtonColors()

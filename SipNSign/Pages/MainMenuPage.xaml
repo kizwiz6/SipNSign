@@ -65,12 +65,12 @@
 
             <Button Text="View Scores"
                 Style="{StaticResource MenuButton}"
-                BackgroundColor="#9E9E9E"
+                BackgroundColor="#FFC107"
                 Clicked="OnViewScoresClicked"/>
 
             <Button Text="Settings"
                 Style="{StaticResource MenuButton}"
-                BackgroundColor="#9E9E9E"
+                BackgroundColor="#FF5722"
                 Clicked="OnSettingsClicked"/>
         </VerticalStackLayout>
     </ScrollView>
