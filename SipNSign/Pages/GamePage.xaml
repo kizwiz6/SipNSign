@@ -122,14 +122,14 @@
                 <!-- Answer Buttons -->
                 <VerticalStackLayout Grid.Row="1" Spacing="15">
                     <Label Text="What does this sign mean?"
-                         FontSize="20"
+                         FontSize="22"
                          HorizontalOptions="Center"
                          Margin="0,0,0,10"/>
 
                     <Grid ColumnDefinitions="*,*" 
                         RowDefinitions="Auto,Auto" 
-                        RowSpacing="15" 
-                        ColumnSpacing="15"
+                        RowSpacing="10" 
+                        ColumnSpacing="0"
                         HorizontalOptions="Fill">
                         <Button x:Name="AnswerButton1"
                               Grid.Column="0" Grid.Row="0"
@@ -137,7 +137,8 @@
                               Text="{Binding CurrentSign.Choices[0]}"
                               Command="{Binding AnswerCommand}"
                               CommandParameter="{Binding CurrentSign.Choices[0]}"
-                              BackgroundColor="{Binding Button1Color}"/>
+                              BackgroundColor="{Binding Button1Color}"
+                              FontSize="20"/>
 
                         <Button x:Name="AnswerButton2"
                               Grid.Column="1" Grid.Row="0"
@@ -145,7 +146,8 @@
                               Text="{Binding CurrentSign.Choices[1]}"
                               Command="{Binding AnswerCommand}"
                               CommandParameter="{Binding CurrentSign.Choices[1]}"
-                              BackgroundColor="{Binding Button2Color}"/>
+                              BackgroundColor="{Binding Button2Color}"
+                              FontSize="20"/>
 
                         <Button x:Name="AnswerButton3"
                               Grid.Column="0" Grid.Row="1"
@@ -153,7 +155,8 @@
                               Text="{Binding CurrentSign.Choices[2]}"
                               Command="{Binding AnswerCommand}"
                               CommandParameter="{Binding CurrentSign.Choices[2]}"
-                              BackgroundColor="{Binding Button3Color}"/>
+                              BackgroundColor="{Binding Button3Color}"
+                              FontSize="20"/>
 
                         <Button x:Name="AnswerButton4"
                               Grid.Column="1" Grid.Row="1"
@@ -161,7 +164,8 @@
                               Text="{Binding CurrentSign.Choices[3]}"
                               Command="{Binding AnswerCommand}"
                               CommandParameter="{Binding CurrentSign.Choices[3]}"
-                              BackgroundColor="{Binding Button4Color}"/>
+                              BackgroundColor="{Binding Button4Color}"
+                              FontSize="20"/>
                     </Grid>
                 </VerticalStackLayout>
             </Grid>
