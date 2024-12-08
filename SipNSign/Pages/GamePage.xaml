@@ -56,7 +56,8 @@
                      HorizontalOptions="Center"
                      VerticalOptions="Center"
                      FontSize="12"
-                     TextColor="{DynamicResource Primary}"/>
+                     TextColor="{DynamicResource Primary}"
+                     IsVisible="{Binding IsGuessMode}"/>
             </Grid>
             <Frame Grid.Column="1" 
                  Padding="15,5" 
@@ -71,36 +72,52 @@
         <!-- Guess Mode Content -->
         <Grid Grid.Row="1" IsVisible="{Binding IsGuessMode}">
             <Grid RowDefinitions="*,Auto" Padding="20" RowSpacing="20">
-                <Frame Grid.Row="0"
-                     Padding="10"
-                     CornerRadius="15"
-                     HasShadow="True"
-                     BorderColor="{DynamicResource Primary}"
-                     BackgroundColor="White">
-                    <Grid>
-                        <ActivityIndicator IsRunning="{Binding IsLoading}"
-                                       IsVisible="{Binding IsLoading}"
-                                       Color="{DynamicResource Primary}"
-                                       HorizontalOptions="Center"
-                                       VerticalOptions="Center"/>
+                <!-- Create a Grid for the video and its overlay -->
+                <Grid Grid.Row="0">
+                    <Frame Padding="10"
+                           CornerRadius="15"
+                           HasShadow="True"
+                           BorderColor="{DynamicResource Primary}"
+                           BackgroundColor="White">
+                        <Grid>
+                            <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                           IsVisible="{Binding IsLoading}"
+                                           Color="{DynamicResource Primary}"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"/>
 
-                        <toolkit:MediaElement 
-                           x:Name="SignVideo"
-                           Aspect="AspectFit"
-                           HeightRequest="300"
-                           HorizontalOptions="Center"
-                           ShouldAutoPlay="True"
-                           ShouldLoopPlayback="True"
-                           MediaFailed="OnMediaFailed" 
-                           MediaOpened="OnMediaOpened">
-                            <toolkit:MediaElement.Behaviors>
-                                <toolkit:EventToCommandBehavior 
-                                   EventName="Loaded"
-                                   Command="{Binding VideoLoadedCommand}"/>
-                            </toolkit:MediaElement.Behaviors>
-                        </toolkit:MediaElement>
-                    </Grid>
-                </Frame>
+                            <toolkit:MediaElement 
+                               x:Name="SignVideo"
+                               Aspect="AspectFit"
+                               HeightRequest="300"
+                               HorizontalOptions="Center"
+                               ShouldAutoPlay="True"
+                               ShouldLoopPlayback="True"
+                               MediaFailed="OnMediaFailed" 
+                               MediaOpened="OnMediaOpened">
+                                <toolkit:MediaElement.Behaviors>
+                                    <toolkit:EventToCommandBehavior 
+                                       EventName="Loaded"
+                                       Command="{Binding VideoLoadedCommand}"/>
+                                </toolkit:MediaElement.Behaviors>
+                            </toolkit:MediaElement>
+                        </Grid>
+                    </Frame>
+
+                    <!-- Overlay inside the same Grid as the Frame -->
+                    <Frame IsVisible="{Binding IsFeedbackVisible}"
+                           CornerRadius="20"
+                           Margin="20"
+                           BackgroundColor="{Binding FeedbackBackgroundColor}"
+                           HasShadow="True">
+                        <Label Text="{Binding FeedbackText}"
+                               TextColor="White"
+                               FontSize="24"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"/>
+                    </Frame>
+                </Grid>
 
                 <!-- Answer Buttons -->
                 <VerticalStackLayout Grid.Row="1" Spacing="15">
@@ -153,7 +170,7 @@
         <!-- Perform Mode Content -->
         <Grid Grid.Row="1" IsVisible="{Binding IsPerformMode}">
             <ScrollView>
-                <VerticalStackLayout Padding="20" Spacing="20">
+                <VerticalStackLayout Padding="15" Spacing="10">
                     <Label Text="Can you sign this word?"
                            FontSize="20"
                            HorizontalOptions="Center"/>
@@ -162,65 +179,64 @@
                            FontSize="48"
                            HorizontalOptions="Center"
                            FontAttributes="Bold"
-                           Margin="0,20"/>
+                           Margin="0,5"/>
 
                     <Button Text="REVEAL SIGN"
                             Command="{Binding RevealSignCommand}"
                             Style="{StaticResource AnimatedButtonStyle}"
                             IsVisible="{Binding IsSignHidden}"/>
 
-                    <Frame IsVisible="{Binding IsSignRevealed}"
-                           Padding="10"
-                           CornerRadius="15"
-                           HasShadow="True"
-                           BorderColor="{DynamicResource Primary}"
-                           BackgroundColor="White">
-                        <toolkit:MediaElement 
-           x:Name="PerformModeVideo"
-           HeightRequest="300"
-           HorizontalOptions="Center"
-           ShouldAutoPlay="True"
-           ShouldLoopPlayback="True"
-           MediaFailed="OnMediaFailed" 
-           MediaOpened="OnMediaOpened">
-                            <toolkit:MediaElement.Behaviors>
-                                <toolkit:EventToCommandBehavior 
-                   EventName="Loaded"
-                   Command="{Binding VideoLoadedCommand}"/>
-                            </toolkit:MediaElement.Behaviors>
-                        </toolkit:MediaElement>
-                    </Frame>
+                    <Grid IsVisible="{Binding IsSignRevealed}">
+                        <Frame Padding="5"
+                               CornerRadius="15"
+                               HasShadow="True"
+                               BorderColor="{DynamicResource Primary}"
+                               BackgroundColor="White"
+                               Margin="0,5">
+                            <toolkit:MediaElement 
+                               x:Name="PerformModeVideo"
+                               HeightRequest="250"
+                               HorizontalOptions="Center"
+                               ShouldAutoPlay="True"
+                               ShouldLoopPlayback="True"
+                               MediaFailed="OnMediaFailed" 
+                               MediaOpened="OnMediaOpened">
+                                <toolkit:MediaElement.Behaviors>
+                                    <toolkit:EventToCommandBehavior 
+                                       EventName="Loaded"
+                                       Command="{Binding VideoLoadedCommand}"/>
+                                </toolkit:MediaElement.Behaviors>
+                            </toolkit:MediaElement>
+                        </Frame>
+
+                        <!-- Overlay inside the same Grid as the Frame -->
+                        <Frame IsVisible="{Binding IsFeedbackVisible}"
+                               CornerRadius="20"
+                               Margin="20"
+                               BackgroundColor="{Binding FeedbackBackgroundColor}"
+                               HasShadow="True">
+                            <Label Text="{Binding FeedbackText}"
+                                   TextColor="White"
+                                   FontSize="24"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   HorizontalTextAlignment="Center"/>
+                        </Frame>
+                    </Grid>
 
                     <Button Text="I GOT IT RIGHT!"
-          Command="{Binding CorrectPerformCommand}"
-          Style="{StaticResource SuccessButton}"
-          IsVisible="{Binding IsSignRevealed}"/>
+                            Command="{Binding CorrectPerformCommand}"
+                            Style="{StaticResource SuccessButton}"
+                            IsVisible="{Binding IsSignRevealed}"
+                            Margin="8,5"/>
 
                     <Button Text="I NEED A SIP..."
-          Command="{Binding IncorrectPerformCommand}"
-          Style="{StaticResource DangerButton}"
-          IsVisible="{Binding IsSignRevealed}"/>
+                            Command="{Binding IncorrectPerformCommand}"
+                            Style="{StaticResource DangerButton}"
+                            IsVisible="{Binding IsSignRevealed}"
+                            Margin="8,5"/>
                 </VerticalStackLayout>
             </ScrollView>
-        </Grid>
-
-        <!-- Feedback Overlay -->
-        <Grid Grid.RowSpan="3"
-            BackgroundColor="#80000000"
-            IsVisible="{Binding IsFeedbackVisible}">
-            <Frame CornerRadius="20"
-                 Margin="20"
-                 BackgroundColor="{Binding FeedbackBackgroundColor}"
-                 HasShadow="True">
-                <VerticalStackLayout Spacing="10">
-                    <Label Text="{Binding FeedbackText}"
-                         TextColor="White"
-                         FontSize="24"
-                         FontAttributes="Bold"
-                         HorizontalOptions="Center"
-                         HorizontalTextAlignment="Center"/>
-                </VerticalStackLayout>
-            </Frame>
         </Grid>
     </Grid>
 </ContentPage>

@@ -51,7 +51,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         public Color ButtonBaseColor => PrimaryColor;
         public Color FeedbackSuccessColor => _successColor.WithAlpha(0.9f);
         public Color FeedbackErrorColor => _errorColor.WithAlpha(0.9f);
-        public string ModeTitle => _currentMode == GameMode.Guess ? "Guess & Gulp" : "Sign & Sip";
+        public string ModeTitle => _currentMode == GameMode.Guess ? "Guess Mode" : "Perform Mode";
 
         public GameMode CurrentMode
         {
@@ -62,6 +62,9 @@ namespace com.kizwiz.sipnsign.ViewModels
                 {
                     _logger.Debug($"Mode changing from {_currentMode} to {value}");
                     _currentMode = value;
+                    _timer.Stop();
+                    RemainingTime = 0;
+
                     OnPropertyChanged(nameof(CurrentMode));
                     OnPropertyChanged(nameof(PrimaryColor));
                     OnPropertyChanged(nameof(ProgressBarColor));
@@ -387,13 +390,13 @@ namespace com.kizwiz.sipnsign.ViewModels
 
             if (isCorrect)
             {
-                FeedbackText = "Correct!";
+                FeedbackText = $"\n\nCorrect!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.";
                 FeedbackBackgroundColor = FeedbackSuccessColor.ToArgbHex();
                 CurrentScore++;
             }
             else
             {
-                FeedbackText = $"Incorrect. The sign means '{CurrentSign?.CorrectAnswer}'. Take a sip!";
+                FeedbackText = $"\n\nIncorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
                 FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
             }
 
@@ -408,15 +411,17 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private void HandleCorrectPerform()
         {
+            _timer.Stop();
             CurrentScore++;
-            FeedbackText = "Nice work! Your sign was correct!";
+            FeedbackText = "\n\nNice work!\n\nPrepare for your next sign!";
             FeedbackBackgroundColor = FeedbackSuccessColor.ToArgbHex();
             ShowFeedbackAndContinue();
         }
 
         private void HandleIncorrectPerform()
         {
-            FeedbackText = "Keep practicing! Take a sip!";
+            _timer.Stop();
+            FeedbackText = $"\n\nRemember to practice '{CurrentSign?.CorrectAnswer}'!\n\nTake a sip!";
             FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
             ShowFeedbackAndContinue();
         }
@@ -435,12 +440,34 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private void UpdateButtonColor(string answer, bool isCorrect)
         {
-            Color newColor = isCorrect ? FeedbackSuccessColor : FeedbackErrorColor;
+            // Always show the correct answer in green
+            int correctAnswerIndex = -1;
+            for (int i = 0; i < 4; i++)
+            {
+                if (CurrentSign?.Choices[i] == CurrentSign?.CorrectAnswer)
+                {
+                    correctAnswerIndex = i;
+                    break;
+                }
+            }
 
-            if (CurrentSign?.Choices[0] == answer) Button1Color = newColor;
-            if (CurrentSign?.Choices[1] == answer) Button2Color = newColor;
-            if (CurrentSign?.Choices[2] == answer) Button3Color = newColor;
-            if (CurrentSign?.Choices[3] == answer) Button4Color = newColor;
+            // Set the correct answer button to green
+            switch (correctAnswerIndex)
+            {
+                case 0: Button1Color = FeedbackSuccessColor; break;
+                case 1: Button2Color = FeedbackSuccessColor; break;
+                case 2: Button3Color = FeedbackSuccessColor; break;
+                case 3: Button4Color = FeedbackSuccessColor; break;
+            }
+
+            // If answer was incorrect, also highlight the wrong choice in red
+            if (!isCorrect)
+            {
+                if (CurrentSign?.Choices[0] == answer) Button1Color = FeedbackErrorColor;
+                if (CurrentSign?.Choices[1] == answer) Button2Color = FeedbackErrorColor;
+                if (CurrentSign?.Choices[2] == answer) Button3Color = FeedbackErrorColor;
+                if (CurrentSign?.Choices[3] == answer) Button4Color = FeedbackErrorColor;
+            }
         }
 
         private void ResetButtonColors()
@@ -489,16 +516,25 @@ namespace com.kizwiz.sipnsign.ViewModels
                 CurrentSign = _signs[selectedSignIndex];
                 _availableIndices.RemoveAt(randomIndex);
 
+                // Only start timer in Guess Mode
+                if (IsGuessMode)
+                {
+                    StartTimer();
+                }
+                else
+                {
+                    // Make sure timer is stopped in Perform Mode
+                    _timer.Stop();
+                    RemainingTime = 0;  // Hide the timer display
+                }
+
                 // Add this line to debug Perform Mode state
                 if (IsPerformMode)
                 {
                     Debug.WriteLine($"LoadNextSign: In Perform Mode. IsSignHidden: {IsSignHidden}, Word to show: {CurrentSign?.CorrectAnswer}");
                 }
 
-                if (IsGuessMode)
-                {
-                    StartTimer();
-                }
+
             }
             catch (Exception ex)
             {

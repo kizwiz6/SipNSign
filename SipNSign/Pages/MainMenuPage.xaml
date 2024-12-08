@@ -15,10 +15,10 @@
     <ContentPage.Resources>
         <ResourceDictionary>
             <Style x:Key="MenuButton" TargetType="Button">
-                <Setter Property="Margin" Value="20,10"/>
+                <Setter Property="Margin" Value="20,5"/>
                 <Setter Property="HeightRequest" Value="60"/>
-                <Setter Property="CornerRadius" Value="30"/>
-                <Setter Property="FontSize" Value="20"/>
+                <Setter Property="CornerRadius" Value="25"/>
+                <Setter Property="FontSize" Value="18"/>
                 <Setter Property="FontAttributes" Value="Bold"/>
                 <Setter Property="TextColor" Value="White"/>
                 <Setter Property="Shadow">
@@ -33,44 +33,52 @@
 
     <ScrollView>
         <!-- Main content with logo and buttons -->
-        <VerticalStackLayout Spacing="20" Padding="20">
+        <VerticalStackLayout Spacing="10" Padding="15">
             <!-- Logo container -->
             <Frame BackgroundColor="White"
                CornerRadius="20"
-               Margin="20,10"
-               Padding="20"
+               Margin="20,5"
+               Padding="15"
                HasShadow="True">
                 <Image Source="logo.png"
-                   HeightRequest="200"
+                   HeightRequest="225"
                    Aspect="AspectFit"/>
             </Frame>
 
             <!-- Title -->
-            <Label Text="SipNSign!"
-               FontSize="48"
+            <Label Text= "Sip N' Sign "
+               FontSize="60"
+               FontFamily="Bangers"
                FontAttributes="Bold"
                TextColor="White"
-               HorizontalOptions="Center"/>
+               HorizontalOptions="Center">
+                <Label.Shadow>
+                    <Shadow Brush="Black"
+                            Offset="3,3"
+                            Radius="5"
+                            Opacity="0.5"/>
+                </Label.Shadow>
+            </Label>
 
             <!-- Menu Buttons -->
-            <Button Text="Guess &amp; Gulp"
+            <Button Text="Guess Mode"
                 Style="{StaticResource MenuButton}"
                 BackgroundColor="#2196F3"
                 Clicked="OnGuessGameClicked"/>
 
-            <Button Text="Sign &amp; Sip"
+            <Button Text="Perform Mode"
                 Style="{StaticResource MenuButton}"
                 BackgroundColor="#4CAF50"
                 Clicked="OnPerformGameClicked"/>
 
-            <Button Text="View Scores"
+            <Button Text="Progress"
                 Style="{StaticResource MenuButton}"
-                BackgroundColor="#9E9E9E"
+                BackgroundColor="#FFC107"
                 Clicked="OnViewScoresClicked"/>
 
             <Button Text="Settings"
                 Style="{StaticResource MenuButton}"
-                BackgroundColor="#9E9E9E"
+                BackgroundColor="#FF5722"
                 Clicked="OnSettingsClicked"/>
         </VerticalStackLayout>
     </ScrollView>
