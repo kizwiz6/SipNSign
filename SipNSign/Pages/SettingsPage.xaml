@@ -6,6 +6,28 @@
 
     <ScrollView>
         <VerticalStackLayout Spacing="20" Padding="20">
+            
+            <!-- Feedback Delay -->
+            <Frame BorderColor="Gray" Padding="15" CornerRadius="10">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Incorrect Answer Delay" 
+               FontSize="20" 
+               FontAttributes="Bold"/>
+
+                    <Label Text="{Binding Source={x:Reference DelaySlider}, Path=Value, StringFormat='{0:F0} seconds'}"
+               HorizontalOptions="Center"/>
+
+                    <Slider x:Name="DelaySlider"
+                Minimum="2"
+                Maximum="10"
+                Value="5"
+                ValueChanged="OnDelaySliderChanged"/>
+
+                    <Label Text="Adjust how long the feedback shows when you get an answer wrong"
+               FontSize="14"
+               TextColor="Gray"/>
+                </VerticalStackLayout>
+            </Frame>
 
             <!-- Theme Settings -->
             <Frame BorderColor="Gray" Padding="15" CornerRadius="10">
