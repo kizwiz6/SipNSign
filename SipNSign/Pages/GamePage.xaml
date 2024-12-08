@@ -2,6 +2,7 @@
 <ContentPage 
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:converters="clr-namespace:com.kizwiz.sipnsign.Converters;assembly=SipNSign"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     x:Class="com.kizwiz.sipnsign.Pages.GamePage"
     Title="{Binding CurrentMode, StringFormat='{0} Mode'}">
@@ -42,6 +43,8 @@
             <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource AnimatedButtonStyle}">
                 <Setter Property="BackgroundColor" Value="Crimson"/>
             </Style>
+
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
         </ResourceDictionary>
     </ContentPage.Resources>
 
@@ -138,6 +141,7 @@
                               Command="{Binding AnswerCommand}"
                               CommandParameter="{Binding CurrentSign.Choices[0]}"
                               BackgroundColor="{Binding Button1Color}"
+                              IsEnabled="{Binding IsProcessingAnswer, Converter={StaticResource InverseBoolConverter}}"
                               FontSize="20"/>
 
                         <Button x:Name="AnswerButton2"
@@ -147,6 +151,7 @@
                               Command="{Binding AnswerCommand}"
                               CommandParameter="{Binding CurrentSign.Choices[1]}"
                               BackgroundColor="{Binding Button2Color}"
+                              IsEnabled="{Binding IsProcessingAnswer, Converter={StaticResource InverseBoolConverter}}"
                               FontSize="20"/>
 
                         <Button x:Name="AnswerButton3"
@@ -156,6 +161,7 @@
                               Command="{Binding AnswerCommand}"
                               CommandParameter="{Binding CurrentSign.Choices[2]}"
                               BackgroundColor="{Binding Button3Color}"
+                              IsEnabled="{Binding IsProcessingAnswer, Converter={StaticResource InverseBoolConverter}}"
                               FontSize="20"/>
 
                         <Button x:Name="AnswerButton4"
@@ -165,6 +171,7 @@
                               Command="{Binding AnswerCommand}"
                               CommandParameter="{Binding CurrentSign.Choices[3]}"
                               BackgroundColor="{Binding Button4Color}"
+                              IsEnabled="{Binding IsProcessingAnswer, Converter={StaticResource InverseBoolConverter}}"
                               FontSize="20"/>
                     </Grid>
                 </VerticalStackLayout>
@@ -232,12 +239,14 @@
                             Command="{Binding CorrectPerformCommand}"
                             Style="{StaticResource SuccessButton}"
                             IsVisible="{Binding IsSignRevealed}"
+                            IsEnabled="{Binding IsProcessingAnswer, Converter={StaticResource InverseBoolConverter}}"
                             Margin="8,5"/>
 
                     <Button Text="I NEED A SIP..."
                             Command="{Binding IncorrectPerformCommand}"
                             Style="{StaticResource DangerButton}"
                             IsVisible="{Binding IsSignRevealed}"
+                            IsEnabled="{Binding IsProcessingAnswer, Converter={StaticResource InverseBoolConverter}}"
                             Margin="8,5"/>
                 </VerticalStackLayout>
             </ScrollView>
