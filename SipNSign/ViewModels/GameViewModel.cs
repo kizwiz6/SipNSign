@@ -366,7 +366,7 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private void HandleTimeOut()
         {
-            FeedbackText = $"\nTime's up!\nThe sign means '{CurrentSign?.CorrectAnswer}'.\nTake a sip!";
+            FeedbackText = $"Time's up!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
             FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
             IsFeedbackVisible = true;
 
@@ -390,13 +390,13 @@ namespace com.kizwiz.sipnsign.ViewModels
 
             if (isCorrect)
             {
-                FeedbackText = $"\nCorrect!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.";
+                FeedbackText = $"Correct!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.";
                 FeedbackBackgroundColor = FeedbackSuccessColor.ToArgbHex();
                 CurrentScore++;
             }
             else
             {
-                FeedbackText = $"\nIncorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
+                FeedbackText = $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
                 FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
             }
 
@@ -413,7 +413,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         {
             _timer.Stop();
             CurrentScore++;
-            FeedbackText = "\nNice work!\n\nPrepare for your next sign!";
+            FeedbackText = "Nice work!\n\nPrepare for your next sign!";
             FeedbackBackgroundColor = FeedbackSuccessColor.ToArgbHex();
             ShowFeedbackAndContinue();
         }
@@ -421,7 +421,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private void HandleIncorrectPerform()
         {
             _timer.Stop();
-            FeedbackText = $"\nRemember to practice '{CurrentSign?.CorrectAnswer}'!\n\nTake a sip!";
+            FeedbackText = $"Remember to practice '{CurrentSign?.CorrectAnswer}'!\n\nTake a sip!";
             FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
             ShowFeedbackAndContinue();
         }
@@ -429,7 +429,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private void ShowFeedbackAndContinue()
         {
             IsFeedbackVisible = true;
-            Task.Delay(2000).ContinueWith(_ =>
+            Task.Delay(3000).ContinueWith(_ =>
             {
                 ResetButtonColors();
                 IsFeedbackVisible = false;
