@@ -363,7 +363,7 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private void HandleTimeOut()
         {
-            FeedbackText = $"Time's up! The sign means '{CurrentSign?.CorrectAnswer}'. Take a sip!";
+            FeedbackText = $"Time's up!\nThe sign means '{CurrentSign?.CorrectAnswer}'.\nTake a sip!";
             FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
             IsFeedbackVisible = true;
 
