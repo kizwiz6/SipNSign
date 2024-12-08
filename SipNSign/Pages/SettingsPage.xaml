@@ -6,26 +6,49 @@
 
     <ScrollView>
         <VerticalStackLayout Spacing="20" Padding="20">
-            
+            <!-- Timer Settings in Guess Mode -->
+            <Frame BorderColor="Gray" Padding="15" CornerRadius="10">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Guess Mode Timer" 
+                           FontSize="20" 
+                           FontAttributes="Bold"/>
+                    <!-- Add a dedicated label for the timer value -->
+                    <Label x:Name="TimerValueLabel"
+                           Text="10 seconds"
+                           HorizontalOptions="Center"/>
+                    <Slider x:Name="TimerSlider"
+                            Minimum="5"
+                            Maximum="15"
+                            Value="10"
+                            ValueChanged="OnTimerDurationChanged"/>
+                    <HorizontalStackLayout HorizontalOptions="Center">
+                        <CheckBox x:Name="DisableTimerCheckbox" 
+                                 CheckedChanged="OnDisableTimerChanged"/>
+                        <Label Text="Disable Timer"
+                               VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                    <Label Text="Adjust how long you have to answer in Guess Mode"
+                           FontSize="14"
+                           TextColor="Gray"/>
+                </VerticalStackLayout>
+            </Frame>
+
             <!-- Feedback Delay -->
             <Frame BorderColor="Gray" Padding="15" CornerRadius="10">
                 <VerticalStackLayout Spacing="15">
                     <Label Text="Incorrect Answer Delay" 
-               FontSize="20" 
-               FontAttributes="Bold"/>
-
+                           FontSize="20" 
+                           FontAttributes="Bold"/>
                     <Label Text="{Binding Source={x:Reference DelaySlider}, Path=Value, StringFormat='{0:F0} seconds'}"
-               HorizontalOptions="Center"/>
-
+                           HorizontalOptions="Center"/>
                     <Slider x:Name="DelaySlider"
-                Minimum="2"
-                Maximum="10"
-                Value="5"
-                ValueChanged="OnDelaySliderChanged"/>
-
+                            Minimum="2"
+                            Maximum="10"
+                            Value="5"
+                            ValueChanged="OnDelaySliderChanged"/>
                     <Label Text="Adjust how long the feedback shows when you get an answer wrong"
-               FontSize="14"
-               TextColor="Gray"/>
+                           FontSize="14"
+                           TextColor="Gray"/>
                 </VerticalStackLayout>
             </Frame>
 
@@ -44,99 +67,6 @@
                                 Maximum="24" 
                                 Value="16"
                                 ValueChanged="OnFontSizeChanged"
-                                HorizontalOptions="EndAndExpand"/>
-                    </HorizontalStackLayout>
-                </VerticalStackLayout>
-            </Frame>
-
-            <!-- Learning Preferences -->
-            <Frame BorderColor="Gray" Padding="15" CornerRadius="10">
-                <VerticalStackLayout Spacing="15">
-                    <Label Text="Learning Preferences" 
-                           FontSize="20" 
-                           FontAttributes="Bold"/>
-
-                    <Picker x:Name="DifficultyPicker"
-                            Title="Difficulty Level"
-                            SelectedIndexChanged="OnDifficultyChanged">
-                        <Picker.ItemsSource>
-                            <x:Array Type="{x:Type x:String}">
-                                <x:String>Beginner</x:String>
-                                <x:String>Intermediate</x:String>
-                                <x:String>Advanced</x:String>
-                            </x:Array>
-                        </Picker.ItemsSource>
-                    </Picker>
-
-                    <HorizontalStackLayout>
-                        <Label Text="Show Translations" 
-                               VerticalOptions="Center"/>
-                        <Switch x:Name="TranslationsSwitch" 
-                                Toggled="OnTranslationsToggled"
-                                HorizontalOptions="EndAndExpand"/>
-                    </HorizontalStackLayout>
-
-                    <HorizontalStackLayout>
-                        <Label Text="Video Speed" 
-                               VerticalOptions="Center"/>
-                        <Slider x:Name="VideoSpeedSlider"
-                                Minimum="0.5"
-                                Maximum="2.0"
-                                Value="1.0"
-                                ValueChanged="OnVideoSpeedChanged"
-                                HorizontalOptions="EndAndExpand"
-                                WidthRequest="200"/>
-                    </HorizontalStackLayout>
-                </VerticalStackLayout>
-            </Frame>
-
-            <!-- Accessibility Settings -->
-            <Frame BorderColor="Gray" Padding="15" CornerRadius="10">
-                <VerticalStackLayout Spacing="15">
-                    <Label Text="Accessibility" 
-                           FontSize="20" 
-                           FontAttributes="Bold"/>
-
-                    <HorizontalStackLayout>
-                        <Label Text="High Contrast" 
-                               VerticalOptions="Center"/>
-                        <Switch x:Name="ContrastSwitch" 
-                                Toggled="OnContrastToggled"
-                                HorizontalOptions="EndAndExpand"/>
-                    </HorizontalStackLayout>
-
-                    <Picker x:Name="HandDominancePicker"
-                            Title="Hand Dominance">
-                        <Picker.ItemsSource>
-                            <x:Array Type="{x:Type x:String}">
-                                <x:String>Right Handed</x:String>
-                                <x:String>Left Handed</x:String>
-                            </x:Array>
-                        </Picker.ItemsSource>
-                    </Picker>
-                </VerticalStackLayout>
-            </Frame>
-
-            <!-- Data Management -->
-            <Frame BorderColor="Gray" Padding="15" CornerRadius="10">
-                <VerticalStackLayout Spacing="15">
-                    <Label Text="Data Management" 
-                           FontSize="20" 
-                           FontAttributes="Bold"/>
-
-                    <Button Text="Clear Learning History"
-                            Clicked="OnClearHistoryClicked"
-                            BackgroundColor="Red"
-                            TextColor="White"/>
-
-                    <Button Text="Export Progress"
-                            Clicked="OnExportProgressClicked"/>
-
-                    <HorizontalStackLayout>
-                        <Label Text="Offline Mode" 
-                               VerticalOptions="Center"/>
-                        <Switch x:Name="OfflineSwitch" 
-                                Toggled="OnOfflineModeToggled"
                                 HorizontalOptions="EndAndExpand"/>
                     </HorizontalStackLayout>
                 </VerticalStackLayout>

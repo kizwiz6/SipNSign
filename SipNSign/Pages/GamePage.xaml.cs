@@ -72,18 +72,6 @@ namespace com.kizwiz.sipnsign.Pages
             }
         }
 
-        protected override async void OnAppearing()
-        {
-            base.OnAppearing();
-            _viewModel.ResetGame();
-            await LoadCurrentVideo();
-        }
-
-        protected override void OnDisappearing()
-        {
-            base.OnDisappearing();
-        }
-
         private bool IsGuessMode => _viewModel.CurrentMode == GameMode.Guess;
 
         /// <summary>

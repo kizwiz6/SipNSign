@@ -16,10 +16,10 @@
 
             <!-- Image -->
             <Image
-                Source="dotnet_bot.png"
+                Source="logo_2.png"
                 HeightRequest="185"
                 Aspect="AspectFit"
-                SemanticProperties.Description="dot net bot in a race car number eight"
+                SemanticProperties.Description="Logo for Sip N' Sign"
                 Grid.Row="0"
                 VerticalOptions="Center"
                 HorizontalOptions="Center" />

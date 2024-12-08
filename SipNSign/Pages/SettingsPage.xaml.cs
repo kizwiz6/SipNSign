@@ -21,21 +21,21 @@ namespace com.kizwiz.sipnsign.Pages
 
         private void LoadSavedSettings()
         {
-            // Load and set saved preferences
-            FontSizeStepper.Value = _preferences.Get(Constants.FONT_SIZE_KEY, 16.0);
-            DifficultyPicker.SelectedIndex = _preferences.Get(Constants.DIFFICULTY_KEY, 0);
-            TranslationsSwitch.IsToggled = _preferences.Get(Constants.TRANSLATIONS_KEY, true);
-            VideoSpeedSlider.Value = _preferences.Get(Constants.VIDEO_SPEED_KEY, 1.0);
-            ContrastSwitch.IsToggled = _preferences.Get(Constants.CONTRAST_KEY, false);
-            HandDominancePicker.SelectedIndex = _preferences.Get(Constants.HAND_DOMINANCE_KEY, 0);
-            OfflineSwitch.IsToggled = _preferences.Get(Constants.OFFLINE_MODE_KEY, false);
+            // Load timer settings
+            int savedDuration = _preferences.Get(Constants.TIMER_DURATION_KEY, Constants.DEFAULT_TIMER_DURATION);
+            TimerSlider.Value = savedDuration;
+            TimerValueLabel.Text = $"{savedDuration} seconds";
+            DisableTimerCheckbox.IsChecked = savedDuration == 0;
+            TimerSlider.IsEnabled = !DisableTimerCheckbox.IsChecked;
+
+            // Load delay settings
+            DelaySlider.Value = _preferences.Get(Constants.INCORRECT_DELAY_KEY, Constants.DEFAULT_DELAY) / 1000.0;
         }
 
         private async void OnSaveClicked(object sender, EventArgs e)
         {
             try
             {
-                SaveSettings();
                 await DisplayAlert("Success", "Settings saved successfully", "OK");
             }
             catch (Exception ex)
@@ -47,13 +47,6 @@ namespace com.kizwiz.sipnsign.Pages
         private void SaveSettings()
         {
             _preferences.Set(Constants.FONT_SIZE_KEY, FontSizeStepper.Value);
-            _preferences.Set(Constants.DIFFICULTY_KEY, DifficultyPicker.SelectedIndex);
-            _preferences.Set(Constants.TRANSLATIONS_KEY, TranslationsSwitch.IsToggled);
-            _preferences.Set(Constants.VIDEO_SPEED_KEY, VideoSpeedSlider.Value);
-            _preferences.Set(Constants.CONTRAST_KEY, ContrastSwitch.IsToggled);
-            _preferences.Set(Constants.HAND_DOMINANCE_KEY, HandDominancePicker.SelectedIndex);
-            _preferences.Set(Constants.OFFLINE_MODE_KEY, OfflineSwitch.IsToggled);
-
             Application.Current.MainPage.DisplayAlert("Settings Saved", "Your preferences have been updated", "OK");
         }
 
@@ -66,25 +59,6 @@ namespace com.kizwiz.sipnsign.Pages
             }
         }
 
-        private void OnDifficultyChanged(object sender, EventArgs e)
-        {
-            // Update difficulty level in the app
-            var selectedDifficulty = DifficultyPicker.SelectedItem as string;
-            // Implementation for difficulty change
-        }
-
-        private void OnTranslationsToggled(object sender, ToggledEventArgs e)
-        {
-            // Update translation visibility preference
-            // Implementation for showing/hiding translations
-        }
-
-        private void OnVideoSpeedChanged(object sender, ValueChangedEventArgs e)
-        {
-            // Update video playback speed
-            // Implementation for video speed adjustment
-        }
-
         private void OnDelaySliderChanged(object sender, ValueChangedEventArgs e)
         {
             // Convert seconds to milliseconds
@@ -92,11 +66,38 @@ namespace com.kizwiz.sipnsign.Pages
             Preferences.Set(Constants.INCORRECT_DELAY_KEY, delayMs);
         }
 
+        private void OnTimerDurationChanged(object sender, ValueChangedEventArgs e)
+        {
+            int duration = (int)e.NewValue;
+            _preferences.Set(Constants.TIMER_DURATION_KEY, duration);
+            TimerValueLabel.Text = $"{duration} seconds";
+        }
+
+        private void OnDisableTimerChanged(object sender, CheckedChangedEventArgs e)
+        {
+            _preferences.Set(Constants.TIMER_DURATION_KEY, e.Value ? 0 : Constants.DEFAULT_TIMER_DURATION);
+            TimerSlider.IsEnabled = !e.Value;
+            if (e.Value)
+            {
+                TimerValueLabel.Text = "Timer Disabled";
+            }
+            else
+            {
+                int duration = Constants.DEFAULT_TIMER_DURATION;
+                TimerSlider.Value = duration;
+                TimerValueLabel.Text = $"{duration} seconds";
+            }
+        }
+
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            // Load saved delay (convert from ms to seconds for slider)
-            DelaySlider.Value = Preferences.Get(Constants.INCORRECT_DELAY_KEY, Constants.DEFAULT_DELAY) / 1000.0;
+            // Load existing timer duration
+            int savedDuration = _preferences.Get(Constants.TIMER_DURATION_KEY, Constants.DEFAULT_TIMER_DURATION);
+            TimerSlider.Value = savedDuration;
+            TimerValueLabel.Text = $"{savedDuration} seconds";  // Set initial label text
+            DisableTimerCheckbox.IsChecked = savedDuration == 0;
+            TimerSlider.IsEnabled = !DisableTimerCheckbox.IsChecked;
         }
 
         private void OnContrastToggled(object sender, ToggledEventArgs e)

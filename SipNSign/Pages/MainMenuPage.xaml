@@ -37,10 +37,10 @@
         <Frame BackgroundColor="Transparent"
                    BorderColor="Transparent"
                    CornerRadius="20"
-                   Margin="20,5"
+                   Margin="50,5"
                    Padding="0"
                    HasShadow="True">
-            <Image Source="logo.png"
+            <Image Source="logo_2.png"
                        HeightRequest="220"
                        Aspect="AspectFill"/>
         </Frame>
