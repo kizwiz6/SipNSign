@@ -56,11 +56,20 @@
                           Style="{StaticResource ProgressBarStyle}"
                           Progress="{Binding ProgressPercentage}"/>
                 <Label Text="{Binding RemainingTime}"
-                     HorizontalOptions="Center"
-                     VerticalOptions="Center"
-                     FontSize="12"
-                     TextColor="{DynamicResource Primary}"
-                     IsVisible="{Binding IsGuessMode}"/>
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       FontSize="16"
+                       TextColor="{DynamicResource Primary}"
+                       IsVisible="{Binding IsTimerEnabled}">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label"
+                    Binding="{Binding RemainingTime}"
+                    Value="0">
+                            <Setter Property="Text" Value="∞"/>
+                            <!-- or "No Timer" -->
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
             </Grid>
             <Frame Grid.Column="1" 
                  Padding="15,5" 
@@ -181,13 +190,13 @@
         <!-- Perform Mode Content -->
         <Grid Grid.Row="1" IsVisible="{Binding IsPerformMode}">
             <ScrollView>
-                <VerticalStackLayout Padding="15" Spacing="10">
+                <VerticalStackLayout Padding="15" Spacing="8">
                     <Label Text="Can you sign this word?"
                            FontSize="20"
                            HorizontalOptions="Center"/>
 
                     <Label Text="{Binding CurrentSign.CorrectAnswer}"
-                           FontSize="48"
+                           FontSize="46"
                            HorizontalOptions="Center"
                            FontAttributes="Bold"
                            Margin="0,5"/>
@@ -198,8 +207,8 @@
                             IsVisible="{Binding IsSignHidden}"/>
 
                     <Grid IsVisible="{Binding IsSignRevealed}">
-                        <Frame Padding="5"
-                               CornerRadius="15"
+                        <Frame Padding="1"
+                               CornerRadius="10"
                                HasShadow="True"
                                BorderColor="{DynamicResource Primary}"
                                BackgroundColor="White"

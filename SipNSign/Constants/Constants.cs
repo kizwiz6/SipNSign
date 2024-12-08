@@ -11,12 +11,6 @@ namespace com.kizwiz.sipnsign
         // Theme settings
         public const string THEME_KEY = "app_theme";
         public const string FONT_SIZE_KEY = "font_size";
-        public const string DIFFICULTY_KEY = "difficulty_level";
-        public const string TRANSLATIONS_KEY = "show_translations";
-        public const string VIDEO_SPEED_KEY = "video_speed";
-        public const string CONTRAST_KEY = "high_contrast";
-        public const string HAND_DOMINANCE_KEY = "hand_dominance";
-        public const string OFFLINE_MODE_KEY = "offline_mode";
 
         // Timer settings
         public const string TIMER_DURATION_KEY = "TimerDuration";
