@@ -9,15 +9,9 @@
 
     <Application.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <!-- Core Styles -->
-                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
-                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
-
-                <!-- Theme Dictionaries -->
-                <ResourceDictionary Source="Resources/Themes/LightThemeResourceDictionary.xaml" />
-                <ResourceDictionary Source="Resources/Themes/DarkThemeResourceDictionary.xaml" />
-            </ResourceDictionary.MergedDictionaries>
+            <!-- Core Styles -->
+            <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+            <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
 
             <!-- Global Animation Values -->
             <x:Double x:Key="StandardAnimationDuration">250</x:Double>

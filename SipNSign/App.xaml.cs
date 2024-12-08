@@ -39,11 +39,6 @@ namespace com.kizwiz.sipnsign
                 BarTextColor = _navBarTextColor
             };
 
-            // Load theme after setting MainPage
-            var savedTheme = Preferences.Get("UserTheme", "light");
-            AppTheme initialTheme = savedTheme == "dark" ? AppTheme.Dark : AppTheme.Light;
-            SetAppTheme(initialTheme);
-
             // Initialize videos in background
             Task.Run(async () =>
             {
@@ -67,55 +62,6 @@ namespace com.kizwiz.sipnsign
         public T GetService<T>() where T : class
         {
             return _serviceProvider.GetService<T>();
-        }
-
-        /// <summary>
-        /// Sets the application's theme based on the specified <see cref="AppTheme"/>.
-        /// This method clears existing merged resource dictionaries and applies
-        /// the relevant theme dictionaries, updating the app's appearance.
-        /// </summary>
-        /// <param name="theme">The theme to apply, either Light or Dark.</param>
-        public void SetAppTheme(AppTheme theme)
-        {
-            // Clear existing merged dictionaries to avoid conflicts
-            Resources.MergedDictionaries.Clear();
-
-            // Add global resource dictionaries (Colors and Styles) again
-            Resources.MergedDictionaries.Add(new com.kizwiz.sipnsign.Resources.Styles.ColoursResourceDictionary());
-            Resources.MergedDictionaries.Add(new com.kizwiz.sipnsign.Resources.Styles.StylesResourceDictionary());
-
-            // Load the appropriate theme ResourceDictionary based on the current theme
-            if (theme == AppTheme.Light)
-            {
-                Resources.MergedDictionaries.Add(new com.kizwiz.sipnsign.Resources.Themes.LightThemeResourceDictionary());
-                UpdateBackgroundColor("Light");
-            }
-            else if (theme == AppTheme.Dark)
-            {
-                Resources.MergedDictionaries.Add(new com.kizwiz.sipnsign.Resources.Themes.DarkThemeResourceDictionary());
-                UpdateBackgroundColor("Dark");
-            }
-
-            // Save the user's preference for future launches
-            Preferences.Set("UserTheme", theme == AppTheme.Dark ? "dark" : "light");
-        }
-
-        /// <summary>
-        /// Updates the background color of the main page based on the specified theme.
-        /// </summary>
-        /// <param name="theme">The theme to apply, either "Light" or "Dark".</param>
-        private void UpdateBackgroundColor(string theme)
-        {
-            // Wait for the MainPage to be fully initialised
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                if (Application.Current?.MainPage != null)
-                {
-                    Application.Current.MainPage.BackgroundColor = theme == "Light"
-                        ? Color.FromArgb("#FFFFFF")
-                        : Color.FromArgb("#121212");
-                }
-            });
         }
     }
 }

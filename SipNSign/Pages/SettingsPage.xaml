@@ -15,14 +15,6 @@
                            FontAttributes="Bold"/>
 
                     <HorizontalStackLayout>
-                        <Label Text="Dark Mode" 
-                               VerticalOptions="Center"/>
-                        <Switch x:Name="ThemeSwitch" 
-                                Toggled="OnThemeToggled"
-                                HorizontalOptions="EndAndExpand"/>
-                    </HorizontalStackLayout>
-
-                    <HorizontalStackLayout>
                         <Label Text="Font Size" 
                                VerticalOptions="Center"/>
                         <Stepper x:Name="FontSizeStepper" 

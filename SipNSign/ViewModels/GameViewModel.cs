@@ -366,7 +366,7 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private void HandleTimeOut()
         {
-            FeedbackText = $"Time's up!\nThe sign means '{CurrentSign?.CorrectAnswer}'.\nTake a sip!";
+            FeedbackText = $"\nTime's up!\nThe sign means '{CurrentSign?.CorrectAnswer}'.\nTake a sip!";
             FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
             IsFeedbackVisible = true;
 
@@ -390,13 +390,13 @@ namespace com.kizwiz.sipnsign.ViewModels
 
             if (isCorrect)
             {
-                FeedbackText = $"\n\nCorrect!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.";
+                FeedbackText = $"\nCorrect!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.";
                 FeedbackBackgroundColor = FeedbackSuccessColor.ToArgbHex();
                 CurrentScore++;
             }
             else
             {
-                FeedbackText = $"\n\nIncorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
+                FeedbackText = $"\nIncorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
                 FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
             }
 
@@ -413,7 +413,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         {
             _timer.Stop();
             CurrentScore++;
-            FeedbackText = "\n\nNice work!\n\nPrepare for your next sign!";
+            FeedbackText = "\nNice work!\n\nPrepare for your next sign!";
             FeedbackBackgroundColor = FeedbackSuccessColor.ToArgbHex();
             ShowFeedbackAndContinue();
         }
@@ -421,7 +421,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private void HandleIncorrectPerform()
         {
             _timer.Stop();
-            FeedbackText = $"\n\nRemember to practice '{CurrentSign?.CorrectAnswer}'!\n\nTake a sip!";
+            FeedbackText = $"\nRemember to practice '{CurrentSign?.CorrectAnswer}'!\n\nTake a sip!";
             FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
             ShowFeedbackAndContinue();
         }
