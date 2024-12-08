@@ -23,6 +23,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         #region Private Fields
         private readonly IDispatcherTimer _timer;
         private readonly ILoggingService _logger;
+        private readonly IProgressService _progressService;
         private const int QuestionTimeLimit = 10;
         private const string TAG = "SipNSignApp";
         private int _remainingTime;
@@ -44,6 +45,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private Color _button4Color;
         private GameMode _currentMode = GameMode.Guess;
         private bool _isSignHidden = true;
+        private UserProgress _userProgress;
         #endregion
 
         public bool IsProcessingAnswer
@@ -322,9 +324,10 @@ namespace com.kizwiz.sipnsign.ViewModels
         #endregion
 
         #region Constructor
-        public GameViewModel(ILoggingService logger)
+        public GameViewModel(ILoggingService logger, IProgressService progressService)
         {
             _logger = logger;
+            _progressService = progressService;
 
             try
             {
@@ -345,6 +348,8 @@ namespace com.kizwiz.sipnsign.ViewModels
 
                 _availableIndices = new List<int>();
                 _feedbackBackgroundColor = Colors.Transparent.ToArgbHex();
+
+                _userProgress = _progressService.GetUserProgressAsync().Result;
 
                 _timer = Application.Current.Dispatcher.CreateTimer();
                 _timer.Interval = TimeSpan.FromSeconds(1);
@@ -449,6 +454,20 @@ namespace com.kizwiz.sipnsign.ViewModels
         {
             _logger.Debug($"RevealSign called. CurrentSign is: {CurrentSign?.CorrectAnswer ?? "null"}");
             IsSignHidden = false;
+        }
+
+        private async Task HandleCorrectAnswer()
+        {
+            CurrentScore++;
+            await _progressService.LogActivityAsync(new ActivityLog
+            {
+                Id = Guid.NewGuid().ToString(),
+                Type = ActivityType.Practice,
+                Description = $"Learned sign for '{CurrentSign.CorrectAnswer}'",
+                IconName = "practice_icon",
+                Timestamp = DateTime.Now,
+                Score = CurrentScore.ToString()
+            });
         }
 
         private async void HandleCorrectPerform()
@@ -557,6 +576,17 @@ namespace com.kizwiz.sipnsign.ViewModels
             {
                 RemainingTime = 0;  // Hide the timer display
             }
+        }
+
+        /// <summary>
+        /// Track practice tim.
+        /// </summary>
+        /// <returns></returns>
+        private async Task UpdatePracticeTime()
+        {
+            if (_userProgress == null) return;
+            _userProgress.TotalPracticeTime = _userProgress.TotalPracticeTime.Add(TimeSpan.FromMinutes(1));
+            await _progressService.SaveProgressAsync(_userProgress);
         }
 
         private void SwitchMode(GameMode mode)

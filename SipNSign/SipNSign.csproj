@@ -67,8 +67,12 @@
     <PackageReference Include="Xamarin.AndroidX.Collection.Ktx" Version="1.4.5.1" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Platforms\Android\Resources\Images\" />
     <Folder Include="Resources\Themes\" />
+  </ItemGroup>
+  <ItemGroup>
+    <MauiImage Include="Platforms\Android\Resources\Images\achievement_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\quiz_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\streak_icon.svg" />
   </ItemGroup>
 
 </Project>

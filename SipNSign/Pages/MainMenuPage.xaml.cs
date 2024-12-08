@@ -28,7 +28,8 @@ namespace com.kizwiz.sipnsign.Pages
         {
             var videoService = _serviceProvider.GetRequiredService<IVideoService>();
             var logger = _serviceProvider.GetRequiredService<ILoggingService>();
-            var gamePage = new GamePage(videoService, logger);
+            var progressService = _serviceProvider.GetRequiredService<IProgressService>();
+            var gamePage = new GamePage(videoService, logger, progressService);
             gamePage.ViewModel.CurrentMode = GameMode.Guess;
             await Navigation.PushAsync(gamePage);
         }
@@ -37,7 +38,8 @@ namespace com.kizwiz.sipnsign.Pages
         {
             var videoService = _serviceProvider.GetRequiredService<IVideoService>();
             var logger = _serviceProvider.GetRequiredService<ILoggingService>();
-            var gamePage = new GamePage(videoService, logger);
+            var progressService = _serviceProvider.GetRequiredService<IProgressService>();
+            var gamePage = new GamePage(videoService, logger, progressService);
             gamePage.ViewModel.CurrentMode = GameMode.Perform;
             await Navigation.PushAsync(gamePage);
         }

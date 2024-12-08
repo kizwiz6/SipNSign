@@ -48,6 +48,38 @@ namespace com.kizwiz.sipnsign.Services
                     Description = "Get 100% on a quiz",
                     IconName = "quiz_icon",
                     ProgressRequired = 1
+                },
+                new Achievement
+                {
+                    Id = "FIRST_SIGN",
+                    Title = "First Steps",
+                    Description = "Learn your first sign",
+                    IconName = "practice_icon",
+                    ProgressRequired = 1
+                },
+                new Achievement
+                {
+                    Id = "STREAK_30",
+                    Title = "Monthly Master",
+                    Description = "Practice for 30 consecutive days",
+                    IconName = "streak_icon",
+                    ProgressRequired = 30
+                },
+                new Achievement
+                {
+                    Id = "SIGNS_100",
+                    Title = "Century Club",
+                    Description = "Learn 100 signs",
+                    IconName = "practice_icon",
+                    ProgressRequired = 100
+                },
+                new Achievement
+                {
+                    Id = "PRACTICE_HOURS_10",
+                    Title = "Dedicated Student",
+                    Description = "Practice for 10 hours",
+                    IconName = "time_icon",
+                    ProgressRequired = 10
                 }
             };
         }
@@ -119,30 +151,44 @@ namespace com.kizwiz.sipnsign.Services
             {
                 switch (achievement.Id)
                 {
-                    case "STREAK_7":
-                        if (_currentProgress.CurrentStreak >= 7 && !achievement.IsUnlocked)
-                        {
-                            await UnlockAchievement(achievement);
-                        }
+                    case "FIRST_SIGN" when _currentProgress.SignsLearned >= 1:
+                        await UnlockAchievement(achievement);
+                        achievement.ProgressCurrent = 1;
+                        break;
+
+                    case "STREAK_7" when _currentProgress.CurrentStreak >= 7:
+                        await UnlockAchievement(achievement);
                         achievement.ProgressCurrent = _currentProgress.CurrentStreak;
                         break;
 
-                    case "SIGNS_50":
-                        if (_currentProgress.SignsLearned >= 50 && !achievement.IsUnlocked)
-                        {
-                            await UnlockAchievement(achievement);
-                        }
+                    case "STREAK_30" when _currentProgress.CurrentStreak >= 30:
+                        await UnlockAchievement(achievement);
+                        achievement.ProgressCurrent = _currentProgress.CurrentStreak;
+                        break;
+
+                    case "SIGNS_50" when _currentProgress.SignsLearned >= 50:
+                        await UnlockAchievement(achievement);
+                        achievement.ProgressCurrent = _currentProgress.SignsLearned;
+                        break;
+
+                    case "SIGNS_100" when _currentProgress.SignsLearned >= 100:
+                        await UnlockAchievement(achievement);
                         achievement.ProgressCurrent = _currentProgress.SignsLearned;
                         break;
 
                     case "QUIZ_PERFECT":
                         var perfectQuiz = _currentProgress.Activities
                             .Any(a => a.Type == ActivityType.Quiz && a.Score == "10/10");
-                        if (perfectQuiz && !achievement.IsUnlocked)
+                        if (perfectQuiz)
                         {
                             await UnlockAchievement(achievement);
                         }
                         achievement.ProgressCurrent = perfectQuiz ? 1 : 0;
+                        break;
+
+                    case "PRACTICE_HOURS_10" when _currentProgress.TotalPracticeTime.TotalHours >= 10:
+                        await UnlockAchievement(achievement);
+                        achievement.ProgressCurrent = (int)_currentProgress.TotalPracticeTime.TotalHours;
                         break;
                 }
             }

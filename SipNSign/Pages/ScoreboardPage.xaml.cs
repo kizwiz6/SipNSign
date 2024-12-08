@@ -1,5 +1,6 @@
 using com.kizwiz.sipnsign.Models;
 using com.kizwiz.sipnsign.Services;
+using com.kizwiz.sipnsign.ViewModels;
 
 namespace com.kizwiz.sipnsign.Pages;
 
@@ -7,17 +8,19 @@ public partial class ScoreboardPage : ContentPage
 {
     private readonly IProgressService _progressService;
     private UserProgress _userProgress;
+    private readonly ScoreboardViewModel _viewModel;
 
     public ScoreboardPage(IProgressService progressService)
     {
         InitializeComponent();
-        _progressService = progressService;
+        _viewModel = new ScoreboardViewModel(progressService);
+        BindingContext = _viewModel;
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await LoadUserProgress();
+        await _viewModel.LoadProgressAsync();
     }
 
     private async Task LoadUserProgress()

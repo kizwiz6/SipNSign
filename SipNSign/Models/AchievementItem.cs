@@ -12,5 +12,7 @@ namespace com.kizwiz.sipnsign.Models
         public string Title { get; set; }
         public string Description { get; set; }
         public bool IsUnlocked { get; set; }
+        public double Progress { get; set; } // 0.0 to 1.0
+        public string ProgressText { get; set; } // e.g., "5/10"
     }
 }
