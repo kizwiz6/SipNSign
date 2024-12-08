@@ -27,6 +27,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private const string TAG = "SipNSignApp";
         private int _remainingTime;
         private bool _isLoading;
+        private bool _isProcessingAnswer;
         private int _currentScore;
         private SignModel? _currentSign;
         private List<SignModel> _signs;
@@ -45,6 +46,16 @@ namespace com.kizwiz.sipnsign.ViewModels
         private bool _isSignHidden = true;
         #endregion
 
+        public bool IsProcessingAnswer
+        {
+            get => _isProcessingAnswer;
+            set
+            {
+                _isProcessingAnswer = value;
+                OnPropertyChanged(nameof(IsProcessingAnswer));
+            }
+        }
+
         #region Public Properties
         public Color PrimaryColor => _currentMode == GameMode.Guess ? _guessPrimaryColor : _performPrimaryColor;
         public Color ProgressBarColor => PrimaryColor;
@@ -52,6 +63,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         public Color FeedbackSuccessColor => _successColor.WithAlpha(0.9f);
         public Color FeedbackErrorColor => _errorColor.WithAlpha(0.9f);
         public string ModeTitle => _currentMode == GameMode.Guess ? "Guess Mode" : "Perform Mode";
+        public bool IsTimerEnabled => Preferences.Get(Constants.TIMER_DURATION_KEY, Constants.DEFAULT_TIMER_DURATION) > 0;
 
         public GameMode CurrentMode
         {
@@ -257,6 +269,26 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
 
+        private Color GetButtonColor(int buttonIndex, int selectedIndex, int correctIndex, bool isCorrect)
+        {
+            if (IsProcessingAnswer)
+            {
+                if (buttonIndex == selectedIndex)
+                {
+                    // Selected button
+                    return isCorrect ? FeedbackSuccessColor : FeedbackErrorColor;
+                }
+                else if (buttonIndex == correctIndex && !isCorrect)
+                {
+                    // Show correct answer when wrong
+                    return FeedbackSuccessColor;
+                }
+            }
+
+            // Keep original color for unselected buttons or when not processing
+            return ButtonBaseColor;
+        }
+
         public bool IsSignHidden
         {
             get => _isSignHidden;
@@ -292,7 +324,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         #region Constructor
         public GameViewModel(ILoggingService logger)
         {
-            _logger = logger; 
+            _logger = logger;
 
             try
             {
@@ -326,8 +358,8 @@ namespace com.kizwiz.sipnsign.ViewModels
             {
                 Debug.WriteLine($"Error in GameViewModel: {ex}");
             }
-            
-            
+
+
         }
         #endregion
 
@@ -366,7 +398,7 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private void HandleTimeOut()
         {
-            FeedbackText = $"\nTime's up!\nThe sign means '{CurrentSign?.CorrectAnswer}'.\nTake a sip!";
+            FeedbackText = $"Time's up!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
             FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
             IsFeedbackVisible = true;
 
@@ -382,11 +414,16 @@ namespace com.kizwiz.sipnsign.ViewModels
             return answer == CurrentSign?.CorrectAnswer;
         }
 
-        private void HandleAnswer(string answer)
+        private async void HandleAnswer(string answer)
         {
-            _timer.Stop();
-            bool isCorrect = CheckAnswer(answer);
-            UpdateButtonColor(answer, isCorrect);
+            if (IsProcessingAnswer) return; // prevent multiple clicks
+
+            try
+            {
+                IsProcessingAnswer = true;
+                _timer.Stop();
+                bool isCorrect = CheckAnswer(answer);
+                UpdateButtonColor(answer, isCorrect);
 
                 if (isCorrect)
                 {
@@ -400,7 +437,12 @@ namespace com.kizwiz.sipnsign.ViewModels
                     FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
                 }
 
-            ShowFeedbackAndContinue();
+                await ShowFeedbackAndContinue(isCorrect);
+            }
+            finally
+            {
+                IsProcessingAnswer = false;
+            }
         }
 
         private void RevealSign()
@@ -430,7 +472,7 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private async void HandleIncorrectPerform()
         {
-            if (IsProcessingAnswer) return; // prevent multiple clicks
+            if (IsProcessingAnswer) return;  // Prevent multiple clicks
 
             try
             {
@@ -446,16 +488,22 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
 
-        private void ShowFeedbackAndContinue()
+        private async Task ShowFeedbackAndContinue(bool isCorrect)
         {
             IsFeedbackVisible = true;
-            Task.Delay(2000).ContinueWith(_ =>
+
+            // Use shorter delay for correct answers, configurable delay for incorrect
+            int delay = isCorrect ? 2000 : Preferences.Get(Constants.INCORRECT_DELAY_KEY, Constants.DEFAULT_DELAY);
+
+            await Task.Delay(delay);
+
+            await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 ResetButtonColors();
                 IsFeedbackVisible = false;
                 if (IsPerformMode) IsSignHidden = true;
                 LoadNextSign();
-            }, TaskScheduler.FromCurrentSynchronizationContext());
+            });
         }
 
         private void UpdateButtonColor(string answer, bool isCorrect)
@@ -489,25 +537,6 @@ namespace com.kizwiz.sipnsign.ViewModels
             Button4Color = GetButtonColor(3, selectedAnswerIndex, correctAnswerIndex, isCorrect);
         }
 
-        private Color GetButtonColor(int buttonIndex, int selectedIndex, int correctIndex, bool isCorrect)
-        {
-            if (IsProcessingAnswer)
-            {
-                if (buttonIndex == selectedIndex)
-                {
-                    // Selected button
-                    return isCorrect ? FeedbackSuccessColor : FeedbackErrorColor;
-                }
-                else if (buttonIndex == correctIndex && !isCorrect)
-                {
-                    // Show correct answer when wrong
-                    return FeedbackSuccessColor;
-                }
-            }
-
-            // Keep original color for unselected buttons or when not processing
-            return ButtonBaseColor;
-        }
         private void ResetButtonColors()
         {
             Button1Color = ButtonBaseColor;
@@ -559,20 +588,23 @@ namespace com.kizwiz.sipnsign.ViewModels
                 _logger.Debug($"LoadNextSign: Loading sign at index {selectedSignIndex}");
                 _logger.Debug($"LoadNextSign: Sign word is: {_signs[selectedSignIndex].CorrectAnswer}");
 
-                CurrentSign = _signs[selectedSignIndex];
-                _availableIndices.RemoveAt(randomIndex);
+                // Add small delay before setting CurrentSign to ensure UI is ready
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    await Task.Delay(100);  // Small delay
+                    CurrentSign = _signs[selectedSignIndex];
+                    _availableIndices.RemoveAt(randomIndex);
 
-                // Only start timer in Guess Mode
-                if (IsGuessMode)
-                {
-                    StartTimer();
-                }
-                else
-                {
-                    // Make sure timer is stopped in Perform Mode
-                    _timer.Stop();
-                    RemainingTime = 0;  // Hide the timer display
-                }
+                    if (IsGuessMode)
+                    {
+                        StartTimer();
+                    }
+                    else
+                    {
+                        _timer.Stop();
+                        RemainingTime = 0;
+                    }
+                });
 
                 // Add this line to debug Perform Mode state
                 if (IsPerformMode)

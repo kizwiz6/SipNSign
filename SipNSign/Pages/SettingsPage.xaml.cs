@@ -11,6 +11,7 @@ namespace com.kizwiz.sipnsign.Pages
     public partial class SettingsPage : ContentPage
     {
         private IPreferences _preferences;
+
         public SettingsPage()
         {
             InitializeComponent();
@@ -35,7 +36,6 @@ namespace com.kizwiz.sipnsign.Pages
         {
             try
             {
-                SaveSettings();
                 await DisplayAlert("Success", "Settings saved successfully", "OK");
             }
             catch (Exception ex)
@@ -46,6 +46,7 @@ namespace com.kizwiz.sipnsign.Pages
 
         private void SaveSettings()
         {
+            _preferences.Set(Constants.FONT_SIZE_KEY, FontSizeStepper.Value);
             Application.Current.MainPage.DisplayAlert("Settings Saved", "Your preferences have been updated", "OK");
         }
 
@@ -69,7 +70,7 @@ namespace com.kizwiz.sipnsign.Pages
         {
             int duration = (int)e.NewValue;
             _preferences.Set(Constants.TIMER_DURATION_KEY, duration);
-            TimerValueLabel.Text = $"{duration} seconds";  // Update the label text
+            TimerValueLabel.Text = $"{duration} seconds";
         }
 
         private void OnDisableTimerChanged(object sender, CheckedChangedEventArgs e)

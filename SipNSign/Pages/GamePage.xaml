@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage 
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:converters="clr-namespace:com.kizwiz.sipnsign.Converters"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     x:Class="com.kizwiz.sipnsign.Pages.GamePage"
@@ -61,8 +62,8 @@
                        IsVisible="{Binding IsTimerEnabled}">
                     <Label.Triggers>
                         <DataTrigger TargetType="Label"
-                    Binding="{Binding RemainingTime}"
-                    Value="0">
+                                    Binding="{Binding RemainingTime}"
+                                    Value="0">
                             <Setter Property="Text" Value="∞"/>
                             <!-- or "No Timer" -->
                         </DataTrigger>
@@ -150,6 +151,7 @@
                               BackgroundColor="{Binding Button1Color}"
                               IsEnabled="{Binding IsProcessingAnswer, Converter={StaticResource InverseBoolConverter}}"
                               FontSize="20"/>
+                        
                         <Button x:Name="AnswerButton2"
                               Grid.Column="1" Grid.Row="0"
                               Style="{StaticResource AnimatedButtonStyle}"
@@ -159,6 +161,7 @@
                               BackgroundColor="{Binding Button2Color}"
                               IsEnabled="{Binding IsProcessingAnswer, Converter={StaticResource InverseBoolConverter}}"
                               FontSize="20"/>
+                        
                         <Button x:Name="AnswerButton3"
                               Grid.Column="0" Grid.Row="1"
                               Style="{StaticResource AnimatedButtonStyle}"
@@ -168,6 +171,7 @@
                               BackgroundColor="{Binding Button3Color}"
                               IsEnabled="{Binding IsProcessingAnswer, Converter={StaticResource InverseBoolConverter}}"
                               FontSize="20"/>
+                        
                         <Button x:Name="AnswerButton4"
                               Grid.Column="1" Grid.Row="1"
                               Style="{StaticResource AnimatedButtonStyle}"
