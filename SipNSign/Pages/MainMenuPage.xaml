@@ -31,55 +31,54 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <ScrollView>
-        <!-- Main content with logo and buttons -->
-        <VerticalStackLayout Spacing="10" Padding="15">
-            <!-- Logo container -->
-            <Frame BackgroundColor="White"
-               CornerRadius="20"
-               Margin="20,5"
-               Padding="15"
-               HasShadow="True">
-                <Image Source="logo.png"
-                   HeightRequest="225"
-                   Aspect="AspectFit"/>
-            </Frame>
+    <!-- Main content with logo and buttons -->
+    <VerticalStackLayout Spacing="5" Padding="10">
+        <!-- Logo container -->
+        <Frame BackgroundColor="Transparent"
+                   BorderColor="Transparent"
+                   CornerRadius="20"
+                   Margin="20,5"
+                   Padding="0"
+                   HasShadow="True">
+            <Image Source="logo.png"
+                       HeightRequest="220"
+                       Aspect="AspectFill"/>
+        </Frame>
 
-            <!-- Title -->
-            <Label Text= "Sip N' Sign "
-               FontSize="60"
+        <!-- Title -->
+        <Label Text= "Sip N' Sign "
+               FontSize="50"
                FontFamily="Bangers"
                FontAttributes="Bold"
                TextColor="White"
                HorizontalOptions="Center">
-                <Label.Shadow>
-                    <Shadow Brush="Black"
+            <Label.Shadow>
+                <Shadow Brush="Black"
                             Offset="3,3"
                             Radius="5"
                             Opacity="0.5"/>
-                </Label.Shadow>
-            </Label>
+            </Label.Shadow>
+        </Label>
 
-            <!-- Menu Buttons -->
-            <Button Text="Guess Mode"
+        <!-- Menu Buttons -->
+        <Button Text="Guess Mode"
                 Style="{StaticResource MenuButton}"
                 BackgroundColor="#2196F3"
                 Clicked="OnGuessGameClicked"/>
 
-            <Button Text="Perform Mode"
+        <Button Text="Perform Mode"
                 Style="{StaticResource MenuButton}"
                 BackgroundColor="#4CAF50"
                 Clicked="OnPerformGameClicked"/>
 
-            <Button Text="Progress"
+        <Button Text="Progress"
                 Style="{StaticResource MenuButton}"
                 BackgroundColor="#FFC107"
                 Clicked="OnViewScoresClicked"/>
 
-            <Button Text="Settings"
+        <Button Text="Settings"
                 Style="{StaticResource MenuButton}"
                 BackgroundColor="#FF5722"
                 Clicked="OnSettingsClicked"/>
-        </VerticalStackLayout>
-    </ScrollView>
+    </VerticalStackLayout>
 </ContentPage>
