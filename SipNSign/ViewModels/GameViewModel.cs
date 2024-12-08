@@ -27,6 +27,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private const string TAG = "SipNSignApp";
         private int _remainingTime;
         private bool _isLoading;
+        private bool _isProcessingAnswer;
         private int _currentScore;
         private SignModel? _currentSign;
         private List<SignModel> _signs;
@@ -44,6 +45,16 @@ namespace com.kizwiz.sipnsign.ViewModels
         private GameMode _currentMode = GameMode.Guess;
         private bool _isSignHidden = true;
         #endregion
+
+        public bool IsProcessingAnswer
+        {
+            get => _isProcessingAnswer;
+            set
+            {
+                _isProcessingAnswer = value;
+                OnPropertyChanged(nameof(IsProcessingAnswer));
+            }
+        }
 
         #region Public Properties
         public Color PrimaryColor => _currentMode == GameMode.Guess ? _guessPrimaryColor : _performPrimaryColor;
@@ -366,7 +377,7 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private void HandleTimeOut()
         {
-            FeedbackText = $"\nTime's up!\nThe sign means '{CurrentSign?.CorrectAnswer}'.\nTake a sip!";
+            FeedbackText = $"Time's up!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
             FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
             IsFeedbackVisible = true;
 
@@ -382,25 +393,35 @@ namespace com.kizwiz.sipnsign.ViewModels
             return answer == CurrentSign?.CorrectAnswer;
         }
 
-        private void HandleAnswer(string answer)
+        private async void HandleAnswer(string answer)
         {
-            _timer.Stop();
-            bool isCorrect = CheckAnswer(answer);
-            UpdateButtonColor(answer, isCorrect);
+            if (IsProcessingAnswer) return; // prevent multiple clicks
 
-            if (isCorrect)
+            try
             {
-                FeedbackText = $"\nCorrect!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.";
-                FeedbackBackgroundColor = FeedbackSuccessColor.ToArgbHex();
-                CurrentScore++;
-            }
-            else
-            {
-                FeedbackText = $"\nIncorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
-                FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
-            }
+                IsProcessingAnswer = true;
+                _timer.Stop();
+                bool isCorrect = CheckAnswer(answer);
+                UpdateButtonColor(answer, isCorrect);
 
-            ShowFeedbackAndContinue();
+                if (isCorrect)
+                {
+                    FeedbackText = "Correct!";
+                    FeedbackBackgroundColor = FeedbackSuccessColor.ToArgbHex();
+                    CurrentScore++;
+                }
+                else
+                {
+                    FeedbackText = $"Incorrect. The sign means '{CurrentSign?.CorrectAnswer}'. Take a sip!";
+                    FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
+                }
+
+                await ShowFeedbackAndContinue(isCorrect);
+            }
+            finally
+            {
+                IsProcessingAnswer = false;
+            }
         }
 
         private void RevealSign()
@@ -409,33 +430,60 @@ namespace com.kizwiz.sipnsign.ViewModels
             IsSignHidden = false;
         }
 
-        private void HandleCorrectPerform()
+        private async void HandleCorrectPerform()
         {
-            _timer.Stop();
-            CurrentScore++;
-            FeedbackText = "\nNice work!\n\nPrepare for your next sign!";
-            FeedbackBackgroundColor = FeedbackSuccessColor.ToArgbHex();
-            ShowFeedbackAndContinue();
+            if (IsProcessingAnswer) return;  // Prevent multiple clicks
+
+            try
+            {
+                IsProcessingAnswer = true;
+                _timer.Stop();
+                CurrentScore++;
+                FeedbackText = "Nice work! Your sign was correct!";
+                FeedbackBackgroundColor = FeedbackSuccessColor.ToArgbHex();
+                await ShowFeedbackAndContinue(true);
+            }
+            finally
+            {
+                IsProcessingAnswer = false;
+            }
         }
 
-        private void HandleIncorrectPerform()
+        private async void HandleIncorrectPerform()
         {
-            _timer.Stop();
-            FeedbackText = $"\nRemember to practice '{CurrentSign?.CorrectAnswer}'!\n\nTake a sip!";
-            FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
-            ShowFeedbackAndContinue();
+            if (IsProcessingAnswer) return; // prevent multiple clicks
+
+            try
+            {
+                IsProcessingAnswer = true;
+                _timer.Stop();
+                CurrentScore++;
+                FeedbackText = "Nice work! Your sign was correct!";
+                FeedbackBackgroundColor = FeedbackSuccessColor.ToArgbHex();
+                await ShowFeedbackAndContinue(true);
+            }
+            finally
+            {
+                IsProcessingAnswer = false;
+            }
         }
 
-        private void ShowFeedbackAndContinue()
+        private async Task ShowFeedbackAndContinue(bool isCorrect)
         {
             IsFeedbackVisible = true;
-            Task.Delay(2000).ContinueWith(_ =>
+
+            // Use shorter delay for correct answers, configurable delay for incorrect
+            int delay = isCorrect ? 2000 : Preferences.Get(Constants.INCORRECT_DELAY_KEY, Constants.DEFAULT_DELAY);
+
+            await Task.Delay(delay);
+
+            await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 ResetButtonColors();
                 IsFeedbackVisible = false;
                 if (IsPerformMode) IsSignHidden = true;
                 LoadNextSign();
-            }, TaskScheduler.FromCurrentSynchronizationContext());
+            });
         }
 
         private void UpdateButtonColor(string answer, bool isCorrect)
