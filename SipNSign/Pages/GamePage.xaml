@@ -56,7 +56,8 @@
                      HorizontalOptions="Center"
                      VerticalOptions="Center"
                      FontSize="12"
-                     TextColor="{DynamicResource Primary}"/>
+                     TextColor="{DynamicResource Primary}"
+                     IsVisible="{Binding IsGuessMode}"/>
             </Grid>
             <Frame Grid.Column="1" 
                  Padding="15,5" 
@@ -153,7 +154,7 @@
         <!-- Perform Mode Content -->
         <Grid Grid.Row="1" IsVisible="{Binding IsPerformMode}">
             <ScrollView>
-                <VerticalStackLayout Padding="20" Spacing="20">
+                <VerticalStackLayout Padding="15" Spacing="10">
                     <Label Text="Can you sign this word?"
                            FontSize="20"
                            HorizontalOptions="Center"/>
@@ -162,7 +163,7 @@
                            FontSize="48"
                            HorizontalOptions="Center"
                            FontAttributes="Bold"
-                           Margin="0,20"/>
+                           Margin="0,5"/>
 
                     <Button Text="REVEAL SIGN"
                             Command="{Binding RevealSignCommand}"
@@ -170,14 +171,15 @@
                             IsVisible="{Binding IsSignHidden}"/>
 
                     <Frame IsVisible="{Binding IsSignRevealed}"
-                           Padding="10"
+                           Padding="5"
                            CornerRadius="15"
                            HasShadow="True"
                            BorderColor="{DynamicResource Primary}"
-                           BackgroundColor="White">
+                           BackgroundColor="White"
+                           Margin="0,5">
                         <toolkit:MediaElement 
            x:Name="PerformModeVideo"
-           HeightRequest="300"
+           HeightRequest="250"
            HorizontalOptions="Center"
            ShouldAutoPlay="True"
            ShouldLoopPlayback="True"
@@ -192,14 +194,16 @@
                     </Frame>
 
                     <Button Text="I GOT IT RIGHT!"
-          Command="{Binding CorrectPerformCommand}"
-          Style="{StaticResource SuccessButton}"
-          IsVisible="{Binding IsSignRevealed}"/>
+                            Command="{Binding CorrectPerformCommand}"
+                            Style="{StaticResource SuccessButton}"
+                            IsVisible="{Binding IsSignRevealed}"
+                            Margin="8,5"/>
 
                     <Button Text="I NEED A SIP..."
-          Command="{Binding IncorrectPerformCommand}"
-          Style="{StaticResource DangerButton}"
-          IsVisible="{Binding IsSignRevealed}"/>
+                            Command="{Binding IncorrectPerformCommand}"
+                            Style="{StaticResource DangerButton}"
+                            IsVisible="{Binding IsSignRevealed}"
+                            Margin="8,5"/>
                 </VerticalStackLayout>
             </ScrollView>
         </Grid>

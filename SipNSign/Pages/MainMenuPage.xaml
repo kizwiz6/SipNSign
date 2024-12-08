@@ -53,12 +53,12 @@
                HorizontalOptions="Center"/>
 
             <!-- Menu Buttons -->
-            <Button Text="Guess &amp; Gulp"
+            <Button Text="Guess Mode"
                 Style="{StaticResource MenuButton}"
                 BackgroundColor="#2196F3"
                 Clicked="OnGuessGameClicked"/>
 
-            <Button Text="Sign &amp; Sip"
+            <Button Text="Perform Mode"
                 Style="{StaticResource MenuButton}"
                 BackgroundColor="#4CAF50"
                 Clicked="OnPerformGameClicked"/>
