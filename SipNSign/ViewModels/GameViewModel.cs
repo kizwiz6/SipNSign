@@ -398,7 +398,7 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private void HandleTimeOut()
         {
-            FeedbackText = $"Time's up!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
+            FeedbackText = $"\nTime's up!\nThe sign means '{CurrentSign?.CorrectAnswer}'.\nTake a sip!";
             FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
             IsFeedbackVisible = true;
 
@@ -537,6 +537,25 @@ namespace com.kizwiz.sipnsign.ViewModels
             Button4Color = GetButtonColor(3, selectedAnswerIndex, correctAnswerIndex, isCorrect);
         }
 
+        private Color GetButtonColor(int buttonIndex, int selectedIndex, int correctIndex, bool isCorrect)
+        {
+            if (IsProcessingAnswer)
+            {
+                if (buttonIndex == selectedIndex)
+                {
+                    // Selected button
+                    return isCorrect ? FeedbackSuccessColor : FeedbackErrorColor;
+                }
+                else if (buttonIndex == correctIndex && !isCorrect)
+                {
+                    // Show correct answer when wrong
+                    return FeedbackSuccessColor;
+                }
+            }
+
+            // Keep original color for unselected buttons or when not processing
+            return ButtonBaseColor;
+        }
         private void ResetButtonColors()
         {
             Button1Color = ButtonBaseColor;
