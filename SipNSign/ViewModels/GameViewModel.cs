@@ -390,13 +390,13 @@ namespace com.kizwiz.sipnsign.ViewModels
 
             if (isCorrect)
             {
-                FeedbackText = $"\n\n\n\n\nCorrect!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.";
+                FeedbackText = $"\n\nCorrect!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.";
                 FeedbackBackgroundColor = FeedbackSuccessColor.ToArgbHex();
                 CurrentScore++;
             }
             else
             {
-                FeedbackText = $"\n\n\n\n\nIncorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
+                FeedbackText = $"\n\nIncorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
                 FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
             }
 
@@ -413,7 +413,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         {
             _timer.Stop();
             CurrentScore++;
-            FeedbackText = "\n\n\n\n\n\n\nNice work!\n\nPrepare for your next sign!";
+            FeedbackText = "\n\nNice work!\n\nPrepare for your next sign!";
             FeedbackBackgroundColor = FeedbackSuccessColor.ToArgbHex();
             ShowFeedbackAndContinue();
         }
@@ -421,7 +421,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private void HandleIncorrectPerform()
         {
             _timer.Stop();
-            FeedbackText = $"\n\n\n\n\n\n\nRemember to practice '{CurrentSign?.CorrectAnswer}'!\n\nTake a sip!";
+            FeedbackText = $"\n\nRemember to practice '{CurrentSign?.CorrectAnswer}'!\n\nTake a sip!";
             FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
             ShowFeedbackAndContinue();
         }
