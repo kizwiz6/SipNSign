@@ -30,7 +30,6 @@ namespace com.kizwiz.sipnsign.Pages
         private void LoadSavedSettings()
         {
             // Load and set saved preferences
-            ThemeSwitch.IsToggled = _preferences.Get(THEME_KEY, false);
             FontSizeStepper.Value = _preferences.Get(FONT_SIZE_KEY, 16.0);
             DifficultyPicker.SelectedIndex = _preferences.Get(DIFFICULTY_KEY, 0);
             TranslationsSwitch.IsToggled = _preferences.Get(TRANSLATIONS_KEY, true);
@@ -55,7 +54,6 @@ namespace com.kizwiz.sipnsign.Pages
 
         private void SaveSettings()
         {
-            _preferences.Set(THEME_KEY, ThemeSwitch.IsToggled);
             _preferences.Set(FONT_SIZE_KEY, FontSizeStepper.Value);
             _preferences.Set(DIFFICULTY_KEY, DifficultyPicker.SelectedIndex);
             _preferences.Set(TRANSLATIONS_KEY, TranslationsSwitch.IsToggled);
@@ -65,26 +63,6 @@ namespace com.kizwiz.sipnsign.Pages
             _preferences.Set(OFFLINE_MODE_KEY, OfflineSwitch.IsToggled);
 
             Application.Current.MainPage.DisplayAlert("Settings Saved", "Your preferences have been updated", "OK");
-        }
-
-        private void OnThemeToggled(object sender, ToggledEventArgs e)
-        {
-            if (Application.Current != null)
-            {
-                ICollection<ResourceDictionary> mergedDictionaries = Application.Current.Resources.MergedDictionaries;
-                if (e.Value)
-                {
-                    // Apply dark theme
-                    mergedDictionaries.Clear();
-                    mergedDictionaries.Add(new com.kizwiz.sipnsign.Resources.Themes.DarkThemeResourceDictionary());
-                }
-                else
-                {
-                    // Apply light theme
-                    mergedDictionaries.Clear();
-                    mergedDictionaries.Add(new com.kizwiz.sipnsign.Resources.Themes.LightThemeResourceDictionary());
-                }
-            }
         }
 
         private void OnFontSizeChanged(object sender, ValueChangedEventArgs e)
