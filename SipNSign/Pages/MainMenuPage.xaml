@@ -15,10 +15,10 @@
     <ContentPage.Resources>
         <ResourceDictionary>
             <Style x:Key="MenuButton" TargetType="Button">
-                <Setter Property="Margin" Value="20,10"/>
+                <Setter Property="Margin" Value="20,5"/>
                 <Setter Property="HeightRequest" Value="60"/>
-                <Setter Property="CornerRadius" Value="30"/>
-                <Setter Property="FontSize" Value="20"/>
+                <Setter Property="CornerRadius" Value="25"/>
+                <Setter Property="FontSize" Value="18"/>
                 <Setter Property="FontAttributes" Value="Bold"/>
                 <Setter Property="TextColor" Value="White"/>
                 <Setter Property="Shadow">
@@ -33,7 +33,7 @@
 
     <ScrollView>
         <!-- Main content with logo and buttons -->
-        <VerticalStackLayout Spacing="20" Padding="20">
+        <VerticalStackLayout Spacing="10" Padding="15">
             <!-- Logo container -->
             <Frame BackgroundColor="White"
                CornerRadius="20"
@@ -41,7 +41,7 @@
                Padding="20"
                HasShadow="True">
                 <Image Source="logo.png"
-                   HeightRequest="200"
+                   HeightRequest="250"
                    Aspect="AspectFit"/>
             </Frame>
 
