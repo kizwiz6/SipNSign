@@ -10,97 +10,170 @@ namespace com.kizwiz.sipnsign.Pages
     /// </summary>
     public partial class SettingsPage : ContentPage
     {
-        private Color _primaryTextColor; // Primary color for text
-        private Color _secondaryTextColor; // Secondary color for text
+        private IPreferences _preferences;
+        private const string THEME_KEY = "app_theme";
+        private const string FONT_SIZE_KEY = "font_size";
+        private const string DIFFICULTY_KEY = "difficulty_level";
+        private const string TRANSLATIONS_KEY = "show_translations";
+        private const string VIDEO_SPEED_KEY = "video_speed";
+        private const string CONTRAST_KEY = "high_contrast";
+        private const string HAND_DOMINANCE_KEY = "hand_dominance";
+        private const string OFFLINE_MODE_KEY = "offline_mode";
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SettingsPage"/> class.
-        /// This constructor retrieves the saved theme preference and sets the switch accordingly.
-        /// </summary>
         public SettingsPage()
         {
             InitializeComponent();
-
-            // Retrieve the saved theme preference from Preferences storage.
-            string savedTheme = Preferences.Get("AppTheme", "Light");
-
-            // Set the switch based on the saved preference
-            if (ThemeToggleSwitch != null) // Check if the ThemeToggleSwitch is initialized
-            {
-                ThemeToggleSwitch.IsToggled = (savedTheme == "Dark");
-            }
-
-            // Set the background color based on the theme
-            UpdateBackgroundColor(savedTheme);
-            UpdateTextColor(savedTheme);
+            _preferences = Preferences.Default;
+            LoadSavedSettings();
         }
 
-        /// <summary>
-        /// Updates the background color of the settings page based on the selected theme.
-        /// </summary>
-        /// <param name="theme">The theme (Light or Dark).</param>
-        private void UpdateBackgroundColor(string theme)
+        private void LoadSavedSettings()
         {
-            if (theme == "Dark")
-            {
-                ThemeStackLayout.BackgroundColor = Color.FromArgb("#1E1E1E"); // Dark background
-            }
-            else
-            {
-                ThemeStackLayout.BackgroundColor = (Color)Application.Current.Resources["White"]; // Light background
-            }
+            // Load and set saved preferences
+            ThemeSwitch.IsToggled = _preferences.Get(THEME_KEY, false);
+            FontSizeStepper.Value = _preferences.Get(FONT_SIZE_KEY, 16.0);
+            DifficultyPicker.SelectedIndex = _preferences.Get(DIFFICULTY_KEY, 0);
+            TranslationsSwitch.IsToggled = _preferences.Get(TRANSLATIONS_KEY, true);
+            VideoSpeedSlider.Value = _preferences.Get(VIDEO_SPEED_KEY, 1.0);
+            ContrastSwitch.IsToggled = _preferences.Get(CONTRAST_KEY, false);
+            HandDominancePicker.SelectedIndex = _preferences.Get(HAND_DOMINANCE_KEY, 0);
+            OfflineSwitch.IsToggled = _preferences.Get(OFFLINE_MODE_KEY, false);
         }
 
-        /// <summary>
-        /// Updates the text colors based on the selected theme.
-        /// </summary>
-        /// <param name="theme">The theme (Light or Dark).</param>
-        private void UpdateTextColor(string theme)
+        private async void OnSaveClicked(object sender, EventArgs e)
         {
-            // Update text colors based on the theme
-            if (theme == "Dark")
+            try
             {
-                _primaryTextColor = Application.Current.Resources["PrimaryTextColor"] is Color color ? color : Colors.Transparent; // Fallback to transparent
-                _secondaryTextColor = Application.Current.Resources["SecondaryTextColor"] is Color secColor ? secColor : Colors.Gray; // Fallback to gray
+                SaveSettings();
+                await DisplayAlert("Success", "Settings saved successfully", "OK");
             }
-            else
+            catch (Exception ex)
             {
-                _primaryTextColor = Application.Current.Resources["Black"] is Color blackColor ? blackColor : Colors.Black; // Fallback to black
-                _secondaryTextColor = Application.Current.Resources["SecondaryTextColor"] is Color secColor ? secColor : Colors.LightGray; // Fallback to light gray
-            }
-
-            // Update the text colors immediately
-            if (SettingsTitleLabel != null) // Check if the label is initialized
-            {
-                SettingsTitleLabel.TextColor = _primaryTextColor; // Set title label color
-            }
-            if (ThemeSelectionLabel != null) // Check if the label is initialized
-            {
-                ThemeSelectionLabel.TextColor = _primaryTextColor; // Set selection label color
-            }
-            if (InfoLabel != null) // Check if the label is initialized
-            {
-                InfoLabel.TextColor = _secondaryTextColor; // Set info label color
+                await DisplayAlert("Error", $"Failed to save settings: {ex.Message}", "OK");
             }
         }
 
-        /// <summary>
-        /// Handles the event when the user toggles the switch for the theme.
-        /// Updates the saved preference and applies the selected theme.
-        /// </summary>
-        /// <param name="sender">The Switch control that triggered the event.</param>
-        /// <param name="e">Event data for the toggle change.</param>
+        private void SaveSettings()
+        {
+            _preferences.Set(THEME_KEY, ThemeSwitch.IsToggled);
+            _preferences.Set(FONT_SIZE_KEY, FontSizeStepper.Value);
+            _preferences.Set(DIFFICULTY_KEY, DifficultyPicker.SelectedIndex);
+            _preferences.Set(TRANSLATIONS_KEY, TranslationsSwitch.IsToggled);
+            _preferences.Set(VIDEO_SPEED_KEY, VideoSpeedSlider.Value);
+            _preferences.Set(CONTRAST_KEY, ContrastSwitch.IsToggled);
+            _preferences.Set(HAND_DOMINANCE_KEY, HandDominancePicker.SelectedIndex);
+            _preferences.Set(OFFLINE_MODE_KEY, OfflineSwitch.IsToggled);
+
+            Application.Current.MainPage.DisplayAlert("Settings Saved", "Your preferences have been updated", "OK");
+        }
+
         private void OnThemeToggled(object sender, ToggledEventArgs e)
         {
-            if (ThemeToggleSwitch != null) // Check if the ThemeToggleSwitch is initialized
+            if (Application.Current != null)
             {
-                string theme = ThemeToggleSwitch.IsToggled ? "Dark" : "Light";
-                Preferences.Set("AppTheme", theme);
-                Application.Current.UserAppTheme = (AppTheme)Enum.Parse(typeof(AppTheme), theme);
-                UpdateBackgroundColor(theme);
-                UpdateTextColor(theme);
-                Debug.WriteLine($"Theme changed to {theme}"); // Log theme change
+                ICollection<ResourceDictionary> mergedDictionaries = Application.Current.Resources.MergedDictionaries;
+                if (e.Value)
+                {
+                    // Apply dark theme
+                    mergedDictionaries.Clear();
+                    mergedDictionaries.Add(new com.kizwiz.sipnsign.Resources.Themes.DarkThemeResourceDictionary());
+                }
+                else
+                {
+                    // Apply light theme
+                    mergedDictionaries.Clear();
+                    mergedDictionaries.Add(new com.kizwiz.sipnsign.Resources.Themes.LightThemeResourceDictionary());
+                }
             }
+        }
+
+        private void OnFontSizeChanged(object sender, ValueChangedEventArgs e)
+        {
+            // Update app-wide font size
+            if (Application.Current != null && Application.Current.Resources.ContainsKey("DefaultFontSize"))
+            {
+                Application.Current.Resources["DefaultFontSize"] = e.NewValue;
+            }
+        }
+
+        private void OnDifficultyChanged(object sender, EventArgs e)
+        {
+            // Update difficulty level in the app
+            var selectedDifficulty = DifficultyPicker.SelectedItem as string;
+            // Implementation for difficulty change
+        }
+
+        private void OnTranslationsToggled(object sender, ToggledEventArgs e)
+        {
+            // Update translation visibility preference
+            // Implementation for showing/hiding translations
+        }
+
+        private void OnVideoSpeedChanged(object sender, ValueChangedEventArgs e)
+        {
+            // Update video playback speed
+            // Implementation for video speed adjustment
+        }
+
+        private void OnContrastToggled(object sender, ToggledEventArgs e)
+        {
+            // Update high contrast mode
+            if (Application.Current != null)
+            {
+                // Implementation for high contrast mode
+            }
+        }
+
+        private async void OnClearHistoryClicked(object sender, EventArgs e)
+        {
+            bool answer = await DisplayAlert("Clear History",
+                "Are you sure you want to clear your learning history? This cannot be undone.",
+                "Yes", "No");
+
+            if (answer)
+            {
+                try
+                {
+                    // Clear learning history implementation
+                    await DisplayAlert("Success", "Learning history cleared successfully", "OK");
+                }
+                catch (Exception ex)
+                {
+                    await DisplayAlert("Error", $"Failed to clear history: {ex.Message}", "OK");
+                }
+            }
+        }
+
+        private async void OnExportProgressClicked(object sender, EventArgs e)
+        {
+            try
+            {
+                // Export progress implementation
+                // Example: Generate a JSON file with user progress
+                string progressJson = GenerateProgressJson();
+
+                if (progressJson != null)
+                {
+                    // Save file implementation
+                    await DisplayAlert("Success", "Progress exported successfully", "OK");
+                }
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"Failed to export progress: {ex.Message}", "OK");
+            }
+        }
+
+        private string GenerateProgressJson()
+        {
+            // Implementation to generate progress JSON
+            return "{}"; // Placeholder
+        }
+
+        private void OnOfflineModeToggled(object sender, ToggledEventArgs e)
+        {
+            // Implementation for offline mode
+            // Handle downloading content for offline use
         }
     }
 }

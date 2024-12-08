@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using CommunityToolkit.Maui;
 using com.kizwiz.sipnsign;
+using com.kizwiz.sipnsign.Services;
+using com.kizwiz.sipnsign.Pages;
 
 namespace com.kizwiz.sipnsign;
 
@@ -17,28 +19,30 @@ public static class MauiProgram
     public static MauiApp CreateMauiApp()
     {
         var builder = MauiApp.CreateBuilder();
-
-        // Use the App class as the entry point
         builder
-            .UseMauiApp<App>() // Use the App class
-            .UseMauiCommunityToolkit() // Register the CommunityToolkit
-            .UseMauiCommunityToolkitMediaElement() // Register the MediaElement from the CommunityToolkit
+            .UseMauiApp<App>()
+            .UseMauiCommunityToolkit() 
+            .UseMauiCommunityToolkitMediaElement()  
             .ConfigureFonts(fonts =>
             {
-                // Add custom fonts for the application
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
-#if DEBUG
-        // Enable debugging logging in the DEBUG configuration
-        builder.Logging.AddDebug();
-#endif
+        // Register services
+        builder.Services.AddSingleton<IVideoService, VideoService>();
+        builder.Services.AddSingleton<ILoggingService, LoggingService>();
+        builder.Services.AddSingleton<IProgressService, ProgressService>();
+        builder.Services.AddSingleton<SignRepository>();
 
-        // Register MainPage
-        builder.Services.AddSingleton<MainPage>();
+        // Register pages
+        builder.Services.AddSingleton<App>();
+        builder.Services.AddTransient<MainMenuPage>();
+        builder.Services.AddTransient<GamePage>();
+        builder.Services.AddTransient<HowToPlayPage>();
+        builder.Services.AddTransient<ScoreboardPage>();
+        builder.Services.AddTransient<SettingsPage>();
 
-        // Build and return the configured MauiApp instance
         return builder.Build();
     }
 }

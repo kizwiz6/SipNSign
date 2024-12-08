@@ -4,36 +4,136 @@
              x:Class="com.kizwiz.sipnsign.Pages.SettingsPage"
              Title="Settings">
 
-    <VerticalStackLayout x:Name="ThemeStackLayout" Padding="20" Spacing="20">
-        <!-- Title -->
-        <Label 
-            x:Name="SettingsTitleLabel"
-            Text="Settings"
-            FontSize="24"
-            HorizontalOptions="Center" 
-            VerticalOptions="Start"
-            TextColor="{DynamicResource PrimaryTextColor}" />
+    <ScrollView>
+        <VerticalStackLayout Spacing="20" Padding="20">
 
-            <!-- Theme Selection Label -->
-            <Label 
-            x:Name="ThemeSelectionLabel"
-                Text="Toggle Theme:"
-            FontSize="18"
-            VerticalOptions="Start"
-            TextColor="{DynamicResource PrimaryTextColor}" />
+            <!-- Theme Settings -->
+            <Frame BorderColor="Gray" Padding="15" CornerRadius="10">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Appearance" 
+                           FontSize="20" 
+                           FontAttributes="Bold"/>
 
-                <!-- Switch to toggle between Light and Dark Modes -->
-                <Switch x:Name="ThemeToggleSwitch" 
-                Toggled="OnThemeToggled" 
-                VerticalOptions="Start" />
+                    <HorizontalStackLayout>
+                        <Label Text="Dark Mode" 
+                               VerticalOptions="Center"/>
+                        <Switch x:Name="ThemeSwitch" 
+                                Toggled="OnThemeToggled"
+                                HorizontalOptions="EndAndExpand"/>
+                    </HorizontalStackLayout>
 
-                <!-- Info Label -->
-                <Label 
-            x:Name="InfoLabel"
-                    Text="Switch between Light and Dark modes to customise your app's appearance."
-            FontSize="14"
-            VerticalOptions="Start" 
-            HorizontalOptions="Fill"
-            TextColor="{DynamicResource SecondaryTextColor}" />
-    </VerticalStackLayout>
+                    <HorizontalStackLayout>
+                        <Label Text="Font Size" 
+                               VerticalOptions="Center"/>
+                        <Stepper x:Name="FontSizeStepper" 
+                                Minimum="12" 
+                                Maximum="24" 
+                                Value="16"
+                                ValueChanged="OnFontSizeChanged"
+                                HorizontalOptions="EndAndExpand"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Learning Preferences -->
+            <Frame BorderColor="Gray" Padding="15" CornerRadius="10">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Learning Preferences" 
+                           FontSize="20" 
+                           FontAttributes="Bold"/>
+
+                    <Picker x:Name="DifficultyPicker"
+                            Title="Difficulty Level"
+                            SelectedIndexChanged="OnDifficultyChanged">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>Beginner</x:String>
+                                <x:String>Intermediate</x:String>
+                                <x:String>Advanced</x:String>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+
+                    <HorizontalStackLayout>
+                        <Label Text="Show Translations" 
+                               VerticalOptions="Center"/>
+                        <Switch x:Name="TranslationsSwitch" 
+                                Toggled="OnTranslationsToggled"
+                                HorizontalOptions="EndAndExpand"/>
+                    </HorizontalStackLayout>
+
+                    <HorizontalStackLayout>
+                        <Label Text="Video Speed" 
+                               VerticalOptions="Center"/>
+                        <Slider x:Name="VideoSpeedSlider"
+                                Minimum="0.5"
+                                Maximum="2.0"
+                                Value="1.0"
+                                ValueChanged="OnVideoSpeedChanged"
+                                HorizontalOptions="EndAndExpand"
+                                WidthRequest="200"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Accessibility Settings -->
+            <Frame BorderColor="Gray" Padding="15" CornerRadius="10">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Accessibility" 
+                           FontSize="20" 
+                           FontAttributes="Bold"/>
+
+                    <HorizontalStackLayout>
+                        <Label Text="High Contrast" 
+                               VerticalOptions="Center"/>
+                        <Switch x:Name="ContrastSwitch" 
+                                Toggled="OnContrastToggled"
+                                HorizontalOptions="EndAndExpand"/>
+                    </HorizontalStackLayout>
+
+                    <Picker x:Name="HandDominancePicker"
+                            Title="Hand Dominance">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>Right Handed</x:String>
+                                <x:String>Left Handed</x:String>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Data Management -->
+            <Frame BorderColor="Gray" Padding="15" CornerRadius="10">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Data Management" 
+                           FontSize="20" 
+                           FontAttributes="Bold"/>
+
+                    <Button Text="Clear Learning History"
+                            Clicked="OnClearHistoryClicked"
+                            BackgroundColor="Red"
+                            TextColor="White"/>
+
+                    <Button Text="Export Progress"
+                            Clicked="OnExportProgressClicked"/>
+
+                    <HorizontalStackLayout>
+                        <Label Text="Offline Mode" 
+                               VerticalOptions="Center"/>
+                        <Switch x:Name="OfflineSwitch" 
+                                Toggled="OnOfflineModeToggled"
+                                HorizontalOptions="EndAndExpand"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Button Text="Save Changes"
+                    Clicked="OnSaveClicked"
+                    BackgroundColor="Green"
+                    TextColor="White"
+                    Margin="0,20,0,20"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

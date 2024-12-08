@@ -1,25 +1,53 @@
-using System;
+using com.kizwiz.sipnsign.Enums;
 using System.Diagnostics;
-using Microsoft.Maui.ApplicationModel;
-using Microsoft.Maui.Controls;
+using com.kizwiz.sipnsign.Services;  // Add this
+using Microsoft.Extensions.DependencyInjection; // Add this
 
 namespace com.kizwiz.sipnsign.Pages
 {
     public partial class MainMenuPage : ContentPage
     {
-        public MainMenuPage()
+        private readonly IServiceProvider _serviceProvider;
+
+        public MainMenuPage(IServiceProvider serviceProvider)
         {
-            InitializeComponent();
+            try
+            {
+                _serviceProvider = serviceProvider;
+                System.Diagnostics.Debug.WriteLine("MainMenuPage: Initializing...");
+                InitializeComponent();
+                System.Diagnostics.Debug.WriteLine("MainMenuPage: Initialized successfully");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"MainMenuPage initialization error: {ex}");
+            }
         }
 
-        private async void OnStartGameClicked(object sender, EventArgs e)
+        private async void OnGuessGameClicked(object sender, EventArgs e)
         {
-            await Navigation.PushAsync(new GamePage());
+            var videoService = _serviceProvider.GetRequiredService<IVideoService>();
+            var logger = _serviceProvider.GetRequiredService<ILoggingService>();
+            var gamePage = new GamePage(videoService, logger);
+            gamePage.ViewModel.CurrentMode = GameMode.Guess;
+            await Navigation.PushAsync(gamePage);
+        }
+
+        private async void OnPerformGameClicked(object sender, EventArgs e)
+        {
+            var videoService = _serviceProvider.GetRequiredService<IVideoService>();
+            var logger = _serviceProvider.GetRequiredService<ILoggingService>();
+            var gamePage = new GamePage(videoService, logger);
+            gamePage.ViewModel.CurrentMode = GameMode.Perform;
+            await Navigation.PushAsync(gamePage);
         }
 
         private async void OnViewScoresClicked(object sender, EventArgs e)
         {
-            await Navigation.PushAsync(new ScoreboardPage());
+            // Create ScoreboardPage with the required service
+            var progressService = _serviceProvider.GetRequiredService<IProgressService>();
+            var scoreboardPage = new ScoreboardPage(progressService);
+            await Navigation.PushAsync(scoreboardPage);
         }
 
         private async void OnSettingsClicked(object sender, EventArgs e)
