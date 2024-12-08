@@ -152,54 +152,56 @@
 
         <!-- Perform Mode Content -->
         <Grid Grid.Row="1" IsVisible="{Binding IsPerformMode}">
-            <VerticalStackLayout Padding="20" Spacing="20">
-                <Label Text="Can you sign this word?"
-                     FontSize="20"
-                     HorizontalOptions="Center"/>
+            <ScrollView>
+                <VerticalStackLayout Padding="20" Spacing="20">
+                    <Label Text="Can you sign this word?"
+                           FontSize="20"
+                           HorizontalOptions="Center"/>
 
-                <Label Text="{Binding CurrentSign.CorrectAnswer}"
-                     FontSize="48"
-                     HorizontalOptions="Center"
-                     FontAttributes="Bold"
-                     Margin="0,20"/>
+                    <Label Text="{Binding CurrentSign.CorrectAnswer}"
+                           FontSize="48"
+                           HorizontalOptions="Center"
+                           FontAttributes="Bold"
+                           Margin="0,20"/>
 
-                <Button Text="REVEAL SIGN"
-                      Command="{Binding RevealSignCommand}"
-                      Style="{StaticResource AnimatedButtonStyle}"
-                      IsVisible="{Binding IsSignHidden}"/>
+                    <Button Text="REVEAL SIGN"
+                            Command="{Binding RevealSignCommand}"
+                            Style="{StaticResource AnimatedButtonStyle}"
+                            IsVisible="{Binding IsSignHidden}"/>
 
-                <Frame IsVisible="{Binding IsSignRevealed}"
-                     Padding="10"
-                     CornerRadius="15"
-                     HasShadow="True"
-                     BorderColor="{DynamicResource Primary}"
-                     BackgroundColor="White">
-                    <toolkit:MediaElement 
-                       x:Name="PerformModeVideo"
-                       HeightRequest="300"
-                       HorizontalOptions="Center"
-                       ShouldAutoPlay="True"
-                       ShouldLoopPlayback="True"
-                       MediaFailed="OnMediaFailed" 
-                       MediaOpened="OnMediaOpened">
-                        <toolkit:MediaElement.Behaviors>
-                            <toolkit:EventToCommandBehavior 
-                               EventName="Loaded"
-                               Command="{Binding VideoLoadedCommand}"/>
-                        </toolkit:MediaElement.Behaviors>
-                    </toolkit:MediaElement>
-                </Frame>
+                    <Frame IsVisible="{Binding IsSignRevealed}"
+                           Padding="10"
+                           CornerRadius="15"
+                           HasShadow="True"
+                           BorderColor="{DynamicResource Primary}"
+                           BackgroundColor="White">
+                        <toolkit:MediaElement 
+           x:Name="PerformModeVideo"
+           HeightRequest="300"
+           HorizontalOptions="Center"
+           ShouldAutoPlay="True"
+           ShouldLoopPlayback="True"
+           MediaFailed="OnMediaFailed" 
+           MediaOpened="OnMediaOpened">
+                            <toolkit:MediaElement.Behaviors>
+                                <toolkit:EventToCommandBehavior 
+                   EventName="Loaded"
+                   Command="{Binding VideoLoadedCommand}"/>
+                            </toolkit:MediaElement.Behaviors>
+                        </toolkit:MediaElement>
+                    </Frame>
 
-                <Button Text="I GOT IT RIGHT!"
-                      Command="{Binding CorrectPerformCommand}"
-                      Style="{StaticResource SuccessButton}"
-                      IsVisible="{Binding IsSignRevealed}"/>
+                    <Button Text="I GOT IT RIGHT!"
+          Command="{Binding CorrectPerformCommand}"
+          Style="{StaticResource SuccessButton}"
+          IsVisible="{Binding IsSignRevealed}"/>
 
-                <Button Text="I NEED A SIP..."
-                      Command="{Binding IncorrectPerformCommand}"
-                      Style="{StaticResource DangerButton}"
-                      IsVisible="{Binding IsSignRevealed}"/>
-            </VerticalStackLayout>
+                    <Button Text="I NEED A SIP..."
+          Command="{Binding IncorrectPerformCommand}"
+          Style="{StaticResource DangerButton}"
+          IsVisible="{Binding IsSignRevealed}"/>
+                </VerticalStackLayout>
+            </ScrollView>
         </Grid>
 
         <!-- Feedback Overlay -->

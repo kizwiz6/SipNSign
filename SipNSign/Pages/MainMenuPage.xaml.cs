@@ -9,16 +9,26 @@ namespace com.kizwiz.sipnsign.Pages
     {
         private readonly IServiceProvider _serviceProvider;
 
-        public MainMenuPage(IServiceProvider serviceProvider)  // Add service provider parameter
+        public MainMenuPage(IServiceProvider serviceProvider)
         {
-            _serviceProvider = serviceProvider;
-            InitializeComponent();
+            try
+            {
+                _serviceProvider = serviceProvider;
+                System.Diagnostics.Debug.WriteLine("MainMenuPage: Initializing...");
+                InitializeComponent();
+                System.Diagnostics.Debug.WriteLine("MainMenuPage: Initialized successfully");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"MainMenuPage initialization error: {ex}");
+            }
         }
 
         private async void OnGuessGameClicked(object sender, EventArgs e)
         {
             var videoService = _serviceProvider.GetRequiredService<IVideoService>();
-            var gamePage = new GamePage(videoService);
+            var logger = _serviceProvider.GetRequiredService<ILoggingService>();
+            var gamePage = new GamePage(videoService, logger);
             gamePage.ViewModel.CurrentMode = GameMode.Guess;
             await Navigation.PushAsync(gamePage);
         }
@@ -26,7 +36,8 @@ namespace com.kizwiz.sipnsign.Pages
         private async void OnPerformGameClicked(object sender, EventArgs e)
         {
             var videoService = _serviceProvider.GetRequiredService<IVideoService>();
-            var gamePage = new GamePage(videoService);
+            var logger = _serviceProvider.GetRequiredService<ILoggingService>();
+            var gamePage = new GamePage(videoService, logger);
             gamePage.ViewModel.CurrentMode = GameMode.Perform;
             await Navigation.PushAsync(gamePage);
         }

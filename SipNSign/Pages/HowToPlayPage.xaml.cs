@@ -15,7 +15,8 @@ public partial class HowToPlayPage : ContentPage
     private void OnStartGameClicked(object sender, EventArgs e)
     {
         var videoService = _serviceProvider.GetRequiredService<IVideoService>();
-        var gamePage = new GamePage(videoService);
+        var logger = _serviceProvider.GetRequiredService<ILoggingService>();
+        var gamePage = new GamePage(videoService, logger);
         Navigation.PushAsync(gamePage);
     }
 }

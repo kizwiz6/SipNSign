@@ -5,6 +5,9 @@ using System.ComponentModel;
 using System.Windows.Input;
 using com.kizwiz.sipnsign.Models;
 using com.kizwiz.sipnsign.Enums;
+using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using com.kizwiz.sipnsign.Services;
 
 namespace com.kizwiz.sipnsign.ViewModels
 {
@@ -19,7 +22,9 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         #region Private Fields
         private readonly IDispatcherTimer _timer;
+        private readonly ILoggingService _logger;
         private const int QuestionTimeLimit = 10;
+        private const string TAG = "SipNSignApp";
         private int _remainingTime;
         private bool _isLoading;
         private int _currentScore;
@@ -55,6 +60,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             {
                 if (_currentMode != value)
                 {
+                    _logger.Debug($"Mode changing from {_currentMode} to {value}");
                     _currentMode = value;
                     OnPropertyChanged(nameof(CurrentMode));
                     OnPropertyChanged(nameof(PrimaryColor));
@@ -120,6 +126,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                 if (_currentSign != value)
                 {
                     _currentSign = value;
+                    Debug.WriteLine($"CurrentSign changed to: {value?.CorrectAnswer ?? "null"}");
                     OnPropertyChanged(nameof(CurrentSign));
                 }
             }
@@ -280,15 +287,19 @@ namespace com.kizwiz.sipnsign.ViewModels
         #endregion
 
         #region Constructor
-        public GameViewModel()
+        public GameViewModel(ILoggingService logger)
         {
+            _logger = logger; 
+
             try
             {
                 SignRepository signRepository = new SignRepository();
                 _signs = signRepository.GetSigns();
+                Debug.WriteLine($"Loaded {_signs.Count} signs");
+
                 if (!_signs.Any())
                 {
-                    System.Diagnostics.Debug.WriteLine("No signs loaded");
+                    Debug.WriteLine("No signs loaded");
                     return;
                 }
 
@@ -310,7 +321,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error in GameViewModel: {ex}");
+                Debug.WriteLine($"Error in GameViewModel: {ex}");
             }
             
             
@@ -352,7 +363,7 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private void HandleTimeOut()
         {
-            FeedbackText = $"Time's up! The sign means '{CurrentSign?.CorrectAnswer}'. Take a sip!";
+            FeedbackText = $"Time's up!\nThe sign means '{CurrentSign?.CorrectAnswer}'.\nTake a sip!";
             FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
             IsFeedbackVisible = true;
 
@@ -391,6 +402,7 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private void RevealSign()
         {
+            _logger.Debug($"RevealSign called. CurrentSign is: {CurrentSign?.CorrectAnswer ?? "null"}");
             IsSignHidden = false;
         }
 
@@ -470,13 +482,27 @@ namespace com.kizwiz.sipnsign.ViewModels
                 Random random = new Random();
                 int randomIndex = random.Next(_availableIndices.Count);
                 int selectedSignIndex = _availableIndices[randomIndex];
+
+                _logger.Debug($"LoadNextSign: Loading sign at index {selectedSignIndex}");
+                _logger.Debug($"LoadNextSign: Sign word is: {_signs[selectedSignIndex].CorrectAnswer}");
+
                 CurrentSign = _signs[selectedSignIndex];
                 _availableIndices.RemoveAt(randomIndex);
+
+                // Add this line to debug Perform Mode state
+                if (IsPerformMode)
+                {
+                    Debug.WriteLine($"LoadNextSign: In Perform Mode. IsSignHidden: {IsSignHidden}, Word to show: {CurrentSign?.CorrectAnswer}");
+                }
 
                 if (IsGuessMode)
                 {
                     StartTimer();
                 }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in LoadNextSign: {ex}");
             }
             finally
             {
