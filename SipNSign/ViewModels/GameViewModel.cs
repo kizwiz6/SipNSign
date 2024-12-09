@@ -435,11 +435,13 @@ namespace com.kizwiz.sipnsign.ViewModels
                     FeedbackText = $"Correct!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.";
                     FeedbackBackgroundColor = FeedbackSuccessColor.ToArgbHex();
                     CurrentScore++;
+                    await LogGameActivity(true);
                 }
                 else
                 {
                     FeedbackText = $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
                     FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
+                    await LogGameActivity(false);
                 }
 
                 await ShowFeedbackAndContinue(isCorrect);
@@ -482,6 +484,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                 FeedbackText = "Nice work!\n\nPrepare for your next sign!";
                 FeedbackBackgroundColor = FeedbackSuccessColor.ToArgbHex();
                 await ShowFeedbackAndContinue(true);
+                await LogGameActivity(true);
             }
             finally
             {
@@ -500,6 +503,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                 FeedbackText = $"Remember to practice '{CurrentSign?.CorrectAnswer}'!\n\nTake a sip!";
                 FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
                 await ShowFeedbackAndContinue(false);
+                await LogGameActivity(false);
             }
             finally
             {
@@ -593,6 +597,34 @@ namespace com.kizwiz.sipnsign.ViewModels
         {
             CurrentMode = mode;
         }
+
+        private async Task LogGameActivity(bool isCorrect)
+        {
+            await _progressService.LogActivityAsync(new ActivityLog
+            {
+                Id = Guid.NewGuid().ToString(),
+                Type = ActivityType.Practice,
+                Description = isCorrect ?
+                    $"Correctly signed '{CurrentSign?.CorrectAnswer}'" :
+                    $"Practiced '{CurrentSign?.CorrectAnswer}'",
+                IconName = "quiz_icon.svg",
+                Timestamp = DateTime.Now,
+                Score = isCorrect ? "+1" : "Try Again"
+            });
+        }
+
+        private async Task LogAchievementActivity(string achievementTitle)
+        {
+            await _progressService.LogActivityAsync(new ActivityLog
+            {
+                Id = Guid.NewGuid().ToString(),
+                Type = ActivityType.Achievement,
+                Description = $"Unlocked: {achievementTitle}",
+                IconName = "achievement_icon.svg",
+                Timestamp = DateTime.Now
+            });
+        }
+
         #endregion
 
         #region Public Methods

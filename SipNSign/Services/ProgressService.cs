@@ -196,17 +196,21 @@ namespace com.kizwiz.sipnsign.Services
 
         private async Task UnlockAchievement(Achievement achievement)
         {
-            achievement.IsUnlocked = true;
-            achievement.UnlockedDate = DateTime.Now;
-
-            await LogActivityAsync(new ActivityLog
+            // Only unlock and log if it hasn't been unlocked before
+            if (!achievement.IsUnlocked)
             {
-                Id = Guid.NewGuid().ToString(),
-                Type = ActivityType.Achievement,
-                Description = $"Achievement Unlocked: {achievement.Title}",
-                IconName = achievement.IconName,
-                Timestamp = DateTime.Now
-            });
+                achievement.IsUnlocked = true;
+                achievement.UnlockedDate = DateTime.Now;
+
+                await LogActivityAsync(new ActivityLog
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Type = ActivityType.Achievement,
+                    Description = $"Achievement Unlocked: {achievement.Title}",
+                    IconName = achievement.IconName,
+                    Timestamp = DateTime.Now
+                });
+            }
         }
 
         public async Task<bool> UpdateStreakAsync()

@@ -32,6 +32,22 @@
         <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
     </ItemGroup>
 
+    <ItemGroup>
+      <AndroidResource Remove="Resources\Themes\**" />
+      <Compile Remove="Resources\Themes\**" />
+      <EmbeddedResource Remove="Resources\Themes\**" />
+      <MauiCss Remove="Resources\Themes\**" />
+      <MauiXaml Remove="Resources\Themes\**" />
+      <None Remove="Resources\Themes\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Platforms\Android\Resources\Images\first_sign_icon.svg" />
+      <None Remove="Platforms\Android\Resources\Images\locked_icon.svg" />
+      <None Remove="Platforms\Android\Resources\Images\mastery_icon.svg" />
+      <None Remove="Platforms\Android\Resources\Images\time_icon.svg" />
+    </ItemGroup>
+
   <ItemGroup>
     <!-- Core MAUI Packages -->
     <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.71" />
@@ -67,12 +83,13 @@
     <PackageReference Include="Xamarin.AndroidX.Collection.Ktx" Version="1.4.5.1" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Resources\Themes\" />
-  </ItemGroup>
-  <ItemGroup>
     <MauiImage Include="Platforms\Android\Resources\Images\achievement_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\first_sign_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\locked_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\mastery_icon.svg" />
     <MauiImage Include="Platforms\Android\Resources\Images\quiz_icon.svg" />
     <MauiImage Include="Platforms\Android\Resources\Images\streak_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\time_icon.svg" />
   </ItemGroup>
 
 </Project>

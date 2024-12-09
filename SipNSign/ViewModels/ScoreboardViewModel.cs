@@ -124,11 +124,39 @@ namespace com.kizwiz.sipnsign.ViewModels
             foreach (var achievement in _userProgress.Achievements.OrderBy(a => a.IsUnlocked))
             {
                 var progress = (double)achievement.ProgressCurrent / achievement.ProgressRequired;
+
+                // Choose icon based on unlock status
+                var icon = achievement.IsUnlocked ? achievement.Id switch
+                {
+                    "FIRST_SIGN" => "first_sign_icon",
+                    "STREAK_7" => "streak_icon",
+                    "STREAK_30" => "streak_icon",
+                    "SIGNS_50" => "mastery_icon",
+                    "SIGNS_100" => "mastery_icon",
+                    "QUIZ_PERFECT" => "quiz_icon",
+                    "PRACTICE_HOURS_10" => "time_icon",
+                    _ => "achievement_icon"
+                } : "locked_icon";
+
+                var iconPath = $"{icon}.svg";
+
+                // Calculate progress text
+                var progressText = achievement.Id switch
+                {
+                    "SIGNS_50" => $"Learn 50 signs ({_userProgress.SignsLearned}/50)",
+                    "SIGNS_100" => $"Learn 100 signs ({_userProgress.SignsLearned}/100)",
+                    "PRACTICE_HOURS_10" => $"Practice for 10 hours ({(int)_userProgress.TotalPracticeTime.TotalHours}/10)",
+                    "STREAK_7" => $"Practice for 7 consecutive days ({_userProgress.CurrentStreak}/7)",
+                    "STREAK_30" => $"Practice for 30 consecutive days ({_userProgress.CurrentStreak}/30)",
+                    _ => $"{achievement.Description} ({achievement.ProgressCurrent}/{achievement.ProgressRequired})"
+                };
+
+                // Rest of your achievement creation code...
                 Achievements.Add(new AchievementItem
                 {
-                    Icon = "achievement_icon.svg",  // Default achievement icon
+                    Icon = icon,
                     Title = achievement.Title,
-                    Description = $"{achievement.Description} ({achievement.ProgressCurrent}/{achievement.ProgressRequired})",
+                    Description = progressText,
                     IsUnlocked = achievement.IsUnlocked,
                     Progress = progress
                 });
@@ -139,11 +167,11 @@ namespace com.kizwiz.sipnsign.ViewModels
         {
             return type switch
             {
-                ActivityType.Practice => "quiz_icon.svg",
-                ActivityType.Quiz => "quiz_icon.svg",
-                ActivityType.Achievement => "achievement_icon.svg",
-                ActivityType.Streak => "streak_icon.svg",
-                _ => "quiz_icon.svg"  // default icon
+                ActivityType.Practice => "quiz_icon",
+                ActivityType.Quiz => "quiz_icon",
+                ActivityType.Achievement => "achievement_icon",
+                ActivityType.Streak => "streak_icon",
+                _ => "quiz_icon"
             };
         }
 
