@@ -111,9 +111,13 @@ namespace com.kizwiz.sipnsign.ViewModels
             RecentActivities.Clear();
             foreach (var activity in _userProgress.Activities.OrderByDescending(a => a.Timestamp).Take(10))
             {
+                var icon = activity.Type == ActivityType.Practice && activity.Score == "+1"
+                    ? "quiz_correct_icon"
+                    : GetActivityIcon(activity.Type);
+
                 RecentActivities.Add(new ActivityItem
                 {
-                    Icon = GetActivityIcon(activity.Type), // Use the method to get icon
+                    Icon = activity.IconName ?? icon,  // Use activity's icon if provided, otherwise use our determined icon
                     Description = activity.Description,
                     TimeAgo = FormatTimeAgo(activity.Timestamp),
                     Score = activity.Score
@@ -167,7 +171,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         {
             return type switch
             {
-                ActivityType.Practice => "quiz_icon",
+                ActivityType.Practice => "quiz_incorrect_icon",  // Default for practice
                 ActivityType.Quiz => "quiz_icon",
                 ActivityType.Achievement => "achievement_icon",
                 ActivityType.Streak => "streak_icon",

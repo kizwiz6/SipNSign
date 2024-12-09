@@ -87,6 +87,8 @@
     <MauiImage Include="Platforms\Android\Resources\Images\first_sign_icon.svg" />
     <MauiImage Include="Platforms\Android\Resources\Images\locked_icon.svg" />
     <MauiImage Include="Platforms\Android\Resources\Images\mastery_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\quiz_incorrect_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\quiz_correct_icon.svg" />
     <MauiImage Include="Platforms\Android\Resources\Images\quiz_icon.svg" />
     <MauiImage Include="Platforms\Android\Resources\Images\streak_icon.svg" />
     <MauiImage Include="Platforms\Android\Resources\Images\time_icon.svg" />

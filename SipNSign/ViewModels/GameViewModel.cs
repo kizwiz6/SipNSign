@@ -600,14 +600,21 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private async Task LogGameActivity(bool isCorrect)
         {
+            if (isCorrect)
+            {
+                // Update signs learned count
+                _userProgress.SignsLearned++;
+                await _progressService.SaveProgressAsync(_userProgress);
+            }
+
             await _progressService.LogActivityAsync(new ActivityLog
             {
                 Id = Guid.NewGuid().ToString(),
                 Type = ActivityType.Practice,
                 Description = isCorrect ?
-                    $"Correctly signed '{CurrentSign?.CorrectAnswer}'" :
-                    $"Practiced '{CurrentSign?.CorrectAnswer}'",
-                IconName = "quiz_icon.svg",
+            $"Correctly signed '{CurrentSign?.CorrectAnswer}'" :
+            $"Practiced '{CurrentSign?.CorrectAnswer}'",
+                IconName = isCorrect ? "quiz_correct_icon" : "quiz_incorrect_icon",
                 Timestamp = DateTime.Now,
                 Score = isCorrect ? "+1" : "Try Again"
             });

@@ -202,12 +202,25 @@ namespace com.kizwiz.sipnsign.Services
                 achievement.IsUnlocked = true;
                 achievement.UnlockedDate = DateTime.Now;
 
+                // Use the appropriate icon based on achievement type
+                string iconName = achievement.Id switch
+                {
+                    "FIRST_SIGN" => "first_sign_icon",
+                    "STREAK_7" => "streak_icon",
+                    "STREAK_30" => "streak_icon",
+                    "SIGNS_50" => "mastery_icon",
+                    "SIGNS_100" => "mastery_icon",
+                    "QUIZ_PERFECT" => "quiz_icon",
+                    "PRACTICE_HOURS_10" => "time_icon",
+                    _ => "achievement_icon"
+                };
+
                 await LogActivityAsync(new ActivityLog
                 {
                     Id = Guid.NewGuid().ToString(),
                     Type = ActivityType.Achievement,
                     Description = $"Achievement Unlocked: {achievement.Title}",
-                    IconName = achievement.IconName,
+                    IconName = iconName,
                     Timestamp = DateTime.Now
                 });
             }

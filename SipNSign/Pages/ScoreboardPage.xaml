@@ -116,32 +116,22 @@
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <Grid Padding="10" ColumnDefinitions="Auto,*,Auto">
-                                    <!-- Activity Icon -->
-                                    <Frame Grid.Column="0" 
-                       HeightRequest="40" 
-                       WidthRequest="40"
-                       CornerRadius="20"
-                       BackgroundColor="{DynamicResource Primary}"
-                       Padding="5">
-                                        <Label Text="{Binding IconText}"
-                           TextColor="White"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center"/>
-                                    </Frame>
-                                    <!-- Activity Details -->
+                                    <Image Source="{Binding Icon}"
+                   HeightRequest="40"
+                   WidthRequest="40"
+                   Grid.Column="0"/>
                                     <VerticalStackLayout Grid.Column="1" Margin="10,0">
                                         <Label Text="{Binding Description}"
-                           TextColor="Black"
-                           FontAttributes="Bold"/>
-                                        <Label Text="{Binding TimeAgo}"
-                           TextColor="Gray"
-                           FontSize="12"/>
-                                    </VerticalStackLayout>
-                                    <!-- Score if applicable -->
-                                    <Label Grid.Column="2"
-                       Text="{Binding Score}"
-                       TextColor="{DynamicResource Primary}"
+                       TextColor="Black"
                        FontAttributes="Bold"/>
+                                        <Label Text="{Binding TimeAgo}"
+                       TextColor="Gray"
+                       FontSize="12"/>
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="2"
+                   Text="{Binding Score}"
+                   TextColor="{DynamicResource Primary}"
+                   FontAttributes="Bold"/>
                                 </Grid>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
