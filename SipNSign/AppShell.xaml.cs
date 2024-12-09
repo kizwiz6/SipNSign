@@ -11,8 +11,9 @@ public partial class AppShell : Shell
         _serviceProvider = serviceProvider;
         InitializeComponent();
 
-        Routing.RegisterRoute(nameof(ScoreboardPage), typeof(ScoreboardPage));
-        // ... any other route registrations
+        Routing.RegisterRoute("gamepage", typeof(GamePage));
+        Routing.RegisterRoute("scoreboard", typeof(ScoreboardPage));
+        Routing.RegisterRoute("settings", typeof(SettingsPage));
     }
 
     // Update your navigation method to use the service provider

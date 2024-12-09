@@ -26,12 +26,30 @@ namespace com.kizwiz.sipnsign.Pages
 
         private async void OnGuessGameClicked(object sender, EventArgs e)
         {
-            var videoService = _serviceProvider.GetRequiredService<IVideoService>();
-            var logger = _serviceProvider.GetRequiredService<ILoggingService>();
-            var progressService = _serviceProvider.GetRequiredService<IProgressService>();
-            var gamePage = new GamePage(videoService, logger, progressService);
-            gamePage.ViewModel.CurrentMode = GameMode.Guess;
-            await Navigation.PushAsync(gamePage);
+            try
+            {
+                Debug.WriteLine("OnGuessGameClicked started");
+
+                var videoService = _serviceProvider.GetRequiredService<IVideoService>();
+                Debug.WriteLine("VideoService retrieved");
+
+                var logger = _serviceProvider.GetRequiredService<ILoggingService>();
+                Debug.WriteLine("LoggingService retrieved");
+
+                var progressService = _serviceProvider.GetRequiredService<IProgressService>();
+                Debug.WriteLine("ProgressService retrieved");
+
+                var gamePage = new GamePage(videoService, logger, progressService);
+                Debug.WriteLine("GamePage created");
+
+                await Navigation.PushAsync(gamePage);
+                Debug.WriteLine("Navigation completed");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in OnGuessGameClicked: {ex.Message}");
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+            }
         }
 
         private async void OnPerformGameClicked(object sender, EventArgs e)

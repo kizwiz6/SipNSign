@@ -15,6 +15,8 @@
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
         <ApplicationVersion>1</ApplicationVersion>
 
+		<AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
+
         <!-- Platform Versions -->
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">17.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">17.0</SupportedOSPlatformVersion>
@@ -57,6 +59,9 @@
     <PackageReference Include="Microsoft.Maui.Core" Version="8.0.71" />
     <PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.71" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
+
+	  <PackageReference Include="System.Text.Json" Version="8.0.0" />
+	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
 
     <!-- Community Toolkit -->
     <PackageReference Include="CommunityToolkit.Maui" Version="9.1.1" />

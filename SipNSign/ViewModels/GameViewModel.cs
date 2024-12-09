@@ -403,6 +403,7 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private void HandleTimeOut()
         {
+            IsProcessingAnswer = true;
             FeedbackText = $"Time's up!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
             FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
             IsFeedbackVisible = true;
@@ -410,6 +411,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             Task.Delay(3000).ContinueWith(_ =>
             {
                 IsFeedbackVisible = false;
+                IsProcessingAnswer = false;
                 LoadNextSign();
             }, TaskScheduler.FromCurrentSynchronizationContext());
         }

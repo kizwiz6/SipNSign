@@ -3,6 +3,7 @@ using CommunityToolkit.Maui;
 using com.kizwiz.sipnsign;
 using com.kizwiz.sipnsign.Services;
 using com.kizwiz.sipnsign.Pages;
+using com.kizwiz.sipnsign.ViewModels;
 
 namespace com.kizwiz.sipnsign;
 
@@ -31,6 +32,7 @@ public static class MauiProgram
             });
 
         // Register services
+        builder.Services.AddSingleton<IServiceProvider>(provider => provider);
         builder.Services.AddSingleton<IVideoService, VideoService>();
         builder.Services.AddSingleton<ILoggingService, LoggingService>();
         builder.Services.AddSingleton<IProgressService, ProgressService>();
@@ -40,6 +42,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<App>();
         builder.Services.AddTransient<MainMenuPage>();
         builder.Services.AddTransient<GamePage>();
+        builder.Services.AddTransient<GameViewModel>();
         builder.Services.AddTransient<HowToPlayPage>();
         builder.Services.AddTransient<ScoreboardPage>();
         builder.Services.AddTransient<SettingsPage>();

@@ -33,6 +33,8 @@ namespace com.kizwiz.sipnsign
             // Create the main page using dependency injection
             var mainPage = _serviceProvider.GetRequiredService<MainMenuPage>();
 
+            MainPage = new AppShell(serviceProvider);
+
             MainPage = new NavigationPage(mainPage)
             {
                 BarBackgroundColor = _navBarColor,
