@@ -1,4 +1,5 @@
 ﻿using com.kizwiz.sipnsign.Pages;
+using System.Diagnostics;
 
 namespace com.kizwiz.sipnsign;
 
@@ -8,24 +9,57 @@ public partial class AppShell : Shell
 
     public AppShell(IServiceProvider serviceProvider)
     {
-        _serviceProvider = serviceProvider;
-        InitializeComponent();
+        try
+        {
+            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            InitializeComponent();
 
-        Routing.RegisterRoute("gamepage", typeof(GamePage));
-        Routing.RegisterRoute("scoreboard", typeof(ScoreboardPage));
-        Routing.RegisterRoute("settings", typeof(SettingsPage));
+            Debug.WriteLine("Registering routes...");
+            RegisterRoutes();
+            Debug.WriteLine("Routes registered successfully");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error initializing AppShell: {ex.Message}");
+            Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+            throw;
+        }
     }
 
-    // Update your navigation method to use the service provider
+    private void RegisterRoutes()
+    {
+        try
+        {
+            Routing.RegisterRoute("gamepage", typeof(GamePage));
+            Routing.RegisterRoute("scoreboard", typeof(ScoreboardPage));
+            Routing.RegisterRoute("settings", typeof(SettingsPage));
+            Routing.RegisterRoute("howtoplay", typeof(HowToPlayPage));
+            Debug.WriteLine("All routes registered");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error registering routes: {ex.Message}");
+            throw;
+        }
+    }
+
     private async Task GoToAsync(string route)
     {
         try
         {
+            if (string.IsNullOrEmpty(route))
+            {
+                throw new ArgumentException("Route cannot be null or empty");
+            }
+
+            Debug.WriteLine($"Attempting to navigate to route: {route}");
             await Shell.Current.GoToAsync(route);
+            Debug.WriteLine($"Successfully navigated to: {route}");
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Navigation Error", ex.Message, "OK");
+            Debug.WriteLine($"Navigation error to {route}: {ex.Message}");
+            await DisplayAlert("Navigation Error", "Unable to navigate to the requested page. Please try again.", "OK");
         }
     }
 }

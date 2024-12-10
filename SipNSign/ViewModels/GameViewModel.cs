@@ -327,12 +327,20 @@ namespace com.kizwiz.sipnsign.ViewModels
         #region Constructor
         public GameViewModel(ILoggingService logger, IProgressService progressService)
         {
-            _logger = logger;
-            _progressService = progressService;
-            _correctInARow = 0;
-
             try
             {
+                _logger = logger;
+                _progressService = progressService;
+                _correctInARow = 0;
+
+                // Initialize user progress first
+                _userProgress = Task.Run(async () => await _progressService.GetUserProgressAsync()).Result;
+                if (_userProgress == null)
+                {
+                    throw new InvalidOperationException("Failed to initialize user progress");
+                }
+
+                // Load sign data
                 SignRepository signRepository = new SignRepository();
                 _signs = signRepository.GetSigns();
                 Debug.WriteLine($"Loaded {_signs.Count} signs");
@@ -340,33 +348,34 @@ namespace com.kizwiz.sipnsign.ViewModels
                 if (!_signs.Any())
                 {
                     Debug.WriteLine("No signs loaded");
-                    return;
+                    throw new InvalidOperationException("No signs were loaded");
                 }
 
                 foreach (var sign in _signs)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Video path: {sign.VideoPath}");
+                    Debug.WriteLine($"Video path: {sign.VideoPath}");
                 }
 
+                // Initialize game state
                 _availableIndices = new List<int>();
                 _feedbackBackgroundColor = Colors.Transparent.ToArgbHex();
 
-                _userProgress = _progressService.GetUserProgressAsync().Result;
-
+                // Setup timer
                 _timer = Application.Current.Dispatcher.CreateTimer();
                 _timer.Interval = TimeSpan.FromSeconds(1);
                 _timer.Tick += Timer_Tick;
 
+                // Initialize UI and game
                 InitializeCommands();
                 ResetButtonColors();
                 InitializeGame();
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in GameViewModel: {ex}");
+                Debug.WriteLine($"Error in GameViewModel constructor: {ex.Message}");
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                throw; // Let the UI handle this
             }
-
-
         }
         #endregion
 

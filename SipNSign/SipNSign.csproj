@@ -60,7 +60,11 @@
     <PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.71" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
 
-	  <PackageReference Include="System.Text.Json" Version="8.0.0" />
+	  <PackageReference Include="System.Text.Json" Version="8.0.0">
+		  <IncludeAssets>all</IncludeAssets>
+		  <ExcludeAssets>none</ExcludeAssets>
+		  <PrivateAssets>none</PrivateAssets>
+	  </PackageReference>
 	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
 
     <!-- Community Toolkit -->

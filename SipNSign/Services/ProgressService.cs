@@ -1,6 +1,7 @@
 ﻿using com.kizwiz.sipnsign.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -16,9 +17,24 @@ namespace com.kizwiz.sipnsign.Services
 
         public ProgressService()
         {
-            _progressFile = Path.Combine(FileSystem.AppDataDirectory, "progress.json");
-            _availableAchievements = InitializeAchievements();
-            _currentProgress = LoadProgress().Result;
+            try
+            {
+                Debug.WriteLine("Initializing ProgressService");
+                _progressFile = Path.Combine(FileSystem.AppDataDirectory, "progress.json");
+                Debug.WriteLine($"Progress file path: {_progressFile}");
+
+                _availableAchievements = InitializeAchievements();
+                Debug.WriteLine("Achievements initialised");
+
+                _currentProgress = LoadProgress().Result;
+                Debug.WriteLine("Progress loaded successfully");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"ERROR in ProgressService constructor: {ex.Message}");
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                throw;
+            }
         }
 
         private List<Achievement> InitializeAchievements()
@@ -124,23 +140,100 @@ namespace com.kizwiz.sipnsign.Services
             };
         }
 
-        private async Task<UserProgress> LoadProgress()
+        private Task<UserProgress> LoadProgress()
         {
-            if (!File.Exists(_progressFile))
+            try
             {
-                return new UserProgress
+                Debug.WriteLine("Starting LoadProgress");
+
+                // Check for existing progress file
+                if (File.Exists(_progressFile))
+                {
+                    Debug.WriteLine("Found existing progress file");
+                    try
+                    {
+                        var json = File.ReadAllText(_progressFile);
+                        Debug.WriteLine("Read existing progress file");
+
+                        var options = new JsonSerializerOptions
+                        {
+                            WriteIndented = true,
+                            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                        };
+
+                        var progress = JsonSerializer.Deserialize<UserProgress>(json, options);
+                        if (progress != null)
+                        {
+                            Debug.WriteLine("Successfully loaded existing progress");
+                            return Task.FromResult(progress);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error loading existing progress: {ex.Message}");
+                        // If there's an error reading the file, we'll create a new one
+                    }
+                }
+
+                Debug.WriteLine("Creating new progress");
+                var newProgress = new UserProgress
                 {
                     SignsLearned = 0,
                     CurrentStreak = 0,
                     Accuracy = 0,
                     TotalPracticeTime = TimeSpan.Zero,
-                    Achievements = _availableAchievements,
+                    TotalAttempts = 0,
+                    CorrectAttempts = 0,
+                    GuessModeSigns = 0,
+                    PerformModeSigns = 0,
+                    Achievements = new List<Achievement>(_availableAchievements),
                     Activities = new List<ActivityLog>()
                 };
-            }
 
-            var json = await File.ReadAllTextAsync(_progressFile);
-            return JsonSerializer.Deserialize<UserProgress>(json);
+                try
+                {
+                    Debug.WriteLine("Saving new progress");
+                    var options = new JsonSerializerOptions
+                    {
+                        WriteIndented = true,
+                        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                    };
+                    var json = JsonSerializer.Serialize(newProgress, options);
+                    File.WriteAllText(_progressFile, json);
+                    Debug.WriteLine("New progress saved successfully");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error saving new progress: {ex.Message}");
+                    // Even if save fails, return the new progress object
+                }
+
+                Debug.WriteLine("Returning progress object");
+                return Task.FromResult(newProgress);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"CRITICAL ERROR in LoadProgress: {ex.Message}");
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                throw;
+            }
+        }
+
+        private UserProgress InitializeNewProgress()
+        {
+            return new UserProgress
+            {
+                SignsLearned = 0,
+                CurrentStreak = 0,
+                Accuracy = 0,
+                TotalPracticeTime = TimeSpan.Zero,
+                Achievements = _availableAchievements,
+                Activities = new List<ActivityLog>(),
+                TotalAttempts = 0,
+                CorrectAttempts = 0,
+                GuessModeSigns = 0,
+                PerformModeSigns = 0
+            };
         }
 
         public async Task<UserProgress> GetUserProgressAsync()
