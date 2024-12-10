@@ -47,7 +47,7 @@
                                TextColor="{DynamicResource Primary}"
                                HorizontalOptions="Center"/>
                         <Label x:Name="SignsLearnedLabel"
-                               Text="42"
+                               Text="{Binding SignsLearned}"
                                FontSize="32"
                                FontAttributes="Bold"
                                TextColor="{DynamicResource Primary}"
@@ -62,7 +62,7 @@
                                TextColor="{DynamicResource Primary}"
                                HorizontalOptions="Center"/>
                         <Label x:Name="StreakLabel"
-                               Text="5 Days"
+                               Text="{Binding CurrentStreak}"
                                FontSize="32"
                                FontAttributes="Bold"
                                TextColor="{DynamicResource Primary}"
@@ -77,11 +77,11 @@
                                TextColor="{DynamicResource Primary}"
                                HorizontalOptions="Center"/>
                         <Label x:Name="AccuracyLabel"
-                               Text="85%"
-                               FontSize="32"
-                               FontAttributes="Bold"
-                               TextColor="{DynamicResource Primary}"
-                               HorizontalOptions="Center"/>
+       Text="{Binding AccuracyDisplay}"
+       FontSize="32"
+       FontAttributes="Bold"
+       TextColor="{DynamicResource Primary}"
+       HorizontalOptions="Center"/>
                     </VerticalStackLayout>
                 </Frame>
 
@@ -92,7 +92,7 @@
                                TextColor="{DynamicResource Primary}"
                                HorizontalOptions="Center"/>
                         <Label x:Name="PracticeTimeLabel"
-                               Text="3.5 hrs"
+                               Text="{Binding PracticeTimeDisplay}"
                                FontSize="32"
                                FontAttributes="Bold"
                                TextColor="{DynamicResource Primary}"

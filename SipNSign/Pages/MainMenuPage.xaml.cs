@@ -39,19 +39,25 @@ namespace com.kizwiz.sipnsign.Pages
                 var progressService = _serviceProvider.GetRequiredService<IProgressService>();
                 Debug.WriteLine("ProgressService retrieved");
 
-                var gamePage = new GamePage(videoService, logger, progressService);
-                Debug.WriteLine("GamePage created");
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    var gamePage = new GamePage(videoService, logger, progressService);
+                    Debug.WriteLine("GamePage created");
 
-                await Navigation.PushAsync(gamePage);
-                Debug.WriteLine("Navigation completed");
+                    gamePage.ViewModel.CurrentMode = GameMode.Guess;
+                    Debug.WriteLine("Mode set to Guess");
+
+                    await Navigation.PushAsync(gamePage);
+                    Debug.WriteLine("Navigation completed");
+                });
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error in OnGuessGameClicked: {ex.Message}");
                 Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                await DisplayAlert("Error", "Unable to start game. Please try again.", "OK");
             }
         }
-
         private async void OnPerformGameClicked(object sender, EventArgs e)
         {
             var videoService = _serviceProvider.GetRequiredService<IVideoService>();

@@ -80,6 +80,46 @@ namespace com.kizwiz.sipnsign.Services
                     Description = "Practice for 10 hours",
                     IconName = "time_icon",
                     ProgressRequired = 10
+                },
+                new Achievement
+                {
+                    Id = "SIGNS_100_GUESS",
+                    Title = "Guess Master",
+                    Description = "Get 100 signs correct in Guess Mode",
+                    IconName = "mastery_icon",
+                    ProgressRequired = 100
+                },
+                new Achievement
+                {
+                    Id = "SIGNS_1000_GUESS",
+                    Title = "Ultimate Guesser",
+                    Description = "Get 1000 signs correct in Guess Mode",
+                    IconName = "mastery_icon",
+                    ProgressRequired = 1000
+                },
+                new Achievement
+                {
+                    Id = "SIGNS_100_PERFORM",
+                    Title = "Performance Pro",
+                    Description = "Successfully perform 100 signs",
+                    IconName = "mastery_icon",
+                    ProgressRequired = 100
+                },
+                new Achievement
+                {
+                    Id = "SIGNS_1000_PERFORM",
+                    Title = "Sign Language Star",
+                    Description = "Successfully perform 1000 signs",
+                    IconName = "mastery_icon",
+                    ProgressRequired = 1000
+                },
+                new Achievement
+                {
+                    Id = "PERFECT_SESSION",
+                    Title = "Perfect Session",
+                    Description = "Get 50 signs correct in a row",
+                    IconName = "quiz_icon",
+                    ProgressRequired = 1
                 }
             };
         }
@@ -128,20 +168,40 @@ namespace com.kizwiz.sipnsign.Services
             switch (activity.Type)
             {
                 case ActivityType.Practice:
-                    _currentProgress.SignsLearned++;
-                    break;
-                case ActivityType.Quiz:
-                    // Parse score (e.g., "8/10") and update accuracy
-                    var scoreParts = activity.Score.Split('/');
-                    if (scoreParts.Length == 2)
+                    if (activity.Score == "+1")
                     {
-                        double correct = double.Parse(scoreParts[0]);
-                        double total = double.Parse(scoreParts[1]);
-                        _currentProgress.Accuracy =
-                            (_currentProgress.Accuracy * (_currentProgress.SignsLearned - 1) + (correct / total))
-                            / _currentProgress.SignsLearned;
+                        // Update accuracy
+                        int totalAttempts = _currentProgress.Activities.Count(a => a.Type == ActivityType.Practice);
+                        int correctAttempts = _currentProgress.Activities.Count(a => a.Type == ActivityType.Practice && a.Score == "+1");
+                        _currentProgress.Accuracy = (double)correctAttempts / totalAttempts;
+
+                        // Update practice time (increment by 30 seconds per attempt)
+                        _currentProgress.TotalPracticeTime = _currentProgress.TotalPracticeTime.Add(TimeSpan.FromSeconds(30));
                     }
                     break;
+            }
+
+            // Update streak
+            var today = DateTime.Today;
+            var lastActivity = _currentProgress.Activities
+                .OrderByDescending(a => a.Timestamp)
+                .FirstOrDefault();
+
+            if (lastActivity != null)
+            {
+                var lastActivityDate = lastActivity.Timestamp.Date;
+                if (lastActivityDate == today.AddDays(-1))
+                {
+                    _currentProgress.CurrentStreak++;
+                }
+                else if (lastActivityDate != today)
+                {
+                    _currentProgress.CurrentStreak = 1;
+                }
+            }
+            else
+            {
+                _currentProgress.CurrentStreak = 1;
             }
         }
 
@@ -189,6 +249,31 @@ namespace com.kizwiz.sipnsign.Services
                     case "PRACTICE_HOURS_10" when _currentProgress.TotalPracticeTime.TotalHours >= 10:
                         await UnlockAchievement(achievement);
                         achievement.ProgressCurrent = (int)_currentProgress.TotalPracticeTime.TotalHours;
+                        break;
+
+                    case "SIGNS_100_GUESS" when _currentProgress.GuessModeSigns >= 100:
+                        await UnlockAchievement(achievement);
+                        achievement.ProgressCurrent = _currentProgress.GuessModeSigns;
+                        break;
+
+                    case "SIGNS_1000_GUESS" when _currentProgress.GuessModeSigns >= 1000:
+                        await UnlockAchievement(achievement);
+                        achievement.ProgressCurrent = _currentProgress.GuessModeSigns;
+                        break;
+
+                    case "SIGNS_100_PERFORM" when _currentProgress.PerformModeSigns >= 100:
+                        await UnlockAchievement(achievement);
+                        achievement.ProgressCurrent = _currentProgress.PerformModeSigns;
+                        break;
+
+                    case "SIGNS_1000_PERFORM" when _currentProgress.PerformModeSigns >= 1000:
+                        await UnlockAchievement(achievement);
+                        achievement.ProgressCurrent = _currentProgress.PerformModeSigns;
+                        break;
+
+                    case "PERFECT_SESSION" when _currentProgress.CorrectInARow >= 50:
+                        await UnlockAchievement(achievement);
+                        achievement.ProgressCurrent = 1;
                         break;
                 }
             }
@@ -256,6 +341,32 @@ namespace com.kizwiz.sipnsign.Services
 
         public async Task SaveProgressAsync(UserProgress progress)
         {
+            var today = DateTime.Today;
+            var lastActivity = progress.Activities
+                .OrderByDescending(a => a.Timestamp)
+                .FirstOrDefault();
+
+            if (lastActivity != null)
+            {
+                var lastActivityDate = lastActivity.Timestamp.Date;
+                if (lastActivityDate == today)
+                {
+                    // Already updated today, keep current streak
+                }
+                else if (lastActivityDate == today.AddDays(-1))
+                {
+                    progress.CurrentStreak++; // Increment streak for consecutive days
+                }
+                else
+                {
+                    progress.CurrentStreak = 1; // Reset streak if missed a day
+                }
+            }
+            else
+            {
+                progress.CurrentStreak = 1; // First activity
+            }
+
             var json = JsonSerializer.Serialize(progress);
             await File.WriteAllTextAsync(_progressFile, json);
             _currentProgress = progress;

@@ -30,6 +30,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private bool _isLoading;
         private bool _isProcessingAnswer;
         private int _currentScore;
+        private int _correctInARow;
         private SignModel? _currentSign;
         private List<SignModel> _signs;
         private List<int> _availableIndices;
@@ -328,6 +329,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         {
             _logger = logger;
             _progressService = progressService;
+            _correctInARow = 0;
 
             try
             {
@@ -401,6 +403,9 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
 
+        /// <summary>
+        /// Handles when the timer runs out in Guess Mode
+        /// </summary>
         private void HandleTimeOut()
         {
             IsProcessingAnswer = true;
@@ -513,6 +518,10 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
 
+        /// <summary>
+        /// Shows feedback to user and handles transition to next sign
+        /// </summary>
+        /// <param name="isCorrect">Whether the previous answer was correct</param>
         private async Task ShowFeedbackAndContinue(bool isCorrect)
         {
             IsFeedbackVisible = true;
@@ -585,9 +594,8 @@ namespace com.kizwiz.sipnsign.ViewModels
         }
 
         /// <summary>
-        /// Track practice tim.
+        /// Updates the practice time for tracking achievements
         /// </summary>
-        /// <returns></returns>
         private async Task UpdatePracticeTime()
         {
             if (_userProgress == null) return;
@@ -600,26 +608,71 @@ namespace com.kizwiz.sipnsign.ViewModels
             CurrentMode = mode;
         }
 
+        /// <summary>
+        /// Logs game activity and updates progress when signs are completed
+        /// </summary>
+        /// <param name="isCorrect">Whether the sign was correctly identified/performed</param>
         private async Task LogGameActivity(bool isCorrect)
         {
+            if (_userProgress == null)
+            {
+                _userProgress = await _progressService.GetUserProgressAsync();
+            }
+
+            // Update total attempts and correct attempts
+            _userProgress.TotalAttempts++;
+
             if (isCorrect)
             {
-                // Update signs learned count
                 _userProgress.SignsLearned++;
-                await _progressService.SaveProgressAsync(_userProgress);
+                _userProgress.CorrectAttempts++;
+                _userProgress.CorrectInARow++;
+
+                // Update mode-specific counters
+                if (CurrentMode == GameMode.Guess)
+                {
+                    _userProgress.GuessModeSigns++;
+                }
+                else
+                {
+                    _userProgress.PerformModeSigns++;
+                }
             }
+            else
+            {
+                _userProgress.CorrectInARow = 0;  // Reset streak on wrong answer
+            }
+
+            // Calculate and update accuracy
+            _userProgress.Accuracy = (double)_userProgress.CorrectAttempts / _userProgress.TotalAttempts;
+
+            await _progressService.SaveProgressAsync(_userProgress);
 
             await _progressService.LogActivityAsync(new ActivityLog
             {
                 Id = Guid.NewGuid().ToString(),
                 Type = ActivityType.Practice,
                 Description = isCorrect ?
-            $"Correctly signed '{CurrentSign?.CorrectAnswer}'" :
-            $"Practiced '{CurrentSign?.CorrectAnswer}'",
+                    $"Correctly signed '{CurrentSign?.CorrectAnswer}'" :
+                    $"Practiced '{CurrentSign?.CorrectAnswer}'",
                 IconName = isCorrect ? "quiz_correct_icon" : "quiz_incorrect_icon",
                 Timestamp = DateTime.Now,
                 Score = isCorrect ? "+1" : "Try Again"
             });
+
+            // Check for perfect session
+            if (isCorrect)
+            {
+                _correctInARow++;
+                if (_correctInARow >= 10)
+                {
+                    await _progressService.UpdateAchievementsAsync();
+                }
+            }
+            else
+            {
+                _correctInARow = 0;
+            }
         }
 
         private async Task LogAchievementActivity(string achievementTitle)
@@ -698,6 +751,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         public void ResetGame()
         {
             CurrentScore = 0;
+            _correctInARow = 0;  // Reset the counter
             _availableIndices = Enumerable.Range(0, _signs.Count).ToList();
             IsGameOver = false;
             FeedbackText = string.Empty;
