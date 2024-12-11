@@ -320,20 +320,18 @@ namespace com.kizwiz.sipnsign.Services
                         break;
 
                     case "SIGNS_50" when !achievement.IsUnlocked:
-                        achievement.ProgressCurrent = Math.Min(_currentProgress.SignsLearned, 50);
-                        if (_currentProgress.SignsLearned >= 50)
+                        achievement.ProgressCurrent = Math.Min(_currentProgress.SignsLearned, achievement.ProgressRequired);
+                        if (!achievement.IsUnlocked && _currentProgress.SignsLearned >= 50)
                         {
                             await UnlockAchievement(achievement);
-                            achievement.ProgressCurrent = 50;  // Cap at required amount
                         }
                         break;
 
                     case "SIGNS_100" when !achievement.IsUnlocked:
-                        achievement.ProgressCurrent = Math.Min(_currentProgress.SignsLearned, 100);
-                        if (_currentProgress.SignsLearned >= 100)
+                        achievement.ProgressCurrent = Math.Min(_currentProgress.SignsLearned, achievement.ProgressRequired);
+                        if (!achievement.IsUnlocked && _currentProgress.SignsLearned >= 100)
                         {
                             await UnlockAchievement(achievement);
-                            achievement.ProgressCurrent = 100;  // Cap at required amount
                         }
                         break;
 
@@ -353,17 +351,16 @@ namespace com.kizwiz.sipnsign.Services
                         break;
 
                     case "SIGNS_100_GUESS" when !achievement.IsUnlocked:
-                        achievement.ProgressCurrent = Math.Min(_currentProgress.GuessModeSigns, 100);
-                        if (_currentProgress.GuessModeSigns >= 100)
+                        achievement.ProgressCurrent = Math.Min(_currentProgress.GuessModeSigns, achievement.ProgressRequired);
+                        if (!achievement.IsUnlocked && _currentProgress.GuessModeSigns >= 100)
                         {
                             await UnlockAchievement(achievement);
-                            achievement.ProgressCurrent = 100;  // Cap at required amount
                         }
                         break;
 
                     case "SIGNS_1000_GUESS" when !achievement.IsUnlocked:
-                        achievement.ProgressCurrent = Math.Min(_currentProgress.GuessModeSigns, 1000);
-                        if (_currentProgress.GuessModeSigns >= 1000)
+                        achievement.ProgressCurrent = Math.Min(_currentProgress.GuessModeSigns, achievement.ProgressRequired);
+                        if (!achievement.IsUnlocked && _currentProgress.GuessModeSigns >= 1000)
                         {
                             await UnlockAchievement(achievement);
                             achievement.ProgressCurrent = 1000;  // Cap at required amount
@@ -371,20 +368,18 @@ namespace com.kizwiz.sipnsign.Services
                         break;
 
                     case "SIGNS_100_PERFORM" when !achievement.IsUnlocked:
-                        achievement.ProgressCurrent = Math.Min(_currentProgress.PerformModeSigns, 100);
-                        if (_currentProgress.PerformModeSigns >= 100)
+                        achievement.ProgressCurrent = Math.Min(_currentProgress.PerformModeSigns, achievement.ProgressRequired);
+                        if(!achievement.IsUnlocked && _currentProgress.PerformModeSigns >= 100)
                         {
                             await UnlockAchievement(achievement);
-                            achievement.ProgressCurrent = 100;  // Cap at required amount
                         }
                         break;
 
                     case "SIGNS_1000_PERFORM" when !achievement.IsUnlocked:
-                        achievement.ProgressCurrent = Math.Min(_currentProgress.PerformModeSigns, 1000);
-                        if (_currentProgress.PerformModeSigns >= 1000)
+                        achievement.ProgressCurrent = Math.Min(_currentProgress.PerformModeSigns, achievement.ProgressRequired);
+                        if (!achievement.IsUnlocked && _currentProgress.PerformModeSigns >= 1000)
                         {
                             await UnlockAchievement(achievement);
-                            achievement.ProgressCurrent = 1000;  // Cap at required amount
                         }
                         break;
 

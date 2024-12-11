@@ -858,15 +858,6 @@ namespace com.kizwiz.sipnsign.ViewModels
             // Set the results text
             int totalQuestions = Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
             GuessResults = $"You guessed {CurrentScore}/{totalQuestions} correctly!";
-
-            await MainThread.InvokeOnMainThreadAsync(async () =>
-            {
-                await Application.Current.MainPage.DisplayAlert(
-                    "Game Over",
-                    $"Your final score is {CurrentScore}!",
-                    "OK"
-                );
-            });
         }
 
         protected virtual void OnPropertyChanged(string propertyName)

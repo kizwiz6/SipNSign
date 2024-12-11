@@ -210,11 +210,27 @@ namespace com.kizwiz.sipnsign.ViewModels
         {
             get
             {
-                if (_userProgress?.Achievements == null) return 0;
-                var totalAchievements = _userProgress.Achievements.Count;
-                if (totalAchievements == 0) return 0;
-                var unlockedAchievements = _userProgress.Achievements.Count(a => a.IsUnlocked);
-                return (double)unlockedAchievements / totalAchievements;
+                if (_userProgress?.Achievements == null || !_userProgress.Achievements.Any())
+                    return 0;
+
+                var unlockedCount = _userProgress.Achievements.Count(a => a.IsUnlocked);
+                var totalCount = _userProgress.Achievements.Count;
+
+                // Calculate overall progress including partial progress of incomplete achievements
+                double totalProgress = 0;
+                foreach (var achievement in _userProgress.Achievements)
+                {
+                    if (achievement.IsUnlocked)
+                    {
+                        totalProgress += 1.0;
+                    }
+                    else if (achievement.ProgressRequired > 0)
+                    {
+                        totalProgress += (double)achievement.ProgressCurrent / achievement.ProgressRequired;
+                    }
+                }
+
+                return totalProgress / totalCount;
             }
         }
 
