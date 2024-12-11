@@ -83,7 +83,9 @@
 
         <!-- Guess Mode Content -->
         <Grid Grid.Row="1" IsVisible="{Binding IsGuessMode}">
-            <Grid RowDefinitions="*,Auto" Padding="20" RowSpacing="20">
+            <!-- Game Content (hidden during game over) -->
+            <Grid RowDefinitions="*,Auto" Padding="20" RowSpacing="20" 
+          IsVisible="{Binding IsGameActive}">
                 <!-- Video and Feedback Section -->
                 <Grid Grid.Row="0">
                     <Frame Padding="10"
@@ -290,13 +292,12 @@
             </ScrollView>
         </Grid>
 
-        <!-- Game Over Overlay (Full Screen) -->
+        <!-- Game Over Screen (completely replaces game content) -->
         <Grid IsVisible="{Binding IsGameOver}"
-          BackgroundColor="#CC000000">
+          BackgroundColor="{DynamicResource Primary}">
             <Frame Margin="20"
                CornerRadius="20"
-               BackgroundColor="{DynamicResource Primary}"
-               VerticalOptions="Center">
+               BackgroundColor="{DynamicResource Primary}">
                 <VerticalStackLayout Spacing="20" Padding="20">
                     <Label Text="Game Over!"
                        TextColor="White"
@@ -308,6 +309,12 @@
                        TextColor="White"
                        FontSize="24"
                        HorizontalOptions="Center"/>
+
+                    <Label Text="{Binding GuessResults}"
+                       TextColor="White"
+                       FontSize="18"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"/>
 
                     <Button Text="Play Again"
                         Command="{Binding PlayAgainCommand}"

@@ -48,6 +48,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private GameMode _currentMode = GameMode.Guess;
         private ICommand _playAgainCommand;
         private bool _isSignHidden = true;
+        private string _guessResults;
         private UserProgress _userProgress;
         #endregion
 
@@ -71,6 +72,16 @@ namespace com.kizwiz.sipnsign.ViewModels
                     _isGameActive = value;
                     OnPropertyChanged(nameof(IsGameActive));
                 }
+            }
+        }
+
+        public string GuessResults
+        {
+            get => _guessResults;
+            set
+            {
+                _guessResults = value;
+                OnPropertyChanged(nameof(GuessResults));
             }
         }
 
@@ -828,6 +839,10 @@ namespace com.kizwiz.sipnsign.ViewModels
             FeedbackBackgroundColor = Colors.Transparent.ToArgbHex();
             ResetButtonColors();
 
+            // Clear the video source when resetting
+           // VideoSource = null;
+            IsLoading = true;  // Ensure loading indicator shows
+
             if (IsPerformMode)
             {
                 IsSignHidden = true;
@@ -841,10 +856,10 @@ namespace com.kizwiz.sipnsign.ViewModels
             _timer?.Stop();
             IsGameActive = false;
             IsGameOver = true;
-            IsFeedbackVisible = false;  // Ensure feedback is hidden
 
-            // Wait a short moment to ensure UI updates before showing dialog
-            await Task.Delay(100);
+            // Set the results text
+            int totalQuestions = Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
+            GuessResults = $"You guessed {CurrentScore}/{totalQuestions} correctly!";
 
             await MainThread.InvokeOnMainThreadAsync(async () =>
             {

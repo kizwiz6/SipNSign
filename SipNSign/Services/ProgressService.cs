@@ -324,6 +324,7 @@ namespace com.kizwiz.sipnsign.Services
                         if (_currentProgress.SignsLearned >= 50)
                         {
                             await UnlockAchievement(achievement);
+                            achievement.ProgressCurrent = 50;  // Cap at required amount
                         }
                         break;
 
@@ -332,6 +333,7 @@ namespace com.kizwiz.sipnsign.Services
                         if (_currentProgress.SignsLearned >= 100)
                         {
                             await UnlockAchievement(achievement);
+                            achievement.ProgressCurrent = 100;  // Cap at required amount
                         }
                         break;
 
@@ -355,6 +357,7 @@ namespace com.kizwiz.sipnsign.Services
                         if (_currentProgress.GuessModeSigns >= 100)
                         {
                             await UnlockAchievement(achievement);
+                            achievement.ProgressCurrent = 100;  // Cap at required amount
                         }
                         break;
 
@@ -363,6 +366,7 @@ namespace com.kizwiz.sipnsign.Services
                         if (_currentProgress.GuessModeSigns >= 1000)
                         {
                             await UnlockAchievement(achievement);
+                            achievement.ProgressCurrent = 1000;  // Cap at required amount
                         }
                         break;
 
@@ -371,6 +375,7 @@ namespace com.kizwiz.sipnsign.Services
                         if (_currentProgress.PerformModeSigns >= 100)
                         {
                             await UnlockAchievement(achievement);
+                            achievement.ProgressCurrent = 100;  // Cap at required amount
                         }
                         break;
 
@@ -379,6 +384,7 @@ namespace com.kizwiz.sipnsign.Services
                         if (_currentProgress.PerformModeSigns >= 1000)
                         {
                             await UnlockAchievement(achievement);
+                            achievement.ProgressCurrent = 1000;  // Cap at required amount
                         }
                         break;
 
