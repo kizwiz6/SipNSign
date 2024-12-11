@@ -26,18 +26,54 @@ namespace com.kizwiz.sipnsign.Pages
 
         private async void OnGuessGameClicked(object sender, EventArgs e)
         {
-            var videoService = _serviceProvider.GetRequiredService<IVideoService>();
-            var logger = _serviceProvider.GetRequiredService<ILoggingService>();
-            var gamePage = new GamePage(videoService, logger);
-            gamePage.ViewModel.CurrentMode = GameMode.Guess;
-            await Navigation.PushAsync(gamePage);
+            try
+            {
+                Debug.WriteLine("OnGuessGameClicked started");
+
+                Debug.WriteLine("Attempting to get VideoService");
+                var videoService = _serviceProvider.GetRequiredService<IVideoService>();
+                Debug.WriteLine("VideoService retrieved");
+
+                Debug.WriteLine("Attempting to get LoggingService");
+                var logger = _serviceProvider.GetRequiredService<ILoggingService>();
+                Debug.WriteLine("LoggingService retrieved");
+
+                Debug.WriteLine("Attempting to get ProgressService");
+                var progressService = _serviceProvider.GetRequiredService<IProgressService>();
+                Debug.WriteLine("ProgressService retrieved");
+
+                Debug.WriteLine("Creating GamePage");
+                var gamePage = new GamePage(videoService, logger, progressService);
+                Debug.WriteLine("GamePage created successfully");
+
+                gamePage.ViewModel.CurrentMode = GameMode.Guess;
+                Debug.WriteLine("Game mode set to Guess");
+
+                await Navigation.PushAsync(gamePage);
+                Debug.WriteLine("Navigation completed");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"ERROR in OnGuessGameClicked: {ex.GetType().Name}");
+                Debug.WriteLine($"Error Message: {ex.Message}");
+                Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+
+                if (ex.InnerException != null)
+                {
+                    Debug.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                    Debug.WriteLine($"Inner Stack Trace: {ex.InnerException.StackTrace}");
+                }
+
+                await DisplayAlert("Error", "Unable to start game. Please try again.", "OK");
+            }
         }
 
         private async void OnPerformGameClicked(object sender, EventArgs e)
         {
             var videoService = _serviceProvider.GetRequiredService<IVideoService>();
             var logger = _serviceProvider.GetRequiredService<ILoggingService>();
-            var gamePage = new GamePage(videoService, logger);
+            var progressService = _serviceProvider.GetRequiredService<IProgressService>();
+            var gamePage = new GamePage(videoService, logger, progressService);
             gamePage.ViewModel.CurrentMode = GameMode.Perform;
             await Navigation.PushAsync(gamePage);
         }

@@ -15,6 +15,8 @@
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
         <ApplicationVersion>1</ApplicationVersion>
 
+		<AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
+
         <!-- Platform Versions -->
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">17.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">17.0</SupportedOSPlatformVersion>
@@ -32,6 +34,22 @@
         <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
     </ItemGroup>
 
+    <ItemGroup>
+      <AndroidResource Remove="Resources\Themes\**" />
+      <Compile Remove="Resources\Themes\**" />
+      <EmbeddedResource Remove="Resources\Themes\**" />
+      <MauiCss Remove="Resources\Themes\**" />
+      <MauiXaml Remove="Resources\Themes\**" />
+      <None Remove="Resources\Themes\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Platforms\Android\Resources\Images\first_sign_icon.svg" />
+      <None Remove="Platforms\Android\Resources\Images\locked_icon.svg" />
+      <None Remove="Platforms\Android\Resources\Images\mastery_icon.svg" />
+      <None Remove="Platforms\Android\Resources\Images\time_icon.svg" />
+    </ItemGroup>
+
   <ItemGroup>
     <!-- Core MAUI Packages -->
     <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.71" />
@@ -41,6 +59,13 @@
     <PackageReference Include="Microsoft.Maui.Core" Version="8.0.71" />
     <PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.71" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
+
+	  <PackageReference Include="System.Text.Json" Version="8.0.0">
+		  <IncludeAssets>all</IncludeAssets>
+		  <ExcludeAssets>none</ExcludeAssets>
+		  <PrivateAssets>none</PrivateAssets>
+	  </PackageReference>
+	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
 
     <!-- Community Toolkit -->
     <PackageReference Include="CommunityToolkit.Maui" Version="9.1.1" />
@@ -67,8 +92,15 @@
     <PackageReference Include="Xamarin.AndroidX.Collection.Ktx" Version="1.4.5.1" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Platforms\Android\Resources\Images\" />
-    <Folder Include="Resources\Themes\" />
+    <MauiImage Include="Platforms\Android\Resources\Images\achievement_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\first_sign_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\locked_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\mastery_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\quiz_incorrect_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\quiz_correct_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\quiz_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\streak_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\time_icon.svg" />
   </ItemGroup>
 
 </Project>

@@ -23,12 +23,14 @@ namespace com.kizwiz.sipnsign.ViewModels
         #region Private Fields
         private readonly IDispatcherTimer _timer;
         private readonly ILoggingService _logger;
+        private readonly IProgressService _progressService;
         private const int QuestionTimeLimit = 10;
         private const string TAG = "SipNSignApp";
         private int _remainingTime;
         private bool _isLoading;
         private bool _isProcessingAnswer;
         private int _currentScore;
+        private int _correctInARow;
         private SignModel? _currentSign;
         private List<SignModel> _signs;
         private List<int> _availableIndices;
@@ -44,6 +46,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private Color _button4Color;
         private GameMode _currentMode = GameMode.Guess;
         private bool _isSignHidden = true;
+        private UserProgress _userProgress;
         #endregion
 
         public bool IsProcessingAnswer
@@ -322,12 +325,22 @@ namespace com.kizwiz.sipnsign.ViewModels
         #endregion
 
         #region Constructor
-        public GameViewModel(ILoggingService logger)
+        public GameViewModel(ILoggingService logger, IProgressService progressService)
         {
-            _logger = logger;
-
             try
             {
+                _logger = logger;
+                _progressService = progressService;
+                _correctInARow = 0;
+
+                // Initialize user progress first
+                _userProgress = Task.Run(async () => await _progressService.GetUserProgressAsync()).Result;
+                if (_userProgress == null)
+                {
+                    throw new InvalidOperationException("Failed to initialize user progress");
+                }
+
+                // Load sign data
                 SignRepository signRepository = new SignRepository();
                 _signs = signRepository.GetSigns();
                 Debug.WriteLine($"Loaded {_signs.Count} signs");
@@ -335,31 +348,34 @@ namespace com.kizwiz.sipnsign.ViewModels
                 if (!_signs.Any())
                 {
                     Debug.WriteLine("No signs loaded");
-                    return;
+                    throw new InvalidOperationException("No signs were loaded");
                 }
 
                 foreach (var sign in _signs)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Video path: {sign.VideoPath}");
+                    Debug.WriteLine($"Video path: {sign.VideoPath}");
                 }
 
+                // Initialize game state
                 _availableIndices = new List<int>();
                 _feedbackBackgroundColor = Colors.Transparent.ToArgbHex();
 
+                // Setup timer
                 _timer = Application.Current.Dispatcher.CreateTimer();
                 _timer.Interval = TimeSpan.FromSeconds(1);
                 _timer.Tick += Timer_Tick;
 
+                // Initialize UI and game
                 InitializeCommands();
                 ResetButtonColors();
                 InitializeGame();
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in GameViewModel: {ex}");
+                Debug.WriteLine($"Error in GameViewModel constructor: {ex.Message}");
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                throw; // Let the UI handle this
             }
-
-
         }
         #endregion
 
@@ -396,8 +412,12 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
 
+        /// <summary>
+        /// Handles when the timer runs out in Guess Mode
+        /// </summary>
         private void HandleTimeOut()
         {
+            IsProcessingAnswer = true;
             FeedbackText = $"Time's up!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
             FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
             IsFeedbackVisible = true;
@@ -405,6 +425,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             Task.Delay(3000).ContinueWith(_ =>
             {
                 IsFeedbackVisible = false;
+                IsProcessingAnswer = false;
                 LoadNextSign();
             }, TaskScheduler.FromCurrentSynchronizationContext());
         }
@@ -430,11 +451,13 @@ namespace com.kizwiz.sipnsign.ViewModels
                     FeedbackText = $"Correct!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.";
                     FeedbackBackgroundColor = FeedbackSuccessColor.ToArgbHex();
                     CurrentScore++;
+                    await LogGameActivity(true);
                 }
                 else
                 {
                     FeedbackText = $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
                     FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
+                    await LogGameActivity(false);
                 }
 
                 await ShowFeedbackAndContinue(isCorrect);
@@ -451,6 +474,20 @@ namespace com.kizwiz.sipnsign.ViewModels
             IsSignHidden = false;
         }
 
+        private async Task HandleCorrectAnswer()
+        {
+            CurrentScore++;
+            await _progressService.LogActivityAsync(new ActivityLog
+            {
+                Id = Guid.NewGuid().ToString(),
+                Type = ActivityType.Practice,
+                Description = $"Learned sign for '{CurrentSign.CorrectAnswer}'",
+                IconName = "practice_icon",
+                Timestamp = DateTime.Now,
+                Score = CurrentScore.ToString()
+            });
+        }
+
         private async void HandleCorrectPerform()
         {
             if (IsProcessingAnswer) return;  // Prevent multiple clicks
@@ -463,6 +500,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                 FeedbackText = "Nice work!\n\nPrepare for your next sign!";
                 FeedbackBackgroundColor = FeedbackSuccessColor.ToArgbHex();
                 await ShowFeedbackAndContinue(true);
+                await LogGameActivity(true);
             }
             finally
             {
@@ -481,6 +519,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                 FeedbackText = $"Remember to practice '{CurrentSign?.CorrectAnswer}'!\n\nTake a sip!";
                 FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
                 await ShowFeedbackAndContinue(false);
+                await LogGameActivity(false);
             }
             finally
             {
@@ -488,6 +527,10 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
 
+        /// <summary>
+        /// Shows feedback to user and handles transition to next sign
+        /// </summary>
+        /// <param name="isCorrect">Whether the previous answer was correct</param>
         private async Task ShowFeedbackAndContinue(bool isCorrect)
         {
             IsFeedbackVisible = true;
@@ -559,10 +602,100 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
 
+        /// <summary>
+        /// Updates the practice time for tracking achievements
+        /// </summary>
+        private async Task UpdatePracticeTime()
+        {
+            if (_userProgress == null) return;
+            _userProgress.TotalPracticeTime = _userProgress.TotalPracticeTime.Add(TimeSpan.FromMinutes(1));
+            await _progressService.SaveProgressAsync(_userProgress);
+        }
+
         private void SwitchMode(GameMode mode)
         {
             CurrentMode = mode;
         }
+
+        /// <summary>
+        /// Logs game activity and updates progress when signs are completed
+        /// </summary>
+        /// <param name="isCorrect">Whether the sign was correctly identified/performed</param>
+        private async Task LogGameActivity(bool isCorrect)
+        {
+            if (_userProgress == null)
+            {
+                _userProgress = await _progressService.GetUserProgressAsync();
+            }
+
+            // Update total attempts and correct attempts
+            _userProgress.TotalAttempts++;
+
+            if (isCorrect)
+            {
+                _userProgress.SignsLearned++;
+                _userProgress.CorrectAttempts++;
+                _userProgress.CorrectInARow++;
+
+                // Update mode-specific counters
+                if (CurrentMode == GameMode.Guess)
+                {
+                    _userProgress.GuessModeSigns++;
+                }
+                else
+                {
+                    _userProgress.PerformModeSigns++;
+                }
+            }
+            else
+            {
+                _userProgress.CorrectInARow = 0;  // Reset streak on wrong answer
+            }
+
+            // Calculate and update accuracy
+            _userProgress.Accuracy = (double)_userProgress.CorrectAttempts / _userProgress.TotalAttempts;
+
+            await _progressService.SaveProgressAsync(_userProgress);
+
+            await _progressService.LogActivityAsync(new ActivityLog
+            {
+                Id = Guid.NewGuid().ToString(),
+                Type = ActivityType.Practice,
+                Description = isCorrect ?
+                    $"Correctly signed '{CurrentSign?.CorrectAnswer}'" :
+                    $"Practiced '{CurrentSign?.CorrectAnswer}'",
+                IconName = isCorrect ? "quiz_correct_icon" : "quiz_incorrect_icon",
+                Timestamp = DateTime.Now,
+                Score = isCorrect ? "+1" : "Try Again"
+            });
+
+            // Check for perfect session
+            if (isCorrect)
+            {
+                _correctInARow++;
+                if (_correctInARow >= 10)
+                {
+                    await _progressService.UpdateAchievementsAsync();
+                }
+            }
+            else
+            {
+                _correctInARow = 0;
+            }
+        }
+
+        private async Task LogAchievementActivity(string achievementTitle)
+        {
+            await _progressService.LogActivityAsync(new ActivityLog
+            {
+                Id = Guid.NewGuid().ToString(),
+                Type = ActivityType.Achievement,
+                Description = $"Unlocked: {achievementTitle}",
+                IconName = "achievement_icon.svg",
+                Timestamp = DateTime.Now
+            });
+        }
+
         #endregion
 
         #region Public Methods
@@ -627,6 +760,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         public void ResetGame()
         {
             CurrentScore = 0;
+            _correctInARow = 0;  // Reset the counter
             _availableIndices = Enumerable.Range(0, _signs.Count).ToList();
             IsGameOver = false;
             FeedbackText = string.Empty;

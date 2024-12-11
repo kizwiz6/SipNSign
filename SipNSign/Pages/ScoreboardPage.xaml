@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:com.kizwiz.sipnsign.Converters"
              x:Class="com.kizwiz.sipnsign.Pages.ScoreboardPage"
              Title="Progress">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
+            <converters:BoolToOpacityConverter x:Key="BoolToOpacityConverter"/>
+            <converters:BoolToTextColorConverter x:Key="BoolToTextColorConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
 
     <ScrollView>
         <VerticalStackLayout Spacing="20" Padding="20">
@@ -11,20 +20,20 @@
             <Frame BackgroundColor="{DynamicResource Primary}" Padding="15" CornerRadius="10">
                 <VerticalStackLayout>
                     <Label Text="Overall Progress" 
-                           TextColor="{DynamicResource White}"
+                           TextColor="White"
                            FontSize="24" 
                            FontAttributes="Bold"
                            HorizontalOptions="Center"/>
 
                     <ProgressBar x:Name="OverallProgressBar"
                                 Progress="0.7"
-                                ProgressColor="{DynamicResource White}"
+                                ProgressColor="White"
                                 HeightRequest="10"
                                 Margin="0,10"/>
 
                     <Label x:Name="ProgressLabel"
                            Text="70% Complete"
-                           TextColor="{DynamicResource White}"
+                           TextColor="White"
                            HorizontalOptions="Center"/>
                 </VerticalStackLayout>
             </Frame>
@@ -32,94 +41,97 @@
             <!-- Statistics Grid -->
             <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="15" RowSpacing="15">
                 <!-- Signs Learned -->
-                <Frame Grid.Column="0" Grid.Row="0" BackgroundColor="{DynamicResource Secondary}" Padding="15">
+                <Frame Grid.Column="0" Grid.Row="0" BackgroundColor="White" Padding="15" HasShadow="True">
                     <VerticalStackLayout>
                         <Label Text="Signs Learned"
-                               TextColor="{DynamicResource PrimaryTextColor}"
+                               TextColor="{DynamicResource Primary}"
                                HorizontalOptions="Center"/>
                         <Label x:Name="SignsLearnedLabel"
-                               Text="42"
+                               Text="{Binding SignsLearned}"
                                FontSize="32"
                                FontAttributes="Bold"
-                               TextColor="{DynamicResource PrimaryTextColor}"
+                               TextColor="{DynamicResource Primary}"
                                HorizontalOptions="Center"/>
                     </VerticalStackLayout>
                 </Frame>
 
                 <!-- Current Streak -->
-                <Frame Grid.Column="1" Grid.Row="0" BackgroundColor="{DynamicResource Secondary}" Padding="15">
+                <Frame Grid.Column="1" Grid.Row="0" BackgroundColor="White" Padding="15" HasShadow="True">
                     <VerticalStackLayout>
                         <Label Text="Day Streak"
-                               TextColor="{DynamicResource PrimaryTextColor}"
+                               TextColor="{DynamicResource Primary}"
                                HorizontalOptions="Center"/>
                         <Label x:Name="StreakLabel"
-                               Text="5 Days"
+                               Text="{Binding CurrentStreak}"
                                FontSize="32"
                                FontAttributes="Bold"
-                               TextColor="{DynamicResource PrimaryTextColor}"
+                               TextColor="{DynamicResource Primary}"
                                HorizontalOptions="Center"/>
                     </VerticalStackLayout>
                 </Frame>
 
                 <!-- Accuracy -->
-                <Frame Grid.Column="0" Grid.Row="1" BackgroundColor="{DynamicResource Secondary}" Padding="15">
+                <Frame Grid.Column="0" Grid.Row="1" BackgroundColor="White" Padding="15" HasShadow="True">
                     <VerticalStackLayout>
                         <Label Text="Accuracy"
-                               TextColor="{DynamicResource PrimaryTextColor}"
+                               TextColor="{DynamicResource Primary}"
                                HorizontalOptions="Center"/>
                         <Label x:Name="AccuracyLabel"
-                               Text="85%"
-                               FontSize="32"
-                               FontAttributes="Bold"
-                               TextColor="{DynamicResource PrimaryTextColor}"
-                               HorizontalOptions="Center"/>
+       Text="{Binding AccuracyDisplay}"
+       FontSize="32"
+       FontAttributes="Bold"
+       TextColor="{DynamicResource Primary}"
+       HorizontalOptions="Center"/>
                     </VerticalStackLayout>
                 </Frame>
 
                 <!-- Practice Time -->
-                <Frame Grid.Column="1" Grid.Row="1" BackgroundColor="{DynamicResource Secondary}" Padding="15">
+                <Frame Grid.Column="1" Grid.Row="1" BackgroundColor="White" Padding="15" HasShadow="True">
                     <VerticalStackLayout>
                         <Label Text="Practice Time"
-                               TextColor="{DynamicResource PrimaryTextColor}"
+                               TextColor="{DynamicResource Primary}"
                                HorizontalOptions="Center"/>
                         <Label x:Name="PracticeTimeLabel"
-                               Text="3.5 hrs"
+                               Text="{Binding PracticeTimeDisplay}"
                                FontSize="32"
                                FontAttributes="Bold"
-                               TextColor="{DynamicResource PrimaryTextColor}"
+                               TextColor="{DynamicResource Primary}"
                                HorizontalOptions="Center"/>
                     </VerticalStackLayout>
                 </Frame>
             </Grid>
 
             <!-- Recent Activity -->
-            <Frame BackgroundColor="{DynamicResource BackgroundColor}" Padding="15" CornerRadius="10">
+            <Frame BackgroundColor="White" Padding="15" CornerRadius="10" HasShadow="True">
                 <VerticalStackLayout Spacing="10">
                     <Label Text="Recent Activity"
                            FontSize="20"
                            FontAttributes="Bold"
-                           TextColor="{DynamicResource PrimaryTextColor}"/>
+                           TextColor="{DynamicResource Primary}"/>
 
                     <CollectionView x:Name="RecentActivityList"
-                                  HeightRequest="200">
+                ItemsSource="{Binding RecentActivities}"
+                HeightRequest="200"
+                EmptyView="No activities yet - start playing to see your progress!">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <Grid Padding="5" ColumnDefinitions="Auto,*,Auto">
+                                <Grid Padding="10" ColumnDefinitions="Auto,*,Auto">
                                     <Image Source="{Binding Icon}"
-                                           HeightRequest="30"
-                                           WidthRequest="30"
-                                           Grid.Column="0"/>
+                   HeightRequest="40"
+                   WidthRequest="40"
+                   Grid.Column="0"/>
                                     <VerticalStackLayout Grid.Column="1" Margin="10,0">
                                         <Label Text="{Binding Description}"
-                                               TextColor="{DynamicResource PrimaryTextColor}"/>
+                       TextColor="Black"
+                       FontAttributes="Bold"/>
                                         <Label Text="{Binding TimeAgo}"
-                                               TextColor="{DynamicResource SecondaryTextColor}"
-                                               FontSize="12"/>
+                       TextColor="Gray"
+                       FontSize="12"/>
                                     </VerticalStackLayout>
-                                    <Label Text="{Binding Score}"
-                                           Grid.Column="2"
-                                           TextColor="{DynamicResource PrimaryTextColor}"
-                                           FontAttributes="Bold"/>
+                                    <Label Grid.Column="2"
+                   Text="{Binding Score}"
+                   TextColor="{DynamicResource Primary}"
+                   FontAttributes="Bold"/>
                                 </Grid>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
@@ -128,35 +140,36 @@
             </Frame>
 
             <!-- Achievements -->
-            <Frame BackgroundColor="{DynamicResource BackgroundColor}" Padding="15" CornerRadius="10">
+            <Frame BackgroundColor="White" Padding="15" CornerRadius="10" HasShadow="True">
                 <VerticalStackLayout Spacing="10">
                     <Label Text="Achievements"
                            FontSize="20"
                            FontAttributes="Bold"
-                           TextColor="{DynamicResource PrimaryTextColor}"/>
+                           TextColor="{DynamicResource Primary}"/>
 
                     <CollectionView x:Name="AchievementsList"
-                                  HeightRequest="200">
+                ItemsSource="{Binding Achievements}"
+                HeightRequest="200">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <Grid Padding="10" ColumnDefinitions="Auto,*">
-                                    <Frame BackgroundColor="{Binding IsUnlocked, Converter={StaticResource BoolToColorConverter}}"
-                                           HeightRequest="40"
-                                           WidthRequest="40"
-                                           CornerRadius="20"
-                                           Grid.Column="0">
-                                        <Image Source="{Binding Icon}"
-                                               HeightRequest="25"
-                                               WidthRequest="25"/>
-                                    </Frame>
+                                <Grid Padding="10" ColumnDefinitions="Auto,*,Auto">
+
+                                    <Image Source="{Binding Icon}"
+                   HeightRequest="30"
+                   WidthRequest="30"
+                   Grid.Column="0"/>
                                     <VerticalStackLayout Grid.Column="1" Margin="10,0">
-                                        <Label Text="{Binding Title}"
-                                               TextColor="{DynamicResource PrimaryTextColor}"
-                                               FontAttributes="Bold"/>
                                         <Label Text="{Binding Description}"
-                                               TextColor="{DynamicResource SecondaryTextColor}"
-                                               FontSize="12"/>
+                       TextColor="Black"
+                       FontAttributes="Bold"/>
+                                        <Label Text="{Binding TimeAgo}"
+                       TextColor="Gray"
+                       FontSize="12"/>
                                     </VerticalStackLayout>
+                                    <Label Grid.Column="2"
+                   Text="{Binding Score}"
+                   TextColor="{DynamicResource Primary}"
+                   FontAttributes="Bold"/>
                                 </Grid>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>

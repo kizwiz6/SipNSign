@@ -2,6 +2,8 @@
 
 public class SignRepository
 {
+    public int TotalSignsCount => GetSigns().Count;
+
     public List<SignModel> GetSigns()
     {
         return new List<SignModel>
