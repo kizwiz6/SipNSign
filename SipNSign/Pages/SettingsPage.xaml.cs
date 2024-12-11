@@ -98,6 +98,7 @@ namespace com.kizwiz.sipnsign.Pages
             TimerValueLabel.Text = $"{savedDuration} seconds";  // Set initial label text
             DisableTimerCheckbox.IsChecked = savedDuration == 0;
             TimerSlider.IsEnabled = !DisableTimerCheckbox.IsChecked;
+            QuestionsSlider.Value = Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
         }
 
         private void OnContrastToggled(object sender, ToggledEventArgs e)
@@ -155,10 +156,11 @@ namespace com.kizwiz.sipnsign.Pages
             return "{}"; // Placeholder
         }
 
-        private void OnOfflineModeToggled(object sender, ToggledEventArgs e)
+        private void OnQuestionsCountChanged(object sender, ValueChangedEventArgs e)
         {
-            // Implementation for offline mode
-            // Handle downloading content for offline use
+            int questions = (int)e.NewValue;
+            Preferences.Set(Constants.GUESS_MODE_QUESTIONS_KEY, questions);
+            QuestionsValueLabel.Text = $"{questions} questions";
         }
     }
 }

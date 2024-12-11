@@ -29,12 +29,16 @@ namespace com.kizwiz.sipnsign.Pages
                 _viewModel = new GameViewModel(logger, progressService);
                 BindingContext = _viewModel;
 
-                // Subscribe to sign changes
                 _viewModel.PropertyChanged += async (s, e) =>
                 {
                     if (e.PropertyName == nameof(GameViewModel.CurrentSign))
                     {
                         await LoadCurrentVideo();
+                    }
+                    else if (e.PropertyName == nameof(GameViewModel.IsGameOver) && _viewModel.IsGameOver)
+                    {
+                        if (SignVideo != null) SignVideo.Stop();
+                        if (PerformModeVideo != null) PerformModeVideo.Stop();
                     }
                 };
             }
@@ -91,6 +95,18 @@ namespace com.kizwiz.sipnsign.Pages
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error playing video {videoFileName}: {ex}");
+            }
+        }
+
+        private void StopVideo()
+        {
+            if (IsGuessMode)
+            {
+                SignVideo?.Stop();
+            }
+            else
+            {
+                PerformModeVideo?.Stop();
             }
         }
 

@@ -1,6 +1,7 @@
 using com.kizwiz.sipnsign.Models;
 using com.kizwiz.sipnsign.Services;
 using com.kizwiz.sipnsign.ViewModels;
+using System.Diagnostics;
 
 namespace com.kizwiz.sipnsign.Pages;
 
@@ -12,15 +13,32 @@ public partial class ScoreboardPage : ContentPage
 
     public ScoreboardPage(IProgressService progressService)
     {
-        InitializeComponent();
-        _viewModel = new ScoreboardViewModel(progressService);
-        BindingContext = _viewModel;
+        try
+        {
+            InitializeComponent();
+            _viewModel = new ScoreboardViewModel(progressService);
+            BindingContext = _viewModel;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error in ScoreboardPage constructor: {ex.Message}");
+            Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+            throw; // Rethrow to be caught by the calling method
+        }
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.LoadProgressAsync();
+        try
+        {
+            await _viewModel.LoadProgressAsync();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error loading progress: {ex.Message}");
+            await DisplayAlert("Error", "Unable to load progress data", "OK");
+        }
     }
 
     private async Task LoadUserProgress()

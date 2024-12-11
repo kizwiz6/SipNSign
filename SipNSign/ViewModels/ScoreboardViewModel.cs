@@ -90,9 +90,15 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         public ScoreboardViewModel(IProgressService progressService)
         {
-            _progressService = progressService;
+            _progressService = progressService ?? throw new ArgumentNullException(nameof(progressService));
             RecentActivities = new ObservableCollection<ActivityItem>();
             Achievements = new ObservableCollection<AchievementItem>();
+            // Initialize with default progress
+            _userProgress = new UserProgress
+            {
+                Achievements = new List<Achievement>(),
+                Activities = new List<ActivityLog>()
+            };
         }
 
         public async Task LoadProgressAsync()
@@ -199,5 +205,19 @@ namespace com.kizwiz.sipnsign.ViewModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public double OverallProgressPercentage
+        {
+            get
+            {
+                if (_userProgress?.Achievements == null) return 0;
+                var totalAchievements = _userProgress.Achievements.Count;
+                if (totalAchievements == 0) return 0;
+                var unlockedAchievements = _userProgress.Achievements.Count(a => a.IsUnlocked);
+                return (double)unlockedAchievements / totalAchievements;
+            }
+        }
+
+        public string OverallProgressText => $"{(OverallProgressPercentage * 100):F0}% Complete";
     }
 }

@@ -36,6 +36,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private List<int> _availableIndices;
         private string _feedbackText = string.Empty;
         private bool _isGameOver;
+        private bool _isGameActive = true;
         private double _progressPercentage;
         private string _feedbackBackgroundColor;
         private bool _isFeedbackVisible;
@@ -45,6 +46,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private Color _button3Color;
         private Color _button4Color;
         private GameMode _currentMode = GameMode.Guess;
+        private ICommand _playAgainCommand;
         private bool _isSignHidden = true;
         private UserProgress _userProgress;
         #endregion
@@ -56,6 +58,19 @@ namespace com.kizwiz.sipnsign.ViewModels
             {
                 _isProcessingAnswer = value;
                 OnPropertyChanged(nameof(IsProcessingAnswer));
+            }
+        }
+
+        public bool IsGameActive
+        {
+            get => _isGameActive;
+            set
+            {
+                if (_isGameActive != value)
+                {
+                    _isGameActive = value;
+                    OnPropertyChanged(nameof(IsGameActive));
+                }
             }
         }
 
@@ -312,7 +327,19 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         #region Commands
         public ICommand AnswerCommand { get; private set; }
-        public ICommand PlayAgainCommand { get; private set; }
+        public ICommand PlayAgainCommand
+        {
+            get
+            {
+                return _playAgainCommand ??= new Command(() =>
+                {
+                    IsFeedbackVisible = false;
+                    IsGameOver = false;
+                    IsGameActive = true;
+                    ResetGame();
+                });
+            }
+        }
         public ICommand VideoLoadedCommand { get; private set; }
         public ICommand RevealSignCommand { get; private set; }
         public ICommand CorrectPerformCommand { get; private set; }
@@ -327,10 +354,12 @@ namespace com.kizwiz.sipnsign.ViewModels
         #region Constructor
         public GameViewModel(ILoggingService logger, IProgressService progressService)
         {
+            Debug.WriteLine("GameViewModel constructor started");
             try
             {
-                _logger = logger;
-                _progressService = progressService;
+                _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+                _progressService = progressService ?? throw new ArgumentNullException(nameof(progressService));
+                Debug.WriteLine("Services initialised");
                 _correctInARow = 0;
 
                 // Initialize user progress first
@@ -383,7 +412,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private void InitializeCommands()
         {
             AnswerCommand = new Command<string>(HandleAnswer);
-            PlayAgainCommand = new Command(ResetGame);
+            _playAgainCommand = new Command(ResetGame);
             VideoLoadedCommand = new Command(() => IsLoading = false);
             RevealSignCommand = new Command(RevealSign);
             CorrectPerformCommand = new Command(HandleCorrectPerform);
@@ -437,6 +466,7 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private async void HandleAnswer(string answer)
         {
+            if (!IsGameActive || IsGameOver || IsProcessingAnswer) return;  // Check if game is still active
             if (IsProcessingAnswer) return; // prevent multiple clicks
 
             try
@@ -533,20 +563,21 @@ namespace com.kizwiz.sipnsign.ViewModels
         /// <param name="isCorrect">Whether the previous answer was correct</param>
         private async Task ShowFeedbackAndContinue(bool isCorrect)
         {
+            if (IsGameOver) return;  // Don't show feedback if game is over
+
             IsFeedbackVisible = true;
+            FeedbackBackgroundColor = isCorrect ? FeedbackSuccessColor.ToArgbHex() : FeedbackErrorColor.ToArgbHex();
 
             // Use shorter delay for correct answers, configurable delay for incorrect
             int delay = isCorrect ? 2000 : Preferences.Get(Constants.INCORRECT_DELAY_KEY, Constants.DEFAULT_DELAY);
-
             await Task.Delay(delay);
 
-            await MainThread.InvokeOnMainThreadAsync(() =>
+            if (!IsGameOver)  // Check again in case game ended during delay
             {
-                ResetButtonColors();
                 IsFeedbackVisible = false;
                 if (IsPerformMode) IsSignHidden = true;
                 LoadNextSign();
-            });
+            }
         }
 
         private void UpdateButtonColor(string answer, bool isCorrect)
@@ -701,6 +732,13 @@ namespace com.kizwiz.sipnsign.ViewModels
         #region Public Methods
         public void LoadNextSign()
         {
+            // Don't load next sign if game is over
+            if (!IsGameActive || IsGameOver)
+            {
+                return;
+            }
+
+            Debug.WriteLine($"LoadNextSign started. Available indices: {_availableIndices.Count}");
             IsLoading = true;
 
             try
@@ -708,9 +746,20 @@ namespace com.kizwiz.sipnsign.ViewModels
                 // Reset button colors before loading new sign
                 ResetButtonColors();
 
+                // Check if we've reached the question limit
                 if (_availableIndices.Count == 0)
                 {
+                    Debug.WriteLine("No more signs available, ending game");
                     IsGameOver = true;
+                    _timer?.Stop();
+                    MainThread.BeginInvokeOnMainThread(async () =>
+                    {
+                        await Application.Current.MainPage.DisplayAlert(
+                            "Game Over",
+                            $"Your final score is {CurrentScore}!",
+                            "OK"
+                        );
+                    });
                     return;
                 }
 
@@ -721,23 +770,8 @@ namespace com.kizwiz.sipnsign.ViewModels
                 _logger.Debug($"LoadNextSign: Loading sign at index {selectedSignIndex}");
                 _logger.Debug($"LoadNextSign: Sign word is: {_signs[selectedSignIndex].CorrectAnswer}");
 
-                // Add small delay before setting CurrentSign to ensure UI is ready
-                MainThread.BeginInvokeOnMainThread(async () =>
-                {
-                    await Task.Delay(100);  // Small delay
-                    CurrentSign = _signs[selectedSignIndex];
-                    _availableIndices.RemoveAt(randomIndex);
-
-                    if (IsGuessMode)
-                    {
-                        StartTimer();
-                    }
-                    else
-                    {
-                        _timer.Stop();
-                        RemainingTime = 0;
-                    }
-                });
+                // Remove the index before setting CurrentSign to prevent reuse
+                _availableIndices.RemoveAt(randomIndex);
 
                 // Add this line to debug Perform Mode state
                 if (IsPerformMode)
@@ -745,7 +779,12 @@ namespace com.kizwiz.sipnsign.ViewModels
                     Debug.WriteLine($"LoadNextSign: In Perform Mode. IsSignHidden: {IsSignHidden}, Word to show: {CurrentSign?.CorrectAnswer}");
                 }
 
+                CurrentSign = _signs[selectedSignIndex];
 
+                if (IsGuessMode && IsTimerEnabled)
+                {
+                    StartTimer();
+                }
             }
             catch (Exception ex)
             {
@@ -759,9 +798,29 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         public void ResetGame()
         {
+            Debug.WriteLine("ResetGame started");
+            IsGameActive = true;  // Re-enable interactions
             CurrentScore = 0;
-            _correctInARow = 0;  // Reset the counter
-            _availableIndices = Enumerable.Range(0, _signs.Count).ToList();
+            _correctInARow = 0;
+
+            int questionLimit = Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
+            Debug.WriteLine($"Setting up game with {questionLimit} questions");
+
+            if (IsGuessMode)
+            {
+                var shuffledIndices = Enumerable.Range(0, _signs.Count)
+                                              .OrderBy(x => Guid.NewGuid())
+                                              .Take(questionLimit)
+                                              .ToList();
+                _availableIndices = shuffledIndices;
+            }
+            else
+            {
+                _availableIndices = Enumerable.Range(0, _signs.Count).ToList();
+            }
+
+            Debug.WriteLine($"Available indices count: {_availableIndices.Count}");
+
             IsGameOver = false;
             FeedbackText = string.Empty;
             IsFeedbackVisible = false;
@@ -775,6 +834,26 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
 
             LoadNextSign();
+        }
+
+        private async void EndGame()
+        {
+            _timer?.Stop();
+            IsGameActive = false;
+            IsGameOver = true;
+            IsFeedbackVisible = false;  // Ensure feedback is hidden
+
+            // Wait a short moment to ensure UI updates before showing dialog
+            await Task.Delay(100);
+
+            await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                await Application.Current.MainPage.DisplayAlert(
+                    "Game Over",
+                    $"Your final score is {CurrentScore}!",
+                    "OK"
+                );
+            });
         }
 
         protected virtual void OnPropertyChanged(string propertyName)

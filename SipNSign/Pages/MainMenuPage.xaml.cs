@@ -80,10 +80,49 @@ namespace com.kizwiz.sipnsign.Pages
 
         private async void OnViewScoresClicked(object sender, EventArgs e)
         {
-            // Create ScoreboardPage with the required service
-            var progressService = _serviceProvider.GetRequiredService<IProgressService>();
-            var scoreboardPage = new ScoreboardPage(progressService);
-            await Navigation.PushAsync(scoreboardPage);
+            try
+            {
+                Debug.WriteLine("OnViewScoresClicked started");
+
+                if (_serviceProvider == null)
+                {
+                    Debug.WriteLine("ServiceProvider is null!");
+                    throw new InvalidOperationException("ServiceProvider is null");
+                }
+
+                Debug.WriteLine("Getting ProgressService");
+                var progressService = _serviceProvider.GetRequiredService<IProgressService>();
+
+                // Test progress service before creating page
+                Debug.WriteLine("Testing GetUserProgressAsync");
+                try
+                {
+                    var test = await progressService.GetUserProgressAsync();
+                    Debug.WriteLine($"Progress test result - null?: {test == null}");
+                }
+                catch (Exception progressEx)
+                {
+                    Debug.WriteLine($"Progress service error: {progressEx.Message}");
+                    Debug.WriteLine($"Inner exception: {progressEx.InnerException?.Message}");
+                    throw;
+                }
+
+                Debug.WriteLine("Creating ScoreboardPage");
+                var scoreboardPage = new ScoreboardPage(progressService);
+
+                Debug.WriteLine("Navigating to ScoreboardPage");
+                await Navigation.PushAsync(scoreboardPage);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"OnViewScoresClicked error: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                    Debug.WriteLine($"Inner stack trace: {ex.InnerException.StackTrace}");
+                }
+                await DisplayAlert("Error", $"Unable to load progress: {ex.InnerException?.Message ?? ex.Message}", "OK");
+            }
         }
 
         private async void OnSettingsClicked(object sender, EventArgs e)

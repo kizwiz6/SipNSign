@@ -26,15 +26,14 @@
                            HorizontalOptions="Center"/>
 
                     <ProgressBar x:Name="OverallProgressBar"
-                                Progress="0.7"
-                                ProgressColor="White"
-                                HeightRequest="10"
-                                Margin="0,10"/>
-
+                             Progress="{Binding OverallProgressPercentage}"
+                             ProgressColor="White"
+                             HeightRequest="10"
+                             Margin="0,10"/>
                     <Label x:Name="ProgressLabel"
-                           Text="70% Complete"
-                           TextColor="White"
-                           HorizontalOptions="Center"/>
+                            Text="{Binding OverallProgressText}"
+                            TextColor="White"
+                            HorizontalOptions="Center"/>
                 </VerticalStackLayout>
             </Frame>
 
