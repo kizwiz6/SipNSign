@@ -37,8 +37,12 @@ namespace com.kizwiz.sipnsign.Pages
                     }
                     else if (e.PropertyName == nameof(GameViewModel.IsGameOver) && _viewModel.IsGameOver)
                     {
-                        if (SignVideo != null) SignVideo.Stop();
-                        if (PerformModeVideo != null) PerformModeVideo.Stop();
+                        ResetVideo();
+                    }
+                    else if (e.PropertyName == nameof(GameViewModel.IsGameActive) && _viewModel.IsGameActive)
+                    {
+                        // Reset video when starting new game
+                        ResetVideo();
                     }
                 };
             }
@@ -60,19 +64,57 @@ namespace com.kizwiz.sipnsign.Pages
 
                     if (IsGuessMode)
                     {
-                        SignVideo.Source = MediaSource.FromFile(fullPath);
-                        SignVideo.Play();
+                        // Important: Wait for UI to be ready
+                        await MainThread.InvokeOnMainThreadAsync(async () =>
+                        {
+                            SignVideo.Stop();
+                            SignVideo.Source = null;
+                            await Task.Delay(50);  // Short delay for cleanup
+
+                            // Set new source and play
+                            var source = MediaSource.FromFile(fullPath);
+                            SignVideo.Source = source;
+                            await Task.Delay(50);  // Wait for source to be set
+
+                            SignVideo.Play();
+                            Debug.WriteLine("Video play command sent");
+                        });
                     }
                     else
                     {
-                        PerformModeVideo.Source = MediaSource.FromFile(fullPath);
-                        PerformModeVideo.Play();
+                        await MainThread.InvokeOnMainThreadAsync(async () =>
+                        {
+                            PerformModeVideo.Stop();
+                            PerformModeVideo.Source = null;
+                            await Task.Delay(50);
+
+                            var source = MediaSource.FromFile(fullPath);
+                            PerformModeVideo.Source = source;
+                            await Task.Delay(50);
+
+                            PerformModeVideo.Play();
+                        });
                     }
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error loading video: {ex}");
+                Debug.WriteLine($"Error loading video: {ex.Message}");
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+            }
+        }
+
+        /// <summary>
+        /// initialize video on page appearing
+        /// </summary>
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+
+            // Force video reload when page appears
+            if (_viewModel.CurrentSign != null)
+            {
+                await LoadCurrentVideo();
             }
         }
 
@@ -127,14 +169,27 @@ namespace com.kizwiz.sipnsign.Pages
             }
         }
 
+        private void OnMediaEnded(object sender, EventArgs e)
+        {
+            if (sender is MediaElement mediaElement)
+            {
+                Debug.WriteLine($"Media ended, attempting to replay");
+                mediaElement.Play();
+            }
+        }
+
         private void OnMediaFailed(object sender, EventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine($"Media failed to load: {(sender as MediaElement)?.Source}");
+            Debug.WriteLine($"Media failed to load: {(sender as MediaElement)?.Source}");
+            if (sender is MediaElement mediaElement)
+            {
+                Debug.WriteLine($"Current source: {mediaElement.Source}");
+            }
         }
 
         private void OnMediaOpened(object sender, EventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine($"Media opened successfully: {(sender as MediaElement)?.Source}");
+            Debug.WriteLine($"Media opened successfully: {(sender as MediaElement)?.Source}");
         }
 
         /// <summary>
@@ -143,6 +198,20 @@ namespace com.kizwiz.sipnsign.Pages
         public void EndGame()
         {
             ShowGameOver();
+        }
+
+        private void ResetVideo()
+        {
+            if (SignVideo != null)
+            {
+                SignVideo.Source = null;
+                SignVideo.Stop();
+            }
+            if (PerformModeVideo != null)
+            {
+                PerformModeVideo.Source = null;
+                PerformModeVideo.Stop();
+            }
         }
     }
 }

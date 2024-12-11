@@ -839,8 +839,6 @@ namespace com.kizwiz.sipnsign.ViewModels
             FeedbackBackgroundColor = Colors.Transparent.ToArgbHex();
             ResetButtonColors();
 
-            // Clear the video source when resetting
-           // VideoSource = null;
             IsLoading = true;  // Ensure loading indicator shows
 
             if (IsPerformMode)

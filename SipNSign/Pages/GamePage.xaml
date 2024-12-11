@@ -109,6 +109,8 @@
                         ShouldAutoPlay="True"
                         ShouldLoopPlayback="True"
                         MediaFailed="OnMediaFailed" 
+                        MediaEnded="OnMediaEnded"
+                                IsVisible="{Binding IsGameActive}"
                         MediaOpened="OnMediaOpened">
                                 <toolkit:MediaElement.Behaviors>
                                     <toolkit:EventToCommandBehavior 
