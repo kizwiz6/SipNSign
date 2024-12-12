@@ -5,6 +5,7 @@
     xmlns:converters="clr-namespace:com.kizwiz.sipnsign.Converters"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     x:Class="com.kizwiz.sipnsign.Pages.GamePage"
+    Style="{StaticResource AppPageStyle}"
     Title="{Binding CurrentMode, StringFormat='{0} Mode'}">
 
     <ContentPage.Resources>

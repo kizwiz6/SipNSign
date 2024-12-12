@@ -12,6 +12,9 @@ using com.kizwiz.sipnsign.Pages;
 
 namespace com.kizwiz.sipnsign.ViewModels
 {
+    /// <summary>
+    /// Manages the game state and logic for both Guess and Perform modes
+    /// </summary>
     public class GameViewModel : INotifyPropertyChanged
     {
         #region Color Constants
@@ -56,6 +59,12 @@ namespace com.kizwiz.sipnsign.ViewModels
         private ICommand _incorrectPerformCommand;
         #endregion
 
+        /// <summary>
+        /// Gets or sets whether the game is currently processing a user's answer
+        /// </summary>
+        /// <remarks>
+        /// Used to prevent multiple rapid inputs while showing feedback
+        /// </remarks>
         public bool IsProcessingAnswer
         {
             get => _isProcessingAnswer;
@@ -343,10 +352,12 @@ namespace com.kizwiz.sipnsign.ViewModels
             {
                 return _playAgainCommand ??= new Command(() =>
                 {
-                    IsFeedbackVisible = false;
                     IsGameOver = false;
+                    IsFeedbackVisible = false;
                     IsGameActive = true;
                     ResetGame();
+                    OnPropertyChanged(nameof(IsGameOver)); // Ensure UI updates
+                    OnPropertyChanged(nameof(IsGameActive));
                 });
             }
         }
