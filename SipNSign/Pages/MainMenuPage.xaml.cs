@@ -112,11 +112,11 @@ namespace com.kizwiz.sipnsign.Pages
                     throw;
                 }
 
-                Debug.WriteLine("Creating ScoreboardPage");
-                var scoreboardPage = new ScoreboardPage(progressService);
+                Debug.WriteLine("Creating ProgressPage");
+                var ProgressPage = new ProgressPage(progressService);
 
-                Debug.WriteLine("Navigating to ScoreboardPage");
-                await Navigation.PushAsync(scoreboardPage);
+                Debug.WriteLine("Navigating to ProgressPage");
+                await Navigation.PushAsync(ProgressPage);
             }
             catch (Exception ex)
             {

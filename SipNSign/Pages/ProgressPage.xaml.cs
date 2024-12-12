@@ -5,23 +5,23 @@ using System.Diagnostics;
 
 namespace com.kizwiz.sipnsign.Pages;
 
-public partial class ScoreboardPage : ContentPage
+public partial class ProgressPage : ContentPage
 {
     private readonly IProgressService _progressService;
     private UserProgress _userProgress;
-    private readonly ScoreboardViewModel _viewModel;
+    private readonly ProgressViewModel _viewModel;
 
-    public ScoreboardPage(IProgressService progressService)
+    public ProgressPage(IProgressService progressService)
     {
         try
         {
             InitializeComponent();
-            _viewModel = new ScoreboardViewModel(progressService);
+            _viewModel = new ProgressViewModel(progressService);
             BindingContext = _viewModel;
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Error in ScoreboardPage constructor: {ex.Message}");
+            Debug.WriteLine($"Error in ProgressPage constructor: {ex.Message}");
             Debug.WriteLine($"Stack trace: {ex.StackTrace}");
             throw; // Rethrow to be caught by the calling method
         }

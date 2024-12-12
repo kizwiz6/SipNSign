@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace com.kizwiz.sipnsign.ViewModels
 {
-    public class ScoreboardViewModel : INotifyPropertyChanged
+    public class ProgressViewModel : INotifyPropertyChanged
     {
         private readonly IProgressService _progressService;
         private UserProgress _userProgress;
@@ -88,7 +88,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
 
-        public ScoreboardViewModel(IProgressService progressService)
+        public ProgressViewModel(IProgressService progressService)
         {
             _progressService = progressService ?? throw new ArgumentNullException(nameof(progressService));
             RecentActivities = new ObservableCollection<ActivityItem>();

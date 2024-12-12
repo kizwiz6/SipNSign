@@ -102,5 +102,10 @@
     <MauiImage Include="Platforms\Android\Resources\Images\streak_icon.svg" />
     <MauiImage Include="Platforms\Android\Resources\Images\time_icon.svg" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Pages\ProgressPage.xaml.cs">
+      <DependentUpon>ProgressPage.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
 
 </Project>

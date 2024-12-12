@@ -86,8 +86,8 @@ public static class MauiProgram
             builder.Services.AddTransient<GamePage>();
             builder.Services.AddTransient<GameViewModel>();
             builder.Services.AddTransient<HowToPlayPage>();
-            builder.Services.AddTransient<ScoreboardPage>();
-            builder.Services.AddTransient<ScoreboardViewModel>();
+            builder.Services.AddTransient<ProgressPage>();
+            builder.Services.AddTransient<ProgressViewModel>();
             builder.Services.AddTransient<SettingsPage>();
 
             return builder.Build();

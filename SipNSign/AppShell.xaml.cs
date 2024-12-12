@@ -31,7 +31,7 @@ public partial class AppShell : Shell
         try
         {
             Routing.RegisterRoute("gamepage", typeof(GamePage));
-            Routing.RegisterRoute("scoreboard", typeof(ScoreboardPage));
+            Routing.RegisterRoute("scoreboard", typeof(ProgressPage));
             Routing.RegisterRoute("settings", typeof(SettingsPage));
             Routing.RegisterRoute("howtoplay", typeof(HowToPlayPage));
             Debug.WriteLine("All routes registered");
