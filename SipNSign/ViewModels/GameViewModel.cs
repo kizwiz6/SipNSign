@@ -808,14 +808,6 @@ namespace com.kizwiz.sipnsign.ViewModels
                     Debug.WriteLine("No more signs available, ending game");
                     IsGameOver = true;
                     _timer?.Stop();
-                    MainThread.BeginInvokeOnMainThread(async () =>
-                    {
-                        await Application.Current.MainPage.DisplayAlert(
-                            "Game Over",
-                            $"Your final score is {CurrentScore}!",
-                            "OK"
-                        );
-                    });
                     return;
                 }
 

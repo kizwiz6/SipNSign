@@ -47,7 +47,7 @@
 
         <!-- Title -->
         <Label Text= "Sip N' Sign "
-                FontSize="20"
+                FontSize="50"
                FontFamily="Bangers"
                FontAttributes="Bold"
                TextColor="White"
@@ -81,9 +81,9 @@
                 BackgroundColor="#FF5722"
                 Clicked="OnSettingsClicked"/>
 
-        <Button Text="View Debug Logs"
+        <!--<Button Text="View Debug Logs"
                 Style="{StaticResource MenuButton}"
                 BackgroundColor="#FF5722"
-                Clicked="OnViewLogsClicked"/>
+                Clicked="OnViewLogsClicked"/>-->
     </VerticalStackLayout>
 </ContentPage>
