@@ -8,6 +8,7 @@ using com.kizwiz.sipnsign.Enums;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using com.kizwiz.sipnsign.Services;
+using com.kizwiz.sipnsign.Pages;
 
 namespace com.kizwiz.sipnsign.ViewModels
 {
@@ -21,7 +22,8 @@ namespace com.kizwiz.sipnsign.ViewModels
         #endregion
 
         #region Private Fields
-        private readonly IDispatcherTimer _timer;
+        private IDispatcherTimer _timer;
+        private readonly IVideoService _videoService;
         private readonly ILoggingService _logger;
         private readonly IProgressService _progressService;
         private const int QuestionTimeLimit = 10;
@@ -50,6 +52,8 @@ namespace com.kizwiz.sipnsign.ViewModels
         private bool _isSignHidden = true;
         private string _guessResults;
         private UserProgress _userProgress;
+        private ICommand _correctPerformCommand;
+        private ICommand _incorrectPerformCommand;
         #endregion
 
         public bool IsProcessingAnswer
@@ -101,20 +105,14 @@ namespace com.kizwiz.sipnsign.ViewModels
             {
                 if (_currentMode != value)
                 {
-                    _logger.Debug($"Mode changing from {_currentMode} to {value}");
+                    Debug.WriteLine($"Mode changing from {_currentMode} to {value}");
                     _currentMode = value;
-                    _timer.Stop();
-                    RemainingTime = 0;
+                    Debug.WriteLine($"IsPerformMode: {IsPerformMode}");
+                    Debug.WriteLine($"IsGuessMode: {IsGuessMode}");
 
                     OnPropertyChanged(nameof(CurrentMode));
-                    OnPropertyChanged(nameof(PrimaryColor));
-                    OnPropertyChanged(nameof(ProgressBarColor));
-                    OnPropertyChanged(nameof(ButtonBaseColor));
-                    OnPropertyChanged(nameof(ModeTitle));
                     OnPropertyChanged(nameof(IsGuessMode));
                     OnPropertyChanged(nameof(IsPerformMode));
-                    ResetButtonColors();
-                    ResetGame();
                 }
             }
         }
@@ -170,8 +168,9 @@ namespace com.kizwiz.sipnsign.ViewModels
                 if (_currentSign != value)
                 {
                     _currentSign = value;
-                    Debug.WriteLine($"CurrentSign changed to: {value?.CorrectAnswer ?? "null"}");
+                    Debug.WriteLine($"=== CurrentSign changed to: {value?.CorrectAnswer}, triggering OnPropertyChanged ===");
                     OnPropertyChanged(nameof(CurrentSign));
+                    Debug.WriteLine("OnPropertyChanged called for CurrentSign");
                 }
             }
         }
@@ -353,8 +352,8 @@ namespace com.kizwiz.sipnsign.ViewModels
         }
         public ICommand VideoLoadedCommand { get; private set; }
         public ICommand RevealSignCommand { get; private set; }
-        public ICommand CorrectPerformCommand { get; private set; }
-        public ICommand IncorrectPerformCommand { get; private set; }
+        public ICommand CorrectPerformCommand => _correctPerformCommand;
+        public ICommand IncorrectPerformCommand => _incorrectPerformCommand;
         public ICommand SwitchModeCommand { get; private set; }
         #endregion
 
@@ -363,59 +362,31 @@ namespace com.kizwiz.sipnsign.ViewModels
         #endregion
 
         #region Constructor
-        public GameViewModel(ILoggingService logger, IProgressService progressService)
+        public GameViewModel(IVideoService videoService, ILoggingService logger, IProgressService progressService)
         {
-            Debug.WriteLine("GameViewModel constructor started");
-            try
+            _videoService = videoService ?? throw new ArgumentNullException(nameof(videoService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _progressService = progressService ?? throw new ArgumentNullException(nameof(progressService));
+
+            // Initialize signs list first
+            _signs = new SignRepository().GetSigns();
+            _availableIndices = new List<int>();
+
+            InitializeCommands();
+
+            // Initialize videos in a fire-and-forget Task
+            Task.Run(async () =>
             {
-                _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-                _progressService = progressService ?? throw new ArgumentNullException(nameof(progressService));
-                Debug.WriteLine("Services initialised");
-                _correctInARow = 0;
-
-                // Initialize user progress first
-                _userProgress = Task.Run(async () => await _progressService.GetUserProgressAsync()).Result;
-                if (_userProgress == null)
+                try
                 {
-                    throw new InvalidOperationException("Failed to initialize user progress");
+                    await _videoService.InitializeVideos();
+                    MainThread.BeginInvokeOnMainThread(() => ResetGame());
                 }
-
-                // Load sign data
-                SignRepository signRepository = new SignRepository();
-                _signs = signRepository.GetSigns();
-                Debug.WriteLine($"Loaded {_signs.Count} signs");
-
-                if (!_signs.Any())
+                catch (Exception ex)
                 {
-                    Debug.WriteLine("No signs loaded");
-                    throw new InvalidOperationException("No signs were loaded");
+                    Debug.WriteLine($"GameViewModel initialization error: {ex}");
                 }
-
-                foreach (var sign in _signs)
-                {
-                    Debug.WriteLine($"Video path: {sign.VideoPath}");
-                }
-
-                // Initialize game state
-                _availableIndices = new List<int>();
-                _feedbackBackgroundColor = Colors.Transparent.ToArgbHex();
-
-                // Setup timer
-                _timer = Application.Current.Dispatcher.CreateTimer();
-                _timer.Interval = TimeSpan.FromSeconds(1);
-                _timer.Tick += Timer_Tick;
-
-                // Initialize UI and game
-                InitializeCommands();
-                ResetButtonColors();
-                InitializeGame();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error in GameViewModel constructor: {ex.Message}");
-                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
-                throw; // Let the UI handle this
-            }
+            });
         }
         #endregion
 
@@ -426,8 +397,56 @@ namespace com.kizwiz.sipnsign.ViewModels
             _playAgainCommand = new Command(ResetGame);
             VideoLoadedCommand = new Command(() => IsLoading = false);
             RevealSignCommand = new Command(RevealSign);
-            CorrectPerformCommand = new Command(HandleCorrectPerform);
-            IncorrectPerformCommand = new Command(HandleIncorrectPerform);
+
+            _correctPerformCommand = new Command(async () =>
+            {
+                if (IsProcessingAnswer) return;
+
+                try
+                {
+                    IsProcessingAnswer = true;
+                    _timer?.Stop();
+                    CurrentScore++;
+                    FeedbackText = "Nice work!\n\nPrepare for your next sign!";
+                    FeedbackBackgroundColor = FeedbackSuccessColor.ToArgbHex();
+                    IsFeedbackVisible = true;
+
+                    await Task.Delay(2000);
+                    IsFeedbackVisible = false;
+                    IsSignHidden = true;
+                    await LogGameActivity(true);
+                    LoadNextSign();
+                }
+                finally
+                {
+                    IsProcessingAnswer = false;
+                }
+            });
+
+            _incorrectPerformCommand = new Command(async () =>
+            {
+                if (IsProcessingAnswer) return;
+
+                try
+                {
+                    IsProcessingAnswer = true;
+                    _timer?.Stop();
+                    FeedbackText = $"Remember to practice '{CurrentSign?.CorrectAnswer}'!\n\nTake a sip!";
+                    FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
+                    IsFeedbackVisible = true;
+
+                    await Task.Delay(2000);
+                    IsFeedbackVisible = false;
+                    IsSignHidden = true;
+                    await LogGameActivity(false);
+                    LoadNextSign();
+                }
+                finally
+                {
+                    IsProcessingAnswer = false;
+                }
+            });
+
             SwitchModeCommand = new Command<GameMode>(SwitchMode);
         }
 
@@ -632,15 +651,41 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private void StartTimer()
         {
-            int duration = Preferences.Get(Constants.TIMER_DURATION_KEY, Constants.DEFAULT_TIMER_DURATION);
-            if (duration > 0)  // Only start timer if duration is not 0 (disabled)
+            try
             {
-                RemainingTime = duration;
-                _timer.Start();
+                if (_timer == null)
+                {
+                    Debug.WriteLine("Creating new timer");
+                    _timer = Application.Current?.Dispatcher?.CreateTimer();
+                    if (_timer != null)
+                    {
+                        _timer.Interval = TimeSpan.FromSeconds(1);
+                        _timer.Tick += Timer_Tick;
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Failed to create timer");
+                        return;
+                    }
+                }
+
+                int duration = Preferences.Get(Constants.TIMER_DURATION_KEY, Constants.DEFAULT_TIMER_DURATION);
+                if (duration > 0)  // Only start timer if duration is not 0 (disabled)
+                {
+                    RemainingTime = duration;
+                    _timer.Start();
+                    Debug.WriteLine($"Timer started with duration: {duration}");
+                }
+                else
+                {
+                    RemainingTime = 0;  // Hide the timer display
+                    Debug.WriteLine("Timer disabled");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                RemainingTime = 0;  // Hide the timer display
+                Debug.WriteLine($"Error in StartTimer: {ex.Message}");
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
             }
         }
 
@@ -806,44 +851,50 @@ namespace com.kizwiz.sipnsign.ViewModels
                 IsLoading = false;
             }
         }
+        public ICommand GoToSettingsCommand => new Command(async () =>
+        {
+            try
+            {
+                Debug.WriteLine("Creating settings page");
+                var settingsPage = new SettingsPage();
+                Debug.WriteLine("Pushing settings page");
+                await Application.Current.MainPage.Navigation.PushAsync(settingsPage);
+                Debug.WriteLine("Navigation completed");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Navigation error: {ex.Message}");
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                await Application.Current.MainPage.DisplayAlert("Error", "Unable to open settings", "OK");
+            }
+        });
 
         public void ResetGame()
         {
             Debug.WriteLine("ResetGame started");
-            IsGameActive = true;  // Re-enable interactions
+            IsGameActive = true;
             CurrentScore = 0;
             _correctInARow = 0;
+
+            if (_signs == null || !_signs.Any())
+            {
+                Debug.WriteLine("Warning: Signs list is empty or null");
+                _signs = new SignRepository().GetSigns();
+            }
 
             int questionLimit = Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
             Debug.WriteLine($"Setting up game with {questionLimit} questions");
 
             if (IsGuessMode)
             {
-                var shuffledIndices = Enumerable.Range(0, _signs.Count)
-                                              .OrderBy(x => Guid.NewGuid())
-                                              .Take(questionLimit)
-                                              .ToList();
-                _availableIndices = shuffledIndices;
+                _availableIndices = Enumerable.Range(0, _signs.Count)
+                                            .OrderBy(x => Guid.NewGuid())
+                                            .Take(questionLimit)
+                                            .ToList();
             }
             else
             {
                 _availableIndices = Enumerable.Range(0, _signs.Count).ToList();
-            }
-
-            Debug.WriteLine($"Available indices count: {_availableIndices.Count}");
-
-            IsGameOver = false;
-            FeedbackText = string.Empty;
-            IsFeedbackVisible = false;
-            ProgressPercentage = 0;
-            FeedbackBackgroundColor = Colors.Transparent.ToArgbHex();
-            ResetButtonColors();
-
-            IsLoading = true;  // Ensure loading indicator shows
-
-            if (IsPerformMode)
-            {
-                IsSignHidden = true;
             }
 
             LoadNextSign();

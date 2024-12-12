@@ -13,7 +13,7 @@ namespace com.kizwiz.sipnsign.Pages
     {
         private readonly GameViewModel _viewModel;
         private readonly IVideoService _videoService;
-        private MediaElement? _currentVideo;
+        private MediaElement CurrentVideoElement => IsGuessMode ? SignVideo : PerformModeVideo;
 
         public GameViewModel ViewModel => _viewModel;
 
@@ -26,29 +26,25 @@ namespace com.kizwiz.sipnsign.Pages
             {
                 _videoService = videoService;
                 InitializeComponent();
-                _viewModel = new GameViewModel(logger, progressService);
+                _viewModel = new GameViewModel(videoService, logger, progressService);
                 BindingContext = _viewModel;
 
+                Debug.WriteLine("Setting up PropertyChanged handler");
                 _viewModel.PropertyChanged += async (s, e) =>
                 {
+                    Debug.WriteLine($"PropertyChanged event fired for: {e.PropertyName}");
                     if (e.PropertyName == nameof(GameViewModel.CurrentSign))
                     {
+                        Debug.WriteLine("Calling LoadCurrentVideo");
                         await LoadCurrentVideo();
-                    }
-                    else if (e.PropertyName == nameof(GameViewModel.IsGameOver) && _viewModel.IsGameOver)
-                    {
-                        ResetVideo();
-                    }
-                    else if (e.PropertyName == nameof(GameViewModel.IsGameActive) && _viewModel.IsGameActive)
-                    {
-                        // Reset video when starting new game
-                        ResetVideo();
+                        Debug.WriteLine("LoadCurrentVideo completed");
                     }
                 };
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error initializing GamePage: {ex}");
+                Debug.WriteLine($"Error in GamePage constructor: {ex.Message}");
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
             }
         }
 
@@ -56,53 +52,111 @@ namespace com.kizwiz.sipnsign.Pages
         {
             try
             {
-                if (_viewModel.CurrentSign != null)
+                Debug.WriteLine("=== LoadCurrentVideo Start ===");
+
+                var videoFileName = Path.GetFileName(_viewModel.CurrentSign.VideoPath);
+                var fullPath = await _videoService.GetVideoPath(videoFileName);
+
+                Debug.WriteLine($"Loading video: {fullPath}");
+                if (!File.Exists(fullPath))
                 {
-                    var videoFileName = Path.GetFileName(_viewModel.CurrentSign.VideoPath);
-                    var fullPath = await _videoService.GetVideoPath(videoFileName);
-                    Debug.WriteLine($"Setting video source to: {fullPath}");
-
-                    if (IsGuessMode)
-                    {
-                        // Important: Wait for UI to be ready
-                        await MainThread.InvokeOnMainThreadAsync(async () =>
-                        {
-                            SignVideo.Stop();
-                            SignVideo.Source = null;
-                            await Task.Delay(50);  // Short delay for cleanup
-
-                            // Set new source and play
-                            var source = MediaSource.FromFile(fullPath);
-                            SignVideo.Source = source;
-                            await Task.Delay(50);  // Wait for source to be set
-
-                            SignVideo.Play();
-                            Debug.WriteLine("Video play command sent");
-                        });
-                    }
-                    else
-                    {
-                        await MainThread.InvokeOnMainThreadAsync(async () =>
-                        {
-                            PerformModeVideo.Stop();
-                            PerformModeVideo.Source = null;
-                            await Task.Delay(50);
-
-                            var source = MediaSource.FromFile(fullPath);
-                            PerformModeVideo.Source = source;
-                            await Task.Delay(50);
-
-                            PerformModeVideo.Play();
-                        });
-                    }
+                    Debug.WriteLine("Video file not found!");
+                    return;
                 }
+
+                var fileInfo = new FileInfo(fullPath);
+                Debug.WriteLine($"Video file size: {fileInfo.Length} bytes");
+
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    try
+                    {
+                        var mediaElement = IsGuessMode ? SignVideo : PerformModeVideo;
+                        mediaElement.Source = null;
+
+                        // Try creating a file URI
+                        var uri = new Uri($"file://{fullPath}");
+                        var source = MediaSource.FromUri(uri);
+                        Debug.WriteLine($"Created MediaSource with URI: {uri}");
+
+                        mediaElement.Source = source;
+                        Debug.WriteLine("Set MediaSource to MediaElement");
+
+                        mediaElement.Play();
+                        Debug.WriteLine("Called Play() on MediaElement");
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error playing video: {ex.Message}");
+                    }
+                });
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error loading video: {ex.Message}");
+                Debug.WriteLine($"LoadCurrentVideo error: {ex.Message}");
+            }
+        }
+
+        private async Task<string> PrepareVideoPath()
+        {
+            var videoFileName = Path.GetFileName(_viewModel.CurrentSign.VideoPath);
+            var fullPath = await _videoService.GetVideoPath(videoFileName);
+            Debug.WriteLine($"Video path: {fullPath}, Exists: {File.Exists(fullPath)}");
+            return fullPath;
+        }
+
+        private async Task ConfigureAndPlayVideo(MediaElement mediaElement, string fullPath)
+        {
+            Debug.WriteLine("Configuring video playback");
+            mediaElement.ShouldAutoPlay = true;
+            mediaElement.ShouldLoopPlayback = true;
+            mediaElement.Volume = 1.0;
+
+            mediaElement.Source = null;
+            await Task.Delay(50);
+
+            var source = MediaSource.FromFile(fullPath);
+            mediaElement.Source = source;
+            await Task.Delay(100);
+
+            mediaElement.Play();
+            Debug.WriteLine("Video playback started");
+        }
+
+
+        private async Task SetupAndPlayVideo(MediaElement mediaElement, MediaSource source)
+        {
+            try
+            {
+                Debug.WriteLine("Starting SetupAndPlayVideo");
+                Debug.WriteLine($"MediaElement null? {mediaElement == null}");
+                Debug.WriteLine($"Source null? {source == null}");
+
+                mediaElement.Handler?.DisconnectHandler();
+                Debug.WriteLine("Handler disconnected");
+
+                mediaElement.Source = null;
+                Debug.WriteLine("Source cleared");
+
+                await Task.Delay(100);
+                Debug.WriteLine("Waited after clearing source");
+
+                mediaElement.Source = source;
+                Debug.WriteLine("New source set");
+
+                await Task.Delay(100);
+                Debug.WriteLine("Waited after setting source");
+
+                mediaElement.Play();
+                Debug.WriteLine("Play called");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in SetupAndPlayVideo: {ex.Message}");
                 Debug.WriteLine($"Stack trace: {ex.StackTrace}");
             }
         }
+
 
         /// <summary>
         /// initialize video on page appearing
@@ -119,26 +173,6 @@ namespace com.kizwiz.sipnsign.Pages
         }
 
         private bool IsGuessMode => _viewModel.CurrentMode == GameMode.Guess;
-
-        /// <summary>
-        /// Plays the video file using the injected VideoService.
-        /// </summary>
-        private async Task PlayVideo(string videoFileName)
-        {
-            try
-            {
-                var fullPath = await _videoService.GetVideoPath(videoFileName);
-                if (_currentVideo != null)
-                {
-                    _currentVideo.Source = fullPath;
-                    _currentVideo.Play();
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error playing video {videoFileName}: {ex}");
-            }
-        }
 
         private void StopVideo()
         {
@@ -169,27 +203,24 @@ namespace com.kizwiz.sipnsign.Pages
             }
         }
 
-        private void OnMediaEnded(object sender, EventArgs e)
-        {
-            if (sender is MediaElement mediaElement)
-            {
-                Debug.WriteLine($"Media ended, attempting to replay");
-                mediaElement.Play();
-            }
-        }
-
         private void OnMediaFailed(object sender, EventArgs e)
         {
             Debug.WriteLine($"Media failed to load: {(sender as MediaElement)?.Source}");
-            if (sender is MediaElement mediaElement)
-            {
-                Debug.WriteLine($"Current source: {mediaElement.Source}");
-            }
         }
 
         private void OnMediaOpened(object sender, EventArgs e)
         {
-            Debug.WriteLine($"Media opened successfully: {(sender as MediaElement)?.Source}");
+            Debug.WriteLine($"Media opened: {(sender as MediaElement)?.Source}");
+        }
+
+        private void OnMediaEnded(object sender, EventArgs e)
+        {
+            Debug.WriteLine($"Media ended: {(sender as MediaElement)?.Source}");
+        }
+
+        private void OnSeekCompleted(object sender, EventArgs e)
+        {
+            Debug.WriteLine($"Seek completed: {(sender as MediaElement)?.Source}");
         }
 
         /// <summary>
@@ -211,6 +242,17 @@ namespace com.kizwiz.sipnsign.Pages
             {
                 PerformModeVideo.Source = null;
                 PerformModeVideo.Stop();
+            }
+        }
+
+        private void OnQuestionsCountChanged(object sender, ValueChangedEventArgs e)
+        {
+            if (sender is Slider slider)
+            {
+                int questions = (int)e.NewValue;
+                Preferences.Set(Constants.GUESS_MODE_QUESTIONS_KEY, questions);
+                // Update settings page if it exists
+                MessagingCenter.Send(this, "QuestionCountChanged", questions);
             }
         }
     }

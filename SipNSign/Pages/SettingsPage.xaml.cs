@@ -17,6 +17,11 @@ namespace com.kizwiz.sipnsign.Pages
             InitializeComponent();
             _preferences = Preferences.Default;
             LoadSavedSettings();
+
+            MessagingCenter.Subscribe<GamePage, int>(this, "QuestionCountChanged", (sender, count) =>
+            {
+                QuestionsSlider.Value = count;
+            });
         }
 
         private void LoadSavedSettings()
@@ -161,6 +166,27 @@ namespace com.kizwiz.sipnsign.Pages
             int questions = (int)e.NewValue;
             Preferences.Set(Constants.GUESS_MODE_QUESTIONS_KEY, questions);
             QuestionsValueLabel.Text = $"{questions} questions";
+        }
+
+    private async Task ViewLogs()
+        {
+            try
+            {
+                var logFile = Path.Combine(FileSystem.AppDataDirectory, "app.log");
+                if (File.Exists(logFile))
+                {
+                    var logs = await File.ReadAllTextAsync(logFile);
+                    await DisplayAlert("Application Logs", logs, "OK");
+                }
+                else
+                {
+                    await DisplayAlert("Logs", "No logs found", "OK");
+                }
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"Could not read logs: {ex.Message}", "OK");
+            }
         }
     }
 }
