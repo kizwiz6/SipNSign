@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:converters="clr-namespace:com.kizwiz.sipnsign.Converters"
              x:Class="com.kizwiz.sipnsign.Pages.ProgressPage"
+             Style="{StaticResource AppPageStyle}"
              Title="Progress">
 
     <ContentPage.Resources>
