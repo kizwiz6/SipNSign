@@ -355,9 +355,13 @@ namespace com.kizwiz.sipnsign.ViewModels
                     IsGameOver = false;
                     IsFeedbackVisible = false;
                     IsGameActive = true;
+                    ResetButtonColors();  // Reset any colored buttons
                     ResetGame();
-                    OnPropertyChanged(nameof(IsGameOver)); // Ensure UI updates
+
+                    // Notify all relevant property changes
+                    OnPropertyChanged(nameof(IsGameOver));
                     OnPropertyChanged(nameof(IsGameActive));
+                    OnPropertyChanged(nameof(IsFeedbackVisible));
                 });
             }
         }
