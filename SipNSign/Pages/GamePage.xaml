@@ -145,6 +145,7 @@
                     <Label Text="What does this sign mean?"
                            FontSize="22"
                            HorizontalOptions="Center"
+                           TextColor="White"
                            Margin="0,0,0,10"
                            IsVisible="{Binding IsGameActive}"/>
 
@@ -230,17 +231,19 @@
                 <VerticalStackLayout Padding="15" Spacing="8">
                     <Label Text="Can you sign this word?"
                            FontSize="20"
+                           TextColor="White"
                            HorizontalOptions="Center"/>
 
                     <Label Text="{Binding CurrentSign.CorrectAnswer}"
                            FontSize="46"
+                           TextColor="White"
                            HorizontalOptions="Center"
                            FontAttributes="Bold"
                            Margin="0,5"/>
 
                     <Button Text="REVEAL SIGN"
                             Command="{Binding RevealSignCommand}"
-                            Style="{StaticResource AnimatedButtonStyle}"
+                            Style="{StaticResource PrimaryButton}"
                             IsVisible="{Binding IsSignHidden}"/>
 
                     <Grid IsVisible="{Binding IsSignRevealed}">

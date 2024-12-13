@@ -5,12 +5,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:com.kizwiz.sipnsign.Pages"
     Shell.NavBarHasShadow="False"
-    Shell.FlyoutBehavior="Disabled">
+    Shell.FlyoutBehavior="Disabled"
+    Shell.NavBarIsVisible="true">
 
-    <ShellContent
-        Shell.NavBarIsVisible="true"
-        ContentTemplate="{DataTemplate local:MainMenuPage}"
-        Route="MainMenuPage" />
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsEnabled="True" IsVisible="True" />
+    </Shell.BackButtonBehavior>
 
     <!-- Main Menu Page -->
     <ShellContent

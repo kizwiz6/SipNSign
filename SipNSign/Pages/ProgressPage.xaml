@@ -18,30 +18,29 @@
         <VerticalStackLayout Spacing="20" Padding="20">
 
             <!-- Overall Progress -->
-            <Frame BackgroundColor="{DynamicResource Primary}" Padding="15" CornerRadius="10">
+            <Frame Style="{StaticResource CardFrame}">
                 <VerticalStackLayout>
                     <Label Text="Overall Progress" 
-                           TextColor="White"
-                           FontSize="24" 
-                           FontAttributes="Bold"
-                           HorizontalOptions="Center"/>
+               Style="{StaticResource HeaderLabel}"
+               HorizontalOptions="Center" />
 
                     <ProgressBar x:Name="OverallProgressBar"
-                             Progress="{Binding OverallProgressPercentage}"
-                             ProgressColor="White"
-                             HeightRequest="10"
-                             Margin="0,10"/>
+                     Progress="{Binding OverallProgressPercentage}"
+                     ProgressColor="{DynamicResource PrimaryBrush}"
+                     HeightRequest="10"
+                     Margin="0,10" />
+
                     <Label x:Name="ProgressLabel"
-                            Text="{Binding OverallProgressText}"
-                            TextColor="White"
-                            HorizontalOptions="Center"/>
+               Text="{Binding OverallProgressText}"
+               Style="{StaticResource BodyLabel}"
+               HorizontalOptions="Center" />
                 </VerticalStackLayout>
             </Frame>
 
             <!-- Statistics Grid -->
             <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="15" RowSpacing="15">
                 <!-- Signs Learned -->
-                <Frame Grid.Column="0" Grid.Row="0" BackgroundColor="White" Padding="15" HasShadow="True">
+                <Frame Grid.Column="0" Grid.Row="0" BackgroundColor="{DynamicResource Secondary}" Padding="15" HasShadow="True">
                     <VerticalStackLayout>
                         <Label Text="Signs Learned"
                                TextColor="{DynamicResource Primary}"
@@ -102,7 +101,7 @@
             </Grid>
 
             <!-- Recent Activity -->
-            <Frame BackgroundColor="White" Padding="15" CornerRadius="10" HasShadow="True">
+            <Frame BackgroundColor="{DynamicResource Secondary}" Padding="15" CornerRadius="10" HasShadow="True">
                 <VerticalStackLayout Spacing="10">
                     <Label Text="Recent Activity"
                            FontSize="20"
@@ -122,10 +121,10 @@
                    Grid.Column="0"/>
                                     <VerticalStackLayout Grid.Column="1" Margin="10,0">
                                         <Label Text="{Binding Description}"
-                       TextColor="Black"
+                       TextColor="{DynamicResource TextColor}"
                        FontAttributes="Bold"/>
                                         <Label Text="{Binding TimeAgo}"
-                       TextColor="Gray"
+                       TextColor="{DynamicResource Secondary}"
                        FontSize="12"/>
                                     </VerticalStackLayout>
                                     <Label Grid.Column="2"
@@ -160,10 +159,10 @@
                    Grid.Column="0"/>
                                     <VerticalStackLayout Grid.Column="1" Margin="10,0">
                                         <Label Text="{Binding Description}"
-                       TextColor="Black"
+                       TextColor="{DynamicResource TextColor}"
                        FontAttributes="Bold"/>
                                         <Label Text="{Binding TimeAgo}"
-                       TextColor="Gray"
+                       TextColor="{DynamicResource Secondary}"
                        FontSize="12"/>
                                     </VerticalStackLayout>
                                     <Label Grid.Column="2"

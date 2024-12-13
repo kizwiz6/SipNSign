@@ -107,5 +107,15 @@
       <DependentUpon>ProgressPage.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <MauiImage Update="Resources\Images\logo_nobg.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </MauiImage>
+  </ItemGroup>
+  <ItemGroup>
+    <MauiXaml Update="Pages\ProgressPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+  </ItemGroup>
 
 </Project>
