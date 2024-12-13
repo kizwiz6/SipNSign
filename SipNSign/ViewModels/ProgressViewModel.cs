@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace com.kizwiz.sipnsign.ViewModels
 {
-    public class ScoreboardViewModel : INotifyPropertyChanged
+    public class ProgressViewModel : INotifyPropertyChanged
     {
         private readonly IProgressService _progressService;
         private UserProgress _userProgress;
@@ -88,11 +88,17 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
 
-        public ScoreboardViewModel(IProgressService progressService)
+        public ProgressViewModel(IProgressService progressService)
         {
-            _progressService = progressService;
+            _progressService = progressService ?? throw new ArgumentNullException(nameof(progressService));
             RecentActivities = new ObservableCollection<ActivityItem>();
             Achievements = new ObservableCollection<AchievementItem>();
+            // Initialize with default progress
+            _userProgress = new UserProgress
+            {
+                Achievements = new List<Achievement>(),
+                Activities = new List<ActivityLog>()
+            };
         }
 
         public async Task LoadProgressAsync()
@@ -199,5 +205,35 @@ namespace com.kizwiz.sipnsign.ViewModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public double OverallProgressPercentage
+        {
+            get
+            {
+                if (_userProgress?.Achievements == null || !_userProgress.Achievements.Any())
+                    return 0;
+
+                var unlockedCount = _userProgress.Achievements.Count(a => a.IsUnlocked);
+                var totalCount = _userProgress.Achievements.Count;
+
+                // Calculate overall progress including partial progress of incomplete achievements
+                double totalProgress = 0;
+                foreach (var achievement in _userProgress.Achievements)
+                {
+                    if (achievement.IsUnlocked)
+                    {
+                        totalProgress += 1.0;
+                    }
+                    else if (achievement.ProgressRequired > 0)
+                    {
+                        totalProgress += (double)achievement.ProgressCurrent / achievement.ProgressRequired;
+                    }
+                }
+
+                return totalProgress / totalCount;
+            }
+        }
+
+        public string OverallProgressText => $"{(OverallProgressPercentage * 100):F0}% Complete";
     }
 }

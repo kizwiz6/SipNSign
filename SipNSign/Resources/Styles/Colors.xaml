@@ -33,6 +33,26 @@
     <Color x:Key="Gray900">#212121</Color>
     <Color x:Key="Gray950">#141414</Color>
 
+    <!-- App Theme Colors -->
+    <Color x:Key="AppBackground1">#1a237e</Color>
+    <Color x:Key="AppBackground2">#0d47a1</Color>
+    <Color x:Key="GuessMode">#007BFF</Color>
+    <Color x:Key="PerformMode">#28a745</Color>
+    <Color x:Key="Progress">#FFC107</Color>
+    <Color x:Key="Settings">#FF5722</Color>
+    <Color x:Key="GameOver">#6200EE</Color>
+
+    <Style x:Key="AppPageStyle" TargetType="ContentPage">
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="{StaticResource AppBackground1}" Offset="0.0" />
+                    <GradientStop Color="{StaticResource AppBackground2}" Offset="1.0" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- Solid Color Brushes -->
     <SolidColorBrush x:Key="PrimaryBrush" Color="{DynamicResource Primary}"/>
     <SolidColorBrush x:Key="PrimaryDarkBrush" Color="{DynamicResource PrimaryDark}"/>

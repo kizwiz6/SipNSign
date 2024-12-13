@@ -23,5 +23,11 @@ namespace com.kizwiz.sipnsign
         public const int DEFAULT_DELAY = 5000;
         public const int MIN_DELAY = 2000;
         public const int MAX_DELAY = 10000;
+
+        // Guess Mode questions limit
+        public const string GUESS_MODE_QUESTIONS_KEY = "GuessQuestions";
+        public const int MIN_QUESTIONS = 10;
+        public const int MAX_QUESTIONS = 100;
+        public const int DEFAULT_QUESTIONS = 20;
     }
 }

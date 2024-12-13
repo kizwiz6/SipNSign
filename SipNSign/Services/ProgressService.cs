@@ -319,14 +319,20 @@ namespace com.kizwiz.sipnsign.Services
                         achievement.ProgressCurrent = _currentProgress.CurrentStreak;
                         break;
 
-                    case "SIGNS_50" when _currentProgress.SignsLearned >= 50:
-                        await UnlockAchievement(achievement);
-                        achievement.ProgressCurrent = _currentProgress.SignsLearned;
+                    case "SIGNS_50" when !achievement.IsUnlocked:
+                        achievement.ProgressCurrent = Math.Min(_currentProgress.SignsLearned, achievement.ProgressRequired);
+                        if (!achievement.IsUnlocked && _currentProgress.SignsLearned >= 50)
+                        {
+                            await UnlockAchievement(achievement);
+                        }
                         break;
 
-                    case "SIGNS_100" when _currentProgress.SignsLearned >= 100:
-                        await UnlockAchievement(achievement);
-                        achievement.ProgressCurrent = _currentProgress.SignsLearned;
+                    case "SIGNS_100" when !achievement.IsUnlocked:
+                        achievement.ProgressCurrent = Math.Min(_currentProgress.SignsLearned, achievement.ProgressRequired);
+                        if (!achievement.IsUnlocked && _currentProgress.SignsLearned >= 100)
+                        {
+                            await UnlockAchievement(achievement);
+                        }
                         break;
 
                     case "QUIZ_PERFECT":
@@ -344,24 +350,37 @@ namespace com.kizwiz.sipnsign.Services
                         achievement.ProgressCurrent = (int)_currentProgress.TotalPracticeTime.TotalHours;
                         break;
 
-                    case "SIGNS_100_GUESS" when _currentProgress.GuessModeSigns >= 100:
-                        await UnlockAchievement(achievement);
-                        achievement.ProgressCurrent = _currentProgress.GuessModeSigns;
+                    case "SIGNS_100_GUESS" when !achievement.IsUnlocked:
+                        achievement.ProgressCurrent = Math.Min(_currentProgress.GuessModeSigns, achievement.ProgressRequired);
+                        if (!achievement.IsUnlocked && _currentProgress.GuessModeSigns >= 100)
+                        {
+                            await UnlockAchievement(achievement);
+                        }
                         break;
 
-                    case "SIGNS_1000_GUESS" when _currentProgress.GuessModeSigns >= 1000:
-                        await UnlockAchievement(achievement);
-                        achievement.ProgressCurrent = _currentProgress.GuessModeSigns;
+                    case "SIGNS_1000_GUESS" when !achievement.IsUnlocked:
+                        achievement.ProgressCurrent = Math.Min(_currentProgress.GuessModeSigns, achievement.ProgressRequired);
+                        if (!achievement.IsUnlocked && _currentProgress.GuessModeSigns >= 1000)
+                        {
+                            await UnlockAchievement(achievement);
+                            achievement.ProgressCurrent = 1000;  // Cap at required amount
+                        }
                         break;
 
-                    case "SIGNS_100_PERFORM" when _currentProgress.PerformModeSigns >= 100:
-                        await UnlockAchievement(achievement);
-                        achievement.ProgressCurrent = _currentProgress.PerformModeSigns;
+                    case "SIGNS_100_PERFORM" when !achievement.IsUnlocked:
+                        achievement.ProgressCurrent = Math.Min(_currentProgress.PerformModeSigns, achievement.ProgressRequired);
+                        if(!achievement.IsUnlocked && _currentProgress.PerformModeSigns >= 100)
+                        {
+                            await UnlockAchievement(achievement);
+                        }
                         break;
 
-                    case "SIGNS_1000_PERFORM" when _currentProgress.PerformModeSigns >= 1000:
-                        await UnlockAchievement(achievement);
-                        achievement.ProgressCurrent = _currentProgress.PerformModeSigns;
+                    case "SIGNS_1000_PERFORM" when !achievement.IsUnlocked:
+                        achievement.ProgressCurrent = Math.Min(_currentProgress.PerformModeSigns, achievement.ProgressRequired);
+                        if (!achievement.IsUnlocked && _currentProgress.PerformModeSigns >= 1000)
+                        {
+                            await UnlockAchievement(achievement);
+                        }
                         break;
 
                     case "PERFECT_SESSION" when _currentProgress.CorrectInARow >= 50:

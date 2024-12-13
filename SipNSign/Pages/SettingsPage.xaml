@@ -2,10 +2,31 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="com.kizwiz.sipnsign.Pages.SettingsPage"
+             Style="{StaticResource AppPageStyle}"
              Title="Settings">
 
     <ScrollView>
         <VerticalStackLayout Spacing="20" Padding="20">
+            <!-- Questions Limit in Guess Mode -->
+            <Frame BorderColor="Gray" Padding="15" CornerRadius="10">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Guess Mode Questions" 
+               FontSize="20" 
+               FontAttributes="Bold"/>
+                    <Label x:Name="QuestionsValueLabel"
+               Text="20 questions"
+               HorizontalOptions="Center"/>
+                    <Slider x:Name="QuestionsSlider"
+                Minimum="10"
+                Maximum="100"
+                Value="20"
+                ValueChanged="OnQuestionsCountChanged"/>
+                    <Label Text="Adjust how many questions to answer in Guess Mode"
+               FontSize="14"
+               TextColor="Gray"/>
+                </VerticalStackLayout>
+            </Frame>
+
             <!-- Timer Settings in Guess Mode -->
             <Frame BorderColor="Gray" Padding="15" CornerRadius="10">
                 <VerticalStackLayout Spacing="15">
