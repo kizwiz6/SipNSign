@@ -31,7 +31,7 @@ public partial class AppShell : Shell
         try
         {
             Routing.RegisterRoute("gamepage", typeof(GamePage));
-            Routing.RegisterRoute("scoreboard", typeof(ProgressPage));
+            Routing.RegisterRoute("progress", typeof(ProgressPage));
             Routing.RegisterRoute("settings", typeof(SettingsPage));
             Routing.RegisterRoute("howtoplay", typeof(HowToPlayPage));
             Debug.WriteLine("All routes registered");
@@ -43,7 +43,7 @@ public partial class AppShell : Shell
         }
     }
 
-    private async Task GoToAsync(string route)
+    private async Task GoToAsync(string route, string title = null)
     {
         try
         {
@@ -54,6 +54,18 @@ public partial class AppShell : Shell
 
             Debug.WriteLine($"Attempting to navigate to route: {route}");
             await Shell.Current.GoToAsync(route);
+
+            // Set the navigation title if provided
+            if (!string.IsNullOrEmpty(title))
+            {
+                Shell.Current.CurrentItem.Title = title;
+                Debug.WriteLine($"Title set to: {title}");
+            }
+            else
+            {
+                Debug.WriteLine("No title provided");
+            }
+
             Debug.WriteLine($"Successfully navigated to: {route}");
         }
         catch (Exception ex)

@@ -142,33 +142,31 @@
             <Frame BackgroundColor="White" Padding="15" CornerRadius="10" HasShadow="True">
                 <VerticalStackLayout Spacing="10">
                     <Label Text="Achievements"
-                           FontSize="20"
-                           FontAttributes="Bold"
-                           TextColor="{DynamicResource Primary}"/>
-
+              FontSize="20"
+              FontAttributes="Bold"
+              TextColor="{DynamicResource Primary}"/>
                     <CollectionView x:Name="AchievementsList"
-                ItemsSource="{Binding Achievements}"
-                HeightRequest="200">
+                      ItemsSource="{Binding Achievements}"
+                      HeightRequest="200">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <Grid Padding="10" ColumnDefinitions="Auto,*,Auto">
-
                                     <Image Source="{Binding Icon}"
-                   HeightRequest="30"
-                   WidthRequest="30"
-                   Grid.Column="0"/>
+                              HeightRequest="30"
+                              WidthRequest="30"
+                              Grid.Column="0"/>
                                     <VerticalStackLayout Grid.Column="1" Margin="10,0">
                                         <Label Text="{Binding Description}"
-                       TextColor="{DynamicResource TextColor}"
-                       FontAttributes="Bold"/>
+                                  TextColor="Black"
+                                  FontAttributes="Bold"/>
                                         <Label Text="{Binding TimeAgo}"
-                       TextColor="{DynamicResource Secondary}"
-                       FontSize="12"/>
+                                  TextColor="DarkGray"
+                                  FontSize="12"/>
                                     </VerticalStackLayout>
                                     <Label Grid.Column="2"
-                   Text="{Binding Score}"
-                   TextColor="{DynamicResource Primary}"
-                   FontAttributes="Bold"/>
+                              Text="{Binding Score}"
+                              TextColor="{DynamicResource Primary}"
+                              FontAttributes="Bold"/>
                                 </Grid>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
