@@ -2,20 +2,25 @@ using Microsoft.Maui.Storage; // For Preferences
 using Microsoft.Maui.ApplicationModel; // For AppTheme
 using System.Diagnostics;
 using Microsoft.Maui.Controls;
+using com.kizwiz.sipnsign.Services;
+using com.kizwiz.sipnsign.Enums;
 
 namespace com.kizwiz.sipnsign.Pages
 {
     /// <summary>
-    /// The SettingsPage allows users to modify application preferences, including theme selection (light/dark mode).
+    /// Handles application settings and theme changes
     /// </summary>
     public partial class SettingsPage : ContentPage
     {
         private IPreferences _preferences;
+        private readonly ThemeService _themeService;
 
         public SettingsPage()
         {
             InitializeComponent();
             _preferences = Preferences.Default;
+            _themeService = new ThemeService();
+            ThemePicker.SelectedItem = _themeService.GetCurrentTheme().ToString();
             LoadSavedSettings();
 
             MessagingCenter.Subscribe<GamePage, int>(this, "QuestionCountChanged", (sender, count) =>
@@ -112,6 +117,46 @@ namespace com.kizwiz.sipnsign.Pages
             if (Application.Current != null)
             {
                 // Implementation for high contrast mode
+            }
+        }
+
+        /// <summary>
+        /// Handles theme selection changes and updates application appearance
+        /// </summary>
+        private void OnThemeChanged(object sender, EventArgs e)
+        {
+            if (sender is Picker picker && picker.SelectedItem is string themeName)
+            {
+                var theme = Enum.Parse<CustomAppTheme>(themeName);  // Use CustomAppTheme here
+                _themeService.SetTheme(theme);
+            }
+        }
+
+        private void OnThemeSelected(object sender, EventArgs e)
+        {
+            if (ThemePicker.SelectedItem is string selectedTheme)
+            {
+                // Apply the selected theme
+                switch (selectedTheme)
+                {
+                    case "Blue":
+                        // Apply Blue theme
+                        Application.Current.Resources["AppBackground1"] = Color.FromArgb("#1a237e");
+                        Application.Current.Resources["AppBackground2"] = Color.FromArgb("#0d47a1");
+                        break;
+
+                    case "Dark":
+                        // Apply Dark theme
+                        Application.Current.Resources["AppBackground1"] = Color.FromArgb("#000000");
+                        Application.Current.Resources["AppBackground2"] = Color.FromArgb("#121212");
+                        break;
+
+                    case "Light":
+                        // Apply Light theme
+                        Application.Current.Resources["AppBackground1"] = Color.FromArgb("#FFFFFF");
+                        Application.Current.Resources["AppBackground2"] = Color.FromArgb("#F5F5F5");
+                        break;
+                }
             }
         }
 

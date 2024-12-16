@@ -6,13 +6,19 @@
 
     <!-- Note: For Android please see also Platforms\Android\Resources\values\colors.xml -->
 
+    <!-- Dynamic Theme Colors -->
+    <Color x:Key="AppBackground1">#1a237e</Color>
+    <!-- Will be updated by ThemeService -->
+    <Color x:Key="AppBackground2">#0d47a1</Color>
+    <Color x:Key="Primary">#FFA726</Color>
+    <Color x:Key="Secondary">#FFD95B</Color>
+    <Color x:Key="TextColor">#FFFFFF</Color>
+
     <!-- Primary Colors -->
-    <Color x:Key="Primary">#512BD4</Color>
     <Color x:Key="PrimaryDark">#ac99ea</Color>
     <Color x:Key="PrimaryDarkText">#242424</Color>
 
     <!-- Secondary Colors -->
-    <Color x:Key="Secondary">#DFD8F7</Color>
     <Color x:Key="SecondaryDarkText">#9880e5</Color>
     <Color x:Key="Tertiary">#2B0B98</Color>
 
@@ -33,15 +39,20 @@
     <Color x:Key="Gray900">#212121</Color>
     <Color x:Key="Gray950">#141414</Color>
 
-    <!-- App Theme Colors -->
-    <Color x:Key="AppBackground1">#1a237e</Color>
-    <Color x:Key="AppBackground2">#0d47a1</Color>
+    <!-- App Mode Colors -->
     <Color x:Key="GuessMode">#007BFF</Color>
     <Color x:Key="PerformMode">#28a745</Color>
     <Color x:Key="Progress">#FFC107</Color>
     <Color x:Key="Settings">#FF5722</Color>
     <Color x:Key="GameOver">#6200EE</Color>
 
+    <!-- Add button style in Styles.xaml -->
+    <Style TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{DynamicResource Primary}" />
+        <Setter Property="TextColor" Value="{DynamicResource TextColor}" />
+    </Style>
+
+    <!-- Page Style -->
     <Style x:Key="AppPageStyle" TargetType="ContentPage">
         <Setter Property="Background">
             <Setter.Value>
@@ -54,10 +65,10 @@
     </Style>
 
     <!-- Solid Color Brushes -->
-    <SolidColorBrush x:Key="PrimaryBrush" Color="{DynamicResource Primary}"/>
-    <SolidColorBrush x:Key="PrimaryDarkBrush" Color="{DynamicResource PrimaryDark}"/>
-    <SolidColorBrush x:Key="SecondaryBrush" Color="{DynamicResource Secondary}"/>
-    <SolidColorBrush x:Key="TertiaryBrush" Color="{DynamicResource Tertiary}"/>
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>
+    <SolidColorBrush x:Key="PrimaryDarkBrush" Color="{StaticResource PrimaryDark}"/>
+    <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}"/>
+    <SolidColorBrush x:Key="TertiaryBrush" Color="{StaticResource Tertiary}"/>
 
     <SolidColorBrush x:Key="WhiteBrush" Color="{DynamicResource White}"/>
     <SolidColorBrush x:Key="BlackBrush" Color="{DynamicResource Black}"/>

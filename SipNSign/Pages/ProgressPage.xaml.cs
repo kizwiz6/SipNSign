@@ -5,12 +5,17 @@ using System.Diagnostics;
 
 namespace com.kizwiz.sipnsign.Pages;
 
+/// <summary>
+/// Displays user progress, achievements and activity history
+/// </summary>
 public partial class ProgressPage : ContentPage
 {
-    private readonly IProgressService _progressService;
-    private UserProgress _userProgress;
     private readonly ProgressViewModel _viewModel;
 
+    /// <summary>
+    /// Initializes a new instance of ProgressPage
+    /// </summary>
+    /// <param name="progressService">Service to manage user progress data</param>
     public ProgressPage(IProgressService progressService)
     {
         try
@@ -23,10 +28,13 @@ public partial class ProgressPage : ContentPage
         {
             Debug.WriteLine($"Error in ProgressPage constructor: {ex.Message}");
             Debug.WriteLine($"Stack trace: {ex.StackTrace}");
-            throw; // Rethrow to be caught by the calling method
+            throw;
         }
     }
 
+    /// <summary>
+    /// Loads progress data when the page appears
+    /// </summary>
     protected override async void OnAppearing()
     {
         base.OnAppearing();
@@ -39,69 +47,5 @@ public partial class ProgressPage : ContentPage
             Debug.WriteLine($"Error loading progress: {ex.Message}");
             await DisplayAlert("Error", "Unable to load progress data", "OK");
         }
-    }
-
-    private async Task LoadUserProgress()
-    {
-        _userProgress = await _progressService.GetUserProgressAsync();
-        UpdateUI();
-    }
-
-    private void UpdateUI()
-    {
-        // Update statistics
-        SignsLearnedLabel.Text = _userProgress.SignsLearned.ToString();
-        StreakLabel.Text = $"{_userProgress.CurrentStreak} Days";
-        AccuracyLabel.Text = $"{_userProgress.Accuracy:P0}";
-        PracticeTimeLabel.Text = FormatPracticeTime(_userProgress.TotalPracticeTime);
-
-        // Update progress bar
-        var totalSigns = 100; // Total signs available in the app
-        OverallProgressBar.Progress = (double)_userProgress.SignsLearned / totalSigns;
-        ProgressLabel.Text = $"{_userProgress.SignsLearned}/{totalSigns} Signs";
-
-        // Update recent activities
-        RecentActivityList.ItemsSource = _userProgress.Activities
-            .OrderByDescending(a => a.Timestamp)
-            .Take(10)
-            .Select(a => new ActivityItem
-            {
-                Icon = a.IconName,
-                Description = a.Description,
-                TimeAgo = FormatTimeAgo(a.Timestamp),
-                Score = a.Score
-            });
-
-        // Update achievements
-        AchievementsList.ItemsSource = _userProgress.Achievements
-            .Select(a => new AchievementItem
-            {
-                Icon = a.IconName,
-                Title = a.Title,
-                Description = $"{a.Description} ({a.ProgressCurrent}/{a.ProgressRequired})",
-                IsUnlocked = a.IsUnlocked
-            });
-    }
-
-    private string FormatPracticeTime(TimeSpan time)
-    {
-        if (time.TotalHours >= 1)
-            return $"{time.TotalHours:F1} hrs";
-        return $"{time.Minutes} min";
-    }
-
-    private string FormatTimeAgo(DateTime timestamp)
-    {
-        var timeSpan = DateTime.Now - timestamp;
-
-        if (timeSpan.TotalMinutes < 1)
-            return "Just now";
-        if (timeSpan.TotalHours < 1)
-            return $"{timeSpan.Minutes}m ago";
-        if (timeSpan.TotalDays < 1)
-            return $"{timeSpan.Hours}h ago";
-        if (timeSpan.TotalDays < 7)
-            return $"{timeSpan.Days}d ago";
-        return timestamp.ToString("MMM dd");
     }
 }

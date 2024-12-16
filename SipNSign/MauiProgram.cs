@@ -79,6 +79,7 @@ public static class MauiProgram
                 }
             });
             builder.Services.AddSingleton<SignRepository>();
+            builder.Services.AddSingleton<IThemeService, ThemeService>();
 
             // Register pages and viewmodels
             builder.Services.AddSingleton<App>();

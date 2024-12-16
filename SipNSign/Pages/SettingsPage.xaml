@@ -54,6 +54,25 @@
                 </VerticalStackLayout>
             </Frame>
 
+            <!-- Add theme picker to existing settings -->
+            <Frame BorderColor="Gray" Padding="15" CornerRadius="10">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="App Theme" 
+               FontSize="20" 
+               FontAttributes="Bold"/>
+                    <Picker x:Name="ThemePicker"
+                SelectedIndexChanged="OnThemeSelected">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>Blue</x:String>
+                                <x:String>Dark</x:String>
+                                <x:String>Light</x:String>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+                </VerticalStackLayout>
+            </Frame>
+
             <!-- Feedback Delay -->
             <Frame BorderColor="Gray" Padding="15" CornerRadius="10">
                 <VerticalStackLayout Spacing="15">

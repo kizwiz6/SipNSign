@@ -54,7 +54,20 @@ namespace com.kizwiz.sipnsign.Pages
             {
                 Debug.WriteLine("=== LoadCurrentVideo Start ===");
 
+                if (_viewModel?.CurrentSign == null)
+                {
+                    Debug.WriteLine("CurrentSign is null");
+                    return;
+                }
+
                 var videoFileName = Path.GetFileName(_viewModel.CurrentSign.VideoPath);
+
+                if (string.IsNullOrEmpty(videoFileName))
+                {
+                    Debug.WriteLine("Video filename is null or empty");
+                    return;
+                }
+
                 var fullPath = await _videoService.GetVideoPath(videoFileName);
 
                 Debug.WriteLine($"Loading video: {fullPath}");
@@ -103,6 +116,13 @@ namespace com.kizwiz.sipnsign.Pages
             var fullPath = await _videoService.GetVideoPath(videoFileName);
             Debug.WriteLine($"Video path: {fullPath}, Exists: {File.Exists(fullPath)}");
             return fullPath;
+        }
+        private void HandleGameReset()
+        {
+            ResetVideo();
+            _viewModel.ResetGame();
+            _viewModel.IsGameOver = false;
+            _viewModel.IsGameActive = true;
         }
 
         private async Task ConfigureAndPlayVideo(MediaElement mediaElement, string fullPath)
@@ -191,8 +211,12 @@ namespace com.kizwiz.sipnsign.Pages
         /// </summary>
         private async void ShowGameOver()
         {
-            await DisplayAlert("Game Over", $"Your final score is {_viewModel.CurrentScore}. Nominate someone to drink these sips!", "OK");
-            _viewModel.ResetGame(); // Reset the game in the ViewModel
+            if (_viewModel != null)
+            {
+                _viewModel.IsGameOver = true;
+                _viewModel.IsGameActive = false;
+                StopVideo();
+            }
         }
 
         private void OnModeChanged(object sender, CheckedChangedEventArgs e)

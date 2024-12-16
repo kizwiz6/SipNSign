@@ -5,12 +5,15 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:com.kizwiz.sipnsign.Pages"
     Shell.NavBarHasShadow="False"
-    Shell.FlyoutBehavior="Disabled">
+    Shell.FlyoutBehavior="Disabled"
+    Shell.NavBarIsVisible="true"
+    BackgroundColor="{DynamicResource Primary}"
+    ForegroundColor="White"
+    TitleColor="White">
 
-    <ShellContent
-        Shell.NavBarIsVisible="true"
-        ContentTemplate="{DataTemplate local:MainMenuPage}"
-        Route="MainMenuPage" />
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsEnabled="True" IsVisible="True" />
+    </Shell.BackButtonBehavior>
 
     <!-- Main Menu Page -->
     <ShellContent
@@ -21,6 +24,7 @@
     <!-- Game Page -->
     <ShellContent
         Title="Game"
+        Shell.NavBarIsVisible="true"
         ContentTemplate="{DataTemplate local:GamePage}"
         Route="GamePage" />
 
@@ -35,4 +39,10 @@
         Title="Settings"
         ContentTemplate="{DataTemplate local:SettingsPage}"
         Route="SettingsPage" />
+
+    <!-- Progress Page -->
+    <ShellContent
+        Title="Progress"
+        ContentTemplate="{DataTemplate local:ProgressPage}"
+        Route="ProgressPage" />
 </Shell>

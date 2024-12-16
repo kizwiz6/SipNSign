@@ -16,7 +16,7 @@
 
             <!-- Image -->
             <Image
-                Source="logo_2.png"
+                Source="logo_nobg.png"
                 HeightRequest="185"
                 Aspect="AspectFit"
                 SemanticProperties.Description="Logo for Sip N' Sign"

@@ -36,18 +36,18 @@
         <!-- Logo container -->
         <Frame BackgroundColor="Transparent"
                    BorderColor="Transparent"
-                   CornerRadius="20"
-                   Margin="50,5"
+                   CornerRadius="10"
+                   Margin="40,5"
                    Padding="0"
                    HasShadow="True">
-            <Image Source="logo_2.png"
-                       HeightRequest="220"
+            <Image Source="logo_nobg.png"
+                       HeightRequest="230"
                        Aspect="AspectFill"/>
         </Frame>
 
-        <!-- Title -->
+        <!-- Title --><!--
         <Label Text= "Sip N' Sign "
-                FontSize="50"
+                FontSize="60"
                FontFamily="Bangers"
                FontAttributes="Bold"
                TextColor="White"
@@ -58,12 +58,11 @@
                             Radius="5"
                             Opacity="0.5"/>
             </Label.Shadow>
-        </Label>
+        </Label>-->
 
         <!-- Menu Buttons -->
         <Button Text="Guess Mode"
-                Style="{StaticResource MenuButton}"
-                BackgroundColor="#2196F3"
+                Style="{StaticResource GuessModeButton}"
                 Clicked="OnGuessGameClicked"/>
 
         <Button Text="Perform Mode"

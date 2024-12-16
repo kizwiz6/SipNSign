@@ -27,33 +27,36 @@ namespace com.kizwiz.sipnsign
         /// </summary>
         public App(IServiceProvider serviceProvider)
         {
-            _serviceProvider = serviceProvider;
-            InitializeComponent();
-
-            // Create the main page using dependency injection
-            var mainPage = _serviceProvider.GetRequiredService<MainMenuPage>();
-
-            MainPage = new AppShell(serviceProvider);
-
-            MainPage = new NavigationPage(mainPage)
+            try
             {
-                BarBackgroundColor = _navBarColor,
-                BarTextColor = _navBarTextColor
-            };
+                _serviceProvider = serviceProvider;
+                InitializeComponent();
 
-            // Initialize videos in background
-            Task.Run(async () =>
+                var shell = new AppShell(serviceProvider);
+                shell.FlyoutBackgroundColor = _navBarColor;
+                Shell.SetNavBarHasShadow(shell, false);
+                Shell.SetTitleColor(shell, _navBarTextColor);
+                MainPage = shell;
+
+                // Background video initialization
+                Task.Run(async () =>
+                {
+                    try
+                    {
+                        var videoService = _serviceProvider.GetRequiredService<IVideoService>();
+                        await videoService.InitializeVideos();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error initialising videos: {ex}");
+                    }
+                });
+            }
+            catch (Exception ex)
             {
-                try
-                {
-                    var videoService = _serviceProvider.GetRequiredService<IVideoService>();
-                    await videoService.InitializeVideos();
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Error initialising videos: {ex}");
-                }
-            });
+                Debug.WriteLine($"Error in App constructor: {ex}");
+                throw;
+            }
         }
 
         /// <summary>
