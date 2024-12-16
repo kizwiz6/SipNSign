@@ -48,17 +48,22 @@
             <!-- Guess Mode Content -->
             <Grid Grid.Row="1" IsVisible="{Binding IsGuessMode}">
                 <!-- Video Player and Multiple Choice Section -->
-                <Grid RowDefinitions="*,Auto" Padding="20" RowSpacing="20" 
-                     IsVisible="{Binding IsGameActive}">
+                <Grid RowDefinitions="*,Auto" 
+                      Padding="20" 
+                      RowSpacing="20"
+                      VerticalOptions="Start"
+                      Margin="0,20,0,0"
+                      IsVisible="{Binding IsGameActive}">
 
                     <!-- Video Player Section -->
-                    <Grid Grid.Row="0">
-                        <Frame Padding="2"
+                    <Grid Grid.Row="0" HeightRequest="240">
+                        <Frame Padding="4"
                               CornerRadius="15"
                               HasShadow="True"
                               BorderColor="{DynamicResource Primary}"
                               BackgroundColor="Black"
-                              IsVisible="{Binding IsGameActive}">
+                              IsVisible="{Binding IsGameActive}"
+                               HeightRequest="250">
                             <Grid>
                                 <!-- Loading Indicator -->
                                 <ActivityIndicator IsRunning="{Binding IsLoading}"

@@ -342,11 +342,13 @@ namespace com.kizwiz.sipnsign.ViewModels
             {
                 return _playAgainCommand ??= new Command(() =>
                 {
-                    IsGameOver = false;
+                    Debug.WriteLine("PlayAgainCommand executed");
                     IsFeedbackVisible = false;
+                    IsGameOver = false;
                     IsGameActive = true;
                     ResetButtonColors();  // Reset any colored buttons
                     ResetGame();
+                    LoadNextSign();
 
                     // Notify all relevant property changes
                     OnPropertyChanged(nameof(IsGameOver));
@@ -870,8 +872,9 @@ namespace com.kizwiz.sipnsign.ViewModels
         {
             Debug.WriteLine("ResetGame started");
             IsGameActive = true;
+            IsGameOver = false;
             CurrentScore = 0;
-            _correctInARow = 0;
+            ResetButtonColors();
 
             if (_signs == null || !_signs.Any())
             {
