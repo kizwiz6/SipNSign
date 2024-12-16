@@ -80,11 +80,8 @@ namespace com.kizwiz.sipnsign.ViewModels
             get => _isGameActive;
             set
             {
-                if (_isGameActive != value)
-                {
-                    _isGameActive = value;
-                    OnPropertyChanged(nameof(IsGameActive));
-                }
+                _isGameActive = value;
+                OnPropertyChanged(nameof(IsGameActive));
             }
         }
 
@@ -189,15 +186,8 @@ namespace com.kizwiz.sipnsign.ViewModels
             get => _isGameOver;
             set
             {
-                if (_isGameOver != value)
-                {
-                    _isGameOver = value;
-                    if (value)
-                    {
-                        FinalScore = CurrentScore;
-                    }
-                    OnPropertyChanged(nameof(IsGameOver));
-                }
+                _isGameOver = value;
+                OnPropertyChanged(nameof(IsGameOver));
             }
         }
 
@@ -352,12 +342,18 @@ namespace com.kizwiz.sipnsign.ViewModels
             {
                 return _playAgainCommand ??= new Command(() =>
                 {
-                    IsGameOver = false;
+                    Debug.WriteLine("PlayAgainCommand executed");
                     IsFeedbackVisible = false;
+                    IsGameOver = false;
                     IsGameActive = true;
+                    ResetButtonColors();  // Reset any colored buttons
                     ResetGame();
-                    OnPropertyChanged(nameof(IsGameOver)); // Ensure UI updates
+                    LoadNextSign();
+
+                    // Notify all relevant property changes
+                    OnPropertyChanged(nameof(IsGameOver));
                     OnPropertyChanged(nameof(IsGameActive));
+                    OnPropertyChanged(nameof(IsFeedbackVisible));
                 });
             }
         }
@@ -876,8 +872,9 @@ namespace com.kizwiz.sipnsign.ViewModels
         {
             Debug.WriteLine("ResetGame started");
             IsGameActive = true;
+            IsGameOver = false;
             CurrentScore = 0;
-            _correctInARow = 0;
+            ResetButtonColors();
 
             if (_signs == null || !_signs.Any())
             {

@@ -213,11 +213,9 @@ namespace com.kizwiz.sipnsign.ViewModels
                 if (_userProgress?.Achievements == null || !_userProgress.Achievements.Any())
                     return 0;
 
-                var unlockedCount = _userProgress.Achievements.Count(a => a.IsUnlocked);
-                var totalCount = _userProgress.Achievements.Count;
-
-                // Calculate overall progress including partial progress of incomplete achievements
                 double totalProgress = 0;
+                var achievementsCount = _userProgress.Achievements.Count;
+
                 foreach (var achievement in _userProgress.Achievements)
                 {
                     if (achievement.IsUnlocked)
@@ -226,11 +224,12 @@ namespace com.kizwiz.sipnsign.ViewModels
                     }
                     else if (achievement.ProgressRequired > 0)
                     {
-                        totalProgress += (double)achievement.ProgressCurrent / achievement.ProgressRequired;
+                        var currentProgress = (double)achievement.ProgressCurrent / achievement.ProgressRequired;
+                        totalProgress += Math.Min(currentProgress, 1.0); // Cap at 100%
                     }
                 }
 
-                return totalProgress / totalCount;
+                return totalProgress / achievementsCount;
             }
         }
 
