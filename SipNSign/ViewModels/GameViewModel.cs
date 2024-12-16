@@ -80,11 +80,8 @@ namespace com.kizwiz.sipnsign.ViewModels
             get => _isGameActive;
             set
             {
-                if (_isGameActive != value)
-                {
-                    _isGameActive = value;
-                    OnPropertyChanged(nameof(IsGameActive));
-                }
+                _isGameActive = value;
+                OnPropertyChanged(nameof(IsGameActive));
             }
         }
 
@@ -189,15 +186,8 @@ namespace com.kizwiz.sipnsign.ViewModels
             get => _isGameOver;
             set
             {
-                if (_isGameOver != value)
-                {
-                    _isGameOver = value;
-                    if (value)
-                    {
-                        FinalScore = CurrentScore;
-                    }
-                    OnPropertyChanged(nameof(IsGameOver));
-                }
+                _isGameOver = value;
+                OnPropertyChanged(nameof(IsGameOver));
             }
         }
 
