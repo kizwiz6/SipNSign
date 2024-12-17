@@ -38,6 +38,8 @@ namespace com.kizwiz.sipnsign.Pages
                 _viewModel = new GameViewModel(videoService, logger, progressService);
                 Debug.WriteLine("ViewModel created");
 
+                _viewModel.SignRevealRequested += OnSignRevealRequested;
+
                 BindingContext = _viewModel;
                 Debug.WriteLine("BindingContext set");
 
@@ -59,6 +61,12 @@ namespace com.kizwiz.sipnsign.Pages
                 Debug.WriteLine($"Stack trace: {ex.StackTrace}");
                 throw; // Re-throw the exception to be caught by the caller
             }
+        }
+
+        private void OnSignRevealRequested(object sender, EventArgs e)
+        {
+            PerformModeVideo.SeekTo(TimeSpan.Zero);
+            PerformModeVideo.Play();
         }
 
         private async Task LoadCurrentVideo()

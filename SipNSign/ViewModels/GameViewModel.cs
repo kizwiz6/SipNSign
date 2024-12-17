@@ -99,6 +99,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         public Color PrimaryColor => _currentMode == GameMode.Guess ? _guessPrimaryColor : _performPrimaryColor;
         public Color ProgressBarColor => PrimaryColor;
         public Color ButtonBaseColor => PrimaryColor;
+        public event EventHandler SignRevealRequested;
         public Color FeedbackSuccessColor => _successColor.WithAlpha(0.9f);
         public Color FeedbackErrorColor => _errorColor.WithAlpha(0.9f);
         public string ModeTitle => _currentMode == GameMode.Guess ? "Guess Mode" : "Perform Mode";
@@ -539,6 +540,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         {
             _logger.Debug($"RevealSign called. CurrentSign is: {CurrentSign?.CorrectAnswer ?? "null"}");
             IsSignHidden = false;
+            SignRevealRequested?.Invoke(this, EventArgs.Empty);
         }
 
         private async Task HandleCorrectAnswer()
