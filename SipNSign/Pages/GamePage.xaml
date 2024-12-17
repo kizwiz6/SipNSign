@@ -283,6 +283,37 @@
 
     <ContentPage.Resources>
         <ResourceDictionary>
+            <!-- AnimatedButtonStyle -->
+            <Style x:Key="AnimatedButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{DynamicResource Primary}"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="FontSize" Value="18"/>
+                <Setter Property="CornerRadius" Value="10"/>
+                <Setter Property="Padding" Value="15,10"/>
+                <Setter Property="Margin" Value="5"/>
+                <Setter Property="MinimumHeightRequest" Value="44"/>
+            </Style>
+
+            <!-- Success Button -->
+            <Style x:Key="SuccessButton" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="ForestGreen"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="FontSize" Value="18"/>
+                <Setter Property="CornerRadius" Value="10"/>
+                <Setter Property="Padding" Value="15,10"/>
+                <Setter Property="Margin" Value="5"/>
+            </Style>
+
+            <!-- Danger Button -->
+            <Style x:Key="DangerButton" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="Crimson"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="FontSize" Value="18"/>
+                <Setter Property="CornerRadius" Value="10"/>
+                <Setter Property="Padding" Value="15,10"/>
+                <Setter Property="Margin" Value="5"/>
+            </Style>
+
             <!-- Styles -->
             <Style x:Key="ScoreStyle" TargetType="Label">
                 <Setter Property="FontSize" Value="24"/>
