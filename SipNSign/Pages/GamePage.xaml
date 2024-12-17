@@ -96,7 +96,7 @@
                         <!-- Feedback Overlay -->
                         <Frame IsVisible="{Binding IsFeedbackVisible}"
                               CornerRadius="20"
-                              Margin="20"
+                              Margin="20, 0"
                               BackgroundColor="{Binding FeedbackBackgroundColor}"
                               HasShadow="True">
                             <Label Text="{Binding FeedbackText}"
