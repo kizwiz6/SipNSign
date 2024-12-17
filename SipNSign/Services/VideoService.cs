@@ -16,13 +16,15 @@ namespace com.kizwiz.sipnsign.Services
         public VideoService()
         {
             _videoDirectory = FileSystem.AppDataDirectory;
-            Debug.WriteLine($"Video directory: {_videoDirectory}");
+            Debug.WriteLine($"Video directory initialized: {_videoDirectory}");
         }
 
         public async Task InitializeVideos()
         {
             try
             {
+                await _initializationLock.WaitAsync();
+
                 if (_isInitialized)
                 {
                     Debug.WriteLine("Videos already initialized");
@@ -51,8 +53,11 @@ namespace com.kizwiz.sipnsign.Services
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error in InitializeVideos: {ex.Message}");
-                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
                 throw;
+            }
+            finally
+            {
+                _initializationLock.Release();
             }
         }
 
@@ -60,24 +65,13 @@ namespace com.kizwiz.sipnsign.Services
         {
             try
             {
-                var path = Path.Combine(FileSystem.AppDataDirectory, videoFileName);
-                if (!File.Exists(path))
+                if (!_isInitialized)
                 {
-                    Debug.WriteLine($"Video file not found at {path}, attempting to copy");
-                    await CopyVideoToAppData(videoFileName);
+                    await InitializeVideos();
                 }
 
-                if (File.Exists(path))
-                {
-                    var fileInfo = new FileInfo(path);
-                    Debug.WriteLine($"Video file exists at {path}. Size: {fileInfo.Length} bytes");
-                    return path;
-                }
-                else
-                {
-                    Debug.WriteLine($"Failed to find or copy video file: {videoFileName}");
-                    throw new FileNotFoundException($"Video file not found: {videoFileName}");
-                }
+                var path = Path.Combine(_videoDirectory, videoFileName);
+                return File.Exists(path) ? path : throw new FileNotFoundException($"Video not found: {videoFileName}");
             }
             catch (Exception ex)
             {
@@ -90,40 +84,32 @@ namespace com.kizwiz.sipnsign.Services
         {
             try
             {
-                Debug.WriteLine($"=== Starting video copy: {videoFileName} ===");
-
-                var targetPath = Path.Combine(FileSystem.AppDataDirectory, videoFileName);
-                Debug.WriteLine($"Target path: {targetPath}");
+                var targetPath = Path.Combine(_videoDirectory, videoFileName);
 
                 if (File.Exists(targetPath))
                 {
-                    Debug.WriteLine($"File already exists, size: {new FileInfo(targetPath).Length} bytes");
+                    Debug.WriteLine($"File already exists: {targetPath}");
                     return;
                 }
 
-                using var stream = await FileSystem.OpenAppPackageFileAsync(videoFileName);
-                if (stream == null)
+                using var sourceStream = await FileSystem.OpenAppPackageFileAsync(videoFileName);
+                if (sourceStream == null)
                 {
-                    Debug.WriteLine("Failed to open source video file!");
-                    return;
+                    throw new FileNotFoundException($"Video file not found in app package: {videoFileName}");
                 }
 
                 using var fileStream = File.Create(targetPath);
-                await stream.CopyToAsync(fileStream);
+                await sourceStream.CopyToAsync(fileStream);
 
-                if (File.Exists(targetPath))
+                if (!File.Exists(targetPath))
                 {
-                    Debug.WriteLine($"File copied successfully, size: {new FileInfo(targetPath).Length} bytes");
-                }
-                else
-                {
-                    Debug.WriteLine("File copy failed - file does not exist after copy");
+                    throw new IOException($"Failed to create video file: {videoFileName}");
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error copying video: {ex.Message}");
-                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                Debug.WriteLine($"Error copying video {videoFileName}: {ex.Message}");
+                throw; 
             }
         }
     }

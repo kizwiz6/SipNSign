@@ -1,26 +1,37 @@
 using com.kizwiz.sipnsign.Enums;
 using System.Diagnostics;
-using com.kizwiz.sipnsign.Services;  // Add this
-using Microsoft.Extensions.DependencyInjection; // Add this
+using com.kizwiz.sipnsign.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace com.kizwiz.sipnsign.Pages
 {
     public partial class MainMenuPage : ContentPage
     {
         private readonly IServiceProvider _serviceProvider;
+        private readonly IVideoService _videoService;
+        private readonly ILoggingService _logger;
+        private readonly IProgressService _progressService;
+
 
         public MainMenuPage(IServiceProvider serviceProvider)
         {
             try
             {
-                _serviceProvider = serviceProvider;
-                System.Diagnostics.Debug.WriteLine("MainMenuPage: Initializing...");
                 InitializeComponent();
-                System.Diagnostics.Debug.WriteLine("MainMenuPage: Initialized successfully");
+
+                _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+
+                // Initialize services directly in constructor
+                _videoService = _serviceProvider.GetRequiredService<IVideoService>();
+                _logger = _serviceProvider.GetRequiredService<ILoggingService>();
+                _progressService = _serviceProvider.GetRequiredService<IProgressService>();
+
+                _logger?.Debug("MainMenuPage initialized successfully with all services");
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"MainMenuPage initialization error: {ex}");
+                DisplayAlert("Error", "Failed to initialize application services", "OK").Wait();
             }
         }
 
@@ -29,47 +40,39 @@ namespace com.kizwiz.sipnsign.Pages
             var logger = _serviceProvider?.GetService<ILoggingService>();
             try
             {
-                logger?.Error("Starting Guess Mode initialization");
-                if (_serviceProvider == null)
-                {
-                    logger?.Error("ServiceProvider is null!");
-                    throw new InvalidOperationException("ServiceProvider is null");
-                }
+                logger?.Debug("Starting Guess Mode initialization");
+                logger?.Debug($"_serviceProvider is null: {_serviceProvider == null}");
 
-                logger?.Error("Getting VideoService");
-                var videoService = _serviceProvider.GetRequiredService<IVideoService>();
+                var videoService = _videoService ?? _serviceProvider?.GetService<IVideoService>();
+                logger?.Debug($"videoService is null: {videoService == null}");
 
-                logger?.Error("Getting LoggingService");
-                var progressService = _serviceProvider.GetRequiredService<IProgressService>();
+                var loggingService = _logger ?? _serviceProvider?.GetService<ILoggingService>();
+                logger?.Debug($"loggingService is null: {loggingService == null}");
 
-                logger?.Error("Initializing Videos");
+                var progressService = _progressService ?? _serviceProvider?.GetService<IProgressService>();
+                logger?.Debug($"progressService is null: {progressService == null}");
+
+                logger?.Debug("Calling InitializeVideos");
                 await videoService.InitializeVideos();
+                logger?.Debug("InitializeVideos completed");
 
-                logger?.Error("Creating GamePage");
-                var gamePage = new GamePage(videoService, logger, progressService);
+                logger?.Debug("Creating GamePage");
+                var gamePage = new GamePage(videoService, loggingService, progressService);
+                logger?.Debug("GamePage created");
 
-                logger?.Error("Setting game mode");
-                if (gamePage.ViewModel == null)
-                {
-                    logger?.Error("ViewModel is null!");
-                    throw new InvalidOperationException("ViewModel not initialized");
-                }
-
+                logger?.Debug("Setting CurrentMode");
                 gamePage.ViewModel.CurrentMode = GameMode.Guess;
-                logger?.Error("Game mode set successfully");
+                logger?.Debug("CurrentMode set");
 
-                logger?.Error("Starting navigation");
+                logger?.Debug($"Navigation is null: {Navigation == null}");
                 await Navigation.PushAsync(gamePage);
+                logger?.Debug("Navigation completed");
             }
             catch (Exception ex)
             {
                 logger?.Error($"Critical error: {ex.Message}");
                 logger?.Error($"Stack trace: {ex.StackTrace}");
-                if (ex.InnerException != null)
-                {
-                    logger?.Error($"Inner exception: {ex.InnerException.Message}");
-                }
-                await DisplayAlert("Error", "Unable to start game. Please try again.", "OK");
+                await DisplayAlert("Error", "Unable to start game. Please restart the application.", "OK");
             }
         }
 

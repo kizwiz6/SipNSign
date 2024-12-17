@@ -48,41 +48,31 @@ public static class MauiProgram
             };
         });
 
-        builder.Services.AddSingleton<IServiceProvider>(sp =>
-        {
-            try
-            {
-                return sp;
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error initializing ServiceProvider: {ex}");
-                throw;
-            }
-        });
+        //builder.Services.AddSingleton<IServiceProvider>(sp =>
+        //{
+        //    try
+        //    {
+        //        return sp;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Debug.WriteLine($"Error initializing ServiceProvider: {ex}");
+        //        throw;
+        //    }
+        //});
 
         try
         {
             // Register core services
             builder.Services.AddSingleton<IVideoService, VideoService>();
             builder.Services.AddSingleton<ILoggingService, LoggingService>();
-            builder.Services.AddSingleton<IProgressService>(serviceProvider =>
-            {
-                try
-                {
-                    return new ProgressService();
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Failed to create ProgressService: {ex.Message}");
-                    throw;
-                }
-            });
+            builder.Services.AddSingleton<IProgressService, ProgressService>();
             builder.Services.AddSingleton<SignRepository>();
             builder.Services.AddSingleton<IThemeService, ThemeService>();
 
             // Register pages and viewmodels
             builder.Services.AddSingleton<App>();
+            builder.Services.AddSingleton<AppShell>();
             builder.Services.AddTransient<MainMenuPage>();
             builder.Services.AddTransient<GamePage>();
             builder.Services.AddTransient<GameViewModel>();

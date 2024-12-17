@@ -24,12 +24,23 @@ namespace com.kizwiz.sipnsign.Pages
         {
             try
             {
-                _videoService = videoService;
-                InitializeComponent();
-                _viewModel = new GameViewModel(videoService, logger, progressService);
-                BindingContext = _viewModel;
+                if (videoService == null) throw new ArgumentNullException(nameof(videoService));
+                if (logger == null) throw new ArgumentNullException(nameof(logger));
+                if (progressService == null) throw new ArgumentNullException(nameof(progressService));
 
-                Debug.WriteLine("Setting up PropertyChanged handler");
+                Debug.WriteLine("GamePage constructor started");
+                InitializeComponent();
+                Debug.WriteLine("InitializeComponent completed");
+
+                _videoService = videoService;
+                Debug.WriteLine("Video service assigned");
+
+                _viewModel = new GameViewModel(videoService, logger, progressService);
+                Debug.WriteLine("ViewModel created");
+
+                BindingContext = _viewModel;
+                Debug.WriteLine("BindingContext set");
+
                 _viewModel.PropertyChanged += async (s, e) =>
                 {
                     Debug.WriteLine($"PropertyChanged event fired for: {e.PropertyName}");
@@ -40,11 +51,13 @@ namespace com.kizwiz.sipnsign.Pages
                         Debug.WriteLine("LoadCurrentVideo completed");
                     }
                 };
+                Debug.WriteLine("GamePage constructor completed successfully");
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error in GamePage constructor: {ex.Message}");
                 Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                throw; // Re-throw the exception to be caught by the caller
             }
         }
 
