@@ -1,6 +1,7 @@
 ﻿using com.kizwiz.sipnsign.Enums;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -54,25 +55,40 @@ namespace com.kizwiz.sipnsign.Services
         public ThemeColors CurrentTheme => ThemeDefinitions[GetCurrentTheme()];
 
         /// <summary>
-        /// Changes the application theme and updates all resources
+        /// Changes the application theme and updates all resources.
         /// </summary>
+        /// <param name="theme">The theme to set for the application.</param>
         public void SetTheme(CustomAppTheme theme)
         {
+            // Save the selected theme to preferences
             Preferences.Set(THEME_KEY, theme.ToString());
+
+            // Retrieve theme color definitions
             var colors = ThemeDefinitions[theme];
 
-            var mergedDict = Application.Current.Resources.MergedDictionaries;
-            if (mergedDict != null)
+            // Safely check and update application resources
+            if (Application.Current?.Resources != null)
             {
-                Application.Current.Resources["AppBackground1"] = colors.Background1;
-                Application.Current.Resources["AppBackground2"] = colors.Background2;
-                Application.Current.Resources["Primary"] = colors.Primary;
-                Application.Current.Resources["Secondary"] = colors.Secondary;
-                Application.Current.Resources["TextColor"] = colors.Text;
+                var mergedDict = Application.Current.Resources.MergedDictionaries;
 
-                // Update mode-specific colors to match theme
-                Application.Current.Resources["GuessMode"] = colors.Primary;
-                Application.Current.Resources["PerformMode"] = colors.Secondary;
+                if (mergedDict != null)
+                {
+                    // Update resources with the new theme colors
+                    Application.Current.Resources["AppBackground1"] = colors.Background1;
+                    Application.Current.Resources["AppBackground2"] = colors.Background2;
+                    Application.Current.Resources["Primary"] = colors.Primary;
+                    Application.Current.Resources["Secondary"] = colors.Secondary;
+                    Application.Current.Resources["TextColor"] = colors.Text;
+
+                    // Update mode-specific colors to match theme
+                    Application.Current.Resources["GuessMode"] = colors.Primary;
+                    Application.Current.Resources["PerformMode"] = colors.Secondary;
+                }
+            }
+            else
+            {
+                // Log a warning if resources are null
+                Debug.WriteLine("Application.Current or Application.Current.Resources is null. Theme update aborted.");
             }
         }
 
@@ -87,14 +103,33 @@ namespace com.kizwiz.sipnsign.Services
     }
 
     /// <summary>
-    /// Represents a complete set of colors for a theme
+    /// Represents a complete set of colors for a theme.
     /// </summary>
     public class ThemeColors
     {
-        public Color Background1 { get; set; }
-        public Color Background2 { get; set; }
-        public Color Primary { get; set; }
-        public Color Secondary { get; set; }
-        public Color Text { get; set; }
+        /// <summary>
+        /// Gets or sets the primary background color.
+        /// </summary>
+        public Color Background1 { get; set; } = Colors.DarkBlue;
+
+        /// <summary>
+        /// Gets or sets the secondary background color.
+        /// </summary>
+        public Color Background2 { get; set; } = Colors.BlueViolet;
+
+        /// <summary>
+        /// Gets or sets the primary color.
+        /// </summary>
+        public Color Primary { get; set; } = Colors.Blue;
+
+        /// <summary>
+        /// Gets or sets the secondary color.
+        /// </summary>
+        public Color Secondary { get; set; } = Colors.Gray;
+
+        /// <summary>
+        /// Gets or sets the text color.
+        /// </summary>
+        public Color Text { get; set; } = Colors.Black;
     }
 }

@@ -236,9 +236,14 @@ namespace com.kizwiz.sipnsign.Services
             };
         }
 
+        /// <summary>
+        /// Retrieves the current user progress asynchronously.
+        /// </summary>
+        /// <returns>A Task that represents the asynchronous operation, with a UserProgress result.</returns>
         public async Task<UserProgress> GetUserProgressAsync()
         {
-            return _currentProgress;
+            // Simulate an async operation, even if there's none for now.
+            return await Task.FromResult(_currentProgress);
         }
 
         public async Task LogActivityAsync(ActivityLog activity)

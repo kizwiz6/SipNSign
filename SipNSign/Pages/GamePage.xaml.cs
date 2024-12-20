@@ -183,20 +183,17 @@ namespace com.kizwiz.sipnsign.Pages
 
             try
             {
-                var handler = mediaElement.Handler;
+                Debug.WriteLine("Starting SetupAndPlayVideo");
+                Debug.WriteLine($"MediaElement null? {mediaElement == null}");
+                Debug.WriteLine($"Source null? {source == null}");
 
+                // Capture handler in a local variable
+                var handler = mediaElement.Handler;
                 if (handler != null)
                 {
                     handler.DisconnectHandler();
                     Debug.WriteLine("Handler disconnected");
                 }
-
-                Debug.WriteLine("Starting SetupAndPlayVideo");
-                Debug.WriteLine($"MediaElement null? {mediaElement == null}");
-                Debug.WriteLine($"Source null? {source == null}");
-
-                mediaElement.Handler?.DisconnectHandler();
-                Debug.WriteLine("Handler disconnected");
 
                 mediaElement.Source = null;
                 Debug.WriteLine("Source cleared");
@@ -319,7 +316,7 @@ namespace com.kizwiz.sipnsign.Pages
             {
                 int questions = (int)e.NewValue;
                 Preferences.Set(Constants.GUESS_MODE_QUESTIONS_KEY, questions);
-                // Update settings page if it exists
+                // Update settings page
                 MessagingCenter.Send(this, "QuestionCountChanged", questions);
             }
         }

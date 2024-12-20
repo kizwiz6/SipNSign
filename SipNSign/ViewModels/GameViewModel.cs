@@ -44,6 +44,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private bool _isGameActive = true;
         private double _progressPercentage;
         private string _feedbackBackgroundColor;
+        private string _guessResults;
         private bool _isFeedbackVisible;
         private int _finalScore;
         private Color _button1Color = Colors.Transparent;
@@ -51,12 +52,11 @@ namespace com.kizwiz.sipnsign.ViewModels
         private Color _button3Color = Colors.Transparent;
         private Color _button4Color = Colors.Transparent;
         private GameMode _currentMode = GameMode.Guess;
-        private ICommand _playAgainCommand;
         private bool _isSignHidden = true;
-        private string _guessResults;
         private UserProgress _userProgress;
-        private ICommand _correctPerformCommand;
+        private ICommand _playAgainCommand;
         private ICommand _incorrectPerformCommand;
+        private ICommand _correctPerformCommand;
         #endregion
 
         /// <summary>
@@ -99,7 +99,10 @@ namespace com.kizwiz.sipnsign.ViewModels
         public Color PrimaryColor => _currentMode == GameMode.Guess ? _guessPrimaryColor : _performPrimaryColor;
         public Color ProgressBarColor => PrimaryColor;
         public Color ButtonBaseColor => PrimaryColor;
-        public event EventHandler SignRevealRequested;
+        /// <summary>
+        /// Event triggered when a sign reveal is requested.
+        /// </summary>
+        public event EventHandler? SignRevealRequested;
         public Color FeedbackSuccessColor => _successColor.WithAlpha(0.9f);
         public Color FeedbackErrorColor => _errorColor.WithAlpha(0.9f);
         public string ModeTitle => _currentMode == GameMode.Guess ? "Guess Mode" : "Perform Mode";
@@ -370,6 +373,15 @@ namespace com.kizwiz.sipnsign.ViewModels
         #endregion
 
         #region Constructor
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GameViewModel"/> class.
+        /// </summary>
+        /// <param name="videoService">The service responsible for video-related functionality.</param>
+        /// <param name="logger">The service responsible for logging.</param>
+        /// <param name="progressService">The service responsible for managing progress indicators.</param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if any of the required services are null.
+        /// </exception>
         public GameViewModel(IVideoService videoService, ILoggingService logger, IProgressService progressService)
         {
             _videoService = videoService ?? throw new ArgumentNullException(nameof(videoService));
@@ -382,6 +394,9 @@ namespace com.kizwiz.sipnsign.ViewModels
             _feedbackText = string.Empty;
             _feedbackBackgroundColor = string.Empty;
             _guessResults = string.Empty;
+
+            // Initialize SignRevealRequested with a default handler
+            SignRevealRequested = (sender, args) => { };
 
             InitializeCommands();
 
@@ -917,7 +932,14 @@ namespace com.kizwiz.sipnsign.ViewModels
             LoadNextSign();
         }
 
-        private async void EndGame()
+        /// <summary>
+        /// Ends the current game, stops the timer, and displays the user's results.
+        /// </summary>
+        /// <remarks>
+        /// This method stops the timer, marks the game as over, and calculates the number of correct guesses
+        /// based on the total number of questions. The results are displayed in a user-friendly format.
+        /// </remarks>
+        private void EndGame()
         {
             _timer?.Stop();
             IsGameActive = false;
