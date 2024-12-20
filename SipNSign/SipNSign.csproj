@@ -17,6 +17,9 @@
 
 		<AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
 
+		<!-- Enable nullability context support -->
+		<NullabilityInfoContextSupport>true</NullabilityInfoContextSupport>
+
         <!-- Platform Versions -->
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">17.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">17.0</SupportedOSPlatformVersion>
