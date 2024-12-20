@@ -230,7 +230,7 @@ namespace com.kizwiz.sipnsign.Pages
         /// <summary>
         /// Displays the game over screen with the final score.
         /// </summary>
-        private async void ShowGameOver()
+        private void ShowGameOver()
         {
             if (_viewModel != null)
             {
