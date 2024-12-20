@@ -1,18 +1,23 @@
 using com.kizwiz.sipnsign.Enums;
-using System.Diagnostics;
 using com.kizwiz.sipnsign.Services;
-using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
 
 namespace com.kizwiz.sipnsign.Pages
 {
     public partial class MainMenuPage : ContentPage
     {
-        private readonly IServiceProvider _serviceProvider;
-        private readonly IVideoService _videoService;
-        private readonly ILoggingService _logger;
-        private readonly IProgressService _progressService;
+        public required IServiceProvider _serviceProvider;
+        public required IVideoService _videoService;
+        public required ILoggingService _logger;
+        public required IProgressService _progressService;
 
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MainMenuPage"/> class.
+        /// This constructor sets up the required services via dependency injection and initializes the page.
+        /// </summary>
+        /// <param name="serviceProvider">The service provider used for dependency injection.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the <paramref name="serviceProvider"/> is null.</exception>
         public MainMenuPage(IServiceProvider serviceProvider)
         {
             try
@@ -26,11 +31,18 @@ namespace com.kizwiz.sipnsign.Pages
                 _logger = _serviceProvider.GetRequiredService<ILoggingService>();
                 _progressService = _serviceProvider.GetRequiredService<IProgressService>();
 
+                // Ensure _logger is initialized
+                if (_logger == null)
+                {
+                    throw new InvalidOperationException("Logging service failed to initialize.");
+                }
+
                 _logger?.Debug("MainMenuPage initialized successfully with all services");
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"MainMenuPage initialization error: {ex}");
+                // Displaying an error message to the user if initialization fails
                 DisplayAlert("Error", "Failed to initialize application services", "OK").Wait();
             }
         }
