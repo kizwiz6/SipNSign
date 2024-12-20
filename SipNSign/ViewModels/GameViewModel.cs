@@ -678,41 +678,56 @@ namespace com.kizwiz.sipnsign.ViewModels
             Button4Color = ButtonBaseColor;
         }
 
+        /// <summary>
+        /// Initializes and starts a timer with a specific duration.
+        /// The timer ticks every second, and the remaining time is updated accordingly.
+        /// If the timer duration is set to 0 (disabled), the timer will not start.
+        /// </summary>
         private void StartTimer()
         {
             try
             {
+                // Check if _timer is null and needs to be created
                 if (_timer == null)
                 {
                     Debug.WriteLine("Creating new timer");
-                    _timer = Application.Current?.Dispatcher?.CreateTimer();
-                    if (_timer != null)
+
+                    // Check if Application.Current and Dispatcher are non-null
+                    var dispatcher = Application.Current?.Dispatcher;
+                    if (dispatcher == null)
                     {
-                        _timer.Interval = TimeSpan.FromSeconds(1);
-                        _timer.Tick += Timer_Tick;
+                        Debug.WriteLine("Dispatcher is null. Cannot create timer.");
+                        return; // If Dispatcher is null, don't try to create the timer
                     }
-                    else
+
+                    _timer = dispatcher.CreateTimer();
+                    if (_timer == null)
                     {
-                        Debug.WriteLine("Failed to create timer");
-                        return;
+                        Debug.WriteLine("Failed to create timer.");
+                        return; // Exit if timer creation fails
                     }
+
+                    _timer.Interval = TimeSpan.FromSeconds(1);
+                    _timer.Tick += Timer_Tick;
                 }
 
+                // Get the timer duration from preferences
                 int duration = Preferences.Get(Constants.TIMER_DURATION_KEY, Constants.DEFAULT_TIMER_DURATION);
-                if (duration > 0)  // Only start timer if duration is not 0 (disabled)
+                if (duration > 0)  // Start the timer if duration is not zero (disabled)
                 {
                     RemainingTime = duration;
-                    _timer.Start();
+                    _timer?.Start();
                     Debug.WriteLine($"Timer started with duration: {duration}");
                 }
                 else
                 {
-                    RemainingTime = 0;  // Hide the timer display
-                    Debug.WriteLine("Timer disabled");
+                    RemainingTime = 0; // Hide the timer if duration is 0
+                    Debug.WriteLine("Timer disabled.");
                 }
             }
             catch (Exception ex)
             {
+                // Handle exceptions gracefully and log them
                 Debug.WriteLine($"Error in StartTimer: {ex.Message}");
                 Debug.WriteLine($"Stack trace: {ex.StackTrace}");
             }
