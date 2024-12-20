@@ -46,10 +46,10 @@ namespace com.kizwiz.sipnsign.ViewModels
         private string _feedbackBackgroundColor;
         private bool _isFeedbackVisible;
         private int _finalScore;
-        private Color _button1Color;
-        private Color _button2Color;
-        private Color _button3Color;
-        private Color _button4Color;
+        private Color _button1Color = Colors.Transparent;
+        private Color _button2Color = Colors.Transparent;
+        private Color _button3Color = Colors.Transparent;
+        private Color _button4Color = Colors.Transparent;
         private GameMode _currentMode = GameMode.Guess;
         private ICommand _playAgainCommand;
         private bool _isSignHidden = true;
@@ -379,6 +379,9 @@ namespace com.kizwiz.sipnsign.ViewModels
             // Initialize signs list first
             _signs = new SignRepository().GetSigns();
             _availableIndices = new List<int>();
+            _feedbackText = string.Empty;
+            _feedbackBackgroundColor = string.Empty;
+            _guessResults = string.Empty;
 
             InitializeCommands();
 
@@ -545,6 +548,8 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private async Task HandleCorrectAnswer()
         {
+            if (CurrentSign == null) return;
+
             CurrentScore++;
             await _progressService.LogActivityAsync(new ActivityLog
             {
