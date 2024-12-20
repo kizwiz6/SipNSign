@@ -14,6 +14,7 @@
     <!-- Add the button style in Resources -->
     <ContentPage.Resources>
         <ResourceDictionary>
+            <!-- Base menu button style -->
             <Style x:Key="MenuButton" TargetType="Button">
                 <Setter Property="Margin" Value="20,5"/>
                 <Setter Property="HeightRequest" Value="60"/>
@@ -23,9 +24,9 @@
                 <Setter Property="TextColor" Value="White"/>
                 <Setter Property="Shadow">
                     <Shadow Brush="Black"
-                            Offset="0,3"
-                            Radius="3"
-                            Opacity="0.3"/>
+                        Offset="0,3"
+                        Radius="3"
+                        Opacity="0.3"/>
                 </Setter>
             </Style>
         </ResourceDictionary>
@@ -62,23 +63,24 @@
 
         <!-- Menu Buttons -->
         <Button Text="Guess Mode"
-                Style="{StaticResource GuessModeButton}"
-                Clicked="OnGuessGameClicked"/>
+        Style="{StaticResource MenuButton}"
+        BackgroundColor="#007BFF"
+        Clicked="OnGuessGameClicked"/>
 
         <Button Text="Perform Mode"
-                Style="{StaticResource MenuButton}"
-                BackgroundColor="#4CAF50"
-                Clicked="OnPerformGameClicked"/>
+        Style="{StaticResource MenuButton}"
+        BackgroundColor="#4CAF50"
+        Clicked="OnPerformGameClicked"/>
 
         <Button Text="Progress"
-                Style="{StaticResource MenuButton}"
-                BackgroundColor="#FFC107"
-                Clicked="OnViewScoresClicked"/>
+        Style="{StaticResource MenuButton}"
+        BackgroundColor="#FFC107"
+        Clicked="OnViewScoresClicked"/>
 
         <Button Text="Settings"
-                Style="{StaticResource MenuButton}"
-                BackgroundColor="#FF5722"
-                Clicked="OnSettingsClicked"/>
+        Style="{StaticResource MenuButton}"
+        BackgroundColor="#FF5722"
+        Clicked="OnSettingsClicked"/>
 
         <!--<Button Text="View Debug Logs"
                 Style="{StaticResource MenuButton}"

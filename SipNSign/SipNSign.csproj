@@ -17,6 +17,9 @@
 
 		<AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
 
+		<!-- Enable nullability context support -->
+		<NullabilityInfoContextSupport>true</NullabilityInfoContextSupport>
+
         <!-- Platform Versions -->
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">17.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">17.0</SupportedOSPlatformVersion>
@@ -52,6 +55,7 @@
 
   <ItemGroup>
     <!-- Core MAUI Packages -->
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.71" />
     <PackageReference Include="Microsoft.Maui.Controls.Core" Version="8.0.71" />
     <PackageReference Include="Microsoft.Maui.Controls.Xaml" Version="8.0.71" />
@@ -60,7 +64,7 @@
     <PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.71" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
 
-	  <PackageReference Include="System.Text.Json" Version="8.0.0">
+	  <PackageReference Include="System.Text.Json" Version="9.0.0">
 		  <IncludeAssets>all</IncludeAssets>
 		  <ExcludeAssets>none</ExcludeAssets>
 		  <PrivateAssets>none</PrivateAssets>

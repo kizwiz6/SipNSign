@@ -133,6 +133,11 @@ namespace com.kizwiz.sipnsign.Pages
 
         private async Task<string> PrepareVideoPath()
         {
+            if (_viewModel?.CurrentSign?.VideoPath == null)
+            {
+                throw new InvalidOperationException("Current sign or video path is null");
+            }
+
             var videoFileName = Path.GetFileName(_viewModel.CurrentSign.VideoPath);
             var fullPath = await _videoService.GetVideoPath(videoFileName);
             Debug.WriteLine($"Video path: {fullPath}, Exists: {File.Exists(fullPath)}");
@@ -167,14 +172,28 @@ namespace com.kizwiz.sipnsign.Pages
 
         private async Task SetupAndPlayVideo(MediaElement mediaElement, MediaSource source)
         {
+            if (mediaElement == null)
+            {
+                throw new ArgumentNullException(nameof(mediaElement));
+            }
+            if (source == null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
             try
             {
                 Debug.WriteLine("Starting SetupAndPlayVideo");
                 Debug.WriteLine($"MediaElement null? {mediaElement == null}");
                 Debug.WriteLine($"Source null? {source == null}");
 
-                mediaElement.Handler?.DisconnectHandler();
-                Debug.WriteLine("Handler disconnected");
+                // Capture handler in a local variable
+                var handler = mediaElement.Handler;
+                if (handler != null)
+                {
+                    handler.DisconnectHandler();
+                    Debug.WriteLine("Handler disconnected");
+                }
 
                 mediaElement.Source = null;
                 Debug.WriteLine("Source cleared");
@@ -195,6 +214,7 @@ namespace com.kizwiz.sipnsign.Pages
             {
                 Debug.WriteLine($"Error in SetupAndPlayVideo: {ex.Message}");
                 Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                throw; // Re-throw to maintain the error chain
             }
         }
 
@@ -230,7 +250,7 @@ namespace com.kizwiz.sipnsign.Pages
         /// <summary>
         /// Displays the game over screen with the final score.
         /// </summary>
-        private async void ShowGameOver()
+        private void ShowGameOver()
         {
             if (_viewModel != null)
             {
@@ -296,7 +316,7 @@ namespace com.kizwiz.sipnsign.Pages
             {
                 int questions = (int)e.NewValue;
                 Preferences.Set(Constants.GUESS_MODE_QUESTIONS_KEY, questions);
-                // Update settings page if it exists
+                // Update settings page
                 MessagingCenter.Send(this, "QuestionCountChanged", questions);
             }
         }

@@ -54,10 +54,13 @@ namespace com.kizwiz.sipnsign.Pages
             }
         }
 
-        private void SaveSettings()
+        private async void SaveSettings()
         {
             _preferences.Set(Constants.FONT_SIZE_KEY, FontSizeStepper.Value);
-            Application.Current.MainPage.DisplayAlert("Settings Saved", "Your preferences have been updated", "OK");
+            if (Application.Current?.MainPage != null)
+            {
+                await Application.Current.MainPage.DisplayAlert("Settings Saved", "Your preferences have been updated", "OK");
+            }
         }
 
         private void OnFontSizeChanged(object sender, ValueChangedEventArgs e)
@@ -134,7 +137,7 @@ namespace com.kizwiz.sipnsign.Pages
 
         private void OnThemeSelected(object sender, EventArgs e)
         {
-            if (ThemePicker.SelectedItem is string selectedTheme)
+            if (ThemePicker.SelectedItem is string selectedTheme && Application.Current?.Resources != null)
             {
                 // Apply the selected theme
                 switch (selectedTheme)

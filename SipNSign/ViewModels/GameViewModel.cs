@@ -44,19 +44,19 @@ namespace com.kizwiz.sipnsign.ViewModels
         private bool _isGameActive = true;
         private double _progressPercentage;
         private string _feedbackBackgroundColor;
+        private string _guessResults;
         private bool _isFeedbackVisible;
         private int _finalScore;
-        private Color _button1Color;
-        private Color _button2Color;
-        private Color _button3Color;
-        private Color _button4Color;
+        private Color _button1Color = Colors.Transparent;
+        private Color _button2Color = Colors.Transparent;
+        private Color _button3Color = Colors.Transparent;
+        private Color _button4Color = Colors.Transparent;
         private GameMode _currentMode = GameMode.Guess;
-        private ICommand _playAgainCommand;
         private bool _isSignHidden = true;
-        private string _guessResults;
         private UserProgress _userProgress;
-        private ICommand _correctPerformCommand;
+        private ICommand _playAgainCommand;
         private ICommand _incorrectPerformCommand;
+        private ICommand _correctPerformCommand;
         #endregion
 
         /// <summary>
@@ -99,7 +99,10 @@ namespace com.kizwiz.sipnsign.ViewModels
         public Color PrimaryColor => _currentMode == GameMode.Guess ? _guessPrimaryColor : _performPrimaryColor;
         public Color ProgressBarColor => PrimaryColor;
         public Color ButtonBaseColor => PrimaryColor;
-        public event EventHandler SignRevealRequested;
+        /// <summary>
+        /// Event triggered when a sign reveal is requested.
+        /// </summary>
+        public event EventHandler? SignRevealRequested;
         public Color FeedbackSuccessColor => _successColor.WithAlpha(0.9f);
         public Color FeedbackErrorColor => _errorColor.WithAlpha(0.9f);
         public string ModeTitle => _currentMode == GameMode.Guess ? "Guess Mode" : "Perform Mode";
@@ -370,6 +373,15 @@ namespace com.kizwiz.sipnsign.ViewModels
         #endregion
 
         #region Constructor
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GameViewModel"/> class.
+        /// </summary>
+        /// <param name="videoService">The service responsible for video-related functionality.</param>
+        /// <param name="logger">The service responsible for logging.</param>
+        /// <param name="progressService">The service responsible for managing progress indicators.</param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if any of the required services are null.
+        /// </exception>
         public GameViewModel(IVideoService videoService, ILoggingService logger, IProgressService progressService)
         {
             _videoService = videoService ?? throw new ArgumentNullException(nameof(videoService));
@@ -379,6 +391,12 @@ namespace com.kizwiz.sipnsign.ViewModels
             // Initialize signs list first
             _signs = new SignRepository().GetSigns();
             _availableIndices = new List<int>();
+            _feedbackText = string.Empty;
+            _feedbackBackgroundColor = string.Empty;
+            _guessResults = string.Empty;
+
+            // Initialize SignRevealRequested with a default handler
+            SignRevealRequested = (sender, args) => { };
 
             InitializeCommands();
 
@@ -545,6 +563,8 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private async Task HandleCorrectAnswer()
         {
+            if (CurrentSign == null) return;
+
             CurrentScore++;
             await _progressService.LogActivityAsync(new ActivityLog
             {
@@ -658,41 +678,56 @@ namespace com.kizwiz.sipnsign.ViewModels
             Button4Color = ButtonBaseColor;
         }
 
+        /// <summary>
+        /// Initializes and starts a timer with a specific duration.
+        /// The timer ticks every second, and the remaining time is updated accordingly.
+        /// If the timer duration is set to 0 (disabled), the timer will not start.
+        /// </summary>
         private void StartTimer()
         {
             try
             {
+                // Check if _timer is null and needs to be created
                 if (_timer == null)
                 {
                     Debug.WriteLine("Creating new timer");
-                    _timer = Application.Current?.Dispatcher?.CreateTimer();
-                    if (_timer != null)
+
+                    // Check if Application.Current and Dispatcher are non-null
+                    var dispatcher = Application.Current?.Dispatcher;
+                    if (dispatcher == null)
                     {
-                        _timer.Interval = TimeSpan.FromSeconds(1);
-                        _timer.Tick += Timer_Tick;
+                        Debug.WriteLine("Dispatcher is null. Cannot create timer.");
+                        return; // If Dispatcher is null, don't try to create the timer
                     }
-                    else
+
+                    _timer = dispatcher.CreateTimer();
+                    if (_timer == null)
                     {
-                        Debug.WriteLine("Failed to create timer");
-                        return;
+                        Debug.WriteLine("Failed to create timer.");
+                        return; // Exit if timer creation fails
                     }
+
+                    _timer.Interval = TimeSpan.FromSeconds(1);
+                    _timer.Tick += Timer_Tick;
                 }
 
+                // Get the timer duration from preferences
                 int duration = Preferences.Get(Constants.TIMER_DURATION_KEY, Constants.DEFAULT_TIMER_DURATION);
-                if (duration > 0)  // Only start timer if duration is not 0 (disabled)
+                if (duration > 0)  // Start the timer if duration is not zero (disabled)
                 {
                     RemainingTime = duration;
-                    _timer.Start();
+                    _timer?.Start();
                     Debug.WriteLine($"Timer started with duration: {duration}");
                 }
                 else
                 {
-                    RemainingTime = 0;  // Hide the timer display
-                    Debug.WriteLine("Timer disabled");
+                    RemainingTime = 0; // Hide the timer if duration is 0
+                    Debug.WriteLine("Timer disabled.");
                 }
             }
             catch (Exception ex)
             {
+                // Handle exceptions gracefully and log them
                 Debug.WriteLine($"Error in StartTimer: {ex.Message}");
                 Debug.WriteLine($"Stack trace: {ex.StackTrace}");
             }
@@ -856,6 +891,12 @@ namespace com.kizwiz.sipnsign.ViewModels
         {
             try
             {
+                if (Application.Current?.MainPage?.Navigation == null)
+                {
+                    Debug.WriteLine("Navigation service not available");
+                    return;
+                }
+
                 Debug.WriteLine("Creating settings page");
                 var settingsPage = new SettingsPage();
                 Debug.WriteLine("Pushing settings page");
@@ -866,7 +907,11 @@ namespace com.kizwiz.sipnsign.ViewModels
             {
                 Debug.WriteLine($"Navigation error: {ex.Message}");
                 Debug.WriteLine($"Stack trace: {ex.StackTrace}");
-                await Application.Current.MainPage.DisplayAlert("Error", "Unable to open settings", "OK");
+
+                if (Application.Current?.MainPage != null)
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", "Unable to open settings", "OK");
+                }
             }
         });
 
@@ -902,7 +947,14 @@ namespace com.kizwiz.sipnsign.ViewModels
             LoadNextSign();
         }
 
-        private async void EndGame()
+        /// <summary>
+        /// Ends the current game, stops the timer, and displays the user's results.
+        /// </summary>
+        /// <remarks>
+        /// This method stops the timer, marks the game as over, and calculates the number of correct guesses
+        /// based on the total number of questions. The results are displayed in a user-friendly format.
+        /// </remarks>
+        private void EndGame()
         {
             _timer?.Stop();
             IsGameActive = false;
