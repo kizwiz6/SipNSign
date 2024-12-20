@@ -133,6 +133,11 @@ namespace com.kizwiz.sipnsign.Pages
 
         private async Task<string> PrepareVideoPath()
         {
+            if (_viewModel?.CurrentSign?.VideoPath == null)
+            {
+                throw new InvalidOperationException("Current sign or video path is null");
+            }
+
             var videoFileName = Path.GetFileName(_viewModel.CurrentSign.VideoPath);
             var fullPath = await _videoService.GetVideoPath(videoFileName);
             Debug.WriteLine($"Video path: {fullPath}, Exists: {File.Exists(fullPath)}");
@@ -167,8 +172,25 @@ namespace com.kizwiz.sipnsign.Pages
 
         private async Task SetupAndPlayVideo(MediaElement mediaElement, MediaSource source)
         {
+            if (mediaElement == null)
+            {
+                throw new ArgumentNullException(nameof(mediaElement));
+            }
+            if (source == null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
             try
             {
+                var handler = mediaElement.Handler;
+
+                if (handler != null)
+                {
+                    handler.DisconnectHandler();
+                    Debug.WriteLine("Handler disconnected");
+                }
+
                 Debug.WriteLine("Starting SetupAndPlayVideo");
                 Debug.WriteLine($"MediaElement null? {mediaElement == null}");
                 Debug.WriteLine($"Source null? {source == null}");
@@ -195,6 +217,7 @@ namespace com.kizwiz.sipnsign.Pages
             {
                 Debug.WriteLine($"Error in SetupAndPlayVideo: {ex.Message}");
                 Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                throw; // Re-throw to maintain the error chain
             }
         }
 

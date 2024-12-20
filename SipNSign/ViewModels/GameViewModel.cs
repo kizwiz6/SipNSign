@@ -856,6 +856,12 @@ namespace com.kizwiz.sipnsign.ViewModels
         {
             try
             {
+                if (Application.Current?.MainPage?.Navigation == null)
+                {
+                    Debug.WriteLine("Navigation service not available");
+                    return;
+                }
+
                 Debug.WriteLine("Creating settings page");
                 var settingsPage = new SettingsPage();
                 Debug.WriteLine("Pushing settings page");
@@ -866,7 +872,11 @@ namespace com.kizwiz.sipnsign.ViewModels
             {
                 Debug.WriteLine($"Navigation error: {ex.Message}");
                 Debug.WriteLine($"Stack trace: {ex.StackTrace}");
-                await Application.Current.MainPage.DisplayAlert("Error", "Unable to open settings", "OK");
+
+                if (Application.Current?.MainPage != null)
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", "Unable to open settings", "OK");
+                }
             }
         });
 

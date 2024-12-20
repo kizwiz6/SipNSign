@@ -43,7 +43,7 @@ public partial class AppShell : Shell
         }
     }
 
-    private async Task GoToAsync(string route, string title = null)
+    private async Task GoToAsync(string route, string? title = null)
     {
         try
         {
