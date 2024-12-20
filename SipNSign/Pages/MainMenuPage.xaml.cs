@@ -35,22 +35,44 @@ namespace com.kizwiz.sipnsign.Pages
             }
         }
 
+        /// <summary>
+        /// Handles the Guess Game button click event. 
+        /// Initialises services and navigates to the Guess Game page.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event arguments.</param>
         private async void OnGuessGameClicked(object sender, EventArgs e)
         {
             var logger = _serviceProvider?.GetService<ILoggingService>();
+
             try
             {
                 logger?.Debug("Starting Guess Mode initialization");
                 logger?.Debug($"_serviceProvider is null: {_serviceProvider == null}");
 
                 var videoService = _videoService ?? _serviceProvider?.GetService<IVideoService>();
-                logger?.Debug($"videoService is null: {videoService == null}");
+                if (videoService == null)
+                {
+                    logger?.Error("videoService is null");
+                    await DisplayAlert("Error", "Unable to initialize video service.", "OK");
+                    return;
+                }
 
                 var loggingService = _logger ?? _serviceProvider?.GetService<ILoggingService>();
-                logger?.Debug($"loggingService is null: {loggingService == null}");
+                if (loggingService == null)
+                {
+                    logger?.Error("loggingService is null");
+                    await DisplayAlert("Error", "Unable to initialize logging service.", "OK");
+                    return;
+                }
 
                 var progressService = _progressService ?? _serviceProvider?.GetService<IProgressService>();
-                logger?.Debug($"progressService is null: {progressService == null}");
+                if (progressService == null)
+                {
+                    logger?.Error("progressService is null");
+                    await DisplayAlert("Error", "Unable to initialize progress service.", "OK");
+                    return;
+                }
 
                 logger?.Debug("Calling InitializeVideos");
                 await videoService.InitializeVideos();
@@ -64,7 +86,12 @@ namespace com.kizwiz.sipnsign.Pages
                 gamePage.ViewModel.CurrentMode = GameMode.Guess;
                 logger?.Debug("CurrentMode set");
 
-                logger?.Debug($"Navigation is null: {Navigation == null}");
+                if (Navigation == null)
+                {
+                    logger?.Error("Navigation is null");
+                    await DisplayAlert("Error", "Navigation is not initialized.", "OK");
+                    return;
+                }
                 await Navigation.PushAsync(gamePage);
                 logger?.Debug("Navigation completed");
             }
