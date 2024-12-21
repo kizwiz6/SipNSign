@@ -13,6 +13,11 @@ namespace com.kizwiz.sipnsign.Enums
     {
         Blue,   // Default theme
         Dark,
-        Light
+        Light,
+        Sunset,
+        Forest,
+        Ocean,
+        Neon,
+        Monochrome
     }
 }

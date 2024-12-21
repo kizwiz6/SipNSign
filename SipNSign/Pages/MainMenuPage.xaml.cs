@@ -91,7 +91,7 @@ namespace com.kizwiz.sipnsign.Pages
                 logger?.Debug("InitializeVideos completed");
 
                 logger?.Debug("Creating GamePage");
-                var gamePage = new GamePage(videoService, loggingService, progressService);
+                var gamePage = new GamePage(_serviceProvider, videoService, loggingService, progressService);
                 logger?.Debug("GamePage created");
 
                 logger?.Debug("Setting CurrentMode");
@@ -120,7 +120,7 @@ namespace com.kizwiz.sipnsign.Pages
             var videoService = _serviceProvider.GetRequiredService<IVideoService>();
             var logger = _serviceProvider.GetRequiredService<ILoggingService>();
             var progressService = _serviceProvider.GetRequiredService<IProgressService>();
-            var gamePage = new GamePage(videoService, logger, progressService);
+            var gamePage = new GamePage(_serviceProvider, videoService, logger, progressService);
             gamePage.ViewModel.CurrentMode = GameMode.Perform;
             await Navigation.PushAsync(gamePage);
         }
@@ -178,11 +178,14 @@ namespace com.kizwiz.sipnsign.Pages
             try
             {
                 logger?.Error("Creating settings page - start");
+
                 if (_serviceProvider == null)
                 {
                     logger?.Error("_serviceProvider is null!");
                     throw new InvalidOperationException("ServiceProvider not available");
                 }
+
+                var themeService = _serviceProvider.GetRequiredService<IThemeService>();
 
                 // Try to get required services for settings
                 var videoService = _serviceProvider.GetService<IVideoService>();
@@ -194,7 +197,7 @@ namespace com.kizwiz.sipnsign.Pages
                 var progressService = _serviceProvider.GetService<IProgressService>();
                 logger?.Error("Got progress service");
 
-                var settingsPage = new SettingsPage();
+                var settingsPage = new SettingsPage(themeService);
                 logger?.Error("Settings page created");
 
                 if (Navigation == null)
@@ -203,7 +206,7 @@ namespace com.kizwiz.sipnsign.Pages
                     throw new InvalidOperationException("Navigation not available");
                 }
 
-                await Navigation.PushAsync(settingsPage);
+                await Navigation?.PushAsync(settingsPage);
                 logger?.Error("Settings navigation completed");
             }
             catch (Exception ex)

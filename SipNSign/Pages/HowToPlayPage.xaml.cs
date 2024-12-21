@@ -17,7 +17,7 @@ public partial class HowToPlayPage : ContentPage
         var videoService = _serviceProvider.GetRequiredService<IVideoService>();
         var logger = _serviceProvider.GetRequiredService<ILoggingService>();
         var progressService = _serviceProvider.GetRequiredService<IProgressService>();
-        var gamePage = new GamePage(videoService, logger, progressService);
+        var gamePage = new GamePage(_serviceProvider, videoService, logger, progressService);
         Navigation.PushAsync(gamePage);
     }
 }

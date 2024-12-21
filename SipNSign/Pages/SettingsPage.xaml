@@ -67,7 +67,13 @@
                                 <x:String>Blue</x:String>
                                 <x:String>Dark</x:String>
                                 <x:String>Light</x:String>
+                                <x:String>Sunset</x:String>
+                                <x:String>Forest</x:String>
+                                <x:String>Ocean</x:String>
+                                <x:String>Neon</x:String>
+                                <x:String>Monochrome</x:String>
                             </x:Array>
+
                         </Picker.ItemsSource>
                     </Picker>
                 </VerticalStackLayout>

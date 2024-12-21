@@ -4,15 +4,70 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <!-- Note: For Android please see also Platforms\Android\Resources\values\colors.xml -->
+    <!-- Theme Colors - Define these first -->
+    <!-- Blue Theme -->
+    <Color x:Key="BlueBackground1">#1a237e</Color>
+    <Color x:Key="BlueBackground2">#0d47a1</Color>
+    <Color x:Key="BluePrimary">#FFA726</Color>
+    <Color x:Key="BlueSecondary">#FFD95B</Color>
+    <Color x:Key="BlueText">White</Color>
 
-    <!-- Dynamic Theme Colors -->
+    <!-- Dark Theme - Let's add some nice purple accents -->
+    <Color x:Key="DarkBackground1">#121212</Color>
+    <Color x:Key="DarkBackground2">#1E1E1E</Color>
+    <Color x:Key="DarkPrimary">#BB86FC</Color>
+    <Color x:Key="DarkSecondary">#03DAC6</Color>
+    <Color x:Key="DarkText">White</Color>
+
+    <!-- Light Theme - With darker text and softer colors -->
+    <Color x:Key="LightBackground1">#FFFFFF</Color>
+    <Color x:Key="LightBackground2">#F5F5F5</Color>
+    <Color x:Key="LightPrimary">#1976D2</Color>
+    <Color x:Key="LightSecondary">#2196F3</Color>
+    <Color x:Key="LightText">#1E1E1E</Color>
+    <!-- Dark text for light theme -->
+
+    <!-- Current Theme Colors -->
     <Color x:Key="AppBackground1">#1a237e</Color>
-    <!-- Will be updated by ThemeService -->
     <Color x:Key="AppBackground2">#0d47a1</Color>
     <Color x:Key="Primary">#FFA726</Color>
     <Color x:Key="Secondary">#FFD95B</Color>
-    <Color x:Key="TextColor">#FFFFFF</Color>
+    <Color x:Key="TextColor">White</Color>
+
+    <!-- Sunset Theme -->
+    <Color x:Key="SunsetBackground1">#FF512F</Color>
+    <Color x:Key="SunsetBackground2">#DD2476</Color>
+    <Color x:Key="SunsetPrimary">#FFA07A</Color>
+    <Color x:Key="SunsetSecondary">#FFD700</Color>
+    <Color x:Key="SunsetText">White</Color>
+
+    <!-- Forest Theme -->
+    <Color x:Key="ForestBackground1">#2D5A27</Color>
+    <Color x:Key="ForestBackground2">#1B4332</Color>
+    <Color x:Key="ForestPrimary">#95D5B2</Color>
+    <Color x:Key="ForestSecondary">#74C69D</Color>
+    <Color x:Key="ForestText">White</Color>
+
+    <!-- Ocean Theme -->
+    <Color x:Key="OceanBackground1">#1A5F7A</Color>
+    <Color x:Key="OceanBackground2">#086E7D</Color>
+    <Color x:Key="OceanPrimary">#00FFE1</Color>
+    <Color x:Key="OceanSecondary">#98DFD6</Color>
+    <Color x:Key="OceanText">White</Color>
+
+    <!-- Neon Theme -->
+    <Color x:Key="NeonBackground1">#0C0032</Color>
+    <Color x:Key="NeonBackground2">#190061</Color>
+    <Color x:Key="NeonPrimary">#FF00FF</Color>
+    <Color x:Key="NeonSecondary">#00FF9F</Color>
+    <Color x:Key="NeonText">#00FF9F</Color>
+
+    <!-- Monochrome Theme -->
+    <Color x:Key="MonochromeBackground1">#2C3E50</Color>
+    <Color x:Key="MonochromeBackground2">#34495E</Color>
+    <Color x:Key="MonochromePrimary">#ECF0F1</Color>
+    <Color x:Key="MonochromeSecondary">#BDC3C7</Color>
+    <Color x:Key="MonochromeText">White</Color>
 
     <!-- Primary Colors -->
     <Color x:Key="PrimaryDark">#ac99ea</Color>
@@ -57,8 +112,8 @@
         <Setter Property="Background">
             <Setter.Value>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                    <GradientStop Color="{StaticResource AppBackground1}" Offset="0.0" />
-                    <GradientStop Color="{StaticResource AppBackground2}" Offset="1.0" />
+                    <GradientStop Color="{DynamicResource AppBackground1}" Offset="0.0" />
+                    <GradientStop Color="{DynamicResource AppBackground2}" Offset="1.0" />
                 </LinearGradientBrush>
             </Setter.Value>
         </Setter>
