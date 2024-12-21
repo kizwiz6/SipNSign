@@ -124,5 +124,10 @@
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Platforms\Android\Resources\drawable-hdpi\" />
+    <Folder Include="Platforms\Android\Resources\drawable-xhdpi\" />
+    <Folder Include="Platforms\Android\Resources\drawable-xxhdpi\" />
+  </ItemGroup>
 
 </Project>
