@@ -29,6 +29,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private readonly IVideoService _videoService;
         private readonly ILoggingService _logger;
         private readonly IProgressService _progressService;
+        private readonly IServiceProvider _serviceProvider;
         private const int QuestionTimeLimit = 10;
         private const string TAG = "SipNSignApp";
         private int _remainingTime;
@@ -376,17 +377,20 @@ namespace com.kizwiz.sipnsign.ViewModels
         /// <summary>
         /// Initializes a new instance of the <see cref="GameViewModel"/> class.
         /// </summary>
+        /// <param name="serviceProvider">The service responsible for service-related functionality.</param>
         /// <param name="videoService">The service responsible for video-related functionality.</param>
         /// <param name="logger">The service responsible for logging.</param>
         /// <param name="progressService">The service responsible for managing progress indicators.</param>
         /// <exception cref="ArgumentNullException">
         /// Thrown if any of the required services are null.
         /// </exception>
-        public GameViewModel(IVideoService videoService, ILoggingService logger, IProgressService progressService)
+        public GameViewModel(IServiceProvider serviceProvider, IVideoService videoService, ILoggingService logger, IProgressService progressService)
         {
+            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             _videoService = videoService ?? throw new ArgumentNullException(nameof(videoService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _progressService = progressService ?? throw new ArgumentNullException(nameof(progressService));
+
 
             // Initialize signs list first
             _signs = new SignRepository().GetSigns();
@@ -898,7 +902,8 @@ namespace com.kizwiz.sipnsign.ViewModels
                 }
 
                 Debug.WriteLine("Creating settings page");
-                var settingsPage = new SettingsPage();
+                var themeService = _serviceProvider.GetRequiredService<IThemeService>();
+                var settingsPage = new SettingsPage(themeService);
                 Debug.WriteLine("Pushing settings page");
                 await Application.Current.MainPage.Navigation.PushAsync(settingsPage);
                 Debug.WriteLine("Navigation completed");

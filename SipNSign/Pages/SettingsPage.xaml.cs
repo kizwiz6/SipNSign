@@ -12,21 +12,16 @@ namespace com.kizwiz.sipnsign.Pages
     /// </summary>
     public partial class SettingsPage : ContentPage
     {
-        private IPreferences _preferences;
-        private readonly ThemeService _themeService;
+        private readonly IPreferences _preferences = Preferences.Default;
+        private readonly IThemeService _themeService;
 
-        public SettingsPage()
+        public SettingsPage(IThemeService themeService)
         {
             InitializeComponent();
-            _preferences = Preferences.Default;
-            _themeService = new ThemeService();
-            ThemePicker.SelectedItem = _themeService.GetCurrentTheme().ToString();
-            LoadSavedSettings();
+            _themeService = themeService ?? throw new ArgumentNullException(nameof(themeService));
 
-            MessagingCenter.Subscribe<GamePage, int>(this, "QuestionCountChanged", (sender, count) =>
-            {
-                QuestionsSlider.Value = count;
-            });
+            // Set initial theme picker selection
+            ThemePicker.SelectedItem = _themeService.GetCurrentTheme().ToString();
         }
 
         private void LoadSavedSettings()
@@ -135,31 +130,45 @@ namespace com.kizwiz.sipnsign.Pages
             }
         }
 
+        /// <summary>
+        /// Handles theme selection changes from the theme picker dropdown.
+        /// Updates the application's theme using ThemeService.
+        /// </summary>
+        /// <param name="sender">The source of the event (ThemePicker)</param>
+        /// <param name="e">Event arguments</param>
         private void OnThemeSelected(object sender, EventArgs e)
         {
-            if (ThemePicker.SelectedItem is string selectedTheme && Application.Current?.Resources != null)
+            try
             {
-                // Apply the selected theme
-                switch (selectedTheme)
+                if (ThemePicker?.SelectedItem is string selectedTheme)
                 {
-                    case "Blue":
-                        // Apply Blue theme
-                        Application.Current.Resources["AppBackground1"] = Color.FromArgb("#1a237e");
-                        Application.Current.Resources["AppBackground2"] = Color.FromArgb("#0d47a1");
-                        break;
+                    if (Enum.TryParse<CustomAppTheme>(selectedTheme, out var theme))
+                    {
+                        // Update theme using ThemeService
+                        _themeService.SetTheme(theme);
 
-                    case "Dark":
-                        // Apply Dark theme
-                        Application.Current.Resources["AppBackground1"] = Color.FromArgb("#000000");
-                        Application.Current.Resources["AppBackground2"] = Color.FromArgb("#121212");
-                        break;
+                        // Save selected theme preference
+                        Preferences.Set(Constants.THEME_KEY, selectedTheme);
 
-                    case "Light":
-                        // Apply Light theme
-                        Application.Current.Resources["AppBackground1"] = Color.FromArgb("#FFFFFF");
-                        Application.Current.Resources["AppBackground2"] = Color.FromArgb("#F5F5F5");
-                        break;
+                        // Notify user
+                        MainThread.BeginInvokeOnMainThread(async () =>
+                        {
+                            await DisplayAlert("Theme Updated", $"{selectedTheme} theme applied successfully", "OK");
+                        });
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"Failed to parse theme value: {selectedTheme}");
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error applying theme: {ex.Message}");
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    await DisplayAlert("Error", "Failed to apply theme. Please try again.", "OK");
+                });
             }
         }
 

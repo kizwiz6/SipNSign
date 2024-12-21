@@ -20,7 +20,7 @@ namespace com.kizwiz.sipnsign.Pages
         /// <summary>
         /// Initialises a new instance of the <see cref="GamePage"/> class.
         /// </summary>
-        public GamePage(IVideoService videoService, ILoggingService logger, IProgressService progressService)
+        public GamePage(IServiceProvider serviceProvider, IVideoService videoService, ILoggingService logger, IProgressService progressService)
         {
             try
             {
@@ -35,7 +35,7 @@ namespace com.kizwiz.sipnsign.Pages
                 _videoService = videoService;
                 Debug.WriteLine("Video service assigned");
 
-                _viewModel = new GameViewModel(videoService, logger, progressService);
+                _viewModel = new GameViewModel(serviceProvider, videoService, logger, progressService);
                 Debug.WriteLine("ViewModel created");
 
                 _viewModel.SignRevealRequested += OnSignRevealRequested;

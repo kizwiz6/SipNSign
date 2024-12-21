@@ -61,6 +61,22 @@
         </Setter>
     </Style>
 
+    <!-- Button styles for each theme -->
+    <Style x:Key="BluePrimaryButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource BluePrimary}" />
+        <Setter Property="TextColor" Value="White" />
+    </Style>
+
+    <Style x:Key="DarkPrimaryButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource DarkPrimary}" />
+        <Setter Property="TextColor" Value="White" />
+    </Style>
+
+    <Style x:Key="LightPrimaryButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource LightPrimary}" />
+        <Setter Property="TextColor" Value="White" />
+    </Style>
+
 
     <!-- Base Button Style -->
     <Style x:Key="BaseButtonStyle" TargetType="Button">

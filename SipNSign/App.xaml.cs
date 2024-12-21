@@ -24,7 +24,17 @@ namespace com.kizwiz.sipnsign
         {
             try
             {
+                _serviceProvider = serviceProvider;
                 InitializeComponent();
+
+                // Get theme service and apply saved theme
+                var themeService = serviceProvider.GetService<IThemeService>();
+                if (themeService != null)
+                {
+                    var savedTheme = themeService.GetCurrentTheme();
+                    themeService.SetTheme(savedTheme);
+                }
+
                 MainPage = serviceProvider.GetRequiredService<AppShell>();
             }
             catch (Exception ex)
