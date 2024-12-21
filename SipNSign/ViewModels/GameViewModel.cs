@@ -497,7 +497,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             else
             {
                 return isSoberMode
-                    ? $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTry again!"
+                    ? $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nKeep Learning!"
                     : $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
             }
         }
@@ -574,7 +574,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                 else
                 {
                     FeedbackText = isSoberMode
-                        ? $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTry again!"
+                        ? $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nKeep learning!"
                         : $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
                     FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
                     await LogGameActivity(false);
@@ -641,7 +641,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                 _timer.Stop();
                 bool isSoberMode = Preferences.Get(Constants.SOBER_MODE_KEY, false);
                 FeedbackText = isSoberMode
-                    ? $"Keep practicing '{CurrentSign?.CorrectAnswer}'!\n\nTry again!"
+                    ? $"Keep practicing '{CurrentSign?.CorrectAnswer}'!"
                     : $"Remember to practice '{CurrentSign?.CorrectAnswer}'!\n\nTake a sip!";
                 FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
                 await ShowFeedbackAndContinue(false);
@@ -834,7 +834,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                     $"Practiced '{CurrentSign?.CorrectAnswer}'",
                 IconName = isCorrect ? "quiz_correct_icon" : "quiz_incorrect_icon",
                 Timestamp = DateTime.Now,
-                Score = isCorrect ? "+1" : "Try Again"
+                Score = isCorrect ? "+1" : "Keep Learning"
             });
 
             // Check for perfect session
