@@ -11,6 +11,7 @@ namespace com.kizwiz.sipnsign
         // Theme settings
         public const string THEME_KEY = "app_theme";
         public const string FONT_SIZE_KEY = "font_size";
+        public const string SOBER_MODE_KEY = "sober_mode";
 
         // Timer settings
         public const string TIMER_DURATION_KEY = "TimerDuration";

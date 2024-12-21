@@ -18,10 +18,11 @@ namespace com.kizwiz.sipnsign.Pages
         public SettingsPage(IThemeService themeService)
         {
             InitializeComponent();
-            _themeService = themeService ?? throw new ArgumentNullException(nameof(themeService));
-
-            // Set initial theme picker selection
+            _themeService = themeService;
             ThemePicker.SelectedItem = _themeService.GetCurrentTheme().ToString();
+
+            // Ensure SoberModeSwitch is initialized with the current preference value
+            SoberModeSwitch.IsToggled = Preferences.Get(Constants.SOBER_MODE_KEY, false);
         }
 
         private void LoadSavedSettings()
@@ -35,6 +36,12 @@ namespace com.kizwiz.sipnsign.Pages
 
             // Load delay settings
             DelaySlider.Value = _preferences.Get(Constants.INCORRECT_DELAY_KEY, Constants.DEFAULT_DELAY) / 1000.0;
+        }
+
+        // Event handler for the toggle switch
+        private void OnSoberModeToggled(object sender, ToggledEventArgs e)
+        {
+            Preferences.Set(Constants.SOBER_MODE_KEY, e.Value);
         }
 
         private async void OnSaveClicked(object sender, EventArgs e)
