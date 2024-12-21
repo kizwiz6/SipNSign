@@ -1,14 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-	<!-- Background color -->
-	<item android:drawable="@android:color/white" />
-	<!-- Set your desired background color here -->
-
-	<!-- Logo in the center -->
+	<item>
+		<shape android:shape="rectangle">
+			<gradient
+                android:startColor="@color/colorPrimary"
+                android:endColor="@color/colorPrimaryDark"
+                android:angle="270" />
+		</shape>
+	</item>
 	<item>
 		<bitmap
+            android:src="@drawable/logo_nobg"
             android:gravity="center"
-            android:src="@drawable/logo" />
-		<!-- Ensure this points to your logo in the drawable folder -->
+            android:scaleType="centerInside"/>
 	</item>
 </layer-list>
