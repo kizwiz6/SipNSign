@@ -831,10 +831,10 @@ namespace com.kizwiz.sipnsign.ViewModels
                 Type = ActivityType.Practice,
                 Description = isCorrect ?
                     $"Correctly signed '{CurrentSign?.CorrectAnswer}'" :
-                    $"Practiced '{CurrentSign?.CorrectAnswer}'",
+                    $"Incorrectly signed '{CurrentSign?.CorrectAnswer}'",
                 IconName = isCorrect ? "quiz_correct_icon" : "quiz_incorrect_icon",
                 Timestamp = DateTime.Now,
-                Score = isCorrect ? "+1" : "Keep Learning"
+                Score = isCorrect ? "+1" : "N/A"
             });
 
             // Check for perfect session
