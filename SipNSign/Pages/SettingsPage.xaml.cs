@@ -149,12 +149,6 @@ namespace com.kizwiz.sipnsign.Pages
 
                         // Save selected theme preference
                         Preferences.Set(Constants.THEME_KEY, selectedTheme);
-
-                        // Notify user
-                        MainThread.BeginInvokeOnMainThread(async () =>
-                        {
-                            await DisplayAlert("Theme Updated", $"{selectedTheme} theme applied successfully", "OK");
-                        });
                     }
                     else
                     {
