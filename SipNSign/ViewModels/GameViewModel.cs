@@ -437,7 +437,9 @@ namespace com.kizwiz.sipnsign.ViewModels
                     IsProcessingAnswer = true;
                     _timer?.Stop();
                     CurrentScore++;
-                    FeedbackText = "Nice work!\n\nPrepare for your next sign!";
+
+                    // Use GetFeedbackText for correct feedback
+                    FeedbackText = GetFeedbackText(true); // true indicates a correct answer
                     FeedbackBackgroundColor = FeedbackSuccessColor.ToArgbHex();
                     IsFeedbackVisible = true;
 
@@ -461,7 +463,9 @@ namespace com.kizwiz.sipnsign.ViewModels
                 {
                     IsProcessingAnswer = true;
                     _timer?.Stop();
-                    FeedbackText = $"Remember to practice '{CurrentSign?.CorrectAnswer}'!\n\nTake a sip!";
+
+                    // Use GetFeedbackText for incorrect feedback
+                    FeedbackText = GetFeedbackText(false); // false indicates an incorrect answer
                     FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
                     IsFeedbackVisible = true;
 
@@ -478,6 +482,24 @@ namespace com.kizwiz.sipnsign.ViewModels
             });
 
             SwitchModeCommand = new Command<GameMode>(SwitchMode);
+        }
+
+
+
+        private string GetFeedbackText(bool isCorrect)
+        {
+            bool isSoberMode = Preferences.Get(Constants.SOBER_MODE_KEY, false);
+
+            if (isCorrect)
+            {
+                return $"Correct!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.";
+            }
+            else
+            {
+                return isSoberMode
+                    ? $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nKeep Learning!"
+                    : $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
+            }
         }
 
         private void InitializeGame()
@@ -507,7 +529,10 @@ namespace com.kizwiz.sipnsign.ViewModels
         private void HandleTimeOut()
         {
             IsProcessingAnswer = true;
-            FeedbackText = $"Time's up!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
+            bool isSoberMode = Preferences.Get(Constants.SOBER_MODE_KEY, false);
+            FeedbackText = isSoberMode
+                ? $"Time's up!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nKeep practicing!"
+                : $"Time's up!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
             FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
             IsFeedbackVisible = true;
 
@@ -527,7 +552,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private async void HandleAnswer(string answer)
         {
             if (!IsGameActive || IsGameOver || IsProcessingAnswer) return;  // Check if game is still active
-            if (IsProcessingAnswer) return; // prevent multiple clicks
+            if (IsProcessingAnswer) return; // Prevent multiple clicks
 
             try
             {
@@ -535,6 +560,9 @@ namespace com.kizwiz.sipnsign.ViewModels
                 _timer.Stop();
                 bool isCorrect = CheckAnswer(answer);
                 UpdateButtonColor(answer, isCorrect);
+
+                // Check Sober Mode setting
+                bool isSoberMode = Preferences.Get(Constants.SOBER_MODE_KEY, false);
 
                 if (isCorrect)
                 {
@@ -545,7 +573,9 @@ namespace com.kizwiz.sipnsign.ViewModels
                 }
                 else
                 {
-                    FeedbackText = $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
+                    FeedbackText = isSoberMode
+                        ? $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nKeep learning!"
+                        : $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
                     FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
                     await LogGameActivity(false);
                 }
@@ -609,7 +639,10 @@ namespace com.kizwiz.sipnsign.ViewModels
             {
                 IsProcessingAnswer = true;
                 _timer.Stop();
-                FeedbackText = $"Remember to practice '{CurrentSign?.CorrectAnswer}'!\n\nTake a sip!";
+                bool isSoberMode = Preferences.Get(Constants.SOBER_MODE_KEY, false);
+                FeedbackText = isSoberMode
+                    ? $"Keep practicing '{CurrentSign?.CorrectAnswer}'!"
+                    : $"Remember to practice '{CurrentSign?.CorrectAnswer}'!\n\nTake a sip!";
                 FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
                 await ShowFeedbackAndContinue(false);
                 await LogGameActivity(false);
@@ -801,7 +834,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                     $"Practiced '{CurrentSign?.CorrectAnswer}'",
                 IconName = isCorrect ? "quiz_correct_icon" : "quiz_incorrect_icon",
                 Timestamp = DateTime.Now,
-                Score = isCorrect ? "+1" : "Try Again"
+                Score = isCorrect ? "+1" : "Keep Learning"
             });
 
             // Check for perfect session

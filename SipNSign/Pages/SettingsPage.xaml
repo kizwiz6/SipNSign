@@ -7,6 +7,21 @@
 
     <ScrollView>
         <VerticalStackLayout Spacing="20" Padding="20">
+            <!-- Sober Mode -->
+            <Frame BorderColor="Gray" Padding="15" CornerRadius="10">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Sober Mode" 
+               FontSize="20" 
+               FontAttributes="Bold"/>
+                    <Switch x:Name="SoberModeSwitch" 
+                    IsToggled="{Binding IsSoberMode}"
+                    Toggled="OnSoberModeToggled"/>
+                    <Label Text="Removes references to drinking from the app"
+               FontSize="14"
+               TextColor="Gray"/>
+                </VerticalStackLayout>
+            </Frame>
+
             <!-- Questions Limit in Guess Mode -->
             <Frame BorderColor="Gray" Padding="15" CornerRadius="10">
                 <VerticalStackLayout Spacing="15">
