@@ -120,6 +120,14 @@
     <MauiXaml Update="Pages\ProgressPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
+    <MauiXaml Update="Resources\Styles\SplashScreen.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Platforms\Android\Resources\drawable-hdpi\" />
+    <Folder Include="Platforms\Android\Resources\drawable-xhdpi\" />
+    <Folder Include="Platforms\Android\Resources\drawable-xxhdpi\" />
   </ItemGroup>
 
 </Project>
