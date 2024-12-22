@@ -131,28 +131,28 @@
                                    Text="{Binding CurrentSign.Choices[0]}"
                                    Command="{Binding AnswerCommand}"
                                    CommandParameter="{Binding CurrentSign.Choices[0]}"
-                                   BackgroundColor="{Binding Button1Color}"/>
+                                    BackgroundColor="{DynamicResource AnswerButton}"/>
 
                             <Button Grid.Column="1" Grid.Row="0"
                                    Style="{StaticResource AnimatedButtonStyle}"
                                    Text="{Binding CurrentSign.Choices[1]}"
                                    Command="{Binding AnswerCommand}"
                                    CommandParameter="{Binding CurrentSign.Choices[1]}"
-                                   BackgroundColor="{Binding Button2Color}"/>
+                                    BackgroundColor="{DynamicResource AnswerButton}"/>
 
                             <Button Grid.Column="0" Grid.Row="1"
                                    Style="{StaticResource AnimatedButtonStyle}"
                                    Text="{Binding CurrentSign.Choices[2]}"
                                    Command="{Binding AnswerCommand}"
                                    CommandParameter="{Binding CurrentSign.Choices[2]}"
-                                   BackgroundColor="{Binding Button3Color}"/>
+                                   BackgroundColor="{DynamicResource AnswerButton}"/>
 
                             <Button Grid.Column="1" Grid.Row="1"
                                    Style="{StaticResource AnimatedButtonStyle}"
                                    Text="{Binding CurrentSign.Choices[3]}"
                                    Command="{Binding AnswerCommand}"
                                    CommandParameter="{Binding CurrentSign.Choices[3]}"
-                                   BackgroundColor="{Binding Button4Color}"/>
+                                   BackgroundColor="{DynamicResource AnswerButton}"/>
                         </Grid>
                     </VerticalStackLayout>
                 </Grid>

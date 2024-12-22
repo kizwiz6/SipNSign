@@ -6,8 +6,8 @@
 
     <ContentPage.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="#1a237e" Offset="0.0" />
-            <GradientStop Color="#0d47a1" Offset="1.0" />
+            <GradientStop Color="{DynamicResource AppBackground1}" Offset="0.0" />
+            <GradientStop Color="{DynamicResource AppBackground2}" Offset="1.0" />
         </LinearGradientBrush>
     </ContentPage.Background>
 
@@ -63,24 +63,24 @@
 
         <!-- Menu Buttons -->
         <Button Text="Guess Mode"
-        Style="{StaticResource MenuButton}"
-        BackgroundColor="#007BFF"
-        Clicked="OnGuessGameClicked"/>
+                Style="{StaticResource MenuButton}"
+                BackgroundColor="{DynamicResource GuessMode}"
+                Clicked="OnGuessGameClicked"/>
 
         <Button Text="Perform Mode"
-        Style="{StaticResource MenuButton}"
-        BackgroundColor="#4CAF50"
-        Clicked="OnPerformGameClicked"/>
+                Style="{StaticResource MenuButton}"
+                BackgroundColor="{DynamicResource PerformMode}"
+                Clicked="OnPerformGameClicked"/>
 
         <Button Text="Progress"
-        Style="{StaticResource MenuButton}"
-        BackgroundColor="#FFC107"
-        Clicked="OnViewScoresClicked"/>
+                Style="{StaticResource MenuButton}"
+                BackgroundColor="{DynamicResource Progress}"
+                Clicked="OnViewScoresClicked"/>
 
         <Button Text="Settings"
-        Style="{StaticResource MenuButton}"
-        BackgroundColor="#FF5722"
-        Clicked="OnSettingsClicked"/>
+                Style="{StaticResource MenuButton}"
+                BackgroundColor="{DynamicResource Settings}"
+                Clicked="OnSettingsClicked"/>
 
         <!--<Button Text="View Debug Logs"
                 Style="{StaticResource MenuButton}"

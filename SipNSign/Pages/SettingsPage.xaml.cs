@@ -58,7 +58,6 @@ namespace com.kizwiz.sipnsign.Pages
 
         private async void SaveSettings()
         {
-            _preferences.Set(Constants.FONT_SIZE_KEY, FontSizeStepper.Value);
             if (Application.Current?.MainPage != null)
             {
                 await Application.Current.MainPage.DisplayAlert("Settings Saved", "Your preferences have been updated", "OK");
@@ -107,8 +106,27 @@ namespace com.kizwiz.sipnsign.Pages
         protected override void OnAppearing()
         {
             base.OnAppearing();
+
+            // Update background gradient
+            if (Application.Current?.Resources != null)
+            {
+                var background1 = (Color)Application.Current.Resources["AppBackground1"];
+                var background2 = (Color)Application.Current.Resources["AppBackground2"];
+
+                this.Background = new LinearGradientBrush
+                {
+                    StartPoint = new Point(0, 0),
+                    EndPoint = new Point(0, 1),
+                    GradientStops = new GradientStopCollection
+                   {
+                       new GradientStop { Color = background1, Offset = 0.0f },
+                       new GradientStop { Color = background2, Offset = 1.0f }
+                   }
+                };
+            }
+
             // Load existing timer duration
-            int savedDuration = _preferences.Get(Constants.TIMER_DURATION_KEY, Constants.DEFAULT_TIMER_DURATION);
+            int savedDuration = Preferences.Get(Constants.TIMER_DURATION_KEY, Constants.DEFAULT_TIMER_DURATION);
             TimerSlider.Value = savedDuration;
             TimerValueLabel.Text = $"{savedDuration} seconds";  // Set initial label text
             DisableTimerCheckbox.IsChecked = savedDuration == 0;
