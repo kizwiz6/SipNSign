@@ -557,7 +557,12 @@ namespace com.kizwiz.sipnsign.ViewModels
             try
             {
                 IsProcessingAnswer = true;
-                _timer.Stop();
+
+                if (_timer != null)
+                {
+                    _timer.Stop();
+                }
+
                 bool isCorrect = CheckAnswer(answer);
                 UpdateButtonColor(answer, isCorrect);
 

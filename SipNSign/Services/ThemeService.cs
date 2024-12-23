@@ -209,6 +209,22 @@ namespace com.kizwiz.sipnsign.Services
                     resources["CurrentThemeBackground"] = themeBackground;
                 }
 
+                // Force Shell refresh
+                if (Shell.Current != null)
+                {
+                    var shellContent = Shell.Current as AppShell;
+                    if (shellContent != null)
+                    {
+                        // Update Shell resources
+                        shellContent.Resources["ShellBackgroundColor"] = themeColors.ShellBackground;
+                        shellContent.Resources["ShellTitleColor"] = themeColors.ShellForeground;
+
+                        // Force refresh by toggling visibility
+                        shellContent.IsVisible = false;
+                        shellContent.IsVisible = true;
+                    }
+                }
+
                 ThemeChanged?.Invoke(this, EventArgs.Empty);
             }
         }

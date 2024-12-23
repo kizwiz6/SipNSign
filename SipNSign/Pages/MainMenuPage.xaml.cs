@@ -10,6 +10,8 @@ namespace com.kizwiz.sipnsign.Pages
         public required IVideoService _videoService;
         public required ILoggingService _logger;
         public required IProgressService _progressService;
+        private readonly IThemeService _themeService;
+        private bool _isNavigating = false;
 
 
         /// <summary>
@@ -30,6 +32,7 @@ namespace com.kizwiz.sipnsign.Pages
                 _videoService = _serviceProvider.GetRequiredService<IVideoService>();
                 _logger = _serviceProvider.GetRequiredService<ILoggingService>();
                 _progressService = _serviceProvider.GetRequiredService<IProgressService>();
+                _themeService = _serviceProvider.GetRequiredService<IThemeService>();
 
                 // Ensure _logger is initialized
                 if (_logger == null)
@@ -55,36 +58,17 @@ namespace com.kizwiz.sipnsign.Pages
         /// <param name="e">The event arguments.</param>
         private async void OnGuessGameClicked(object sender, EventArgs e)
         {
+            if (_isNavigating) return;
             var logger = _serviceProvider?.GetService<ILoggingService>();
 
             try
             {
+                _isNavigating = true;
                 logger?.Debug("Starting Guess Mode initialization");
-                logger?.Debug($"_serviceProvider is null: {_serviceProvider == null}");
 
-                var videoService = _videoService ?? _serviceProvider?.GetService<IVideoService>();
-                if (videoService == null)
-                {
-                    logger?.Error("videoService is null");
-                    await DisplayAlert("Error", "Unable to initialize video service.", "OK");
-                    return;
-                }
-
-                var loggingService = _logger ?? _serviceProvider?.GetService<ILoggingService>();
-                if (loggingService == null)
-                {
-                    logger?.Error("loggingService is null");
-                    await DisplayAlert("Error", "Unable to initialize logging service.", "OK");
-                    return;
-                }
-
-                var progressService = _progressService ?? _serviceProvider?.GetService<IProgressService>();
-                if (progressService == null)
-                {
-                    logger?.Error("progressService is null");
-                    await DisplayAlert("Error", "Unable to initialize progress service.", "OK");
-                    return;
-                }
+                var videoService = _videoService ?? _serviceProvider?.GetRequiredService<IVideoService>();
+                var loggingService = _logger ?? _serviceProvider?.GetRequiredService<ILoggingService>();
+                var progressService = _progressService ?? _serviceProvider?.GetRequiredService<IProgressService>();
 
                 logger?.Debug("Calling InitializeVideos");
                 await videoService.InitializeVideos();
@@ -92,11 +76,7 @@ namespace com.kizwiz.sipnsign.Pages
 
                 logger?.Debug("Creating GamePage");
                 var gamePage = new GamePage(_serviceProvider, videoService, loggingService, progressService);
-                logger?.Debug("GamePage created");
-
-                logger?.Debug("Setting CurrentMode");
                 gamePage.ViewModel.CurrentMode = GameMode.Guess;
-                logger?.Debug("CurrentMode set");
 
                 if (Navigation == null)
                 {
@@ -104,6 +84,7 @@ namespace com.kizwiz.sipnsign.Pages
                     await DisplayAlert("Error", "Navigation is not initialized.", "OK");
                     return;
                 }
+
                 await Navigation.PushAsync(gamePage);
                 logger?.Debug("Navigation completed");
             }
@@ -113,107 +94,96 @@ namespace com.kizwiz.sipnsign.Pages
                 logger?.Error($"Stack trace: {ex.StackTrace}");
                 await DisplayAlert("Error", "Unable to start game. Please restart the application.", "OK");
             }
+            finally
+            {
+                _isNavigating = false;
+            }
+        }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+
+            // Refresh theme from saved preferences
+            var savedTheme = Preferences.Get(Constants.THEME_KEY, CustomAppTheme.Blue.ToString());
+            if (Enum.TryParse<CustomAppTheme>(savedTheme, out var theme))
+            {
+                _themeService.SetTheme(theme);
+            }
         }
 
         private async void OnPerformGameClicked(object sender, EventArgs e)
         {
-            var videoService = _serviceProvider.GetRequiredService<IVideoService>();
-            var logger = _serviceProvider.GetRequiredService<ILoggingService>();
-            var progressService = _serviceProvider.GetRequiredService<IProgressService>();
-            var gamePage = new GamePage(_serviceProvider, videoService, logger, progressService);
-            gamePage.ViewModel.CurrentMode = GameMode.Perform;
-            await Navigation.PushAsync(gamePage);
+            if (_isNavigating) return;
+            var logger = _serviceProvider?.GetService<ILoggingService>();
+
+            try
+            {
+                _isNavigating = true;
+                var videoService = _videoService ?? _serviceProvider.GetRequiredService<IVideoService>();
+                var loggingService = _logger ?? _serviceProvider.GetRequiredService<ILoggingService>();
+                var progressService = _progressService ?? _serviceProvider.GetRequiredService<IProgressService>();
+
+                var gamePage = new GamePage(_serviceProvider, videoService, loggingService, progressService);
+                gamePage.ViewModel.CurrentMode = GameMode.Perform;
+                await Navigation.PushAsync(gamePage);
+            }
+            catch (Exception ex)
+            {
+                logger?.Error($"Error starting Perform Mode: {ex.Message}");
+                await DisplayAlert("Error", "Unable to start Perform Mode.", "OK");
+            }
+            finally
+            {
+                _isNavigating = false;
+            }
         }
 
         private async void OnViewScoresClicked(object sender, EventArgs e)
         {
+            if (_isNavigating) return;
+            var logger = _serviceProvider?.GetService<ILoggingService>();
+
             try
             {
+                _isNavigating = true;
                 Debug.WriteLine("OnViewScoresClicked started");
 
-                if (_serviceProvider == null)
-                {
-                    Debug.WriteLine("ServiceProvider is null!");
-                    throw new InvalidOperationException("ServiceProvider is null");
-                }
-
-                Debug.WriteLine("Getting ProgressService");
-                var progressService = _serviceProvider.GetRequiredService<IProgressService>();
-
-                // Test progress service before creating page
-                Debug.WriteLine("Testing GetUserProgressAsync");
-                try
-                {
-                    var test = await progressService.GetUserProgressAsync();
-                    Debug.WriteLine($"Progress test result - null?: {test == null}");
-                }
-                catch (Exception progressEx)
-                {
-                    Debug.WriteLine($"Progress service error: {progressEx.Message}");
-                    Debug.WriteLine($"Inner exception: {progressEx.InnerException?.Message}");
-                    throw;
-                }
-
-                Debug.WriteLine("Creating ProgressPage");
-                var ProgressPage = new ProgressPage(progressService);
-
-                Debug.WriteLine("Navigating to ProgressPage");
-                await Navigation.PushAsync(ProgressPage);
+                var progressService = _progressService ?? _serviceProvider.GetRequiredService<IProgressService>();
+                var progressPage = new ProgressPage(progressService);
+                await Navigation.PushAsync(progressPage);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"OnViewScoresClicked error: {ex.Message}");
-                if (ex.InnerException != null)
-                {
-                    Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
-                    Debug.WriteLine($"Inner stack trace: {ex.InnerException.StackTrace}");
-                }
-                await DisplayAlert("Error", $"Unable to load progress: {ex.InnerException?.Message ?? ex.Message}", "OK");
+                logger?.Error($"Error viewing scores: {ex.Message}");
+                await DisplayAlert("Error", "Unable to load progress data", "OK");
+            }
+            finally
+            {
+                _isNavigating = false;
             }
         }
 
         private async void OnSettingsClicked(object sender, EventArgs e)
         {
+            if (_isNavigating) return;
             var logger = _serviceProvider?.GetService<ILoggingService>();
+
             try
             {
-                logger?.Error("Creating settings page - start");
-
-                if (_serviceProvider == null)
-                {
-                    logger?.Error("_serviceProvider is null!");
-                    throw new InvalidOperationException("ServiceProvider not available");
-                }
-
+                _isNavigating = true;
                 var themeService = _serviceProvider.GetRequiredService<IThemeService>();
-
-                // Try to get required services for settings
-                var videoService = _serviceProvider.GetService<IVideoService>();
-                logger?.Error("Got video service");
-
-                var logService = _serviceProvider.GetService<ILoggingService>();
-                logger?.Error("Got logging service");
-
-                var progressService = _serviceProvider.GetService<IProgressService>();
-                logger?.Error("Got progress service");
-
                 var settingsPage = new SettingsPage(themeService);
-                logger?.Error("Settings page created");
-
-                if (Navigation == null)
-                {
-                    logger?.Error("Navigation is null!");
-                    throw new InvalidOperationException("Navigation not available");
-                }
-
-                await Navigation?.PushAsync(settingsPage);
-                logger?.Error("Settings navigation completed");
+                await Navigation.PushAsync(settingsPage);
             }
             catch (Exception ex)
             {
                 logger?.Error($"Settings error: {ex.Message}");
-                logger?.Error($"Stack trace: {ex.StackTrace}");
                 await DisplayAlert("Error", "Unable to open settings", "OK");
+            }
+            finally
+            {
+                _isNavigating = false;
             }
         }
 

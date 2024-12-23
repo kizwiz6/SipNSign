@@ -19,6 +19,9 @@ namespace com.kizwiz.sipnsign.Pages
         {
             InitializeComponent();
             _themeService = themeService;
+
+            // Subscribe to theme changes
+            _themeService.ThemeChanged += OnThemeChanged;
             ThemePicker.SelectedItem = _themeService.GetCurrentTheme().ToString();
 
             // Ensure SoberModeSwitch is initialized with the current preference value
@@ -133,6 +136,11 @@ namespace com.kizwiz.sipnsign.Pages
             TimerSlider.IsEnabled = !DisableTimerCheckbox.IsChecked;
             QuestionsSlider.Value = Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
         }
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            _themeService.ThemeChanged -= OnThemeChanged;
+        }
 
         private void OnContrastToggled(object sender, ToggledEventArgs e)
         {
@@ -148,11 +156,18 @@ namespace com.kizwiz.sipnsign.Pages
         /// </summary>
         private void OnThemeChanged(object sender, EventArgs e)
         {
-            if (sender is Picker picker && picker.SelectedItem is string themeName)
+            // Force page to redraw with new theme
+            this.Background = null;
+            this.Background = new LinearGradientBrush
             {
-                var theme = Enum.Parse<CustomAppTheme>(themeName);  // Use CustomAppTheme here
-                _themeService.SetTheme(theme);
+                StartPoint = new Point(0, 0),
+                EndPoint = new Point(0, 1),
+                GradientStops = new GradientStopCollection
+            {
+                new GradientStop { Color = (Color)Application.Current.Resources["AppBackground1"], Offset = 0.0f },
+                new GradientStop { Color = (Color)Application.Current.Resources["AppBackground2"], Offset = 1.0f }
             }
+            };
         }
 
         /// <summary>
@@ -188,6 +203,17 @@ namespace com.kizwiz.sipnsign.Pages
                 {
                     await DisplayAlert("Error", "Failed to apply theme. Please try again.", "OK");
                 });
+            }
+        }
+
+        private void OnThemeSelectionChanged(object sender, EventArgs e)
+        {
+            if (ThemePicker?.SelectedItem is string selectedTheme
+                && Enum.TryParse<CustomAppTheme>(selectedTheme, out var theme))
+            {
+                // Preview the theme immediately
+                _themeService.SetTheme(theme);
+                // Don't save to preferences yet - only on Save button click
             }
         }
 
