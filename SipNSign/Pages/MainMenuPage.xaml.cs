@@ -104,12 +104,52 @@ namespace com.kizwiz.sipnsign.Pages
         {
             base.OnAppearing();
 
-            // Refresh theme from saved preferences
-            var savedTheme = Preferences.Get(Constants.THEME_KEY, CustomAppTheme.Blue.ToString());
-            if (Enum.TryParse<CustomAppTheme>(savedTheme, out var theme))
+            _themeService.ThemeChanged += OnThemeChanged;
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            _themeService.ThemeChanged -= OnThemeChanged;
+        }
+
+        public void OnThemeChanged(object sender, EventArgs e)
+        {
+            var mainLayout = this.FindByName<VerticalStackLayout>("MainLayout");
+            if (mainLayout != null)
             {
-                _themeService.SetTheme(theme);
+                foreach (var child in mainLayout.Children)
+                {
+                    if (child is Button button)
+                    {
+                        button.BackgroundColor = null; // Clear cached color
+                        button.BackgroundColor = (Color)Application.Current.Resources[button.StyleId]; // Reapply from resources
+                    }
+                }
             }
+        }
+
+        public void ForceRefresh()
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                if (Application.Current?.Resources == null) return;
+                var mainLayout = this.FindByName<VerticalStackLayout>("MainLayout");
+                if (mainLayout != null)
+                {
+                    foreach (var child in mainLayout.Children)
+                    {
+                        if (child is Button button && !string.IsNullOrEmpty(button.StyleId))
+                        {
+                            if (Application.Current.Resources.TryGetValue(button.StyleId, out var colorValue) &&
+                                colorValue is Color color)
+                            {
+                                button.BackgroundColor = color;
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         private async void OnPerformGameClicked(object sender, EventArgs e)

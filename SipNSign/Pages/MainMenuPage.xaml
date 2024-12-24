@@ -33,7 +33,7 @@
     </ContentPage.Resources>
 
     <!-- Main content with logo and buttons -->
-    <VerticalStackLayout Spacing="5" Padding="10">
+    <VerticalStackLayout x:Name="MainLayout" Spacing="5" Padding="10">
         <!-- Logo container -->
         <Frame BackgroundColor="Transparent"
                    BorderColor="Transparent"
@@ -63,24 +63,28 @@
 
         <!-- Menu Buttons -->
         <Button Text="Guess Mode"
-                Style="{StaticResource MenuButton}"
-                BackgroundColor="{DynamicResource GuessMode}"
-                Clicked="OnGuessGameClicked"/>
+            StyleId="GuessMode"
+            Style="{StaticResource MenuButton}"
+            BackgroundColor="{DynamicResource GuessMode}"
+            Clicked="OnGuessGameClicked"/>
 
         <Button Text="Perform Mode"
-                Style="{StaticResource MenuButton}"
-                BackgroundColor="{DynamicResource PerformMode}"
-                Clicked="OnPerformGameClicked"/>
+            StyleId="PerformMode"
+            Style="{StaticResource MenuButton}"
+            BackgroundColor="{DynamicResource PerformMode}"
+            Clicked="OnPerformGameClicked"/>
 
         <Button Text="Progress"
-                Style="{StaticResource MenuButton}"
-                BackgroundColor="{DynamicResource Progress}"
-                Clicked="OnViewScoresClicked"/>
+            StyleId="Progress"
+            Style="{StaticResource MenuButton}"
+            BackgroundColor="{DynamicResource Progress}"
+            Clicked="OnViewScoresClicked"/>
 
         <Button Text="Settings"
-                Style="{StaticResource MenuButton}"
-                BackgroundColor="{DynamicResource Settings}"
-                Clicked="OnSettingsClicked"/>
+            StyleId="Settings"
+            Style="{StaticResource MenuButton}"
+            BackgroundColor="{DynamicResource Settings}"
+            Clicked="OnSettingsClicked"/>
 
         <!--<Button Text="View Debug Logs"
                 Style="{StaticResource MenuButton}"

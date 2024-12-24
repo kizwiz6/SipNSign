@@ -12,15 +12,13 @@
     TitleColor="{DynamicResource ShellTitleColor}">
 
     <Shell.Resources>
-        <ResourceDictionary>
-            <Style TargetType="Shell">
-                <Setter Property="Shell.BackgroundColor" Value="{DynamicResource ShellBackgroundColor}" />
-                <Setter Property="Shell.ForegroundColor" Value="{DynamicResource ShellForegroundColor}" />
-                <Setter Property="Shell.TitleColor" Value="{DynamicResource ShellTitleColor}" />
-                <Setter Property="Shell.DisabledColor" Value="{DynamicResource ShellDisabledColor}" />
-                <Setter Property="Shell.UnselectedColor" Value="{DynamicResource ShellUnselectedColor}" />
-            </Style>
-        </ResourceDictionary>
+        <Style TargetType="Shell">
+            <Setter Property="BackgroundColor" Value="{DynamicResource ShellBackgroundColor}" />
+            <Setter Property="ForegroundColor" Value="{DynamicResource ShellForegroundColor}" />
+            <Setter Property="TitleColor" Value="{DynamicResource ShellTitleColor}" />
+            <Setter Property="DisabledColor" Value="{DynamicResource ShellDisabledColor}" />
+            <Setter Property="UnselectedColor" Value="{DynamicResource ShellUnselectedColor}" />
+        </Style>
     </Shell.Resources>
 
     <Shell.BackButtonBehavior>

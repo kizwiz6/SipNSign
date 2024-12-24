@@ -109,33 +109,10 @@ namespace com.kizwiz.sipnsign.Pages
         protected override void OnAppearing()
         {
             base.OnAppearing();
-
-            // Update background gradient
-            if (Application.Current?.Resources != null)
-            {
-                var background1 = (Color)Application.Current.Resources["AppBackground1"];
-                var background2 = (Color)Application.Current.Resources["AppBackground2"];
-
-                this.Background = new LinearGradientBrush
-                {
-                    StartPoint = new Point(0, 0),
-                    EndPoint = new Point(0, 1),
-                    GradientStops = new GradientStopCollection
-                   {
-                       new GradientStop { Color = background1, Offset = 0.0f },
-                       new GradientStop { Color = background2, Offset = 1.0f }
-                   }
-                };
-            }
-
-            // Load existing timer duration
-            int savedDuration = Preferences.Get(Constants.TIMER_DURATION_KEY, Constants.DEFAULT_TIMER_DURATION);
-            TimerSlider.Value = savedDuration;
-            TimerValueLabel.Text = $"{savedDuration} seconds";  // Set initial label text
-            DisableTimerCheckbox.IsChecked = savedDuration == 0;
-            TimerSlider.IsEnabled = !DisableTimerCheckbox.IsChecked;
-            QuestionsSlider.Value = Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
+            var currentTheme = _themeService.GetCurrentTheme();
+            _themeService.SetTheme(currentTheme);
         }
+
         protected override void OnDisappearing()
         {
             base.OnDisappearing();
@@ -176,33 +153,32 @@ namespace com.kizwiz.sipnsign.Pages
         /// </summary>
         /// <param name="sender">The source of the event (ThemePicker)</param>
         /// <param name="e">Event arguments</param>
-        private void OnThemeSelected(object sender, EventArgs e)
+        private async void OnThemeSelected(object sender, EventArgs e)
         {
-            try
+            if (ThemePicker?.SelectedItem is string selectedTheme &&
+                Enum.TryParse<CustomAppTheme>(selectedTheme, out var theme))
             {
-                if (ThemePicker?.SelectedItem is string selectedTheme)
-                {
-                    if (Enum.TryParse<CustomAppTheme>(selectedTheme, out var theme))
-                    {
-                        // Update theme using ThemeService
-                        _themeService.SetTheme(theme);
+                _themeService.SetTheme(theme);
 
-                        // Save selected theme preference
-                        Preferences.Set(Constants.THEME_KEY, selectedTheme);
-                    }
-                    else
+                // Give UI time to update
+                await Task.Delay(100);
+
+                // Force main page refresh
+                var mainPage = Navigation.NavigationStack.FirstOrDefault() as MainMenuPage;
+                mainPage?.ForceRefresh();
+
+                // Force Shell refresh
+                if (Application.Current?.Resources != null)
+                {
+                    if (Shell.Current is AppShell currentShell)
                     {
-                        Debug.WriteLine($"Failed to parse theme value: {selectedTheme}");
+                        if (Application.Current.Resources.TryGetValue("Primary", out var value) &&
+                            value is Color primaryColor)
+                        {
+                            currentShell.BackgroundColor = primaryColor;
+                        }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error applying theme: {ex.Message}");
-                MainThread.BeginInvokeOnMainThread(async () =>
-                {
-                    await DisplayAlert("Error", "Failed to apply theme. Please try again.", "OK");
-                });
             }
         }
 

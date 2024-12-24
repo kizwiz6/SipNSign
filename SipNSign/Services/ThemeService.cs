@@ -1,4 +1,5 @@
 ﻿using com.kizwiz.sipnsign.Enums;
+using com.kizwiz.sipnsign.Pages;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -170,64 +171,68 @@ namespace com.kizwiz.sipnsign.Services
         /// <param name="theme">The theme to set for the application.</param>
         public void SetTheme(CustomAppTheme theme)
         {
-            // Save the selected theme to preferences
             Preferences.Set(THEME_KEY, theme.ToString());
 
-            if (Application.Current?.Resources != null)
+            MainThread.BeginInvokeOnMainThread(() =>
             {
-                var resources = Application.Current.Resources;
+                var resources = Application.Current?.Resources;
                 var themeColors = ThemeDefinitions[theme];
 
-                // Update resources with the new theme colors
+                if (resources == null || themeColors == null)
+                    return;
+
+                // Update resources
                 resources["AppBackground1"] = themeColors.Background1;
                 resources["AppBackground2"] = themeColors.Background2;
                 resources["Primary"] = themeColors.Primary;
                 resources["Secondary"] = themeColors.Secondary;
-                resources["TextColor"] = theme == CustomAppTheme.Light ?
-                    themeColors.DarkText : themeColors.LightText;
-
-                // Menu buttons
                 resources["GuessMode"] = themeColors.MenuButton1;
                 resources["PerformMode"] = themeColors.MenuButton2;
                 resources["Progress"] = themeColors.MenuButton3;
                 resources["Settings"] = themeColors.MenuButton4;
 
-                // Answer button
-                resources["AnswerButton"] = themeColors.AnswerButton;
-
-                // Shell colors
-                resources["ShellBackgroundColor"] = themeColors.ShellBackground;
-                resources["ShellForegroundColor"] = themeColors.ShellForeground;
-                resources["ShellTitleColor"] = themeColors.ShellForeground;
-                resources["ShellDisabledColor"] = themeColors.ShellForeground.WithAlpha(0.5f);
-                resources["ShellUnselectedColor"] = themeColors.ShellForeground.WithAlpha(0.7f);
-
-                // Theme background
-                var backgroundKey = $"{theme}ThemeBackground";
-                if (resources.TryGetValue(backgroundKey, out var themeBackground))
-                {
-                    resources["CurrentThemeBackground"] = themeBackground;
-                }
-
-                // Force Shell refresh
+                // Force Shell update
                 if (Shell.Current != null)
                 {
-                    var shellContent = Shell.Current as AppShell;
-                    if (shellContent != null)
-                    {
-                        // Update Shell resources
-                        shellContent.Resources["ShellBackgroundColor"] = themeColors.ShellBackground;
-                        shellContent.Resources["ShellTitleColor"] = themeColors.ShellForeground;
+                    Shell.Current.BackgroundColor = themeColors.ShellBackground;
+                }
 
-                        // Force refresh by toggling visibility
-                        shellContent.IsVisible = false;
-                        shellContent.IsVisible = true;
+                // Force UI refresh for Shell
+                if (Application.Current?.MainPage is Shell shell)
+                {
+                    shell.ForceLayout();
+
+                    // Find and refresh MainMenuPage
+                    var mainPage = shell.Navigation?.NavigationStack
+                        .FirstOrDefault(page => page is MainMenuPage) as MainMenuPage;
+
+                    if (mainPage != null)
+                    {
+                        mainPage.Dispatcher.Dispatch(() =>
+                        {
+                            mainPage.ForceRefresh();
+                        });
                     }
                 }
 
+                // Force theme update on all pages in navigation stack (legacy approach)
+                var navigation = Application.Current?.MainPage?.Navigation;
+                if (navigation != null)
+                {
+                    foreach (var page in navigation.NavigationStack)
+                    {
+                        if (page is MainMenuPage mainMenuPage)
+                        {
+                            mainMenuPage.ForceRefresh();
+                        }
+                    }
+                }
+
+                // Raise theme changed event
                 ThemeChanged?.Invoke(this, EventArgs.Empty);
-            }
+            });
         }
+
 
         /// <summary>
         /// Gets the current theme from preferences or returns default
