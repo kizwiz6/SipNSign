@@ -6,10 +6,7 @@
     xmlns:local="clr-namespace:com.kizwiz.sipnsign.Pages"
     Shell.NavBarHasShadow="False"
     Shell.FlyoutBehavior="Disabled"
-    Shell.NavBarIsVisible="true"
-    BackgroundColor="{DynamicResource ShellBackgroundColor}"
-    ForegroundColor="{DynamicResource ShellForegroundColor}"
-    TitleColor="{DynamicResource ShellTitleColor}">
+    Shell.NavBarIsVisible="true">
     
     <Shell.Resources>
         <Style TargetType="Shell">

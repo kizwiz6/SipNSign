@@ -69,21 +69,25 @@
         <!-- Menu Buttons -->
         <Button Text="Guess Mode"
             StyleId="GuessMode"
+            Style="{StaticResource MenuButton}"
             BackgroundColor="{DynamicResource GuessMode}"
             Clicked="OnGuessGameClicked"/>
 
         <Button Text="Perform Mode"
             StyleId="PerformMode"
+                Style="{StaticResource MenuButton}"
             BackgroundColor="{DynamicResource PerformMode}"
             Clicked="OnPerformGameClicked"/>
 
         <Button Text="Progress"
             StyleId="Progress"
+                Style="{StaticResource MenuButton}"
             BackgroundColor="{DynamicResource Progress}"
             Clicked="OnViewScoresClicked"/>
 
         <Button Text="Settings"
             StyleId="Settings"
+                Style="{StaticResource MenuButton}"
             BackgroundColor="{DynamicResource Settings}"
             Clicked="OnSettingsClicked"/>
 

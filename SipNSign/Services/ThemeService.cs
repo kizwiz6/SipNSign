@@ -179,18 +179,14 @@ namespace com.kizwiz.sipnsign.Services
                 var resources = Application.Current?.Resources;
                 if (resources == null) return;
 
-                UpdateResources(resources, theme, themeColors);
-
-                if (Shell.Current != null)
-                {
-                    Shell.Current.BackgroundColor = themeColors.ShellBackground;
-
-                    var mainPage = Shell.Current.Navigation.NavigationStack
-                        .OfType<MainMenuPage>()
-                        .FirstOrDefault();
-
-                    mainPage?.ForceRefresh();
-                }
+                // Update only color resources
+                resources["Primary"] = themeColors.Primary;
+                resources["GuessMode"] = themeColors.MenuButton1;
+                resources["PerformMode"] = themeColors.MenuButton2;
+                resources["Progress"] = themeColors.MenuButton3;
+                resources["Settings"] = themeColors.MenuButton4;
+                resources["TextColor"] = theme == CustomAppTheme.Light ?
+                    themeColors.DarkText : themeColors.LightText;
 
                 ThemeChanged?.Invoke(this, EventArgs.Empty);
             });
