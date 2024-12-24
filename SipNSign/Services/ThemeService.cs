@@ -172,65 +172,44 @@ namespace com.kizwiz.sipnsign.Services
         public void SetTheme(CustomAppTheme theme)
         {
             Preferences.Set(THEME_KEY, theme.ToString());
+            var themeColors = ThemeDefinitions[theme];
 
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 var resources = Application.Current?.Resources;
-                var themeColors = ThemeDefinitions[theme];
+                if (resources == null) return;
 
-                if (resources == null || themeColors == null)
-                    return;
+                UpdateResources(resources, theme, themeColors);
 
-                // Update resources
-                resources["AppBackground1"] = themeColors.Background1;
-                resources["AppBackground2"] = themeColors.Background2;
-                resources["Primary"] = themeColors.Primary;
-                resources["Secondary"] = themeColors.Secondary;
-                resources["GuessMode"] = themeColors.MenuButton1;
-                resources["PerformMode"] = themeColors.MenuButton2;
-                resources["Progress"] = themeColors.MenuButton3;
-                resources["Settings"] = themeColors.MenuButton4;
-
-                // Force Shell update
                 if (Shell.Current != null)
                 {
                     Shell.Current.BackgroundColor = themeColors.ShellBackground;
+
+                    var mainPage = Shell.Current.Navigation.NavigationStack
+                        .OfType<MainMenuPage>()
+                        .FirstOrDefault();
+
+                    mainPage?.ForceRefresh();
                 }
 
-                // Force UI refresh for Shell
-                if (Application.Current?.MainPage is Shell shell)
-                {
-                    shell.ForceLayout();
-
-                    // Find and refresh MainMenuPage
-                    var mainPage = shell.Navigation?.NavigationStack
-                        .FirstOrDefault(page => page is MainMenuPage) as MainMenuPage;
-
-                    if (mainPage != null)
-                    {
-                        mainPage.Dispatcher.Dispatch(() =>
-                        {
-                            mainPage.ForceRefresh();
-                        });
-                    }
-                }
-
-                // Force theme update on all pages in navigation stack (legacy approach)
-                var navigation = Application.Current?.MainPage?.Navigation;
-                if (navigation != null)
-                {
-                    foreach (var page in navigation.NavigationStack)
-                    {
-                        if (page is MainMenuPage mainMenuPage)
-                        {
-                            mainMenuPage.ForceRefresh();
-                        }
-                    }
-                }
-
-                // Raise theme changed event
                 ThemeChanged?.Invoke(this, EventArgs.Empty);
             });
+        }
+
+        private void UpdateResources(ResourceDictionary resources, CustomAppTheme theme, ThemeColors colors)
+        {
+            resources["AppBackground1"] = colors.Background1;
+            resources["AppBackground2"] = colors.Background2;
+            resources["Primary"] = colors.Primary;
+            resources["Secondary"] = colors.Secondary;
+            resources["GuessMode"] = colors.MenuButton1;
+            resources["PerformMode"] = colors.MenuButton2;
+            resources["Progress"] = colors.MenuButton3;
+            resources["Settings"] = colors.MenuButton4;
+            resources["ShellBackgroundColor"] = colors.ShellBackground;
+            resources["ShellForegroundColor"] = colors.ShellForeground;
+            resources["ShellTitleColor"] = colors.ShellForeground;
+            resources["TextColor"] = theme == CustomAppTheme.Light ? colors.DarkText : colors.LightText;
         }
 
 

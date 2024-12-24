@@ -10,7 +10,7 @@
     BackgroundColor="{DynamicResource ShellBackgroundColor}"
     ForegroundColor="{DynamicResource ShellForegroundColor}"
     TitleColor="{DynamicResource ShellTitleColor}">
-
+    
     <Shell.Resources>
         <Style TargetType="Shell">
             <Setter Property="BackgroundColor" Value="{DynamicResource ShellBackgroundColor}" />

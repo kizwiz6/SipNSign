@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:behaviours="clr-namespace:com.kizwiz.sipnsign.Services"
              x:Class="com.kizwiz.sipnsign.Pages.MainMenuPage"
              Title="Main Menu">
-
+    
     <ContentPage.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
             <GradientStop Color="{DynamicResource AppBackground1}" Offset="0.0" />
@@ -31,6 +32,10 @@
             </Style>
         </ResourceDictionary>
     </ContentPage.Resources>
+
+    <ContentPage.Behaviors>
+        <behaviours:ThemeChangeBehavior />
+    </ContentPage.Behaviors>
 
     <!-- Main content with logo and buttons -->
     <VerticalStackLayout x:Name="MainLayout" Spacing="5" Padding="10">
@@ -64,25 +69,21 @@
         <!-- Menu Buttons -->
         <Button Text="Guess Mode"
             StyleId="GuessMode"
-            Style="{StaticResource MenuButton}"
             BackgroundColor="{DynamicResource GuessMode}"
             Clicked="OnGuessGameClicked"/>
 
         <Button Text="Perform Mode"
             StyleId="PerformMode"
-            Style="{StaticResource MenuButton}"
             BackgroundColor="{DynamicResource PerformMode}"
             Clicked="OnPerformGameClicked"/>
 
         <Button Text="Progress"
             StyleId="Progress"
-            Style="{StaticResource MenuButton}"
             BackgroundColor="{DynamicResource Progress}"
             Clicked="OnViewScoresClicked"/>
 
         <Button Text="Settings"
             StyleId="Settings"
-            Style="{StaticResource MenuButton}"
             BackgroundColor="{DynamicResource Settings}"
             Clicked="OnSettingsClicked"/>
 
