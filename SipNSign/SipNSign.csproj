@@ -31,7 +31,9 @@
     <ItemGroup>
         <!-- Resources -->
         <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
-        <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
+		<MauiSplashScreen Include="Resources\Splash\splash_logo.png"
+						  Color="#0e324d"
+						  BaseSize="256,256" />
         <MauiImage Include="Resources\Images\*" />
         <MauiFont Include="Resources\Fonts\*" />
         <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
@@ -51,6 +53,7 @@
       <None Remove="Platforms\Android\Resources\Images\locked_icon.svg" />
       <None Remove="Platforms\Android\Resources\Images\mastery_icon.svg" />
       <None Remove="Platforms\Android\Resources\Images\time_icon.svg" />
+      <None Remove="Resources\Splash\dotnet_bot.png" />
     </ItemGroup>
 
   <ItemGroup>
@@ -120,6 +123,14 @@
     <MauiXaml Update="Pages\ProgressPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
+    <MauiXaml Update="Resources\Styles\SplashScreen.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Platforms\Android\Resources\drawable-hdpi\" />
+    <Folder Include="Platforms\Android\Resources\drawable-xhdpi\" />
+    <Folder Include="Platforms\Android\Resources\drawable-xxhdpi\" />
   </ItemGroup>
 
 </Project>

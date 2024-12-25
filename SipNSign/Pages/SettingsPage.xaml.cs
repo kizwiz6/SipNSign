@@ -19,6 +19,9 @@ namespace com.kizwiz.sipnsign.Pages
         {
             InitializeComponent();
             _themeService = themeService;
+
+            // Subscribe to theme changes
+            _themeService.ThemeChanged += OnThemeChanged;
             ThemePicker.SelectedItem = _themeService.GetCurrentTheme().ToString();
 
             // Ensure SoberModeSwitch is initialized with the current preference value
@@ -58,7 +61,6 @@ namespace com.kizwiz.sipnsign.Pages
 
         private async void SaveSettings()
         {
-            _preferences.Set(Constants.FONT_SIZE_KEY, FontSizeStepper.Value);
             if (Application.Current?.MainPage != null)
             {
                 await Application.Current.MainPage.DisplayAlert("Settings Saved", "Your preferences have been updated", "OK");
@@ -107,13 +109,14 @@ namespace com.kizwiz.sipnsign.Pages
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            // Load existing timer duration
-            int savedDuration = _preferences.Get(Constants.TIMER_DURATION_KEY, Constants.DEFAULT_TIMER_DURATION);
-            TimerSlider.Value = savedDuration;
-            TimerValueLabel.Text = $"{savedDuration} seconds";  // Set initial label text
-            DisableTimerCheckbox.IsChecked = savedDuration == 0;
-            TimerSlider.IsEnabled = !DisableTimerCheckbox.IsChecked;
-            QuestionsSlider.Value = Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
+            var currentTheme = _themeService.GetCurrentTheme();
+            _themeService.SetTheme(currentTheme);
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            _themeService.ThemeChanged -= OnThemeChanged;
         }
 
         private void OnContrastToggled(object sender, ToggledEventArgs e)
@@ -130,11 +133,18 @@ namespace com.kizwiz.sipnsign.Pages
         /// </summary>
         private void OnThemeChanged(object sender, EventArgs e)
         {
-            if (sender is Picker picker && picker.SelectedItem is string themeName)
+            // Force page to redraw with new theme
+            this.Background = null;
+            this.Background = new LinearGradientBrush
             {
-                var theme = Enum.Parse<CustomAppTheme>(themeName);  // Use CustomAppTheme here
-                _themeService.SetTheme(theme);
+                StartPoint = new Point(0, 0),
+                EndPoint = new Point(0, 1),
+                GradientStops = new GradientStopCollection
+            {
+                new GradientStop { Color = (Color)Application.Current.Resources["AppBackground1"], Offset = 0.0f },
+                new GradientStop { Color = (Color)Application.Current.Resources["AppBackground2"], Offset = 1.0f }
             }
+            };
         }
 
         /// <summary>
@@ -143,33 +153,43 @@ namespace com.kizwiz.sipnsign.Pages
         /// </summary>
         /// <param name="sender">The source of the event (ThemePicker)</param>
         /// <param name="e">Event arguments</param>
-        private void OnThemeSelected(object sender, EventArgs e)
+        private async void OnThemeSelected(object sender, EventArgs e)
         {
-            try
+            if (ThemePicker?.SelectedItem is string selectedTheme &&
+                Enum.TryParse<CustomAppTheme>(selectedTheme, out var theme))
             {
-                if (ThemePicker?.SelectedItem is string selectedTheme)
-                {
-                    if (Enum.TryParse<CustomAppTheme>(selectedTheme, out var theme))
-                    {
-                        // Update theme using ThemeService
-                        _themeService.SetTheme(theme);
+                _themeService.SetTheme(theme);
 
-                        // Save selected theme preference
-                        Preferences.Set(Constants.THEME_KEY, selectedTheme);
-                    }
-                    else
+                // Give UI time to update
+                await Task.Delay(100);
+
+                // Force main page refresh
+                var mainPage = Navigation.NavigationStack.FirstOrDefault() as MainMenuPage;
+                mainPage?.ForceRefresh();
+
+                // Force Shell refresh
+                if (Application.Current?.Resources != null)
+                {
+                    if (Shell.Current is AppShell currentShell)
                     {
-                        Debug.WriteLine($"Failed to parse theme value: {selectedTheme}");
+                        if (Application.Current.Resources.TryGetValue("Primary", out var value) &&
+                            value is Color primaryColor)
+                        {
+                            currentShell.BackgroundColor = primaryColor;
+                        }
                     }
                 }
             }
-            catch (Exception ex)
+        }
+
+        private void OnThemeSelectionChanged(object sender, EventArgs e)
+        {
+            if (ThemePicker?.SelectedItem is string selectedTheme
+                && Enum.TryParse<CustomAppTheme>(selectedTheme, out var theme))
             {
-                Debug.WriteLine($"Error applying theme: {ex.Message}");
-                MainThread.BeginInvokeOnMainThread(async () =>
-                {
-                    await DisplayAlert("Error", "Failed to apply theme. Please try again.", "OK");
-                });
+                // Preview the theme immediately
+                _themeService.SetTheme(theme);
+                // Don't save to preferences yet - only on Save button click
             }
         }
 

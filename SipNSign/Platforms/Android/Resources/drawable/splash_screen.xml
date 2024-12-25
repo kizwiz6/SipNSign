@@ -1,14 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-	<!-- Background color -->
-	<item android:drawable="@android:color/white" />
-	<!-- Set your desired background color here -->
+    <!-- Background color -->
+    <item>
+        <color android:color="@color/splash_background"/>
+    </item>
 
-	<!-- Logo in the center -->
-	<item>
-		<bitmap
-            android:gravity="center"
-            android:src="@drawable/logo" />
-		<!-- Ensure this points to your logo in the drawable folder -->
-	</item>
+    <!-- Logo centered -->
+    <item>
+        <bitmap 
+            android:src="@drawable/splash"
+            android:tileMode="disabled"
+            android:gravity="center"/>
+    </item>
 </layer-list>

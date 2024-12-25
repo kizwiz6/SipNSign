@@ -7,9 +7,19 @@
     Shell.NavBarHasShadow="False"
     Shell.FlyoutBehavior="Disabled"
     Shell.NavBarIsVisible="true"
-    BackgroundColor="{DynamicResource Primary}"
-    ForegroundColor="White"
-    TitleColor="White">
+    BackgroundColor="{DynamicResource ShellBackgroundColor}"
+    ForegroundColor="{DynamicResource ShellForegroundColor}"
+    TitleColor="{DynamicResource ShellTitleColor}">
+
+    <Shell.Resources>
+        <Style TargetType="Shell">
+            <Setter Property="BackgroundColor" Value="{DynamicResource ShellBackgroundColor}" />
+            <Setter Property="ForegroundColor" Value="{DynamicResource ShellForegroundColor}" />
+            <Setter Property="TitleColor" Value="{DynamicResource ShellTitleColor}" />
+            <Setter Property="DisabledColor" Value="{DynamicResource ShellDisabledColor}" />
+            <Setter Property="UnselectedColor" Value="{DynamicResource ShellUnselectedColor}" />
+        </Style>
+    </Shell.Resources>
 
     <Shell.BackButtonBehavior>
         <BackButtonBehavior IsEnabled="True" IsVisible="True" />

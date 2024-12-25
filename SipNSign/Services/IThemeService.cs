@@ -28,5 +28,7 @@ namespace com.kizwiz.sipnsign.Services
         /// </summary>
         /// <returns>The current AppTheme</returns>
         CustomAppTheme GetCurrentTheme();
+
+        event EventHandler ThemeChanged;
     }
 }

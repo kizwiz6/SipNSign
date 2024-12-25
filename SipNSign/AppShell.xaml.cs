@@ -26,6 +26,19 @@ public partial class AppShell : Shell
         }
     }
 
+    public void RefreshShell()
+    {
+        if (Application.Current?.Resources != null)
+        {
+            // Update shell appearance
+            this.BackgroundColor = (Color)Application.Current.Resources["ShellBackgroundColor"];
+
+            // Hide and show to force redraw
+            this.IsVisible = false;
+            this.IsVisible = true;
+        }
+    }
+
     private void RegisterRoutes()
     {
         try
@@ -41,6 +54,23 @@ public partial class AppShell : Shell
             Debug.WriteLine($"Error registering routes: {ex.Message}");
             throw;
         }
+    }
+
+    public void UpdateTheme()
+    {
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            var resources = Application.Current?.Resources;
+            if (resources != null)
+            {
+                this.BackgroundColor = (Color)resources["ShellBackgroundColor"];
+
+                // Force redraw
+                var temp = this.IsVisible;
+                this.IsVisible = !temp;
+                this.IsVisible = temp;
+            }
+        });
     }
 
     private async Task GoToAsync(string route, string? title = null)

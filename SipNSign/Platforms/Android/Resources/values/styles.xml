@@ -1,8 +1,26 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <resources>
-  <style name="Maui.MainTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
-    <item name="colorPrimary">@color/colorPrimary</item>
-    <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-    <item name="colorAccent">@color/colorAccent</item>
-  </style>
+	<!-- Main app theme -->
+	<style name="Maui.MainTheme" parent="Theme.MaterialComponents.DayNight">
+		<item name="android:statusBarColor">@color/colorPrimaryDark</item>
+		<item name="android:navigationBarColor">@color/colorPrimaryDark</item>
+		<item name="android:windowBackground">@drawable/splash_screen</item>
+	</style>
+
+	<!-- Splash Screen Theme -->
+	<style name="Maui.SplashTheme" parent="Maui.MainTheme">
+		<!-- Set the splash screen as the background -->
+		<item name="android:windowBackground">@drawable/splash_screen</item>
+
+		<!-- Remove the title bar and make the splash screen fullscreen -->
+		<item name="android:windowNoTitle">true</item>
+		<item name="android:windowFullscreen">true</item>
+
+		<!-- Remove any content overlay and action bar -->
+		<item name="android:windowContentOverlay">@null</item>
+		<item name="android:windowActionBar">false</item>
+
+		<!-- Optional: Disable the status bar for splash screen (for full immersive experience) -->
+		<item name="android:statusBarColor">@android:color/transparent</item>
+	</style>
 </resources>
