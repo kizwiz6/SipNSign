@@ -36,7 +36,8 @@ namespace com.kizwiz.sipnsign.Services
                     LightText = Colors.White,
                     DarkText = Color.FromArgb("#1E1E1E"),
                     ShellBackground = Color.FromArgb("#1a237e"),
-                    ShellForeground = Colors.White
+                    ShellForeground = Colors.White,
+                    BackgroundImage = "blue_theme_bg.png"
                 }
             },
             {
@@ -53,7 +54,8 @@ namespace com.kizwiz.sipnsign.Services
                     LightText = Colors.White,
                     DarkText = Color.FromArgb("#1E1E1E"),
                     ShellBackground = Color.FromArgb("#121212"),
-                    ShellForeground = Color.FromArgb("#BB86FC")
+                    ShellForeground = Color.FromArgb("#BB86FC"),
+                    BackgroundImage = "dark_theme_bg.png"
                 }
             },
             {
@@ -70,7 +72,8 @@ namespace com.kizwiz.sipnsign.Services
                     LightText = Colors.White,
                     DarkText = Color.FromArgb("#1E1E1E"),
                     ShellBackground = Colors.White,
-                    ShellForeground = Color.FromArgb("#1976D2")
+                    ShellForeground = Color.FromArgb("#1976D2"),
+                    BackgroundImage = "grey_theme_bg.png"
                 }
             },
             {
@@ -87,7 +90,8 @@ namespace com.kizwiz.sipnsign.Services
                     LightText = Colors.White,
                     DarkText = Color.FromArgb("#1E1E1E"),
                     ShellBackground = Color.FromArgb("#FF512F"),
-                    ShellForeground = Colors.White
+                    ShellForeground = Colors.White,
+                    BackgroundImage = "sunset_theme_bg.png"
                 }
             },
             {
@@ -104,7 +108,8 @@ namespace com.kizwiz.sipnsign.Services
                     LightText = Colors.White,
                     DarkText = Color.FromArgb("#1E1E1E"),
                     ShellBackground = Color.FromArgb("#2D5A27"),  // Dark Forest Green
-                    ShellForeground = Color.FromArgb("#95D5B2")   // Light Forest Green
+                    ShellForeground = Color.FromArgb("#95D5B2"),   // Light Forest Green
+                    BackgroundImage = "forest_theme_bg.png"
                 }
             },
             {
@@ -121,7 +126,8 @@ namespace com.kizwiz.sipnsign.Services
                     LightText = Colors.White,
                     DarkText = Color.FromArgb("#1E1E1E"),
                     ShellBackground = Color.FromArgb("#1A5F7A"),
-                    ShellForeground = Color.FromArgb("#00FFE1")
+                    ShellForeground = Color.FromArgb("#00FFE1"),
+                    BackgroundImage = "ocean_theme_bg.png"
                 }
             },
             {
@@ -138,7 +144,8 @@ namespace com.kizwiz.sipnsign.Services
                     LightText = Color.FromArgb("#00FF9F"),
                     DarkText = Color.FromArgb("#1E1E1E"),
                     ShellBackground = Color.FromArgb("#0C0032"),  // Deep Purple
-                    ShellForeground = Color.FromArgb("#FF00FF")   // Neon Pink
+                    ShellForeground = Color.FromArgb("#FF00FF"),   // Neon Pink
+                    BackgroundImage = "ocean_theme_bg.png"
                 }
             },
             {
@@ -155,7 +162,8 @@ namespace com.kizwiz.sipnsign.Services
                     LightText = Colors.White,
                     DarkText = Color.FromArgb("#1E1E1E"),
                     ShellBackground = Color.FromArgb("#2C3E50"),  // Dark Gray
-                    ShellForeground = Color.FromArgb("#ECF0F1")   // Light Gray
+                    ShellForeground = Color.FromArgb("#ECF0F1"),   // Light Gray
+                    BackgroundImage = "monochrome_theme_bg.png"
                 }
             }
         };
@@ -190,6 +198,7 @@ namespace com.kizwiz.sipnsign.Services
                 resources["PerformMode"] = themeColors.MenuButton2;
                 resources["Progress"] = themeColors.MenuButton3;
                 resources["Settings"] = themeColors.MenuButton4;
+                resources["CurrentThemeBackground"] = themeColors.BackgroundImage;
 
                 // Force Shell update
                 if (Shell.Current != null)
@@ -284,5 +293,6 @@ namespace com.kizwiz.sipnsign.Services
         public Color AnswerButton { get; set; } // Answer choice buttons
         public Color ShellBackground { get; set; }
         public Color ShellForeground { get; set; }  // For text/icons
+        public string BackgroundImage { get; set; } = string.Empty;
     }
 }
