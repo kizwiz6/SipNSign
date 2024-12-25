@@ -1,0 +1,12 @@
+<!-- Trophy Achievement Icon -->
+<svg viewBox="0 0 100 100">
+	<!-- Base trophy cup -->
+	<path d="M30 20 L70 20 L65 70 L35 70 Z" fill="gold"/>
+	<!-- Trophy handles -->
+	<path d="M20 30 Q10 30 10 40 L10 50 Q10 60 20 60" fill="none" stroke="gold" stroke-width="4"/>
+	<path d="M80 30 Q90 30 90 40 L90 50 Q90 60 80 60" fill="none" stroke="gold" stroke-width="4"/>
+	<!-- Base -->
+	<rect x="40" y="70" width="20" height="10" fill="goldenrod"/>
+	<!-- Star on top -->
+	<path d="M50 10 L55 20 L65 20 L57 25 L60 35 L50 28 L40 35 L43 25 L35 20 L45 20 Z" fill="yellow"/>
+</svg>

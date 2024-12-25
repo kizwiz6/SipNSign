@@ -1,0 +1,9 @@
+<!-- Streak Achievement Icon -->
+<svg viewBox="0 0 100 100">
+	<!-- Flame shape -->
+	<path d="M50 10 Q65 40 50 70 Q35 40 50 10" fill="red"/>
+	<path d="M50 20 Q60 40 50 60 Q40 40 50 20" fill="orange"/>
+	<!-- Number counter -->
+	<circle cx="50" cy="80" r="15" fill="white" stroke="red" stroke-width="3"/>
+	<text x="50" y="85" text-anchor="middle" font-size="16" fill="red">7</text>
+</svg>
