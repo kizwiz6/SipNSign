@@ -1,11 +1,6 @@
 ﻿using com.kizwiz.sipnsign.Enums;
 using com.kizwiz.sipnsign.Pages;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace com.kizwiz.sipnsign.Services
 {
@@ -32,7 +27,7 @@ namespace com.kizwiz.sipnsign.Services
                     MenuButton2 = Color.FromArgb("#28a745"),  // Green
                     MenuButton3 = Color.FromArgb("#FFC107"),  // Yellow
                     MenuButton4 = Color.FromArgb("#FF5722"),  // Orange
-                    AnswerButton = Color.FromArgb("#007BFF"), // Blue
+                    AnswerButton = Color.FromArgb("#4FC3F7"),  // Light blue
                     LightText = Colors.White,
                     DarkText = Color.FromArgb("#1E1E1E"),
                     ShellBackground = Color.FromArgb("#1a237e"),
@@ -49,7 +44,7 @@ namespace com.kizwiz.sipnsign.Services
                     MenuButton2 = Color.FromArgb("#03DAC6"),  // Teal
                     MenuButton3 = Color.FromArgb("#CF6679"),  // Pink
                     MenuButton4 = Color.FromArgb("#FF7597"),  // Light Pink
-                    AnswerButton = Color.FromArgb("#BB86FC"),
+                    AnswerButton = Color.FromArgb("#B39DDB"),  // Light purple
                     LightText = Colors.White,
                     DarkText = Color.FromArgb("#1E1E1E"),
                     ShellBackground = Color.FromArgb("#121212"),
@@ -66,7 +61,7 @@ namespace com.kizwiz.sipnsign.Services
                     MenuButton2 = Color.FromArgb("#004d40"),    // Darker teal
                     MenuButton3 = Color.FromArgb("#e65100"),    // Darker orange
                     MenuButton4 = Color.FromArgb("#b71c1c"),    // Darker red
-                    AnswerButton = Color.FromArgb("#0056b3"),   // Darker blue
+                    AnswerButton = Color.FromArgb("#0056b3"),  // Dark blue
                     LightText = Colors.White,
                     DarkText = Color.FromArgb("#1E1E1E"),
                     ShellBackground = Colors.White,
@@ -83,7 +78,7 @@ namespace com.kizwiz.sipnsign.Services
                     MenuButton2 = Color.FromArgb("#FFB900"),  // Gold
                     MenuButton3 = Color.FromArgb("#FF8C42"),  // Orange
                     MenuButton4 = Color.FromArgb("#FF5757"),  // Red-Orange
-                    AnswerButton = Color.FromArgb("#FF6B6B"),
+                    AnswerButton = Color.FromArgb("#FFB74D"),  // Light peach
                     LightText = Colors.White,
                     DarkText = Color.FromArgb("#1E1E1E"),
                     ShellBackground = Color.FromArgb("#FF512F"),
@@ -100,7 +95,7 @@ namespace com.kizwiz.sipnsign.Services
                     MenuButton2 = Color.FromArgb("#40916C"),  // Medium Green
                     MenuButton3 = Color.FromArgb("#52B788"),  // Light Green
                     MenuButton4 = Color.FromArgb("#74C69D"),  // Pale Green
-                    AnswerButton = Color.FromArgb("#2D6A4F"),
+                    AnswerButton = Color.FromArgb("#81C784"),  // Light mint green
                     LightText = Colors.White,
                     DarkText = Color.FromArgb("#1E1E1E"),
                     ShellBackground = Color.FromArgb("#2D5A27"),  // Dark Forest Green
@@ -117,7 +112,7 @@ namespace com.kizwiz.sipnsign.Services
                     MenuButton2 = Color.FromArgb("#48CAE4"),    // Light blue
                     MenuButton3 = Color.FromArgb("#90E0EF"),    // Pale blue
                     MenuButton4 = Color.FromArgb("#ADE8F4"),    // Very light blue
-                    AnswerButton = Color.FromArgb("#00B4D8"),   // Brighter blue
+                    AnswerButton = Color.FromArgb("#4DD0E1"),  // Light cyan
                     LightText = Colors.White,
                     DarkText = Color.FromArgb("#1E1E1E"),
                     ShellBackground = Color.FromArgb("#1A5F7A"),
@@ -134,7 +129,7 @@ namespace com.kizwiz.sipnsign.Services
                     MenuButton2 = Color.FromArgb("#00FF9F"),  // Cyan
                     MenuButton3 = Color.FromArgb("#FFFF00"),  // Yellow
                     MenuButton4 = Color.FromArgb("#FF3366"),  // Pink
-                    AnswerButton = Color.FromArgb("#FF00FF"), // Magenta
+                    AnswerButton = Color.FromArgb("#00E5FF"),  // Bright cyan
                     LightText = Color.FromArgb("#00FF9F"),
                     DarkText = Color.FromArgb("#1E1E1E"),
                     ShellBackground = Color.FromArgb("#0C0032"),  // Deep Purple
@@ -151,7 +146,7 @@ namespace com.kizwiz.sipnsign.Services
                     MenuButton2 = Color.FromArgb("#7F8C8D"),  // Medium Gray
                     MenuButton3 = Color.FromArgb("#34495E"),  // Dark Gray
                     MenuButton4 = Color.FromArgb("#2C3E50"),  // Darker Gray
-                    AnswerButton = Color.FromArgb("#95A5A6"),
+                    AnswerButton = Color.FromArgb("#BDBDBD"),  // Light gray
                     LightText = Colors.White,
                     DarkText = Color.FromArgb("#1E1E1E"),
                     ShellBackground = Color.FromArgb("#2C3E50"),  // Dark Gray
@@ -190,6 +185,8 @@ namespace com.kizwiz.sipnsign.Services
                 resources["PerformMode"] = themeColors.MenuButton2;
                 resources["Progress"] = themeColors.MenuButton3;
                 resources["Settings"] = themeColors.MenuButton4;
+                resources["AnswerButton"] = themeColors.AnswerButton;
+                Debug.WriteLine($"Setting AnswerButton color to: {themeColors.AnswerButton}");
 
                 // Force Shell update
                 if (Shell.Current != null)

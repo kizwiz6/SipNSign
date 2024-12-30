@@ -56,14 +56,14 @@
                       IsVisible="{Binding IsGameActive}">
 
                     <!-- Video Player Section -->
-                    <Grid Grid.Row="0" HeightRequest="240">
+                    <Grid Grid.Row="0" HeightRequest="300">
                         <Frame Padding="4"
                               CornerRadius="15"
                               HasShadow="True"
                               BorderColor="{DynamicResource Primary}"
                               BackgroundColor="Black"
                               IsVisible="{Binding IsGameActive}"
-                               HeightRequest="250">
+                              HeightRequest="310">
                             <Grid>
                                 <!-- Loading Indicator -->
                                 <ActivityIndicator IsRunning="{Binding IsLoading}"
@@ -76,7 +76,7 @@
                                 <toolkit:MediaElement 
                                    x:Name="SignVideo"
                                    Aspect="AspectFit"
-                                   HeightRequest="300"
+                                   HeightRequest="330"
                                    HorizontalOptions="Center"
                                    ShouldAutoPlay="True"
                                    ShouldLoopPlayback="True"
@@ -127,32 +127,32 @@
 
                             <!-- Answer Buttons -->
                             <Button Grid.Column="0" Grid.Row="0"
-                                   Style="{StaticResource AnimatedButtonStyle}"
-                                   Text="{Binding CurrentSign.Choices[0]}"
-                                   Command="{Binding AnswerCommand}"
-                                   CommandParameter="{Binding CurrentSign.Choices[0]}"
-                                    BackgroundColor="{DynamicResource AnswerButton}"/>
+                               Style="{StaticResource AnimatedButtonStyle}"
+                               Text="{Binding CurrentSign.Choices[0]}"
+                               Command="{Binding AnswerCommand}"
+                               CommandParameter="{Binding CurrentSign.Choices[0]}"
+                               BackgroundColor="{Binding Button1Color}"/>
 
-                            <Button Grid.Column="1" Grid.Row="0"
-                                   Style="{StaticResource AnimatedButtonStyle}"
-                                   Text="{Binding CurrentSign.Choices[1]}"
-                                   Command="{Binding AnswerCommand}"
-                                   CommandParameter="{Binding CurrentSign.Choices[1]}"
-                                    BackgroundColor="{DynamicResource AnswerButton}"/>
+                                                    <Button Grid.Column="1" Grid.Row="0"
+                               Style="{StaticResource AnimatedButtonStyle}"
+                               Text="{Binding CurrentSign.Choices[1]}"
+                               Command="{Binding AnswerCommand}"
+                               CommandParameter="{Binding CurrentSign.Choices[1]}"
+                               BackgroundColor="{Binding Button2Color}"/>
 
-                            <Button Grid.Column="0" Grid.Row="1"
-                                   Style="{StaticResource AnimatedButtonStyle}"
-                                   Text="{Binding CurrentSign.Choices[2]}"
-                                   Command="{Binding AnswerCommand}"
-                                   CommandParameter="{Binding CurrentSign.Choices[2]}"
-                                   BackgroundColor="{DynamicResource AnswerButton}"/>
+                                                    <Button Grid.Column="0" Grid.Row="1"
+                               Style="{StaticResource AnimatedButtonStyle}"
+                               Text="{Binding CurrentSign.Choices[2]}"
+                               Command="{Binding AnswerCommand}"
+                               CommandParameter="{Binding CurrentSign.Choices[2]}"
+                               BackgroundColor="{Binding Button3Color}"/>
 
-                            <Button Grid.Column="1" Grid.Row="1"
-                                   Style="{StaticResource AnimatedButtonStyle}"
-                                   Text="{Binding CurrentSign.Choices[3]}"
-                                   Command="{Binding AnswerCommand}"
-                                   CommandParameter="{Binding CurrentSign.Choices[3]}"
-                                   BackgroundColor="{DynamicResource AnswerButton}"/>
+                                                    <Button Grid.Column="1" Grid.Row="1"
+                               Style="{StaticResource AnimatedButtonStyle}"
+                               Text="{Binding CurrentSign.Choices[3]}"
+                               Command="{Binding AnswerCommand}"
+                               CommandParameter="{Binding CurrentSign.Choices[3]}"
+                               BackgroundColor="{Binding Button4Color}"/>
                         </Grid>
                     </VerticalStackLayout>
                 </Grid>

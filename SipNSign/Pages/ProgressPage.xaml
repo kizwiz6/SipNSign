@@ -17,26 +17,6 @@
     <ScrollView>
         <VerticalStackLayout Spacing="20" Padding="20">
 
-            <!-- Overall Progress -->
-            <Frame Style="{StaticResource CardFrame}">
-                <VerticalStackLayout>
-                    <Label Text="Overall Progress" 
-               Style="{StaticResource HeaderLabel}"
-               HorizontalOptions="Center" />
-
-                    <ProgressBar x:Name="OverallProgressBar"
-                     Progress="{Binding OverallProgressPercentage}"
-                     ProgressColor="{DynamicResource PrimaryBrush}"
-                     HeightRequest="10"
-                     Margin="0,10" />
-
-                    <Label x:Name="ProgressLabel"
-               Text="{Binding OverallProgressText}"
-               Style="{StaticResource BodyLabel}"
-               HorizontalOptions="Center" />
-                </VerticalStackLayout>
-            </Frame>
-
             <!-- Statistics Grid -->
             <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="15" RowSpacing="15">
                 <!-- Signs Learned -->
