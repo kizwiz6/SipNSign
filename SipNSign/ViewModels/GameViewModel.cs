@@ -99,7 +99,19 @@ namespace com.kizwiz.sipnsign.ViewModels
         #region Public Properties
         public Color PrimaryColor => _currentMode == GameMode.Guess ? _guessPrimaryColor : _performPrimaryColor;
         public Color ProgressBarColor => PrimaryColor;
-        public Color ButtonBaseColor => PrimaryColor;
+        public Color ButtonBaseColor
+        {
+            get
+            {
+                if (Application.Current?.Resources != null &&
+                    Application.Current.Resources.TryGetValue("AnswerButton", out var colorValue) &&
+                    colorValue is Color themeColor)
+                {
+                    return themeColor;
+                }
+                return _guessPrimaryColor;  // Fallback to blue only if theme color not found
+            }
+        }
         /// <summary>
         /// Event triggered when a sign reveal is requested.
         /// </summary>
@@ -179,9 +191,8 @@ namespace com.kizwiz.sipnsign.ViewModels
                 if (_currentSign != value)
                 {
                     _currentSign = value;
-                    Debug.WriteLine($"=== CurrentSign changed to: {value?.CorrectAnswer}, triggering OnPropertyChanged ===");
+                    ResetButtonColors();  // Reset to theme colors when new sign is loaded
                     OnPropertyChanged(nameof(CurrentSign));
-                    Debug.WriteLine("OnPropertyChanged called for CurrentSign");
                 }
             }
         }
@@ -301,23 +312,44 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
 
+        /// <summary>
+        /// Determines the color for a button based on the current state of the answer selection.
+        /// Displays feedback (green/red) when an answer is being processed, otherwise uses the theme color.
+        /// </summary>
+        /// <param name="buttonIndex">The index of the button being checked for color.</param>
+        /// <param name="selectedIndex">The index of the button that was selected by the user.</param>
+        /// <param name="correctIndex">The index of the button that is the correct answer.</param>
+        /// <param name="isCorrect">A boolean indicating whether the selected answer is correct or not.</param>
+        /// <returns>The color to be applied to the button based on the selection state.</returns>
         private Color GetButtonColor(int buttonIndex, int selectedIndex, int correctIndex, bool isCorrect)
         {
             if (IsProcessingAnswer)
             {
                 if (buttonIndex == selectedIndex)
                 {
-                    // Selected button
-                    return isCorrect ? FeedbackSuccessColor : FeedbackErrorColor;
+                    return isCorrect ? _successColor : _errorColor;
                 }
                 else if (buttonIndex == correctIndex && !isCorrect)
                 {
-                    // Show correct answer when wrong
-                    return FeedbackSuccessColor;
+                    return _successColor;
+                }
+                else
+                {
+                    if (Application.Current?.Resources.TryGetValue("AnswerButton", out var themeColorObject) == true &&
+                        themeColorObject is Color themeColor)
+                    {
+                        return themeColor;
+                    }
+                    return ButtonBaseColor;
                 }
             }
 
-            // Keep original color for unselected buttons or when not processing
+            // Non-processing state - use theme color
+            if (Application.Current?.Resources.TryGetValue("AnswerButton", out var defaultThemeColor) == true &&
+                defaultThemeColor is Color color)
+            {
+                return color;
+            }
             return ButtonBaseColor;
         }
 
@@ -551,24 +583,17 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private async void HandleAnswer(string answer)
         {
-            if (!IsGameActive || IsGameOver || IsProcessingAnswer) return;  // Check if game is still active
-            if (IsProcessingAnswer) return; // Prevent multiple clicks
+            if (!IsGameActive || IsGameOver || IsProcessingAnswer) return;
 
             try
             {
                 IsProcessingAnswer = true;
-
-                if (_timer != null)
-                {
-                    _timer.Stop();
-                }
+                if (_timer != null) _timer.Stop();
 
                 bool isCorrect = CheckAnswer(answer);
                 UpdateButtonColor(answer, isCorrect);
 
-                // Check Sober Mode setting
                 bool isSoberMode = Preferences.Get(Constants.SOBER_MODE_KEY, false);
-
                 if (isCorrect)
                 {
                     FeedbackText = $"Correct!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.";
@@ -586,6 +611,11 @@ namespace com.kizwiz.sipnsign.ViewModels
                 }
 
                 await ShowFeedbackAndContinue(isCorrect);
+
+                // Force button color update
+                IsProcessingAnswer = false;
+                UpdateButtonColor(answer, isCorrect);
+                ResetButtonColors();
             }
             finally
             {
@@ -664,19 +694,21 @@ namespace com.kizwiz.sipnsign.ViewModels
         /// <param name="isCorrect">Whether the previous answer was correct</param>
         private async Task ShowFeedbackAndContinue(bool isCorrect)
         {
-            if (IsGameOver) return;  // Don't show feedback if game is over
+            if (IsGameOver) return;
 
             IsFeedbackVisible = true;
             FeedbackBackgroundColor = isCorrect ? FeedbackSuccessColor.ToArgbHex() : FeedbackErrorColor.ToArgbHex();
 
-            // Use shorter delay for correct answers, configurable delay for incorrect
             int delay = isCorrect ? 2000 : Preferences.Get(Constants.INCORRECT_DELAY_KEY, Constants.DEFAULT_DELAY);
             await Task.Delay(delay);
 
-            if (!IsGameOver)  // Check again in case game ended during delay
+            if (!IsGameOver)
             {
                 IsFeedbackVisible = false;
                 if (IsPerformMode) IsSignHidden = true;
+
+                // Reset colors back to theme before loading next sign
+                ResetButtonColors();
                 LoadNextSign();
             }
         }
@@ -714,10 +746,29 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private void ResetButtonColors()
         {
-            Button1Color = ButtonBaseColor;
-            Button2Color = ButtonBaseColor;
-            Button3Color = ButtonBaseColor;
-            Button4Color = ButtonBaseColor;
+            Debug.WriteLine("ResetButtonColors called");
+
+            if (Application.Current?.Resources != null &&
+                Application.Current.Resources.TryGetValue("AnswerButton", out var colorValue) &&
+                colorValue is Color themeColor)
+            {
+                Debug.WriteLine($"Found theme color: {themeColor}");
+                Button1Color = themeColor;
+                Button2Color = themeColor;
+                Button3Color = themeColor;
+                Button4Color = themeColor;
+            }
+            else
+            {
+                Debug.WriteLine("Using fallback ButtonBaseColor");
+                Debug.WriteLine($"ButtonBaseColor value: {ButtonBaseColor}");
+                Button1Color = ButtonBaseColor;
+                Button2Color = ButtonBaseColor;
+                Button3Color = ButtonBaseColor;
+                Button4Color = ButtonBaseColor;
+            }
+
+            Debug.WriteLine($"Final Button1Color: {Button1Color}");
         }
 
         /// <summary>
