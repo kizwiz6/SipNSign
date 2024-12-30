@@ -31,22 +31,29 @@
             </Style>
         </ResourceDictionary>
     </ContentPage.Resources>
+    <Grid>
+        <!-- Background Image -->
+        <Image Source="{DynamicResource CurrentThemeBackground}"
+           Aspect="AspectFill"
+           HorizontalOptions="Fill"
+           VerticalOptions="Fill" />
 
-    <!-- Main content with logo and buttons -->
-    <VerticalStackLayout x:Name="MainLayout" Spacing="5" Padding="10">
-        <!-- Logo container -->
-        <Frame BackgroundColor="Transparent"
+        <!-- Main content with logo and buttons -->
+        <VerticalStackLayout x:Name="MainLayout" Spacing="5" Padding="10">
+            <!-- Logo container -->
+            <Frame BackgroundColor="Transparent"
                    BorderColor="Transparent"
                    CornerRadius="10"
                    Margin="40,5"
                    Padding="0"
                    HasShadow="True">
-            <Image Source="logo_nobg.png"
+                <Image Source="logo_nobg.png"
                        HeightRequest="230"
                        Aspect="AspectFill"/>
-        </Frame>
+            </Frame>
 
-        <!-- Title --><!--
+            <!-- Title -->
+            <!--
         <Label Text= "Sip N' Sign "
                 FontSize="60"
                FontFamily="Bangers"
@@ -61,34 +68,30 @@
             </Label.Shadow>
         </Label>-->
 
-        <!-- Menu Buttons -->
-        <Button Text="Guess Mode"
+            <!-- Menu Buttons -->
+            <Button Text="Guess Mode"
             StyleId="GuessMode"
             Style="{StaticResource MenuButton}"
             BackgroundColor="{DynamicResource GuessMode}"
             Clicked="OnGuessGameClicked"/>
 
-        <Button Text="Perform Mode"
+            <Button Text="Perform Mode"
             StyleId="PerformMode"
             Style="{StaticResource MenuButton}"
             BackgroundColor="{DynamicResource PerformMode}"
             Clicked="OnPerformGameClicked"/>
 
-        <Button Text="Progress"
+            <Button Text="Progress"
             StyleId="Progress"
             Style="{StaticResource MenuButton}"
             BackgroundColor="{DynamicResource Progress}"
             Clicked="OnViewScoresClicked"/>
 
-        <Button Text="Settings"
+            <Button Text="Settings"
             StyleId="Settings"
             Style="{StaticResource MenuButton}"
             BackgroundColor="{DynamicResource Settings}"
             Clicked="OnSettingsClicked"/>
-
-        <!--<Button Text="View Debug Logs"
-                Style="{StaticResource MenuButton}"
-                BackgroundColor="#FF5722"
-                Clicked="OnViewLogsClicked"/>-->
-    </VerticalStackLayout>
+        </VerticalStackLayout>
+    </Grid>
 </ContentPage>

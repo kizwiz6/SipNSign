@@ -35,6 +35,7 @@
 						  Color="#0e324d"
 						  BaseSize="256,256" />
         <MauiImage Include="Resources\Images\*" />
+		<MauiImage Include="Resources\Images\Themes\*.png" />
         <MauiFont Include="Resources\Fonts\*" />
         <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
     </ItemGroup>
