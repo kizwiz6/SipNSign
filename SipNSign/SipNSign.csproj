@@ -31,13 +31,11 @@
     <ItemGroup>
         <!-- Resources -->
         <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
-		<MauiSplashScreen Include="Resources\Splash\splash_logo.png"
-						  Color="#0e324d"
-						  BaseSize="256,256" />
+		<MauiSplashScreen Include="Resources\Splash\splash_logo.png" Color="#0e324d" BaseSize="256,256" />
         <MauiImage Include="Resources\Images\*" />
 		<MauiImage Include="Resources\Images\Themes\*.png" />
         <MauiFont Include="Resources\Fonts\*" />
-        <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+		<MauiAsset Include="Resources\Raw\*.mp4" LogicalName="%(Filename)%(Extension)" />
     </ItemGroup>
 
     <ItemGroup>

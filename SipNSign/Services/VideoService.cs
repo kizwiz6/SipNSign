@@ -85,6 +85,7 @@ namespace com.kizwiz.sipnsign.Services
             try
             {
                 var targetPath = Path.Combine(_videoDirectory, videoFileName);
+                Debug.WriteLine($"Target path: {targetPath}");
 
                 if (File.Exists(targetPath))
                 {
@@ -92,24 +93,23 @@ namespace com.kizwiz.sipnsign.Services
                     return;
                 }
 
+                Debug.WriteLine($"Attempting to open video file: {videoFileName}");
                 using var sourceStream = await FileSystem.OpenAppPackageFileAsync(videoFileName);
                 if (sourceStream == null)
                 {
+                    Debug.WriteLine("Source stream is null");
                     throw new FileNotFoundException($"Video file not found in app package: {videoFileName}");
                 }
 
                 using var fileStream = File.Create(targetPath);
                 await sourceStream.CopyToAsync(fileStream);
-
-                if (!File.Exists(targetPath))
-                {
-                    throw new IOException($"Failed to create video file: {videoFileName}");
-                }
+                Debug.WriteLine($"Successfully copied video: {videoFileName}");
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error copying video {videoFileName}: {ex.Message}");
-                throw; 
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                throw;
             }
         }
     }

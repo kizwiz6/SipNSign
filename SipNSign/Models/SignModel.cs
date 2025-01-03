@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using com.kizwiz.sipnsign.Enums;
 
 namespace com.kizwiz.sipnsign.Models
 {
@@ -26,6 +25,11 @@ namespace com.kizwiz.sipnsign.Models
         /// <summary>
         /// Gets or sets the list of multiple choice options for the user to select from.
         /// </summary>
-        public List<string> Choices { get; set; }
+        public List<string> Choices { get; set; } = new List<string>(); // Initialise empty
+
+        /// <summary>
+        /// Gets or sets the category for the sign.
+        /// </summary>
+        public SignCategory Category { get; set; }
     }
 }

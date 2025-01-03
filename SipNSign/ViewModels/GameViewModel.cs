@@ -60,6 +60,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private ICommand _playAgainCommand;
         private ICommand _incorrectPerformCommand;
         private ICommand _correctPerformCommand;
+        private readonly SignRepository _signRepository;
         #endregion
 
         /// <summary>
@@ -420,11 +421,17 @@ namespace com.kizwiz.sipnsign.ViewModels
         /// </exception>
         public GameViewModel(IServiceProvider serviceProvider, IVideoService videoService, ILoggingService logger, IProgressService progressService)
         {
+            Debug.WriteLine($"GameViewModel initialized with mode: {CurrentMode}");
+
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             _videoService = videoService ?? throw new ArgumentNullException(nameof(videoService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _progressService = progressService ?? throw new ArgumentNullException(nameof(progressService));
+            _signRepository = new SignRepository();
+            _signs = _signRepository.GetSigns();
 
+            // Reset indices before using _signs
+            ResetGame();
 
             // Initialize signs list first
             _signs = new SignRepository().GetSigns();
@@ -980,6 +987,8 @@ namespace com.kizwiz.sipnsign.ViewModels
         #region Public Methods
         public void LoadNextSign()
         {
+            Debug.WriteLine("LoadNextSign called");
+
             // Don't load next sign if game is over
             if (!IsGameActive || IsGameOver)
             {
@@ -987,6 +996,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
 
             Debug.WriteLine($"LoadNextSign started. Available indices: {_availableIndices.Count}");
+
             IsLoading = true;
 
             try
@@ -1020,6 +1030,17 @@ namespace com.kizwiz.sipnsign.ViewModels
                 }
 
                 CurrentSign = _signs[selectedSignIndex];
+
+                // Add these debug lines
+                Debug.WriteLine($"Current sign: {CurrentSign.CorrectAnswer}");
+                Debug.WriteLine($"Choices count: {CurrentSign.Choices?.Count}");
+                if (CurrentSign.Choices != null)
+                {
+                    for (int i = 0; i < CurrentSign.Choices.Count; i++)
+                    {
+                        Debug.WriteLine($"Choice {i}: {CurrentSign.Choices[i]}");
+                    }
+                }
 
                 if (IsGuessMode && IsTimerEnabled)
                 {

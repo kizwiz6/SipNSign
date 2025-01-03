@@ -1,222 +1,294 @@
-﻿using com.kizwiz.sipnsign.Models;
+﻿using com.kizwiz.sipnsign.Enums;
+using com.kizwiz.sipnsign.Models;
 
-public class SignRepository
+namespace com.kizwiz.sipnsign.Services
 {
-    public int TotalSignsCount => GetSigns().Count;
-
-    public List<SignModel> GetSigns()
+    /// <summary>
+    /// Repository for managing sign language signs and their categories
+    /// </summary>
+    public class SignRepository
     {
-        return new List<SignModel>
+        /// <summary>
+        /// Gets the total number of signs across all categories
+        /// </summary>
+        public int TotalSignsCount => GetSignsByCategory().SelectMany(c => c.Signs).Count();
+
+
+
+
+        public List<SignModel> GetSigns() => _categories.SelectMany(c => c.Signs).ToList();
+
+        private readonly List<CategoryModel> _categories;
+
+        public SignRepository()
         {
-            new SignModel { VideoPath = "actor.mp4", Choices = new List<string> { "Actor", "Performer", "Singer", "Dancer" }, CorrectAnswer = "Actor" },
-            new SignModel { VideoPath = "again.mp4", Choices = new List<string> { "Once", "Again", "Repeat", "Return" }, CorrectAnswer = "Again" },
-            new SignModel { VideoPath = "age.mp4", Choices = new List<string> { "Young", "Old", "Age", "Time" }, CorrectAnswer = "Age" },
-            new SignModel { VideoPath = "angel.mp4", Choices = new List<string> { "Devil", "Angel", "Spirit", "Saint" }, CorrectAnswer = "Angel" },
-            new SignModel { VideoPath = "answer.mp4", Choices = new List<string> { "Answer", "Question", "Reply", "Ask" }, CorrectAnswer = "Answer" },
-            new SignModel { VideoPath = "argue.mp4", Choices = new List<string> { "Fight", "Argue", "Discuss", "Debate" }, CorrectAnswer = "Argue" },
-            new SignModel { VideoPath = "autumn.mp4", Choices = new List<string> { "Winter", "Autumn", "Summer", "Spring" }, CorrectAnswer = "Autumn" },
-            new SignModel { VideoPath = "bedroom.mp4", Choices = new List<string> { "Kitchen", "Bedroom", "Bathroom", "Living Room" }, CorrectAnswer = "Bedroom" },
-            new SignModel { VideoPath = "beer.mp4", Choices = new List<string> { "Wine", "Beer", "Juice", "Water" }, CorrectAnswer = "Beer" },
-            new SignModel { VideoPath = "birthday.mp4", Choices = new List<string> { "Anniversary", "Birthday", "Celebration", "Party" }, CorrectAnswer = "Birthday" },
-            new SignModel { VideoPath = "breakfast.mp4", Choices = new List<string> { "Lunch", "Dinner", "Breakfast", "Snack" }, CorrectAnswer = "Breakfast" },
-            new SignModel { VideoPath = "bus.mp4", Choices = new List<string> { "Bus", "Train", "Car", "Taxi" }, CorrectAnswer = "Bus" },
-            new SignModel { VideoPath = "car.mp4", Choices = new List<string> { "Bicycle", "Car", "Motorcycle", "Bus" }, CorrectAnswer = "Car" },
-            new SignModel { VideoPath = "chicken.mp4", Choices = new List<string> { "Chicken", "Fish", "Pork", "Beef" }, CorrectAnswer = "Chicken" },
-            new SignModel { VideoPath = "dance.mp4", Choices = new List<string> { "Jump", "Dance", "Move", "Run" }, CorrectAnswer = "Dance" },
-            new SignModel { VideoPath = "dolphin.mp4", Choices = new List<string> { "Whale", "Dolphin", "Shark", "Fish" }, CorrectAnswer = "Dolphin" },
-            new SignModel { VideoPath = "dog.mp4", Choices = new List<string> { "Dog", "Cat", "Animal", "Bird" }, CorrectAnswer = "Dog" },
-            new SignModel { VideoPath = "donkey.mp4", Choices = new List<string> { "Donkey", "Horse", "Zebra", "Mule" }, CorrectAnswer = "Donkey" },
-            new SignModel { VideoPath = "forget.mp4", Choices = new List<string> { "Remember", "Forget", "Recall", "Learn" }, CorrectAnswer = "Forget" },
-            new SignModel { VideoPath = "help.mp4", Choices = new List<string> { "Assist", "Help", "Support", "Aid" }, CorrectAnswer = "Help" },
-            new SignModel { VideoPath = "read.mp4", Choices = new List<string> { "Write", "Read", "Speak", "Listen" }, CorrectAnswer = "Read" },
-            new SignModel { VideoPath = "sun.mp4", Choices = new List<string> { "Sun", "Moon", "Star", "Cloud" }, CorrectAnswer = "Sun" },
+            _categories = InitializeCategories();
+        }
 
-            // New Entries
-            new SignModel { VideoPath = "bicycle.mp4", Choices = new List<string> { "Car", "Bus", "Motorcycle", "Bicycle" }, CorrectAnswer = "Bicycle" },
-            new SignModel { VideoPath = "brother.mp4", Choices = new List<string> { "Father", "Brother", "Friend", "Sister" }, CorrectAnswer = "Brother" },
-            new SignModel { VideoPath = "chess.mp4", Choices = new List<string> { "Checkers", "Cards", "Dominoes", "Chess" }, CorrectAnswer = "Chess" },
-            new SignModel { VideoPath = "child.mp4", Choices = new List<string> { "Teenager", "Baby", "Child", "Adult" }, CorrectAnswer = "Child" },
-            new SignModel { VideoPath = "confused.mp4", Choices = new List<string> { "Sad", "Happy", "Angry", "Confused" }, CorrectAnswer = "Confused" },
-            new SignModel { VideoPath = "dinner.mp4", Choices = new List<string> { "Dinner", "Lunch", "Snack", "Breakfast" }, CorrectAnswer = "Dinner" },
-            new SignModel { VideoPath = "elephant.mp4", Choices = new List<string> { "Rhino", "Hippo", "Giraffe", "Elephant" }, CorrectAnswer = "Elephant" },
-            new SignModel { VideoPath = "emergency.mp4", Choices = new List<string> { "Danger", "Accident", "Help", "Emergency" }, CorrectAnswer = "Emergency" },
-            new SignModel { VideoPath = "England.mp4", Choices = new List<string> { "Ireland", "Wales", "England", "Scotland" }, CorrectAnswer = "England" },
-            new SignModel { VideoPath = "evil.mp4", Choices = new List<string> { "Good", "Kind", "Bad", "Evil" }, CorrectAnswer = "Evil" },
-            new SignModel { VideoPath = "fake.mp4", Choices = new List<string> { "True", "Fake", "Lie", "Real" }, CorrectAnswer = "Fake" },
-            new SignModel { VideoPath = "family.mp4", Choices = new List<string> { "Group", "Neighbours", "Family", "Friends" }, CorrectAnswer = "Family" },
-            new SignModel { VideoPath = "favourite2.mp4", Choices = new List<string> { "Hobby", "Favourite", "Choice", "Fever" }, CorrectAnswer = "Favourite" },
-            new SignModel { VideoPath = "film.mp4", Choices = new List<string> { "Show", "Video", "Film", "Movie" }, CorrectAnswer = "Film" },
-            new SignModel { VideoPath = "fire.mp4", Choices = new List<string> { "Flame", "Fire", "Smoke", "Heat" }, CorrectAnswer = "Fire" },
-            new SignModel { VideoPath = "flower.mp4", Choices = new List<string> { "Tree", "Flower", "Leaf", "Bush" }, CorrectAnswer = "Flower" },
-            new SignModel { VideoPath = "football2.mp4", Choices = new List<string> { "Rugby", "Volleyball", "Football", "Cricket" }, CorrectAnswer = "Football" },
-            new SignModel { VideoPath = "fork.mp4", Choices = new List<string> { "Plate", "Spoon", "Fork", "Knife" }, CorrectAnswer = "Fork" },
-            new SignModel { VideoPath = "giraffe.mp4", Choices = new List<string> { "Camel", "Zebra", "Elephant", "Giraffe" }, CorrectAnswer = "Giraffe" },
-            new SignModel { VideoPath = "guitar.mp4", Choices = new List<string> { "Piano", "Drums", "Violin", "Guitar" }, CorrectAnswer = "Guitar" },
-            new SignModel { VideoPath = "Halloween.mp4", Choices = new List<string> { "Christmas", "Thanksgiving", "Halloween", "Easter" }, CorrectAnswer = "Halloween" },
-            new SignModel { VideoPath = "heart.mp4", Choices = new List<string> { "Brain", "Lung", "Heart", "Liver" }, CorrectAnswer = "Heart" },
-            new SignModel { VideoPath = "horrible.mp4", Choices = new List<string> { "Great", "Terrible", "Bad", "Horrible" }, CorrectAnswer = "Horrible" },
-            new SignModel { VideoPath = "hot.mp4", Choices = new List<string> { "Cool", "Cold", "Warm", "Hot" }, CorrectAnswer = "Hot" },
-            new SignModel { VideoPath = "interview.mp4", Choices = new List<string> { "Test", "Exam", "Interview", "Meeting" }, CorrectAnswer = "Interview" },
-            new SignModel { VideoPath = "jail.mp4", Choices = new List<string> { "Court", "Prison", "Cell", "Jail" }, CorrectAnswer = "Jail" },
-            new SignModel { VideoPath = "kitchen.mp4", Choices = new List<string> { "Bedroom", "Living Room", "Kitchen", "Bathroom" }, CorrectAnswer = "Kitchen" },
-            new SignModel { VideoPath = "knife.mp4", Choices = new List<string> { "Spoon", "Knife", "Blade", "Fork" }, CorrectAnswer = "Knife" },
-            new SignModel { VideoPath = "know.mp4", Choices = new List<string> { "Know", "Understand", "Remember", "Forget" }, CorrectAnswer = "Know" },
-            new SignModel { VideoPath = "learn.mp4", Choices = new List<string> { "Learn", "Teach", "Study", "Understand" }, CorrectAnswer = "Learn" },
-            new SignModel { VideoPath = "Lion.mp4", Choices = new List<string> { "Tiger", "Leopard", "Lion", "Cheetah" }, CorrectAnswer = "Lion" },
-            new SignModel { VideoPath = "lose.mp4", Choices = new List<string> { "Win", "Lose", "Fail", "Miss" }, CorrectAnswer = "Lose" },
-            new SignModel { VideoPath = "lost.mp4", Choices = new List<string> { "Lost", "Found", "Confused", "Gone" }, CorrectAnswer = "Lost" },
-            new SignModel { VideoPath = "love.mp4", Choices = new List<string> { "Love", "Hate", "Like", "Adore" }, CorrectAnswer = "Love" },
-            new SignModel { VideoPath = "lunch.mp4", Choices = new List<string> { "Lunch", "Dinner", "Breakfast", "Brunch" }, CorrectAnswer = "Lunch" },
-            new SignModel { VideoPath = "middle.mp4", Choices = new List<string> { "Middle", "Centre", "Side", "Edge" }, CorrectAnswer = "Middle" },
-            new SignModel { VideoPath = "miserable.mp4", Choices = new List<string> { "Unhappy", "Miserable", "Sad", "Upset" }, CorrectAnswer = "Miserable" },
-            new SignModel { VideoPath = "money.mp4", Choices = new List<string> { "Coins", "Money", "Cash", "Wealth" }, CorrectAnswer = "Money" },
-            new SignModel { VideoPath = "monkey.mp4", Choices = new List<string> { "Monkey", "Gorilla", "Chimp", "Baboon" }, CorrectAnswer = "Monkey" },
-            new SignModel { VideoPath = "music.mp4", Choices = new List<string> { "Beat", "Sound", "Dance", "Music" }, CorrectAnswer = "Music" },
-            new SignModel { VideoPath = "name.mp4", Choices = new List<string> { "Title", "Word", "Name", "Call" }, CorrectAnswer = "Name" },
-            new SignModel { VideoPath = "nothing.mp4", Choices = new List<string> { "Nothing", "Anything", "Everything", "Something" }, CorrectAnswer = "Nothing" },
-            new SignModel { VideoPath = "parents.mp4", Choices = new List<string> { "Relatives", "Siblings", "Family", "Parents" }, CorrectAnswer = "Parents" },
-            new SignModel { VideoPath = "penguin.mp4", Choices = new List<string> { "Seal", "Bird", "Penguin", "Duck" }, CorrectAnswer = "Penguin" },
-            new SignModel { VideoPath = "phone.mp4", Choices = new List<string> { "Talk", "Ring", "Call", "Phone" }, CorrectAnswer = "Phone" },
-            new SignModel { VideoPath = "pig.mp4", Choices = new List<string> { "Boar", "Sheep", "Cow", "Pig" }, CorrectAnswer = "Pig" },
-            new SignModel { VideoPath = "pigeon.mp4", Choices = new List<string> { "Bird", "Crow", "Dove", "Pigeon" }, CorrectAnswer = "Pigeon" },
-            new SignModel { VideoPath = "police.mp4", Choices = new List<string> { "Guard", "Officer", "Law", "Police" }, CorrectAnswer = "Police" },
-            new SignModel { VideoPath = "poor.mp4", Choices = new List<string> { "Broke", "Wealthy", "Poor", "Rich" }, CorrectAnswer = "Poor" },
-            new SignModel { VideoPath = "posh.mp4", Choices = new List<string> { "Fancy", "Elegant", "Posh", "Simple" }, CorrectAnswer = "Posh" },
-            new SignModel { VideoPath = "question.mp4", Choices = new List<string> { "Ask", "Answer", "Reply", "Question" }, CorrectAnswer = "Question" },
-            new SignModel { VideoPath = "rabbit.mp4", Choices = new List<string> { "Hare", "Squirrel", "Deer", "Rabbit" }, CorrectAnswer = "Rabbit" },
-            new SignModel { VideoPath = "radio.mp4", Choices = new List<string> { "Talk", "Music", "Radio", "News" }, CorrectAnswer = "Radio" },
-            new SignModel { VideoPath = "rugby.mp4", Choices = new List<string> { "Hockey", "Football", "Rugby", "Cricket" }, CorrectAnswer = "Rugby" },
-            new SignModel { VideoPath = "Scotland.mp4", Choices = new List<string> { "Wales", "England", "Ireland", "Scotland" }, CorrectAnswer = "Scotland" },
-            new SignModel { VideoPath = "sea.mp4", Choices = new List<string> { "River", "Lake", "Ocean", "Sea" }, CorrectAnswer = "Sea" },
-            new SignModel { VideoPath = "sex.mp4", Choices = new List<string> { "Relationship", "Love", "Sex", "Gender" }, CorrectAnswer = "Sex" },
-            new SignModel { VideoPath = "shower.mp4", Choices = new List<string> { "Rain", "Wash", "Bath", "Shower" }, CorrectAnswer = "Shower" },
-            new SignModel { VideoPath = "silence.mp4", Choices = new List<string> { "Mute", "Peace", "Quiet", "Silence" }, CorrectAnswer = "Silence" },
-            new SignModel { VideoPath = "sister.mp4", Choices = new List<string> { "Cousin", "Brother", "Sibling", "Sister" }, CorrectAnswer = "Sister" },
-            new SignModel { VideoPath = "sleep.mp4", Choices = new List<string> { "Nap", "Rest", "Dream", "Sleep" }, CorrectAnswer = "Sleep" },
-            new SignModel { VideoPath = "smile.mp4", Choices = new List<string> { "Grin", "Smile", "Laugh", "Happy" }, CorrectAnswer = "Smile" },
-            new SignModel { VideoPath = "spring.mp4", Choices = new List<string> { "Winter", "Spring", "Autumn", "Summer" }, CorrectAnswer = "Spring" },
-            new SignModel { VideoPath = "stone.mp4", Choices = new List<string> { "Rock", "Pebble", "Stone", "Boulder" }, CorrectAnswer = "Stone" },
-            new SignModel { VideoPath = "summer.mp4", Choices = new List<string> { "Autumn", "Summer", "Winter", "Spring" }, CorrectAnswer = "Summer" },
-            new SignModel { VideoPath = "tease.mp4", Choices = new List<string> { "Tease", "Mock", "Laugh", "Play" }, CorrectAnswer = "Tease" },
-            new SignModel { VideoPath = "tiger.mp4", Choices = new List<string> { "Cheetah", "Leopard", "Lion", "Tiger" }, CorrectAnswer = "Tiger" },
-            new SignModel { VideoPath = "trust.mp4", Choices = new List<string> { "Faith", "Trust", "Believe", "Loyalty" }, CorrectAnswer = "Trust" },
-            new SignModel { VideoPath = "ugly.mp4", Choices = new List<string> { "Pretty", "Unattractive", "Beautiful", "Ugly" }, CorrectAnswer = "Ugly" },
-            new SignModel { VideoPath = "university.mp4", Choices = new List<string> { "University", "School", "College", "Academy" }, CorrectAnswer = "University" },
-            new SignModel { VideoPath = "vodka.mp4", Choices = new List<string> { "Vodka", "Whiskey", "Rum", "Tequila" }, CorrectAnswer = "Vodka" },
-            new SignModel { VideoPath = "Wales.mp4", Choices = new List<string> { "Wales", "Scotland", "Ireland", "England" }, CorrectAnswer = "Wales" },
-            new SignModel { VideoPath = "walk.mp4", Choices = new List<string> { "Walk", "Run", "Stroll", "March" }, CorrectAnswer = "Walk" },
-            new SignModel { VideoPath = "want.mp4", Choices = new List<string> { "Want", "Need", "Desire", "Wish" }, CorrectAnswer = "Want" },
-            new SignModel { VideoPath = "weather.mp4", Choices = new List<string> { "Weather", "Climate", "Rain", "Temperature" }, CorrectAnswer = "Weather" },
-            new SignModel { VideoPath = "wedding.mp4", Choices = new List<string> { "Wedding", "Marriage", "Ceremony", "Engagement" }, CorrectAnswer = "Wedding" },
-            new SignModel { VideoPath = "Weird.mp4", Choices = new List<string> { "Weird", "Strange", "Odd", "Unusual" }, CorrectAnswer = "Weird" },
-            new SignModel { VideoPath = "when.mp4", Choices = new List<string> { "When", "Where", "Why", "What" }, CorrectAnswer = "When" },
-            new SignModel { VideoPath = "where.mp4", Choices = new List<string> { "Where", "When", "Why", "What" }, CorrectAnswer = "Where" },
-            new SignModel { VideoPath = "why.mp4", Choices = new List<string> { "Why", "What", "How", "When" }, CorrectAnswer = "Why" },
-            new SignModel { VideoPath = "win.mp4", Choices = new List<string> { "Win", "Lose", "Score", "Victory" }, CorrectAnswer = "Win" },
-            new SignModel { VideoPath = "winter.mp4", Choices = new List<string> { "Winter", "Summer", "Spring", "Autumn" }, CorrectAnswer = "Winter" },
-            new SignModel { VideoPath = "work.mp4", Choices = new List<string> { "Work", "Job", "Task", "Duty" }, CorrectAnswer = "Work" },
+        /// <summary>
+        /// Gets signs grouped by categories
+        /// </summary>
+        private List<CategoryModel> InitializeCategories()
+        {
+            return new List<CategoryModel>
+            {
+                new CategoryModel
+                {
+                    Category = SignCategory.BasicInteractions,
+                    DisplayName = "Basic Interactions",
+                    Description = "Common signs for everyday communication",
+                    IconName = "basic_icon",
+                    Signs = new List<SignModel>
+                    {
+                        CreateSign("answer", "Answer", SignCategory.BasicInteractions),
+                        CreateSign("help", "Help", SignCategory.BasicInteractions),
+                        CreateSign("know", "Know", SignCategory.BasicInteractions),
+                        CreateSign("learn", "Learn", SignCategory.BasicInteractions),
+                        CreateSign("question", "Question", SignCategory.BasicInteractions),
+                        CreateSign("want", "Want", SignCategory.BasicInteractions)
+                    }
+                },
 
-            // New List
-            new SignModel { VideoPath = "abuse.mp4", Choices = new List<string> { "Abuse", "Help", "Hurt", "Kindness" }, CorrectAnswer = "Abuse" },
-            new SignModel { VideoPath = "America.mp4", Choices = new List<string> { "America", "Canada", "Brazil", "Mexico" }, CorrectAnswer = "America" },
-            new SignModel { VideoPath = "apple.mp4", Choices = new List<string> { "Orange", "Banana", "Apple", "Grapes" }, CorrectAnswer = "Apple" },
-            new SignModel { VideoPath = "asthma.mp4", Choices = new List<string> { "Allergy", "Asthma", "Cold", "Flu" }, CorrectAnswer = "Asthma" },
-            new SignModel { VideoPath = "aunt.mp4", Choices = new List<string> { "Sister", "Mother", "Aunt", "Grandmother" }, CorrectAnswer = "Aunt" },
-            new SignModel { VideoPath = "banana.mp4", Choices = new List<string> { "Apple", "Grapes", "Banana", "Orange" }, CorrectAnswer = "Banana" },
-            new SignModel { VideoPath = "bank.mp4", Choices = new List<string> { "Bank", "Shop", "Library", "Hospital" }, CorrectAnswer = "Bank" },
-            new SignModel { VideoPath = "bed.mp4", Choices = new List<string> { "Chair", "Sofa", "Bed", "Table" }, CorrectAnswer = "Bed" },
-            new SignModel { VideoPath = "beetle.mp4", Choices = new List<string> { "Beetle", "Butterfly", "Ant", "Spider" }, CorrectAnswer = "Beetle" },
-            new SignModel { VideoPath = "Belgium.mp4", Choices = new List<string> { "Belgium", "Germany", "France", "Netherlands" }, CorrectAnswer = "Belgium" },
-            new SignModel { VideoPath = "bird.mp4", Choices = new List<string> { "Bird", "Cat", "Dog", "Fish" }, CorrectAnswer = "Bird" },
-            new SignModel { VideoPath = "black.mp4", Choices = new List<string> { "Black", "Blue", "Green", "Red" }, CorrectAnswer = "Black" },
-            new SignModel { VideoPath = "blue.mp4", Choices = new List<string> { "Blue", "Black", "Yellow", "Green" }, CorrectAnswer = "Blue" },
-            new SignModel { VideoPath = "book.mp4", Choices = new List<string> { "Paper", "Notebook", "Book", "Magazine" }, CorrectAnswer = "Book" },
-            new SignModel { VideoPath = "boss.mp4", Choices = new List<string> { "Manager", "Boss", "Worker", "Assistant" }, CorrectAnswer = "Boss" },
-            new SignModel { VideoPath = "boy.mp4", Choices = new List<string> { "Girl", "Boy", "Child", "Man" }, CorrectAnswer = "Boy" },
-            new SignModel { VideoPath = "brazil.mp4", Choices = new List<string> { "Brazil", "Argentina", "Chile", "Peru" }, CorrectAnswer = "Brazil" },
-            new SignModel { VideoPath = "brown.mp4", Choices = new List<string> { "Red", "Brown", "Orange", "Purple" }, CorrectAnswer = "Brown" },
-            new SignModel { VideoPath = "chair.mp4", Choices = new List<string> { "Sofa", "Table", "Chair", "Desk" }, CorrectAnswer = "Chair" },
-            new SignModel { VideoPath = "cheese.mp4", Choices = new List<string> { "Butter", "Cheese", "Milk", "Yogurt" }, CorrectAnswer = "Cheese" },
-            new SignModel { VideoPath = "chef.mp4", Choices = new List<string> { "Chef", "Waiter", "Cook", "Baker" }, CorrectAnswer = "Chef" },
-            new SignModel { VideoPath = "China.mp4", Choices = new List<string> { "China", "Japan", "Korea", "Vietnam" }, CorrectAnswer = "China" },
-            new SignModel { VideoPath = "clock.mp4", Choices = new List<string> { "Watch", "Clock", "Timer", "Calendar" }, CorrectAnswer = "Clock" },
-            new SignModel { VideoPath = "cloud.mp4", Choices = new List<string> { "Sky", "Cloud", "Rain", "Storm" }, CorrectAnswer = "Cloud" },
-            new SignModel { VideoPath = "come.mp4", Choices = new List<string> { "Go", "Come", "Stay", "Walk" }, CorrectAnswer = "Come" },
-            new SignModel { VideoPath = "Croatia.mp4", Choices = new List<string> { "Croatia", "Italy", "Hungary", "Austria" }, CorrectAnswer = "Croatia" },
-            new SignModel { VideoPath = "daughter.mp4", Choices = new List<string> { "Son", "Mother", "Daughter", "Sister" }, CorrectAnswer = "Daughter" },
-            new SignModel { VideoPath = "difficult.mp4", Choices = new List<string> { "Easy", "Hard", "Difficult", "Simple" }, CorrectAnswer = "Difficult" },
-            new SignModel { VideoPath = "drink.mp4", Choices = new List<string> { "Eat", "Drink", "Cook", "Pour" }, CorrectAnswer = "Drink" },
-            new SignModel { VideoPath = "eagle.mp4", Choices = new List<string> { "Eagle", "Hawk", "Owl", "Falcon" }, CorrectAnswer = "Eagle" },
-            new SignModel { VideoPath = "ear.mp4", Choices = new List<string> { "Nose", "Ear", "Mouth", "Eye" }, CorrectAnswer = "Ear" },
-            new SignModel { VideoPath = "easy.mp4", Choices = new List<string> { "Hard", "Simple", "Easy", "Tricky" }, CorrectAnswer = "Easy" },
-            new SignModel { VideoPath = "Egypt.mp4", Choices = new List<string> { "Egypt", "Morocco", "Sudan", "Tunisia" }, CorrectAnswer = "Egypt" },
-            new SignModel { VideoPath = "estimate.mp4", Choices = new List<string> { "Guess", "Estimate", "Calculate", "Predict" }, CorrectAnswer = "Estimate" },
-            new SignModel { VideoPath = "euro.mp4", Choices = new List<string> { "Dollar", "Euro", "Pound", "Yen" }, CorrectAnswer = "Euro" },
-            new SignModel { VideoPath = "farm.mp4", Choices = new List<string> { "Farm", "Ranch", "Garden", "Field" }, CorrectAnswer = "Farm" },
-            new SignModel { VideoPath = "Finland.mp4", Choices = new List<string> { "Norway", "Sweden", "Finland", "Denmark" }, CorrectAnswer = "Finland" },
-            new SignModel { VideoPath = "forest.mp4", Choices = new List<string> { "Woods", "Jungle", "Forest", "Park" }, CorrectAnswer = "Forest" },
-            new SignModel { VideoPath = "fortune.mp4", Choices = new List<string> { "Luck", "Treasure", "Fortune", "Wealth" }, CorrectAnswer = "Fortune" },
-            new SignModel { VideoPath = "France.mp4", Choices = new List<string> { "Spain", "Italy", "France", "Germany" }, CorrectAnswer = "France" },
-            new SignModel { VideoPath = "fridge.mp4", Choices = new List<string> { "Oven", "Fridge", "Microwave", "Freezer" }, CorrectAnswer = "Fridge" },
-            new SignModel { VideoPath = "fruit.mp4", Choices = new List<string> { "Vegetable", "Fruit", "Meat", "Grain" }, CorrectAnswer = "Fruit" },
-            new SignModel { VideoPath = "Germany.mp4", Choices = new List<string> { "Germany", "Austria", "Belgium", "Switzerland" }, CorrectAnswer = "Germany" },
-            new SignModel { VideoPath = "girl.mp4", Choices = new List<string> { "Boy", "Girl", "Woman", "Child" }, CorrectAnswer = "Girl" },
-            new SignModel { VideoPath = "glasses.mp4", Choices = new List<string> { "Hat", "Scarf", "Glasses", "Gloves" }, CorrectAnswer = "Glasses" },
-            new SignModel { VideoPath = "green.mp4", Choices = new List<string> { "Blue", "Green", "Yellow", "Purple" }, CorrectAnswer = "Green" },
-            new SignModel { VideoPath = "grey.mp4", Choices = new List<string> { "White", "Grey", "Black", "Silver" }, CorrectAnswer = "Grey" },
-            new SignModel { VideoPath = "guess.mp4", Choices = new List<string> { "Answer", "Think", "Guess", "Know" }, CorrectAnswer = "Guess" },
-            new SignModel { VideoPath = "hard.mp4", Choices = new List<string> { "Soft", "Tough", "Hard", "Firm" }, CorrectAnswer = "Hard" },
-            new SignModel { VideoPath = "Holland.mp4", Choices = new List<string> { "Holland", "Belgium", "Denmark", "Luxembourg" }, CorrectAnswer = "Holland" },
-            new SignModel { VideoPath = "horse.mp4", Choices = new List<string> { "Donkey", "Horse", "Cow", "Sheep" }, CorrectAnswer = "Horse" },
-            new SignModel { VideoPath = "house.mp4", Choices = new List<string> { "Apartment", "House", "Cottage", "Bungalow" }, CorrectAnswer = "House" },
-            new SignModel { VideoPath = "imagine.mp4", Choices = new List<string> { "Think", "Imagine", "Dream", "Picture" }, CorrectAnswer = "Imagine" },
-            new SignModel { VideoPath = "India.mp4", Choices = new List<string> { "India", "Pakistan", "Bangladesh", "Sri Lanka" }, CorrectAnswer = "India" },
-            new SignModel { VideoPath = "Japan.mp4", Choices = new List<string> { "Korea", "China", "Japan", "Vietnam" }, CorrectAnswer = "Japan" },
-            new SignModel { VideoPath = "juice.mp4", Choices = new List<string> { "Water", "Milk", "Juice", "Soda" }, CorrectAnswer = "Juice" },
-            new SignModel { VideoPath = "keyboard.mp4", Choices = new List<string> { "Mouse", "Keyboard", "Monitor", "Printer" }, CorrectAnswer = "Keyboard" },
-            new SignModel { VideoPath = "lift.mp4", Choices = new List<string> { "Elevator", "Carry", "Lift", "Raise" }, CorrectAnswer = "Lift" },
-            new SignModel { VideoPath = "luck.mp4", Choices = new List<string> { "Fortune", "Luck", "Success", "Chance" }, CorrectAnswer = "Luck" },
-            new SignModel { VideoPath = "meat.mp4", Choices = new List<string> { "Fish", "Vegetable", "Meat", "Grain" }, CorrectAnswer = "Meat" },
-            new SignModel { VideoPath = "mental.mp4", Choices = new List<string> { "Physical", "Mental", "Emotional", "Spiritual" }, CorrectAnswer = "Mental" },
-            new SignModel { VideoPath = "microwave.mp4", Choices = new List<string> { "Oven", "Microwave", "Toaster", "Fridge" }, CorrectAnswer = "Microwave" },
-            new SignModel { VideoPath = "milk.mp4", Choices = new List<string> { "Water", "Juice", "Milk", "Coffee" }, CorrectAnswer = "Milk" },
-            new SignModel { VideoPath = "moon.mp4", Choices = new List<string> { "Moon", "Star", "Planet", "Sun" }, CorrectAnswer = "Moon" },
-            new SignModel { VideoPath = "Norway.mp4", Choices = new List<string> { "Sweden", "Norway", "Finland", "Denmark" }, CorrectAnswer = "Norway" },
-            new SignModel { VideoPath = "ocean.mp4", Choices = new List<string> { "Sea", "Ocean", "Lake", "River" }, CorrectAnswer = "Ocean" },
-            new SignModel { VideoPath = "orange.mp4", Choices = new List<string> { "Orange", "Apple", "Banana", "Peach" }, CorrectAnswer = "Orange" },
-            new SignModel { VideoPath = "pink.mp4", Choices = new List<string> { "Red", "Purple", "Pink", "Yellow" }, CorrectAnswer = "Pink" },
-            new SignModel { VideoPath = "pizza.mp4", Choices = new List<string> { "Sandwich", "Pizza", "Burger", "Pasta" }, CorrectAnswer = "Pizza" },
-            new SignModel { VideoPath = "Poland.mp4", Choices = new List<string> { "Poland", "Germany", "Czech", "Hungary" }, CorrectAnswer = "Poland" },
-            new SignModel { VideoPath = "Portugal.mp4", Choices = new List<string> { "Portugal", "Spain", "Italy", "France" }, CorrectAnswer = "Portugal" },
-            new SignModel { VideoPath = "pretty.mp4", Choices = new List<string> { "Beautiful", "Pretty", "Cute", "Lovely" }, CorrectAnswer = "Pretty" },
-            new SignModel { VideoPath = "purple.mp4", Choices = new List<string> { "Violet", "Purple", "Blue", "Pink" }, CorrectAnswer = "Purple" },
-            new SignModel { VideoPath = "rain.mp4", Choices = new List<string> { "Storm", "Rain", "Drizzle", "Hail" }, CorrectAnswer = "Rain" },
-            new SignModel { VideoPath = "red.mp4", Choices = new List<string> { "Red", "Pink", "Orange", "Yellow" }, CorrectAnswer = "Red" },
-            new SignModel { VideoPath = "sandwich.mp4", Choices = new List<string> { "Burger", "Sandwich", "Pizza", "Taco" }, CorrectAnswer = "Sandwich" },
-            new SignModel { VideoPath = "shoe.mp4", Choices = new List<string> { "Shoe", "Sock", "Slipper", "Boot" }, CorrectAnswer = "Shoe" },
-            new SignModel { VideoPath = "shy.mp4", Choices = new List<string> { "Shy", "Afraid", "Nervous", "Quiet" }, CorrectAnswer = "Shy" },
-            new SignModel { VideoPath = "skirt.mp4", Choices = new List<string> { "Skirt", "Dress", "Pants", "Shirt" }, CorrectAnswer = "Skirt" },
-            new SignModel { VideoPath = "snake.mp4", Choices = new List<string> { "Snake", "Lizard", "Frog", "Turtle" }, CorrectAnswer = "Snake" },
-            new SignModel { VideoPath = "soft.mp4", Choices = new List<string> { "Hard", "Soft", "Smooth", "Gentle" }, CorrectAnswer = "Soft" },
-            new SignModel { VideoPath = "son.mp4", Choices = new List<string> { "Son", "Daughter", "Child", "Boy" }, CorrectAnswer = "Son" },
-            new SignModel { VideoPath = "soup.mp4", Choices = new List<string> { "Stew", "Soup", "Broth", "Chowder" }, CorrectAnswer = "Soup" },
-            new SignModel { VideoPath = "Spain.mp4", Choices = new List<string> { "Portugal", "Spain", "Italy", "France" }, CorrectAnswer = "Spain" },
-            new SignModel { VideoPath = "storm.mp4", Choices = new List<string> { "Rain", "Storm", "Thunder", "Hurricane" }, CorrectAnswer = "Storm" },
-            new SignModel { VideoPath = "suppose.mp4", Choices = new List<string> { "Think", "Suppose", "Guess", "Assume" }, CorrectAnswer = "Suppose" },
-            new SignModel { VideoPath = "Sweden.mp4", Choices = new List<string> { "Norway", "Denmark", "Sweden", "Finland" }, CorrectAnswer = "Sweden" },
-            new SignModel { VideoPath = "Switzerland.mp4", Choices = new List<string> { "Switzerland", "Germany", "Austria", "France" }, CorrectAnswer = "Switzerland" },
-            new SignModel { VideoPath = "sympathy.mp4", Choices = new List<string> { "Sympathy", "Empathy", "Kindness", "Understanding" }, CorrectAnswer = "Sympathy" },
-            new SignModel { VideoPath = "Thailand.mp4", Choices = new List<string> { "Thailand", "Vietnam", "Cambodia", "Laos" }, CorrectAnswer = "Thailand" },
-            new SignModel { VideoPath = "tired.mp4", Choices = new List<string> { "Sleepy", "Exhausted", "Tired", "Weary" }, CorrectAnswer = "Tired" },
-            new SignModel { VideoPath = "toothbrush.mp4", Choices = new List<string> { "Toothpaste", "Toothbrush", "Comb", "Floss" }, CorrectAnswer = "Toothbrush" },
-            new SignModel { VideoPath = "travel.mp4", Choices = new List<string> { "Journey", "Travel", "Vacation", "Tour" }, CorrectAnswer = "Travel" },
-            new SignModel { VideoPath = "tree.mp4", Choices = new List<string> { "Plant", "Bush", "Tree", "Shrub" }, CorrectAnswer = "Tree" },
-            new SignModel { VideoPath = "umbrella.mp4", Choices = new List<string> { "Umbrella", "Parasol", "Shade", "Cover" }, CorrectAnswer = "Umbrella" },
-            new SignModel { VideoPath = "uncle.mp4", Choices = new List<string> { "Uncle", "Aunt", "Cousin", "Brother" }, CorrectAnswer = "Uncle" },
-            new SignModel { VideoPath = "weekend.mp4", Choices = new List<string> { "Holiday", "Weekend", "Vacation", "Break" }, CorrectAnswer = "Weekend" },
-            new SignModel { VideoPath = "white.mp4", Choices = new List<string> { "Black", "White", "Grey", "Yellow" }, CorrectAnswer = "White" },
-            new SignModel { VideoPath = "yellow.mp4", Choices = new List<string> { "Yellow", "Orange", "Gold", "Red" }, CorrectAnswer = "Yellow" },
+                    new CategoryModel
+                    {
+                        Category = SignCategory.TimeAndCalendar,
+                        DisplayName = "Time & Calendar",
+                        Description = "Signs related to time, dates, and seasons",
+                        IconName = "time_icon",
+                        Signs = new List<SignModel>
+                       {
+                            CreateSign("again", "Again", SignCategory.TimeAndCalendar),
+                            CreateSign("autumn", "Autumn", SignCategory.TimeAndCalendar),
+                            CreateSign("spring", "Spring", SignCategory.TimeAndCalendar),
+                            CreateSign("summer", "Summer", SignCategory.TimeAndCalendar),
+                            CreateSign("weekend", "Weekend", SignCategory.TimeAndCalendar),
+                            CreateSign("when", "When", SignCategory.TimeAndCalendar),
+                            CreateSign("winter", "Winter", SignCategory.TimeAndCalendar)
+                       }
+                    },
 
-        };
+                    new CategoryModel
+                    {
+                        Category = SignCategory.FamilyAndPeople,
+                        DisplayName = "Family & People",
+                        Description = "Signs for family members and people",
+                        IconName = "family_icon",
+                        Signs = new List<SignModel>
+                       {
+                            CreateSign("aunt", "Aunt", SignCategory.FamilyAndPeople),
+                            CreateSign("boy", "Boy", SignCategory.FamilyAndPeople),
+                            CreateSign("brother", "Brother", SignCategory.FamilyAndPeople),
+                            CreateSign("child", "Child", SignCategory.FamilyAndPeople),
+                            CreateSign("daughter", "Daughter", SignCategory.FamilyAndPeople),
+                            CreateSign("family", "Family", SignCategory.FamilyAndPeople),
+                            CreateSign("girl", "Girl", SignCategory.FamilyAndPeople),
+                            CreateSign("parents", "Parents", SignCategory.FamilyAndPeople),
+                            CreateSign("sister", "Sister", SignCategory.FamilyAndPeople),
+                            CreateSign("son", "Son", SignCategory.FamilyAndPeople),
+                            CreateSign("uncle", "Uncle", SignCategory.FamilyAndPeople)
+                       }
+                    },
+
+                    new CategoryModel
+                    {
+                        Category = SignCategory.EmotionsAndStates,
+                        DisplayName = "Emotions & States",
+                        Description = "Signs for feelings and conditions",
+                        IconName = "emotion_icon",
+                        Signs = new List<SignModel>
+                       {
+                            CreateSign("confused", "Confused", SignCategory.EmotionsAndStates),
+                            CreateSign("difficult", "Difficult", SignCategory.EmotionsAndStates),
+                            CreateSign("easy", "Easy", SignCategory.EmotionsAndStates),
+                            CreateSign("evil", "Evil", SignCategory.EmotionsAndStates),
+                            CreateSign("hard", "Hard", SignCategory.EmotionsAndStates),
+                            CreateSign("horrible", "Horrible", SignCategory.EmotionsAndStates),
+                            CreateSign("hot", "Hot", SignCategory.EmotionsAndStates),
+                            CreateSign("love", "Love", SignCategory.EmotionsAndStates),
+                            CreateSign("luck", "Luck", SignCategory.EmotionsAndStates),
+                            CreateSign("mental", "Mental", SignCategory.EmotionsAndStates),
+                            CreateSign("miserable", "Miserable", SignCategory.EmotionsAndStates),
+                            CreateSign("shy", "Shy", SignCategory.EmotionsAndStates),
+                            CreateSign("smile", "Smile", SignCategory.EmotionsAndStates),
+                            CreateSign("soft", "Soft", SignCategory.EmotionsAndStates),
+                            CreateSign("sympathy", "Sympathy", SignCategory.EmotionsAndStates),
+                            CreateSign("tired", "Tired", SignCategory.EmotionsAndStates),
+                            CreateSign("ugly", "Ugly", SignCategory.EmotionsAndStates),
+                            CreateSign("Weird", "Weird", SignCategory.EmotionsAndStates)
+                       }
+                    },
+
+                    new CategoryModel
+                    {
+                        Category = SignCategory.Animals,
+                        DisplayName = "Animals",
+                        Description = "Signs for different animals",
+                        IconName = "animal_icon",
+                        Signs = new List<SignModel>
+                       {
+                        CreateSign("bird", "Bird", SignCategory.Animals),
+                        CreateSign("dog", "Dog", SignCategory.Animals),
+                        CreateSign("dolphin", "Dolphin", SignCategory.Animals),
+                        CreateSign("donkey", "Donkey", SignCategory.Animals),
+                        CreateSign("eagle", "Eagle", SignCategory.Animals),
+                        CreateSign("elephant", "Elephant", SignCategory.Animals),
+                        CreateSign("fish", "Fish", SignCategory.Animals),
+                        CreateSign("giraffe", "Giraffe", SignCategory.Animals),
+                        CreateSign("horse", "Horse", SignCategory.Animals),
+                        CreateSign("Lion", "Lion", SignCategory.Animals),
+                        CreateSign("monkey", "Monkey", SignCategory.Animals),
+                        CreateSign("penguin", "Penguin", SignCategory.Animals),
+                        CreateSign("pig", "Pig", SignCategory.Animals),
+                        CreateSign("pigeon", "Pigeon", SignCategory.Animals),
+                        CreateSign("rabbit", "Rabbit", SignCategory.Animals),
+                        CreateSign("snake", "Snake", SignCategory.Animals),
+                        CreateSign("tiger", "Tiger", SignCategory.Animals)
+                       }
+                    },
+
+                    new CategoryModel
+                    {
+                        Category = SignCategory.FoodAndDrink,
+                        DisplayName = "Food & Drink",
+                        Description = "Signs for food and beverages",
+                        IconName = "food_icon",
+                        Signs = new List<SignModel>
+                       {
+                            CreateSign("apple", "Apple", SignCategory.FoodAndDrink),
+                            CreateSign("banana", "Banana", SignCategory.FoodAndDrink),
+                            CreateSign("beer", "Beer", SignCategory.FoodAndDrink),
+                            CreateSign("breakfast", "Breakfast", SignCategory.FoodAndDrink),
+                            CreateSign("cheese", "Cheese", SignCategory.FoodAndDrink),
+                            CreateSign("chicken", "Chicken", SignCategory.FoodAndDrink),
+                            CreateSign("dinner", "Dinner", SignCategory.FoodAndDrink),
+                            CreateSign("drink", "Drink", SignCategory.FoodAndDrink),
+                            CreateSign("food", "Food", SignCategory.FoodAndDrink),
+                            CreateSign("fruit", "Fruit", SignCategory.FoodAndDrink),
+                            CreateSign("juice", "Juice", SignCategory.FoodAndDrink),
+                            CreateSign("lunch", "Lunch", SignCategory.FoodAndDrink),
+                            CreateSign("meat", "Meat", SignCategory.FoodAndDrink),
+                            CreateSign("milk", "Milk", SignCategory.FoodAndDrink),
+                            CreateSign("orange", "Orange", SignCategory.FoodAndDrink),
+                            CreateSign("pizza", "Pizza", SignCategory.FoodAndDrink),
+                            CreateSign("sandwich", "Sandwich", SignCategory.FoodAndDrink),
+                            CreateSign("soup", "Soup", SignCategory.FoodAndDrink),
+                            CreateSign("vodka", "Vodka", SignCategory.FoodAndDrink),
+                            CreateSign("water", "Water", SignCategory.FoodAndDrink)
+                       }
+                    },
+
+                    new CategoryModel
+                    {
+                        Category = SignCategory.Colors,
+                        DisplayName = "Colors",
+                        Description = "Signs for different colors",
+                        IconName = "color_icon",
+                        Signs = new List<SignModel>
+                       {
+                            CreateSign("black", "Black", SignCategory.Colors),
+                            CreateSign("blue", "Blue", SignCategory.Colors),
+                            CreateSign("brown", "Brown", SignCategory.Colors),
+                            CreateSign("green", "Green", SignCategory.Colors),
+                            CreateSign("grey", "Grey", SignCategory.Colors),
+                            CreateSign("pink", "Pink", SignCategory.Colors),
+                            CreateSign("purple", "Purple", SignCategory.Colors),
+                            CreateSign("red", "Red", SignCategory.Colors),
+                            CreateSign("white", "White", SignCategory.Colors),
+                            CreateSign("yellow", "Yellow", SignCategory.Colors)
+                       }
+                    },
+
+                    new CategoryModel
+                    {
+                        Category = SignCategory.PlacesAndTravel,
+                        DisplayName = "Places & Travel",
+                        Description = "Signs for locations and countries",
+                        IconName = "place_icon",
+                        Signs = new List<SignModel>
+                       {
+                            CreateSign("America", "America", SignCategory.PlacesAndTravel),
+                            CreateSign("Belgium", "Belgium", SignCategory.PlacesAndTravel),
+                            CreateSign("brazil", "Brazil", SignCategory.PlacesAndTravel),
+                            CreateSign("China", "China", SignCategory.PlacesAndTravel),
+                            CreateSign("Croatia", "Croatia", SignCategory.PlacesAndTravel),
+                            CreateSign("Egypt", "Egypt", SignCategory.PlacesAndTravel),
+                            CreateSign("England", "England", SignCategory.PlacesAndTravel),
+                            CreateSign("Finland", "Finland", SignCategory.PlacesAndTravel),
+                            CreateSign("France", "France", SignCategory.PlacesAndTravel),
+                            CreateSign("Germany", "Germany", SignCategory.PlacesAndTravel),
+                            CreateSign("Holland", "Holland", SignCategory.PlacesAndTravel),
+                            CreateSign("India", "India", SignCategory.PlacesAndTravel),
+                            CreateSign("Ireland", "Ireland", SignCategory.PlacesAndTravel),
+                            CreateSign("Japan", "Japan", SignCategory.PlacesAndTravel),
+                            CreateSign("Norway", "Norway", SignCategory.PlacesAndTravel),
+                            CreateSign("Poland", "Poland", SignCategory.PlacesAndTravel),
+                            CreateSign("Portugal", "Portugal", SignCategory.PlacesAndTravel),
+                            CreateSign("Scotland", "Scotland", SignCategory.PlacesAndTravel),
+                            CreateSign("Spain", "Spain", SignCategory.PlacesAndTravel),
+                            CreateSign("Sweden", "Sweden", SignCategory.PlacesAndTravel),
+                            CreateSign("Switzerland", "Switzerland", SignCategory.PlacesAndTravel),
+                            CreateSign("Thailand", "Thailand", SignCategory.PlacesAndTravel),
+                            CreateSign("Wales", "Wales", SignCategory.PlacesAndTravel)
+                       }
+                    },
+
+                    new CategoryModel
+                    {
+                        Category = SignCategory.HouseAndFurniture,
+                        DisplayName = "House & Furniture",
+                        Description = "Signs for home and furniture items",
+                        IconName = "house_icon",
+                        Signs = new List<SignModel>
+                       {
+                            CreateSign("bed", "Bed", SignCategory.HouseAndFurniture),
+                            CreateSign("bedroom", "Bedroom", SignCategory.HouseAndFurniture),
+                            CreateSign("chair", "Chair", SignCategory.HouseAndFurniture),
+                            CreateSign("fork", "Fork", SignCategory.HouseAndFurniture),
+                            CreateSign("fridge", "Fridge", SignCategory.HouseAndFurniture),
+                            CreateSign("house", "House", SignCategory.HouseAndFurniture),
+                            CreateSign("keyboard", "Keyboard", SignCategory.HouseAndFurniture),
+                            CreateSign("kitchen", "Kitchen", SignCategory.HouseAndFurniture),
+                            CreateSign("knife", "Knife", SignCategory.HouseAndFurniture),
+                            CreateSign("microwave", "Microwave", SignCategory.HouseAndFurniture),
+                            CreateSign("shower", "Shower", SignCategory.HouseAndFurniture),
+                            CreateSign("toothbrush", "Toothbrush", SignCategory.HouseAndFurniture)
+                       }
+                    }
+            };
+        }
+
+        /// <summary>
+        /// Creates a new SignModel with randomized multiple choice options
+        /// </summary>
+        private SignModel CreateSign(string videoName, string correctAnswer, SignCategory category)
+        {
+            return new SignModel
+            {
+                VideoPath = $"{videoName}.mp4",
+                CorrectAnswer = correctAnswer,
+                Category = category,
+                Choices = new List<string> { correctAnswer }  // Just add correct answer initially
+            };
+        }
+
+        public void UpdateChoices()
+        {
+            var allSigns = GetSignsByCategory().SelectMany(c => c.Signs).ToList();
+            foreach (var sign in allSigns)
+            {
+                var otherAnswers = allSigns
+                    .Where(s => s.CorrectAnswer != sign.CorrectAnswer)
+                    .OrderBy(r => Guid.NewGuid())
+                    .Take(3)
+                    .Select(s => s.CorrectAnswer);
+
+                sign.Choices = new List<string> { sign.CorrectAnswer };
+                sign.Choices.AddRange(otherAnswers);
+                sign.Choices = sign.Choices.OrderBy(x => Guid.NewGuid()).ToList();
+            }
+        }
+
+
+        public List<CategoryModel> GetSignsByCategory() => _categories;
     }
 }
