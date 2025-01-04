@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Background Speed Effect -->
+  <g opacity="0.1">
+    <path d="M5 40 C25 40 35 50 25 60" stroke="#666" stroke-width="8"/>
+    <path d="M8 35 C28 35 38 45 28 55" stroke="#666" stroke-width="6"/>
+    <path d="M11 30 C31 30 41 40 31 50" stroke="#666" stroke-width="4"/>
+  </g>
+
+  <!-- Stopwatch Body -->
+  <g>
+    <!-- Outer Ring -->
+    <circle cx="60" cy="50" r="30" fill="url(#outerRingGradient)"/>
+    <!-- Inner Face -->
+    <circle cx="60" cy="50" r="27" fill="url(#faceGradient)"/>
+    <!-- Ring Detail -->
+    <circle cx="60" cy="50" r="28.5" fill="none" stroke="#FFF" stroke-width="0.5" opacity="0.5"/>
+  </g>
+
+  <!-- Top Buttons -->
+  <g>
+    <path d="M55 10 L65 10 L65 20 L55 20 Z" fill="url(#buttonGradient)"/>
+    <!-- Button Detail -->
+    <path d="M56 11 L64 11 L64 19 L56 19 Z" fill="none" stroke="#FFF" stroke-width="0.5" opacity="0.3"/>
+  </g>
+
+  <!-- Watch Face Details -->
+  <g stroke="#333" stroke-width="1">
+    <!-- Hour Markers -->
+    <line x1="60" y1="25" x2="60" y2="30" stroke-width="2"/>
+    <line x1="85" y1="50" x2="80" y2="50" stroke-width="2"/>
+    <line x1="60" y1="75" x2="60" y2="70" stroke-width="2"/>
+    <line x1="35" y1="50" x2="40" y2="50" stroke-width="2"/>
+    <!-- Minute Markers -->
+    <g stroke-width="1" opacity="0.5">
+      <line x1="73" y1="27" x2="70" y2="30"/>
+      <line x1="83" y1="37" x2="80" y2="40"/>
+      <line x1="83" y1="63" x2="80" y2="60"/>
+      <line x1="73" y1="73" x2="70" y2="70"/>
+      <line x1="47" y1="73" x2="50" y2="70"/>
+      <line x1="37" y1="63" x2="40" y2="60"/>
+      <line x1="37" y1="37" x2="40" y2="40"/>
+      <line x1="47" y1="27" x2="50" y2="30"/>
+    </g>
+  </g>
+
+  <!-- Clock Hands -->
+  <g>
+    <!-- Hour Hand -->
+    <path d="M60 50 L60 35" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+    <!-- Minute Hand -->
+    <path d="M60 50 L75 50" stroke="url(#handGradient)" stroke-width="3" stroke-linecap="round"/>
+  </g>
+
+  <!-- Center Point -->
+  <g>
+    <circle cx="60" cy="50" r="3" fill="#333"/>
+    <circle cx="60" cy="50" r="2" fill="#666"/>
+    <circle cx="60" cy="50" r="1" fill="#999"/>
+  </g>
+
+  <!-- Motion Blur Effect -->
+  <g opacity="0.2">
+    <circle cx="60" cy="50" r="32" stroke="#666" stroke-width="1" fill="none"/>
+    <circle cx="60" cy="50" r="34" stroke="#666" stroke-width="0.5" fill="none"/>
+  </g>
+
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="outerRingGradient">
+      <stop offset="0%" stop-color="#666"/>
+      <stop offset="100%" stop-color="#333"/>
+    </linearGradient>
+    
+    <linearGradient id="faceGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF"/>
+      <stop offset="100%" stop-color="#F5F5F5"/>
+    </linearGradient>
+    
+    <linearGradient id="buttonGradient">
+      <stop offset="0%" stop-color="#555"/>
+      <stop offset="100%" stop-color="#333"/>
+    </linearGradient>
+    
+    <linearGradient id="handGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FF4136"/>
+      <stop offset="100%" stop-color="#FF725C"/>
+    </linearGradient>
+  </defs>
+</svg>

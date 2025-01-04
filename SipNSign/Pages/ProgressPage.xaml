@@ -20,7 +20,7 @@
             <!-- Statistics Grid -->
             <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="15" RowSpacing="15">
                 <!-- Signs Learned -->
-                <Frame Grid.Column="0" Grid.Row="0" BackgroundColor="{DynamicResource Secondary}" Padding="15" HasShadow="True">
+                <Frame Grid.Column="0" Grid.Row="0" BackgroundColor="White" Padding="15" HasShadow="True">
                     <VerticalStackLayout>
                         <Label Text="Signs Learned"
                                TextColor="{DynamicResource Primary}"
@@ -56,11 +56,11 @@
                                TextColor="{DynamicResource Primary}"
                                HorizontalOptions="Center"/>
                         <Label x:Name="AccuracyLabel"
-       Text="{Binding AccuracyDisplay}"
-       FontSize="32"
-       FontAttributes="Bold"
-       TextColor="{DynamicResource Primary}"
-       HorizontalOptions="Center"/>
+                               Text="{Binding AccuracyDisplay}"
+                               FontSize="32"
+                               FontAttributes="Bold"
+                               TextColor="{DynamicResource Primary}"
+                               HorizontalOptions="Center"/>
                     </VerticalStackLayout>
                 </Frame>
 

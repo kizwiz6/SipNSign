@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Party Hat -->
+  <path d="M30 70 L50 20 L70 70 Z" 
+        fill="#FF69B4" 
+        stroke="#FF1493" 
+        stroke-width="2"/>
+  
+  <!-- Hat Band -->
+  <path d="M33 60 L67 60" 
+        stroke="#FFD700" 
+        stroke-width="4" 
+        stroke-linecap="round"/>
+  
+  <!-- Confetti Stars -->
+  <path d="M20 30 L25 35 L20 40 L15 35 L20 30" fill="#FFD700"/>
+  <path d="M75 45 L80 50 L75 55 L70 50 L75 45" fill="#FF69B4"/>
+  <path d="M60 25 L65 30 L60 35 L55 30 L60 25" fill="#00CED1"/>
+  <path d="M35 50 L40 55 L35 60 L30 55 L35 50" fill="#FFD700"/>
+</svg>

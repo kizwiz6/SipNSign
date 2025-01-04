@@ -136,6 +136,34 @@ namespace com.kizwiz.sipnsign.Services
                     Description = "Get 50 signs correct in a row",
                     IconName = "quiz_icon",
                     ProgressRequired = 1
+                },
+                new Achievement {
+                    Id = "PARTY_STARTER",
+                    Title = "Party Starter",
+                    Description = "Played 50 complete sessions in Perform mode",
+                    IconName = "party_icon",
+                    ProgressRequired = 50
+                },
+                new Achievement {
+                    Id = "SOCIAL_BUTTERFLY",
+                    Title = "Social Butterfly",
+                    Description = "Play in both modes in the same day for 5 days",
+                    IconName = "social_icon",
+                    ProgressRequired = 5
+                },
+                new Achievement {
+                    Id = "RAPID_FIRE",
+                    Title = "Rapid Fire",
+                    Description = "Answer 50 signs correctly in under 5 seconds each",
+                    IconName = "speed_icon",
+                    ProgressRequired = 5
+                },
+                new Achievement {
+                    Id = "SPEED_MASTER",
+                    Title = "Speed Master",
+                    Description = "Complete a 100 Guess Mode session with average time under 3 seconds",
+                    IconName = "lightning_icon",
+                    ProgressRequired = 100
                 }
             };
         }
@@ -388,6 +416,57 @@ namespace com.kizwiz.sipnsign.Services
                         }
                         break;
 
+                    case "PARTY_STARTER" when !achievement.IsUnlocked:
+                        // Count completed Perform mode sessions
+                        var performSessions = _currentProgress.Activities
+                            .Count(a => a.Type == ActivityType.Practice &&
+                                       a.Description.Contains("Perform Mode completed"));
+                        achievement.ProgressCurrent = performSessions;
+                        if (performSessions >= 50)
+                        {
+                            await UnlockAchievement(achievement);
+                        }
+                        break;
+
+                    case "SOCIAL_BUTTERFLY" when !achievement.IsUnlocked:
+                        // Group activities by date and check if both modes were played
+                        var dailyModes = _currentProgress.Activities
+                            .GroupBy(a => a.Timestamp.Date)
+                            .Count(g => g.Any(a => a.Description.Contains("Guess Mode")) &&
+                                        g.Any(a => a.Description.Contains("Perform Mode")));
+                        achievement.ProgressCurrent = dailyModes;
+                        if (dailyModes >= 5)
+                        {
+                            await UnlockAchievement(achievement);
+                        }
+                        break;
+
+                    case "RAPID_FIRE" when !achievement.IsUnlocked:
+                        // Count correct answers under 5 seconds
+                        var rapidAnswers = _currentProgress.Activities
+                            .Count(a => a.Type == ActivityType.Practice &&
+                                       a.Score == "+1" &&
+                                       a.Description.Contains("under 5 seconds"));
+                        achievement.ProgressCurrent = rapidAnswers;
+                        if (rapidAnswers >= 50)
+                        {
+                            await UnlockAchievement(achievement);
+                        }
+                        break;
+
+                    case "SPEED_MASTER" when !achievement.IsUnlocked:
+                        // Check for completed sessions with average time under 3 seconds
+                        var fastSessions = _currentProgress.Activities
+                            .Count(a => a.Type == ActivityType.Practice &&
+                                       a.Description.Contains("Guess Mode completed") &&
+                                       a.Description.Contains("average time under 3 seconds"));
+                        achievement.ProgressCurrent = fastSessions;
+                        if (fastSessions >= 100)
+                        {
+                            await UnlockAchievement(achievement);
+                        }
+                        break;
+
                     case "PERFECT_SESSION" when _currentProgress.CorrectInARow >= 50:
                         await UnlockAchievement(achievement);
                         achievement.ProgressCurrent = 1;
@@ -414,7 +493,11 @@ namespace com.kizwiz.sipnsign.Services
                     "SIGNS_100" => "mastery_icon",
                     "QUIZ_PERFECT" => "quiz_icon",
                     "PRACTICE_HOURS_10" => "time_icon",
-                    _ => "achievement_icon"
+                    "PARTY_STARTER" => "party_icon",
+                    "SOCIAL_BUTTERFLY" => "social_icon",
+                    "RAPID_FIRE" => "speed_icon",
+                    "SPEED_MASTER" => "lightning_icon",
+                    _ => "achievement_icon"  // Default case (underscore, not asterisk)
                 };
 
                 await LogActivityAsync(new ActivityLog

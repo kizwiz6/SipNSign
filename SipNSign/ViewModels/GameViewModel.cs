@@ -54,6 +54,8 @@ namespace com.kizwiz.sipnsign.ViewModels
         private Color _button4Color = Colors.Transparent;
         private GameMode _currentMode = GameMode.Guess;
         private bool _isSignHidden = true;
+        private List<double> _answerTimes = new List<double>();
+        private double _averageAnswerTime;
         private UserProgress _userProgress;
         private ICommand _playAgainCommand;
         private ICommand _incorrectPerformCommand;
@@ -590,6 +592,9 @@ namespace com.kizwiz.sipnsign.ViewModels
                 IsProcessingAnswer = true;
                 if (_timer != null) _timer.Stop();
 
+                double answerTime = QuestionTimeLimit - RemainingTime;
+                UpdateAnswerTime(answerTime);
+
                 bool isCorrect = CheckAnswer(answer);
                 UpdateButtonColor(answer, isCorrect);
 
@@ -599,7 +604,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                     FeedbackText = $"Correct!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.";
                     FeedbackBackgroundColor = FeedbackSuccessColor.ToArgbHex();
                     CurrentScore++;
-                    await LogGameActivity(true);
+                    await LogGameActivity(true, answerTime);
                 }
                 else
                 {
@@ -607,7 +612,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                         ? $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nKeep learning!"
                         : $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
                     FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
-                    await LogGameActivity(false);
+                    await LogGameActivity(false, answerTime);
                 }
 
                 await ShowFeedbackAndContinue(isCorrect);
@@ -621,6 +626,12 @@ namespace com.kizwiz.sipnsign.ViewModels
             {
                 IsProcessingAnswer = false;
             }
+        }
+
+        private void UpdateAnswerTime(double time)
+        {
+            _answerTimes.Add(time);
+            _averageAnswerTime = _answerTimes.Average();
         }
 
         private void RevealSign()
@@ -845,7 +856,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         /// Logs game activity and updates progress when signs are completed
         /// </summary>
         /// <param name="isCorrect">Whether the sign was correctly identified/performed</param>
-        private async Task LogGameActivity(bool isCorrect)
+        private async Task LogGameActivity(bool isCorrect, double? answerTime = null)
         {
             if (_userProgress == null)
             {
@@ -905,6 +916,50 @@ namespace com.kizwiz.sipnsign.ViewModels
             else
             {
                 _correctInARow = 0;
+            }
+
+            // For Rapid Fire achievement
+            if (isCorrect && answerTime.HasValue && answerTime.Value < 5.0)
+            {
+                await _progressService.LogActivityAsync(new ActivityLog
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Type = ActivityType.Practice,
+                    Description = $"Answered '{CurrentSign?.CorrectAnswer}' correctly under 5 seconds",
+                    IconName = "speed_icon",
+                    Timestamp = DateTime.Now,
+                    Score = "+1"
+                });
+            }
+
+            // At the end of a session (when all questions are answered)
+            if (_availableIndices.Count == 0)
+            {
+                // For Party Starter achievement (Perform Mode)
+                if (CurrentMode == GameMode.Perform)
+                {
+                    await _progressService.LogActivityAsync(new ActivityLog
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Type = ActivityType.Practice,
+                        Description = "Perform Mode session completed",
+                        IconName = "party_icon",
+                        Timestamp = DateTime.Now
+                    });
+                }
+
+                // For Speed Master achievement (Guess Mode)
+                if (CurrentMode == GameMode.Guess && _averageAnswerTime < 3.0)
+                {
+                    await _progressService.LogActivityAsync(new ActivityLog
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Type = ActivityType.Practice,
+                        Description = "Guess Mode completed with average time under 3 seconds",
+                        IconName = "lightning_icon",
+                        Timestamp = DateTime.Now
+                    });
+                }
             }
         }
 
