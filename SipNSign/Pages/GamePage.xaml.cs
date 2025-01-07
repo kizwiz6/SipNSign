@@ -75,69 +75,68 @@ namespace com.kizwiz.sipnsign.Pages
                 Debug.WriteLine($"Attempting to load video: {videoFileName}");
 
 #if ANDROID
-                var assetPath = $"raw/{videoFileName.ToLower()}";
+                // Get the resource ID
+                var context = Android.App.Application.Context;
+                var resourceId = context.Resources.GetIdentifier(
+                    Path.GetFileNameWithoutExtension(videoFileName).ToLower(),
+                    "raw",
+                    context.PackageName);
+
+                Debug.WriteLine($"Android resource ID: {resourceId}");
+
+                if (resourceId == 0)
+                {
+                    Debug.WriteLine($"Resource not found for: {videoFileName}");
+                    return;
+                }
+
+                var uri = Android.Net.Uri.Parse($"android.resource://{context.PackageName}/{resourceId}");
+                var source = MediaSource.FromUri(uri.ToString());
 #else
         var assetPath = $"Resources/Raw/{videoFileName}";
+        var stream = await FileSystem.OpenAppPackageFileAsync(videoFileName);
+        var tempPath = Path.Combine(FileSystem.CacheDirectory, videoFileName);
+        using (var fileStream = File.Create(tempPath))
+        {
+            await stream.CopyToAsync(fileStream);
+        }
+        var source = MediaSource.FromFile(tempPath);
 #endif
-                Debug.WriteLine($"Using path: {assetPath}");
 
-                try
+                // Handle Guess Mode
+                if (Application.Current?.MainPage?.Navigation?.NavigationStack.LastOrDefault() is GamePage gamePage)
                 {
-                    using var stream = await FileSystem.OpenAppPackageFileAsync(videoFileName);
-                    if (stream == null)
-                    {
-                        Debug.WriteLine("Failed to open video stream");
-                        return;
-                    }
+                    gamePage.SetVideoSource(source);
+                }
 
-                    Debug.WriteLine("Successfully opened video stream");
-
-                    var tempPath = Path.Combine(FileSystem.CacheDirectory, videoFileName);
-                    using (var fileStream = File.Create(tempPath))
-                    {
-                        await stream.CopyToAsync(fileStream);
-                    }
-
+                // Additional handling for Perform Mode
+                if (_viewModel.IsPerformMode && PerformVideo != null)
+                {
+                    Debug.WriteLine("Setting source for Perform Mode video");
                     await MainThread.InvokeOnMainThreadAsync(() =>
                     {
                         try
                         {
-                            var source = MediaSource.FromFile(tempPath);
-                            if (_viewModel.IsGuessMode && SharedVideo != null)
-                            {
-                                Debug.WriteLine("Setting source for Guess Mode video");
-                                SharedVideo.IsVisible = true;
-                                SharedVideo.Source = source;
-                                SharedVideo.ShouldAutoPlay = true;
-                                SharedVideo.Play();
-                            }
-                            else if (_viewModel.IsPerformMode && PerformVideo != null)
-                            {
-                                Debug.WriteLine("Setting source for Perform Mode video");
-                                PerformVideo.IsVisible = true;
-                                PerformVideo.Source = source;
-                                PerformVideo.ShouldAutoPlay = true;
-                                PerformVideo.Play();
-                            }
+                            PerformVideo.IsVisible = true;
+                            PerformVideo.Source = source;
+                            PerformVideo.ShouldAutoPlay = false; // Don't auto play in Perform Mode
+                            Debug.WriteLine($"Perform Mode video source set: {source}");
+                            Debug.WriteLine($"Perform Mode video visibility: {PerformVideo.IsVisible}");
                         }
                         catch (Exception ex)
                         {
-                            Debug.WriteLine($"Error playing video: {ex.Message}");
+                            Debug.WriteLine($"Error setting Perform Mode video: {ex.Message}");
                         }
                     });
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Error loading video stream: {ex.Message}");
-                    Debug.WriteLine($"Stack trace: {ex.StackTrace}");
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in LoadVideoForCurrentSign: {ex.Message}");
+                Debug.WriteLine($"Error loading video: {ex.Message}");
                 Debug.WriteLine($"Stack trace: {ex.StackTrace}");
             }
         }
+
 
         private void OnMediaOpened(object sender, EventArgs e)
         {
@@ -198,17 +197,28 @@ namespace com.kizwiz.sipnsign.Pages
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    if (_sharedVideo != null)
+                    Debug.WriteLine("OnSignRevealRequested: Starting");
+                    var performVideo = this.FindByName<MediaElement>("PerformVideo");
+                    if (performVideo != null)
                     {
-                        _sharedVideo.IsVisible = true;
-                        _sharedVideo.SeekTo(TimeSpan.Zero);
-                        _sharedVideo.Play();
+                        Debug.WriteLine($"PerformVideo found, Current visibility: {performVideo.IsVisible}");
+                        Debug.WriteLine($"Current source: {performVideo.Source}");
+                        performVideo.IsVisible = true;
+                        Debug.WriteLine($"New visibility: {performVideo.IsVisible}");
+                        performVideo.SeekTo(TimeSpan.Zero);
+                        performVideo.Play();
+                        Debug.WriteLine("Play command sent");
+                    }
+                    else
+                    {
+                        Debug.WriteLine("PerformVideo element not found");
                     }
                 });
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error in OnSignRevealRequested: {ex.Message}");
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
             }
         }
 

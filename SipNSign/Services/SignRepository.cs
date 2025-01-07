@@ -108,7 +108,7 @@ public class SignRepository
             new SignModel { VideoPath = "want.mp4", Choices = new List<string> { "Want", "Need", "Desire", "Wish" }, CorrectAnswer = "Want" },
             new SignModel { VideoPath = "weather.mp4", Choices = new List<string> { "Weather", "Climate", "Rain", "Temperature" }, CorrectAnswer = "Weather" },
             new SignModel { VideoPath = "wedding.mp4", Choices = new List<string> { "Wedding", "Marriage", "Ceremony", "Engagement" }, CorrectAnswer = "Wedding" },
-            new SignModel { VideoPath = "Weird.mp4", Choices = new List<string> { "Weird", "Strange", "Odd", "Unusual" }, CorrectAnswer = "Weird" },
+            new SignModel { VideoPath = "weird.mp4", Choices = new List<string> { "Weird", "Strange", "Odd", "Unusual" }, CorrectAnswer = "Weird" },
             new SignModel { VideoPath = "when.mp4", Choices = new List<string> { "When", "Where", "Why", "What" }, CorrectAnswer = "When" },
             new SignModel { VideoPath = "where.mp4", Choices = new List<string> { "Where", "When", "Why", "What" }, CorrectAnswer = "Where" },
             new SignModel { VideoPath = "why.mp4", Choices = new List<string> { "Why", "What", "How", "When" }, CorrectAnswer = "Why" },

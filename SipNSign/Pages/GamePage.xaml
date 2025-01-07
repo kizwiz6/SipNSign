@@ -163,26 +163,26 @@
                     <StackLayout IsVisible="{Binding IsSignRevealed}">
                         <Grid>
                             <Border Padding="1"
-                           Stroke="{DynamicResource Primary}"
-                           StrokeThickness="1"
-                           Background="Black"
-                           StrokeShape="RoundRectangle 10"
-                           Margin="0,5">
+                               Stroke="{DynamicResource Primary}"
+                               StrokeThickness="1"
+                               Background="Black"
+                               StrokeShape="RoundRectangle 10"
+                               Margin="0,5">
                                 <toolkit:MediaElement 
-                            x:Name="PerformVideo"
-                            ShouldShowPlaybackControls="False"
-                            ShouldAutoPlay="True"
-                            ShouldLoopPlayback="True"
-                            HeightRequest="300"
-                            WidthRequest="300"
-                            HorizontalOptions="Center"
-                            VerticalOptions="Center"
-                            Aspect="AspectFit"
-                            MediaOpened="OnMediaOpened"
-                            MediaFailed="OnMediaFailed"
-                            MediaEnded="OnMediaEnded"
-                            Volume="1"
-                            IsVisible="{Binding IsSignRevealed}"/>
+                                    x:Name="PerformVideo"
+                                    ShouldShowPlaybackControls="False"
+                                    ShouldAutoPlay="True"
+                                    ShouldLoopPlayback="True"
+                                    HeightRequest="300"
+                                    WidthRequest="300"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"
+                                    Aspect="AspectFit"
+                                    MediaOpened="OnMediaOpened"
+                                    MediaFailed="OnMediaFailed"
+                                    MediaEnded="OnMediaEnded"
+                                    Volume="1"
+                                    IsVisible="{Binding IsSignRevealed}"/>
                             </Border>
 
                             <!-- Feedback Overlay in Guess Mode -->
