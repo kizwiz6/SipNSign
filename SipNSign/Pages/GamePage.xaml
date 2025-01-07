@@ -234,42 +234,50 @@
                 </VerticalStackLayout>
             </ScrollView>
         </Grid>
-        <!-- Game Over Screen Overlay (Sibling to Main Content) -->
+        <!-- Game Over Screen Overlay -->
         <Grid IsVisible="{Binding IsGameOver}" 
-              BackgroundColor="{StaticResource GameOver}"
-              InputTransparent="False" 
-              ZIndex="99"
-              Grid.RowSpan="3">
-            <Border BackgroundColor="{StaticResource GameOver}" 
-                   Margin="20" 
-                   VerticalOptions="Center" 
-                   HorizontalOptions="Fill" 
-                   StrokeShape="RoundRectangle 20">
-                <VerticalStackLayout Spacing="20" Padding="20">
-                    <Label Text="Game Over!" 
-                           TextColor="White" 
-                           FontSize="32" 
-                           FontAttributes="Bold" 
-                           HorizontalOptions="Center"/>
+      InputTransparent="False" 
+      ZIndex="99"
+      Grid.RowSpan="3">
+            <!-- Theme background gradient -->
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="{DynamicResource AppBackground1}" Offset="0.0" />
+                    <GradientStop Color="{DynamicResource AppBackground2}" Offset="1.0" />
+                </LinearGradientBrush>
+            </Grid.Background>
 
-                    <Label Text="{Binding CurrentScore, StringFormat='Final Score: {0}'}"
-                           TextColor="White" 
-                           FontSize="24" 
-                           HorizontalOptions="Center"/>
+            <!-- Game Over card -->
+            <Border Margin="20"
+           BackgroundColor="{DynamicResource Primary}"
+           Opacity="0.95"
+           VerticalOptions="Center"
+           HorizontalOptions="Fill"
+           StrokeShape="RoundRectangle 20">
+                <VerticalStackLayout Spacing="20" Padding="20">
+                    <Label Text="Game Over!"
+                   TextColor="White"
+                   FontSize="32"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"/>
+
+                    <Label Text="{Binding GuessResults}"
+                       TextColor="White"
+                       FontSize="24"
+                       HorizontalOptions="Center"/>
 
                     <Button Text="Play Again"
-                            Command="{Binding PlayAgainCommand}"
-                            Style="{StaticResource PrimaryButton}"
-                            BackgroundColor="White"
-                            TextColor="{StaticResource GameOver}"
-                            Margin="0,10,0,0"/>
+                    Command="{Binding PlayAgainCommand}"
+                    Style="{StaticResource PrimaryButton}"
+                    BackgroundColor="White"
+                    TextColor="{DynamicResource Primary}"/>
 
                     <Button Text="Adjust Questions in Settings"
-                            Command="{Binding GoToSettingsCommand}"
-                            Style="{StaticResource PrimaryButton}"
-                                BackgroundColor="White"
-                            TextColor="{StaticResource GameOver}"
-                                FontSize="14"/>
+                    Command="{Binding GoToSettingsCommand}"
+                    Style="{StaticResource PrimaryButton}"
+                    BackgroundColor="White"
+                    TextColor="{DynamicResource Primary}"
+                    FontSize="14"/>
                 </VerticalStackLayout>
             </Border>
         </Grid>

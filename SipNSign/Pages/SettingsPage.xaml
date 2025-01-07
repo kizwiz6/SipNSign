@@ -8,49 +8,65 @@
     <ScrollView>
         <VerticalStackLayout Spacing="20" Padding="20">
             <!-- Sober Mode -->
-            <Border Stroke="Gray" Padding="15" StrokeShape="RoundRectangle 10">
+            <Border Stroke="Gray" 
+                    Padding="15" 
+                    StrokeShape="RoundRectangle 10"
+                    BackgroundColor="{DynamicResource CardBackground}"
+                    Opacity="0.95">
                 <VerticalStackLayout Spacing="15">
                     <Label Text="Sober Mode" 
-               FontSize="20" 
-               FontAttributes="Bold"/>
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="20" 
+                           FontAttributes="Bold"/>
                     <Switch x:Name="SoberModeSwitch" 
-                    IsToggled="{Binding IsSoberMode}"
-                    Toggled="OnSoberModeToggled"/>
+                            IsToggled="{Binding IsSoberMode}"
+                            Toggled="OnSoberModeToggled"/>
                     <Label Text="Removes references to drinking from the app"
-               FontSize="14"
-               TextColor="Gray"/>
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="14"/>
                 </VerticalStackLayout>
             </Border>
 
             <!-- Questions Limit in Guess Mode -->
-            <Border Stroke="Gray" Padding="15" StrokeShape="RoundRectangle 10">
+            <Border Stroke="Gray" 
+                    Padding="15" 
+                    StrokeShape="RoundRectangle 10"
+                    BackgroundColor="{DynamicResource CardBackground}"
+                    Opacity="0.95">
                 <VerticalStackLayout Spacing="15">
                     <Label Text="Guess Mode Questions" 
-               FontSize="20" 
-               FontAttributes="Bold"/>
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="20" 
+                           FontAttributes="Bold"/>
                     <Label x:Name="QuestionsValueLabel"
-               Text="20 questions"
-               HorizontalOptions="Center"/>
+                           Text="20 questions"
+                           TextColor="{DynamicResource CardText}"
+                           HorizontalOptions="Center"/>
                     <Slider x:Name="QuestionsSlider"
-                Minimum="10"
-                Maximum="100"
-                Value="20"
-                ValueChanged="OnQuestionsCountChanged"/>
+                            Minimum="10"
+                            Maximum="100"
+                            Value="20"
+                            ValueChanged="OnQuestionsCountChanged"/>
                     <Label Text="Adjust how many questions to answer in Guess Mode"
-               FontSize="14"
-               TextColor="Gray"/>
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="14"/>
                 </VerticalStackLayout>
             </Border>
 
-            <!-- Timer Settings in Guess Mode -->
-            <Border Stroke="Gray" Padding="15" StrokeShape="RoundRectangle 10">
+            <!-- Timer Settings -->
+            <Border Stroke="Gray" 
+                    Padding="15" 
+                    StrokeShape="RoundRectangle 10"
+                    BackgroundColor="{DynamicResource CardBackground}"
+                    Opacity="0.95">
                 <VerticalStackLayout Spacing="15">
                     <Label Text="Guess Mode Timer" 
+                           TextColor="{DynamicResource CardText}"
                            FontSize="20" 
                            FontAttributes="Bold"/>
-                    <!-- Add a dedicated label for the timer value -->
                     <Label x:Name="TimerValueLabel"
                            Text="10 seconds"
+                           TextColor="{DynamicResource CardText}"
                            HorizontalOptions="Center"/>
                     <Slider x:Name="TimerSlider"
                             Minimum="5"
@@ -61,21 +77,28 @@
                         <CheckBox x:Name="DisableTimerCheckbox" 
                                  CheckedChanged="OnDisableTimerChanged"/>
                         <Label Text="Disable Timer"
+                               TextColor="{DynamicResource CardText}"
                                VerticalOptions="Center"/>
                     </HorizontalStackLayout>
                     <Label Text="Adjust how long you have to answer in Guess Mode"
-                           FontSize="14"
-                           TextColor="Gray"/>
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="14"/>
                 </VerticalStackLayout>
             </Border>
 
             <!-- Feedback Delay -->
-            <Border Stroke="Gray" Padding="15" StrokeShape="RoundRectangle 10">
+            <Border Stroke="Gray" 
+                    Padding="15" 
+                    StrokeShape="RoundRectangle 10"                 
+                    BackgroundColor="{DynamicResource CardBackground}"
+                    Opacity="0.95">
                 <VerticalStackLayout Spacing="15">
                     <Label Text="Incorrect Answer Delay" 
+                           TextColor="{DynamicResource CardText}"
                            FontSize="20" 
                            FontAttributes="Bold"/>
                     <Label Text="{Binding Source={x:Reference DelaySlider}, Path=Value, StringFormat='{0:F0} seconds'}"
+                           TextColor="{DynamicResource CardText}"
                            HorizontalOptions="Center"/>
                     <Slider x:Name="DelaySlider"
                             Minimum="2"
@@ -83,38 +106,45 @@
                             Value="5"
                             ValueChanged="OnDelaySliderChanged"/>
                     <Label Text="Adjust how long the feedback shows when you get an answer wrong"
-                           FontSize="14"
-                           TextColor="Gray"/>
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="14"/>
                 </VerticalStackLayout>
             </Border>
 
             <!-- Transparent Feedback -->
             <Border Stroke="Gray" 
-        StrokeThickness="1"
-        Background="Transparent"
-        StrokeShape="RoundRectangle 10"
-        Padding="15">
+                    Padding="15" 
+                    StrokeShape="RoundRectangle 10"                 
+                    BackgroundColor="{DynamicResource CardBackground}"
+                    Opacity="0.95">
                 <VerticalStackLayout Spacing="15">
                     <Label Text="Transparent Feedback" 
-               FontSize="20" 
-               FontAttributes="Bold"/>
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="20" 
+                           FontAttributes="Bold"/>
                     <Switch x:Name="TransparentFeedbackSwitch" 
-                IsToggled="{Binding IsTransparentFeedback}"
-                Toggled="OnTransparentFeedbackToggled"/>
+                            IsToggled="{Binding IsTransparentFeedback}"
+                            Toggled="OnTransparentFeedbackToggled"/>
                     <Label Text="Makes feedback display transparent instead of colored"
-               FontSize="14"
-               TextColor="Gray"/>
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="14"/>
                 </VerticalStackLayout>
             </Border>
 
-            <!-- Add theme picker to existing settings -->
-            <Border Stroke="Gray" Padding="15" StrokeShape="RoundRectangle 10">
+            <!-- Theme Picker -->
+            <Border Stroke="Gray" 
+                    Padding="15" 
+                    StrokeShape="RoundRectangle 10"                 
+                    BackgroundColor="{DynamicResource CardBackground}"
+                    Opacity="0.95">
                 <VerticalStackLayout Spacing="15">
                     <Label Text="App Theme" 
-               FontSize="20" 
-               FontAttributes="Bold"/>
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="20" 
+                           FontAttributes="Bold"/>
                     <Picker x:Name="ThemePicker"
-                SelectedIndexChanged="OnThemeSelected">
+                            TextColor="{DynamicResource CardText}"
+                            SelectedIndexChanged="OnThemeSelected">
                         <Picker.ItemsSource>
                             <x:Array Type="{x:Type x:String}">
                                 <x:String>Blue</x:String>
@@ -126,7 +156,6 @@
                                 <x:String>Neon</x:String>
                                 <x:String>Monochrome</x:String>
                             </x:Array>
-
                         </Picker.ItemsSource>
                     </Picker>
                 </VerticalStackLayout>
@@ -134,8 +163,7 @@
 
             <Button Text="Save Changes"
                     Clicked="OnSaveClicked"
-                    BackgroundColor="Green"
-                    TextColor="White"
+                    Style="{StaticResource PrimaryButton}"
                     Margin="0,20,0,20"/>
 
         </VerticalStackLayout>

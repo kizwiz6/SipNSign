@@ -1,11 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
-using CommunityToolkit.Maui;
-using com.kizwiz.sipnsign;
+﻿using com.kizwiz.sipnsign.Pages;
 using com.kizwiz.sipnsign.Services;
-using com.kizwiz.sipnsign.Pages;
 using com.kizwiz.sipnsign.ViewModels;
-using System.Text.Json;
+using CommunityToolkit.Maui;
 using System.Diagnostics;
+using System.Text.Json;
 
 namespace com.kizwiz.sipnsign;
 

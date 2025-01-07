@@ -2,8 +2,6 @@ using com.kizwiz.sipnsign.Models;
 using com.kizwiz.sipnsign.Services;
 using com.kizwiz.sipnsign.ViewModels;
 using System.Diagnostics;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Platform;
 
 namespace com.kizwiz.sipnsign.Pages;
 

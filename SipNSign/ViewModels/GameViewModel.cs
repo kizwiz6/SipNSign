@@ -1198,7 +1198,7 @@ namespace com.kizwiz.sipnsign.ViewModels
 
                 // Set the results text
                 int totalQuestions = Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
-                GuessResults = $"You guessed {CurrentScore}/{totalQuestions} correctly!";
+                GuessResults = $"Final Score: {CurrentScore}/{totalQuestions}";
                 Debug.WriteLine("EndGame completed");
 
                 // Force UI update
