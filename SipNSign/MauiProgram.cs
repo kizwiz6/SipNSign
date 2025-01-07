@@ -69,6 +69,7 @@ public static class MauiProgram
             builder.Services.AddSingleton<IProgressService, ProgressService>();
             builder.Services.AddSingleton<SignRepository>();
             builder.Services.AddSingleton<IThemeService, ThemeService>();
+            builder.Services.AddSingleton<IShareService, ShareService>();
 
             // Register pages and viewmodels
             builder.Services.AddSingleton<App>();
@@ -80,6 +81,8 @@ public static class MauiProgram
             builder.Services.AddTransient<ProgressPage>();
             builder.Services.AddTransient<ProgressViewModel>();
             builder.Services.AddTransient<SettingsPage>();
+            builder.Services.AddTransient<AchievementDetailsPage>();
+            builder.Services.AddTransient<AchievementDetailsViewModel>();
 
             return builder.Build();
         }

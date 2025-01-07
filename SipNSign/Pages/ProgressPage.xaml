@@ -152,6 +152,11 @@
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </VerticalStackLayout>
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer 
+                    CommandParameter="{Binding .}"
+                    Tapped="OnAchievementTapped"/>
+                </Frame.GestureRecognizers>
             </Frame>
         </VerticalStackLayout>
     </ScrollView>

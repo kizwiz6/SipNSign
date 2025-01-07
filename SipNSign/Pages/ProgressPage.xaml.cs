@@ -2,6 +2,8 @@ using com.kizwiz.sipnsign.Models;
 using com.kizwiz.sipnsign.Services;
 using com.kizwiz.sipnsign.ViewModels;
 using System.Diagnostics;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Platform;
 
 namespace com.kizwiz.sipnsign.Pages;
 
@@ -46,6 +48,14 @@ public partial class ProgressPage : ContentPage
         {
             Debug.WriteLine($"Error loading progress: {ex.Message}");
             await DisplayAlert("Error", "Unable to load progress data", "OK");
+        }
+    }
+
+    private async void OnAchievementTapped(object sender, TappedEventArgs e)
+    {
+        if (sender is VisualElement element && element.BindingContext is Achievement achievement)
+        {
+            await Navigation.PushAsync(new AchievementDetailsPage(achievement));
         }
     }
 }

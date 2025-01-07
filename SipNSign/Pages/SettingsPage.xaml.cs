@@ -24,8 +24,11 @@ namespace com.kizwiz.sipnsign.Pages
             _themeService.ThemeChanged += OnThemeChanged;
             ThemePicker.SelectedItem = _themeService.GetCurrentTheme().ToString();
 
-            // Ensure SoberModeSwitch is initialized with the current preference value
+            // Initialize switches with current preferences
             SoberModeSwitch.IsToggled = Preferences.Get(Constants.SOBER_MODE_KEY, false);
+            TransparentFeedbackSwitch.IsToggled = Preferences.Get(Constants.TRANSPARENT_FEEDBACK_KEY, false);
+
+            LoadSavedSettings();
         }
 
         private void LoadSavedSettings()
@@ -56,6 +59,18 @@ namespace com.kizwiz.sipnsign.Pages
             catch (Exception ex)
             {
                 await DisplayAlert("Error", $"Failed to save settings: {ex.Message}", "OK");
+            }
+        }
+
+        private void OnTransparentFeedbackToggled(object sender, ToggledEventArgs e)
+        {
+            Debug.WriteLine($"Toggling transparency: {e.Value}");
+            Preferences.Set(Constants.TRANSPARENT_FEEDBACK_KEY, e.Value);
+            var gamePage = Shell.Current?.CurrentPage as GamePage;
+            if (gamePage?.ViewModel?.IsFeedbackVisible == true)
+            {
+                bool isCorrect = gamePage.ViewModel.FeedbackText.Contains("Correct");
+                gamePage.ViewModel.FeedbackBackgroundColor = gamePage.ViewModel.GetFeedbackColor(isCorrect);
             }
         }
 
@@ -109,8 +124,9 @@ namespace com.kizwiz.sipnsign.Pages
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            var currentTheme = _themeService.GetCurrentTheme();
-            _themeService.SetTheme(currentTheme);
+            bool isTransparent = Preferences.Get(Constants.TRANSPARENT_FEEDBACK_KEY, false);
+            TransparentFeedbackSwitch.IsToggled = isTransparent;
+            Debug.WriteLine($"Settings Page - Current transparency setting: {isTransparent}");
         }
 
         protected override void OnDisappearing()

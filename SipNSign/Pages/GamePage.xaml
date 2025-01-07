@@ -1,339 +1,278 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<!-- Root ContentPage with resources and styles -->
 <ContentPage 
-   xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-   xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-   xmlns:converters="clr-namespace:com.kizwiz.sipnsign.Converters"
-   xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-   x:Class="com.kizwiz.sipnsign.Pages.GamePage"
-   Style="{StaticResource AppPageStyle}"
-   Title="{Binding CurrentMode, StringFormat='{0} Mode'}">
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:viewmodels="clr-namespace:com.kizwiz.sipnsign.ViewModels"
+    x:Class="com.kizwiz.sipnsign.Pages.GamePage"
+    x:DataType="viewmodels:GameViewModel"
+    Style="{StaticResource AppPageStyle}"
+    Title="{Binding CurrentMode, StringFormat='{0} Mode'}">
 
-    <!-- Root Grid container for proper layering -->
+    <!-- Page Resources -->
+    <ContentPage.Resources>
+        <Style x:Key="ScoreStyle" TargetType="Label">
+            <Setter Property="TextColor" Value="White"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontAttributes" Value="Bold"/>
+            <Setter Property="VerticalOptions" Value="Center"/>
+            <Setter Property="HorizontalOptions" Value="Center"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+    </ContentPage.Resources>
+
     <Grid>
-        <!-- Main Game Content -->
-        <Grid RowDefinitions="Auto,*,Auto,Auto">
-            <!-- Header Section with Score and Progress -->
-            <Grid Grid.Row="0" Padding="20,10" ColumnDefinitions="*,Auto">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Top Section -->
+        <Grid Grid.Row="0" Padding="20,10" ColumnDefinitions="*,Auto">
+            <!-- Progress Bar -->
+            <Grid>
+                <ProgressBar x:Name="GameProgress"
+                             Style="{StaticResource ProgressBarStyle}"
+                             Progress="{Binding ProgressPercentage}"/>
+                <Label Text="{Binding RemainingTime}"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       FontSize="16"
+                       TextColor="{DynamicResource Primary}"
+                       IsVisible="{Binding IsTimerEnabled}">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label"
+                                     Binding="{Binding RemainingTime}"
+                                     Value="0">
+                            <Setter Property="Text" Value="∞"/>
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
+            </Grid>
+
+            <!-- Score -->
+            <Border Grid.Column="1" 
+                   Padding="15,5"
+                   Background="{DynamicResource Primary}"
+                   StrokeShape="RoundRectangle 20">
+                <Label Style="{StaticResource ScoreStyle}"
+                       Text="{Binding CurrentScore, StringFormat='Score: {0}'}"/>
+            </Border>
+        </Grid>
+
+        <!-- Guess Mode -->
+        <Grid Grid.Row="1" IsVisible="{Binding IsGuessMode}">
+            <VerticalStackLayout Padding="20" Spacing="15">
+                <!-- Video container with feedback overlay -->
                 <Grid>
-                    <ProgressBar x:Name="GameProgress"
-                              Style="{StaticResource ProgressBarStyle}"
-                              Progress="{Binding ProgressPercentage}"/>
-                    <Label Text="{Binding RemainingTime}"
-                          HorizontalOptions="Center"
-                          VerticalOptions="Center"
-                          FontSize="16"
-                          TextColor="{DynamicResource Primary}"
-                          IsVisible="{Binding IsTimerEnabled}">
-                        <Label.Triggers>
-                            <DataTrigger TargetType="Label"
-                                      Binding="{Binding RemainingTime}"
-                                      Value="0">
-                                <Setter Property="Text" Value="∞"/>
-                            </DataTrigger>
-                        </Label.Triggers>
-                    </Label>
+                    <Border Padding="0"
+                   Stroke="{DynamicResource Primary}"
+                   StrokeThickness="1"
+                   Background="Black"
+                   StrokeShape="RoundRectangle 15"
+                   HeightRequest="300">
+                        <toolkit:MediaElement 
+                    x:Name="SharedVideo"
+                    ShouldShowPlaybackControls="False"
+                    ShouldAutoPlay="True"
+                    ShouldLoopPlayback="True"
+                    Aspect="AspectFit"
+                    HeightRequest="300"
+                    WidthRequest="300"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    MediaOpened="OnMediaOpened"
+                    MediaFailed="OnMediaFailed"
+                    MediaEnded="OnMediaEnded"
+                    Volume="1"
+                    IsVisible="True"/>
+                    </Border>
+
+                    <!-- Feedback Overlay -->
+                    <Border IsVisible="{Binding IsFeedbackVisible}"
+                        StrokeShape="RoundRectangle 20"
+                        Margin="20,0"
+                        VerticalOptions="Center">
+                        <Border.Background>
+                            <SolidColorBrush Color="{Binding FeedbackBackgroundColor}"/>
+                        </Border.Background>
+                        <Label Text="{Binding FeedbackText}"
+                           TextColor="White"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"
+                           Padding="20"/>
+                    </Border>
                 </Grid>
 
-                <!-- Score Display -->
-                <Frame Grid.Column="1" 
-                      Padding="15,5" 
-                      CornerRadius="20" 
-                      BackgroundColor="{DynamicResource Primary}">
-                    <Label Style="{StaticResource ScoreStyle}"
-                          Text="{Binding CurrentScore, StringFormat='Score: {0}'}"/>
-                </Frame>
-            </Grid>
-
-            <!-- Guess Mode Content -->
-            <Grid Grid.Row="1" IsVisible="{Binding IsGuessMode}">
-                <!-- Video Player and Multiple Choice Section -->
-                <Grid RowDefinitions="*,Auto" 
-                      Padding="20" 
-                      RowSpacing="20"
-                      VerticalOptions="Start"
-                      Margin="0,20,0,0"
-                      IsVisible="{Binding IsGameActive}">
-
-                    <!-- Video Player Section -->
-                    <Grid Grid.Row="0" HeightRequest="300">
-                        <Frame Padding="4"
-                              CornerRadius="15"
-                              HasShadow="True"
-                              BorderColor="{DynamicResource Primary}"
-                              BackgroundColor="Black"
-                              IsVisible="{Binding IsGameActive}"
-                              HeightRequest="310">
-                            <Grid>
-                                <!-- Loading Indicator -->
-                                <ActivityIndicator IsRunning="{Binding IsLoading}"
-                                                IsVisible="{Binding IsLoading}"
-                                                Color="{DynamicResource Primary}"
-                                                HorizontalOptions="Center"
-                                                VerticalOptions="Center"/>
-
-                                <!-- Video Player -->
-                                <toolkit:MediaElement 
-                                   x:Name="SignVideo"
-                                   Aspect="AspectFit"
-                                   HeightRequest="330"
-                                   HorizontalOptions="Center"
-                                   ShouldAutoPlay="True"
-                                   ShouldLoopPlayback="True"
-                                   MediaFailed="OnMediaFailed" 
-                                   MediaEnded="OnMediaEnded"
-                                   SeekCompleted="OnSeekCompleted"
-                                   MediaOpened="OnMediaOpened">
-                                    <toolkit:MediaElement.Behaviors>
-                                        <toolkit:EventToCommandBehavior 
-                                           EventName="Loaded"
-                                           Command="{Binding VideoLoadedCommand}"/>
-                                    </toolkit:MediaElement.Behaviors>
-                                </toolkit:MediaElement>
-                            </Grid>
-                        </Frame>
-
-                        <!-- Feedback Overlay -->
-                        <Frame IsVisible="{Binding IsFeedbackVisible}"
-                              CornerRadius="20"
-                              Margin="20, 0"
-                              BackgroundColor="{Binding FeedbackBackgroundColor}"
-                              HasShadow="True">
-                            <Label Text="{Binding FeedbackText}"
-                                  TextColor="White"
-                                  FontSize="24"
-                                  FontAttributes="Bold"
-                                  HorizontalOptions="Center"
-                                  HorizontalTextAlignment="Center"/>
-                        </Frame>
-                    </Grid>
-
-                    <!-- Answer Buttons Section -->
-                    <VerticalStackLayout Grid.Row="1" 
-                                      Spacing="15" 
-                                      IsVisible="{Binding IsGameActive}">
-                        <Label Text="What does this sign mean?"
-                              FontSize="22"
-                              TextColor="White"
-                              HorizontalOptions="Center"
-                              Margin="0,0,0,10"/>
-
-                        <!-- Multiple Choice Grid -->
-                        <Grid ColumnDefinitions="*,*" 
-                             RowDefinitions="Auto,Auto" 
-                             RowSpacing="10" 
-                             ColumnSpacing="8"
-                             HorizontalOptions="Fill">
-
-                            <!-- Answer Buttons -->
-                            <Button Grid.Column="0" Grid.Row="0"
-                               Style="{StaticResource AnimatedButtonStyle}"
-                               Text="{Binding CurrentSign.Choices[0]}"
-                               Command="{Binding AnswerCommand}"
-                               CommandParameter="{Binding CurrentSign.Choices[0]}"
-                               BackgroundColor="{Binding Button1Color}"/>
-
-                                                    <Button Grid.Column="1" Grid.Row="0"
-                               Style="{StaticResource AnimatedButtonStyle}"
-                               Text="{Binding CurrentSign.Choices[1]}"
-                               Command="{Binding AnswerCommand}"
-                               CommandParameter="{Binding CurrentSign.Choices[1]}"
-                               BackgroundColor="{Binding Button2Color}"/>
-
-                                                    <Button Grid.Column="0" Grid.Row="1"
-                               Style="{StaticResource AnimatedButtonStyle}"
-                               Text="{Binding CurrentSign.Choices[2]}"
-                               Command="{Binding AnswerCommand}"
-                               CommandParameter="{Binding CurrentSign.Choices[2]}"
-                               BackgroundColor="{Binding Button3Color}"/>
-
-                                                    <Button Grid.Column="1" Grid.Row="1"
-                               Style="{StaticResource AnimatedButtonStyle}"
-                               Text="{Binding CurrentSign.Choices[3]}"
-                               Command="{Binding AnswerCommand}"
-                               CommandParameter="{Binding CurrentSign.Choices[3]}"
-                               BackgroundColor="{Binding Button4Color}"/>
-                        </Grid>
-                    </VerticalStackLayout>
+                <!-- Buttons -->
+                <Grid Grid.Row="2" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" RowSpacing="10" ColumnSpacing="8">
+                    <Button Grid.Column="0" Grid.Row="0"
+                        Style="{StaticResource PrimaryButton}"
+                        Text="{Binding CurrentSign.Choices[0]}"
+                        Command="{Binding AnswerCommand}"
+                        CommandParameter="{Binding CurrentSign.Choices[0]}"
+                        BackgroundColor="{Binding Button1Color}"/>
+                    <Button Grid.Column="1" Grid.Row="0"
+                        Style="{StaticResource PrimaryButton}"
+                        Text="{Binding CurrentSign.Choices[1]}"
+                        Command="{Binding AnswerCommand}"
+                        CommandParameter="{Binding CurrentSign.Choices[1]}"
+                        BackgroundColor="{Binding Button2Color}"/>
+                    <Button Grid.Column="0" Grid.Row="1"
+                        Style="{StaticResource PrimaryButton}"
+                        Text="{Binding CurrentSign.Choices[2]}"
+                        Command="{Binding AnswerCommand}"
+                        CommandParameter="{Binding CurrentSign.Choices[2]}"
+                        BackgroundColor="{Binding Button3Color}"/>
+                    <Button Grid.Column="1" Grid.Row="1"
+                        Style="{StaticResource PrimaryButton}"
+                        Text="{Binding CurrentSign.Choices[3]}"
+                        Command="{Binding AnswerCommand}"
+                        CommandParameter="{Binding CurrentSign.Choices[3]}"
+                        BackgroundColor="{Binding Button4Color}"/>
                 </Grid>
-            </Grid>
+            </VerticalStackLayout>
+        </Grid>
 
-            <!-- Perform Mode Content -->
-            <Grid Grid.Row="1" IsVisible="{Binding IsPerformMode}">
-                <ScrollView>
-                    <VerticalStackLayout Padding="15" Spacing="8">
-                        <Label Text="Can you sign this word?"
-                               FontSize="20"
-                               TextColor="White"
-                               HorizontalOptions="Center"/>
+        <!-- Perform Mode -->
+        <Grid Grid.Row="1" IsVisible="{Binding IsPerformMode}">
+            <ScrollView>
+                <VerticalStackLayout Padding="15" Spacing="8">
+                    <Label Text="Can you sign this word?"
+                   FontSize="20"
+                   TextColor="White"
+                   HorizontalOptions="Center"/>
+                    <Label Text="{Binding CurrentSign.CorrectAnswer}"
+                   FontSize="46"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   FontAttributes="Bold"/>
 
-                        <Label Text="{Binding CurrentSign.CorrectAnswer}"
-                               FontSize="46"
-                               TextColor="White"
-                               HorizontalOptions="Center"
-                               FontAttributes="Bold"
-                               Margin="0,5"/>
+                    <!-- Reveal button -->
+                    <Button Text="REVEAL SIGN"
+                    Command="{Binding RevealSignCommand}"
+                    Style="{StaticResource PrimaryButton}"
+                    IsVisible="{Binding IsSignHidden}"
+                    Margin="0,10,0,5"/>
 
-                        <Button Text="REVEAL SIGN"
-                                Command="{Binding RevealSignCommand}"
-                                Style="{StaticResource PrimaryButton}"
-                                IsVisible="{Binding IsSignHidden}"/>
-
-                        <Grid IsVisible="{Binding IsSignRevealed}">
-                            <Frame Padding="1"
-                                   CornerRadius="10"
-                                   HasShadow="True"
-                                   BorderColor="{DynamicResource Primary}"
-                                   BackgroundColor="White"
-                                   Margin="0,5">
+                    <!-- Video and response buttons -->
+                    <StackLayout IsVisible="{Binding IsSignRevealed}">
+                        <Grid>
+                            <Border Padding="1"
+                           Stroke="{DynamicResource Primary}"
+                           StrokeThickness="1"
+                           Background="Black"
+                           StrokeShape="RoundRectangle 10"
+                           Margin="0,5">
                                 <toolkit:MediaElement 
-                                    x:Name="PerformModeVideo"
-                                    HeightRequest="250"
-                                    HorizontalOptions="Center"
-                                    Aspect="AspectFit"
-                                    ShouldAutoPlay="True"
-                                    ShouldLoopPlayback="True"
-                                    MediaFailed="OnMediaFailed" 
-                                    MediaOpened="OnMediaOpened"
-                                    MediaEnded="OnMediaEnded"
-                                    IsVisible="True">
-                                    <toolkit:MediaElement.Behaviors>
-                                        <toolkit:EventToCommandBehavior 
-                                            EventName="Loaded"
-                                            Command="{Binding VideoLoadedCommand}"/>
-                                    </toolkit:MediaElement.Behaviors>
-                                </toolkit:MediaElement>
-                            </Frame>
+                            x:Name="PerformVideo"
+                            ShouldShowPlaybackControls="False"
+                            ShouldAutoPlay="True"
+                            ShouldLoopPlayback="True"
+                            HeightRequest="300"
+                            WidthRequest="300"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            Aspect="AspectFit"
+                            MediaOpened="OnMediaOpened"
+                            MediaFailed="OnMediaFailed"
+                            MediaEnded="OnMediaEnded"
+                            Volume="1"
+                            IsVisible="{Binding IsSignRevealed}"/>
+                            </Border>
 
-                            <Frame IsVisible="{Binding IsFeedbackVisible}"
-                                   CornerRadius="20"
-                                   Margin="20"
-                                   BackgroundColor="{Binding FeedbackBackgroundColor}"
-                                   HasShadow="True">
+                            <!-- Feedback Overlay in Guess Mode -->
+                            <Border IsVisible="{Binding IsFeedbackVisible}"
+        StrokeShape="RoundRectangle 20"
+        Margin="20,0"
+        VerticalOptions="Center">
+                                <Border.Background>
+                                    <SolidColorBrush Color="{Binding FeedbackBackgroundColor}"/>
+                                </Border.Background>
                                 <Label Text="{Binding FeedbackText}"
-                                       TextColor="White"
-                                       FontSize="24"
-                                       FontAttributes="Bold"
-                                       HorizontalOptions="Center"
-                                       HorizontalTextAlignment="Center"/>
-                            </Frame>
+           TextColor="White"
+           FontSize="24"
+           FontAttributes="Bold"
+           HorizontalOptions="Center"
+           HorizontalTextAlignment="Center"
+           Padding="20"/>
+                            </Border>
+
+                            <!-- Feedback Overlay in Perform Mode -->
+                            <Border IsVisible="{Binding IsFeedbackVisible}"
+        StrokeShape="RoundRectangle 20"
+        Margin="20,0"
+        VerticalOptions="Center">
+                                <Border.Background>
+                                    <SolidColorBrush Color="{Binding FeedbackBackgroundColor}"/>
+                                </Border.Background>
+                                <Label Text="{Binding FeedbackText}"
+           TextColor="White"
+           FontSize="24"
+           FontAttributes="Bold"
+           HorizontalOptions="Center"
+           HorizontalTextAlignment="Center"
+           Padding="20"/>
+                            </Border>
                         </Grid>
 
                         <Button Text="I GOT IT RIGHT!"
-                                Command="{Binding CorrectPerformCommand}"
-                                Style="{StaticResource SuccessButton}" 
-                                IsVisible="{Binding IsSignRevealed}"
-                                IsEnabled="{Binding IsProcessingAnswer, Converter={StaticResource InverseBoolConverter}}"
-                                BackgroundColor="ForestGreen"
-                                Margin="8,5"/>
-
-                            <Button Text="I NEED A SIP..."
-                                    Command="{Binding IncorrectPerformCommand}"
-                                    Style="{StaticResource DangerButton}"
-                                    IsVisible="{Binding IsSignRevealed}"
-                                    IsEnabled="{Binding IsProcessingAnswer, Converter={StaticResource InverseBoolConverter}}"
-                                    BackgroundColor="Crimson"
-                                    Margin="8,5"/>
-                    </VerticalStackLayout>
-                </ScrollView>
-            </Grid>
+                        Command="{Binding CorrectPerformCommand}"
+                        Style="{StaticResource PrimaryButton}"
+                        BackgroundColor="ForestGreen"
+                        Margin="0,10,0,5"/>
+                        <Button Text="I NEED A SIP..."
+                        Command="{Binding IncorrectPerformCommand}"
+                        Style="{StaticResource PrimaryButton}"
+                        BackgroundColor="Crimson"
+                        Margin="0,0,0,5"/>
+                    </StackLayout>
+                </VerticalStackLayout>
+            </ScrollView>
         </Grid>
-
-        <!-- Game Over Screen Overlay -->
-        <!-- This grid is a sibling to main content, not a child -->
-        <Grid 
-           IsVisible="{Binding IsGameOver}"
-           BackgroundColor="{StaticResource GameOver}"
-           InputTransparent="False"
-           ZIndex="99">
-
-            <Frame BackgroundColor="{StaticResource GameOver}"
-                  Margin="20"
-                  VerticalOptions="Fill"
-                  HorizontalOptions="Fill">
+        <!-- Game Over Screen Overlay (Sibling to Main Content) -->
+        <Grid IsVisible="{Binding IsGameOver}" 
+              BackgroundColor="{StaticResource GameOver}"
+              InputTransparent="False" 
+              ZIndex="99"
+              Grid.RowSpan="3">
+            <Border BackgroundColor="{StaticResource GameOver}" 
+                   Margin="20" 
+                   VerticalOptions="Center" 
+                   HorizontalOptions="Fill" 
+                   StrokeShape="RoundRectangle 20">
                 <VerticalStackLayout Spacing="20" Padding="20">
-                    <Label Text="Game Over!"
-                          TextColor="White"
-                          FontSize="32"
-                          FontAttributes="Bold"
-                          HorizontalOptions="Center"/>
+                    <Label Text="Game Over!" 
+                           TextColor="White" 
+                           FontSize="32" 
+                           FontAttributes="Bold" 
+                           HorizontalOptions="Center"/>
 
                     <Label Text="{Binding CurrentScore, StringFormat='Final Score: {0}'}"
-                          TextColor="White"
-                          FontSize="24"
-                          HorizontalOptions="Center"/>
+                           TextColor="White" 
+                           FontSize="24" 
+                           HorizontalOptions="Center"/>
 
                     <Button Text="Play Again"
-                           Command="{Binding PlayAgainCommand}"
-                           Style="{StaticResource PrimaryButton}"
-                           BackgroundColor="White"
-                           TextColor="{StaticResource GameOver}"
-                           Margin="0,10,0,0"/>
+                            Command="{Binding PlayAgainCommand}"
+                            Style="{StaticResource PrimaryButton}"
+                            BackgroundColor="White"
+                            TextColor="{StaticResource GameOver}"
+                            Margin="0,10,0,0"/>
 
                     <Button Text="Adjust Questions in Settings"
-                           Command="{Binding GoToSettingsCommand}"
-                           Style="{StaticResource AnimatedButtonStyle}"
-                           BackgroundColor="White"
-                           FontSize="14"
-                           TextColor="{DynamicResource Primary}"/>
+                            Command="{Binding GoToSettingsCommand}"
+                            Style="{StaticResource PrimaryButton}"
+                                BackgroundColor="White"
+                            TextColor="{StaticResource GameOver}"
+                                FontSize="14"/>
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
         </Grid>
+
     </Grid>
-
-    <ContentPage.Resources>
-        <ResourceDictionary>
-            <!-- AnimatedButtonStyle -->
-            <Style x:Key="AnimatedButtonStyle" TargetType="Button">
-                <Setter Property="BackgroundColor" Value="{DynamicResource Primary}"/>
-                <Setter Property="TextColor" Value="White"/>
-                <Setter Property="FontSize" Value="18"/>
-                <Setter Property="CornerRadius" Value="10"/>
-                <Setter Property="Padding" Value="15,10"/>
-                <Setter Property="Margin" Value="5"/>
-                <Setter Property="MinimumHeightRequest" Value="44"/>
-            </Style>
-
-            <!-- Success Button -->
-            <Style x:Key="SuccessButton" TargetType="Button">
-                <Setter Property="BackgroundColor" Value="ForestGreen"/>
-                <Setter Property="TextColor" Value="White"/>
-                <Setter Property="FontSize" Value="18"/>
-                <Setter Property="CornerRadius" Value="10"/>
-                <Setter Property="Padding" Value="15,10"/>
-                <Setter Property="Margin" Value="5"/>
-            </Style>
-
-            <!-- Danger Button -->
-            <Style x:Key="DangerButton" TargetType="Button">
-                <Setter Property="BackgroundColor" Value="Crimson"/>
-                <Setter Property="TextColor" Value="White"/>
-                <Setter Property="FontSize" Value="18"/>
-                <Setter Property="CornerRadius" Value="10"/>
-                <Setter Property="Padding" Value="15,10"/>
-                <Setter Property="Margin" Value="5"/>
-            </Style>
-
-            <!-- Styles -->
-            <Style x:Key="ScoreStyle" TargetType="Label">
-                <Setter Property="FontSize" Value="24"/>
-                <Setter Property="TextColor" Value="White"/>
-                <Setter Property="FontAttributes" Value="Bold"/>
-                <Setter Property="HorizontalOptions" Value="Center"/>
-                <Setter Property="VerticalOptions" Value="Center"/>
-            </Style>
-
-            <Style x:Key="ProgressBarStyle" TargetType="ProgressBar">
-                <Setter Property="ProgressColor" Value="{DynamicResource Primary}"/>
-                <Setter Property="HeightRequest" Value="10"/>
-                <Setter Property="MinimumHeightRequest" Value="10"/>
-                <Setter Property="Margin" Value="0,5"/>
-            </Style>
-
-            <!-- Converters -->
-            <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
-            <converters:ButtonEnabledConverter x:Key="ButtonEnabledConverter"/>
-            <converters:BoolToOpacityConverter x:Key="BoolToOpacityConverter"/>
-        </ResourceDictionary>
-    </ContentPage.Resources>
 </ContentPage>

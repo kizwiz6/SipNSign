@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace com.kizwiz.sipnsign
+﻿namespace com.kizwiz.sipnsign
 {
     public static class Constants
     {
@@ -23,6 +17,7 @@ namespace com.kizwiz.sipnsign
         public const int DEFAULT_DELAY = 5000;
         public const int MIN_DELAY = 2000;
         public const int MAX_DELAY = 10000;
+        public const string TRANSPARENT_FEEDBACK_KEY = "TransparentFeedback";
 
         // Guess Mode questions limit
         public const string GUESS_MODE_QUESTIONS_KEY = "GuessQuestions";

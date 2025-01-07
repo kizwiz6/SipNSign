@@ -8,7 +8,7 @@
     <ScrollView>
         <VerticalStackLayout Spacing="20" Padding="20">
             <!-- Sober Mode -->
-            <Frame BorderColor="Gray" Padding="15" CornerRadius="10">
+            <Border Stroke="Gray" Padding="15" StrokeShape="RoundRectangle 10">
                 <VerticalStackLayout Spacing="15">
                     <Label Text="Sober Mode" 
                FontSize="20" 
@@ -20,10 +20,10 @@
                FontSize="14"
                TextColor="Gray"/>
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
 
             <!-- Questions Limit in Guess Mode -->
-            <Frame BorderColor="Gray" Padding="15" CornerRadius="10">
+            <Border Stroke="Gray" Padding="15" StrokeShape="RoundRectangle 10">
                 <VerticalStackLayout Spacing="15">
                     <Label Text="Guess Mode Questions" 
                FontSize="20" 
@@ -40,10 +40,10 @@
                FontSize="14"
                TextColor="Gray"/>
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
 
             <!-- Timer Settings in Guess Mode -->
-            <Frame BorderColor="Gray" Padding="15" CornerRadius="10">
+            <Border Stroke="Gray" Padding="15" StrokeShape="RoundRectangle 10">
                 <VerticalStackLayout Spacing="15">
                     <Label Text="Guess Mode Timer" 
                            FontSize="20" 
@@ -67,10 +67,10 @@
                            FontSize="14"
                            TextColor="Gray"/>
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
 
             <!-- Feedback Delay -->
-            <Frame BorderColor="Gray" Padding="15" CornerRadius="10">
+            <Border Stroke="Gray" Padding="15" StrokeShape="RoundRectangle 10">
                 <VerticalStackLayout Spacing="15">
                     <Label Text="Incorrect Answer Delay" 
                            FontSize="20" 
@@ -86,10 +86,29 @@
                            FontSize="14"
                            TextColor="Gray"/>
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
+
+            <!-- Transparent Feedback -->
+            <Border Stroke="Gray" 
+        StrokeThickness="1"
+        Background="Transparent"
+        StrokeShape="RoundRectangle 10"
+        Padding="15">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Transparent Feedback" 
+               FontSize="20" 
+               FontAttributes="Bold"/>
+                    <Switch x:Name="TransparentFeedbackSwitch" 
+                IsToggled="{Binding IsTransparentFeedback}"
+                Toggled="OnTransparentFeedbackToggled"/>
+                    <Label Text="Makes feedback display transparent instead of colored"
+               FontSize="14"
+               TextColor="Gray"/>
+                </VerticalStackLayout>
+            </Border>
 
             <!-- Add theme picker to existing settings -->
-            <Frame BorderColor="Gray" Padding="15" CornerRadius="10">
+            <Border Stroke="Gray" Padding="15" StrokeShape="RoundRectangle 10">
                 <VerticalStackLayout Spacing="15">
                     <Label Text="App Theme" 
                FontSize="20" 
@@ -111,7 +130,7 @@
                         </Picker.ItemsSource>
                     </Picker>
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
 
             <Button Text="Save Changes"
                     Clicked="OnSaveClicked"

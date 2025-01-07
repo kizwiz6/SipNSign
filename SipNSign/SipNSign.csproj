@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <TargetFrameworks>net8.0-android;net8.0-ios;net8.0-maccatalyst</TargetFrameworks>
-        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks>
+	<PropertyGroup>
+		<TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
+		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
         <OutputType>Exe</OutputType>
         <RootNamespace>com.kizwiz.sipnsign</RootNamespace>
         <UseMaui>true</UseMaui>
@@ -21,23 +21,23 @@
 		<NullabilityInfoContextSupport>true</NullabilityInfoContextSupport>
 
         <!-- Platform Versions -->
-        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">17.0</SupportedOSPlatformVersion>
-        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">17.0</SupportedOSPlatformVersion>
-        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
-        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
-        <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">14.2</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">14.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
+		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+
+		<AndroidTargetSdk>34</AndroidTargetSdk>
     </PropertyGroup>
 
     <ItemGroup>
         <!-- Resources -->
         <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
-		<MauiSplashScreen Include="Resources\Splash\splash_logo.png"
-						  Color="#0e324d"
-						  BaseSize="256,256" />
+		<MauiSplashScreen Include="Resources\Splash\splash_logo.png" Color="#0e324d" BaseSize="256,256" />
         <MauiImage Include="Resources\Images\*" />
 		<MauiImage Include="Resources\Images\Themes\*.png" />
         <MauiFont Include="Resources\Fonts\*" />
-        <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
     </ItemGroup>
 
     <ItemGroup>
@@ -60,12 +60,12 @@
   <ItemGroup>
     <!-- Core MAUI Packages -->
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.71" />
-    <PackageReference Include="Microsoft.Maui.Controls.Core" Version="8.0.71" />
-    <PackageReference Include="Microsoft.Maui.Controls.Xaml" Version="8.0.71" />
-    <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.71" />
-    <PackageReference Include="Microsoft.Maui.Core" Version="8.0.71" />
-    <PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.71" />
+    <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.21" />
+    <PackageReference Include="Microsoft.Maui.Controls.Core" Version="9.0.21" />
+    <PackageReference Include="Microsoft.Maui.Controls.Xaml" Version="9.0.21" />
+    <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.21" />
+    <PackageReference Include="Microsoft.Maui.Core" Version="9.0.21" />
+    <PackageReference Include="Microsoft.Maui.Essentials" Version="9.0.21" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
 
 	  <PackageReference Include="System.Text.Json" Version="9.0.0">
@@ -76,9 +76,9 @@
 	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
 
     <!-- Community Toolkit -->
-    <PackageReference Include="CommunityToolkit.Maui" Version="9.1.1" />
-    <PackageReference Include="CommunityToolkit.Maui.Core" Version="9.1.1" />
-    <PackageReference Include="CommunityToolkit.Maui.MediaElement" Version="4.1.2" />
+    <PackageReference Include="CommunityToolkit.Maui" Version="10.0.0" />
+    <PackageReference Include="CommunityToolkit.Maui.Core" Version="10.0.0" />
+    <PackageReference Include="CommunityToolkit.Maui.MediaElement" Version="5.0.0" />
   </ItemGroup>
 
     <!-- Android-specific packages -->
@@ -99,6 +99,9 @@
     <PackageReference Include="Xamarin.AndroidX.Collection" Version="1.4.5.1" />
     <PackageReference Include="Xamarin.AndroidX.Collection.Ktx" Version="1.4.5.1" />
   </ItemGroup>
+	<ItemGroup Condition="$(TargetFramework.Contains('-android'))">
+		<AndroidResource Include="Platforms\Android\Resources\raw\*.mp4" />
+	</ItemGroup>
   <ItemGroup>
     <MauiImage Include="Platforms\Android\Resources\Images\achievement_icon.svg" />
     <MauiImage Include="Platforms\Android\Resources\Images\first_sign_icon.svg" />
@@ -110,6 +113,9 @@
     <MauiImage Include="Platforms\Android\Resources\Images\streak_icon.svg" />
     <MauiImage Include="Platforms\Android\Resources\Images\time_icon.svg" />
   </ItemGroup>
+	<ItemGroup>
+		<MauiXaml Remove="**/*.xaml" />
+	</ItemGroup>
   <ItemGroup>
     <Compile Update="Pages\ProgressPage.xaml.cs">
       <DependentUpon>ProgressPage.xaml</DependentUpon>
@@ -120,7 +126,34 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </MauiImage>
   </ItemGroup>
+	<!-- Add specific XAML files with correct build action -->
+	<ItemGroup>
+		<MauiXaml Include="App.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Include="AppShell.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Include="Pages\**\*.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Include="Resources\Styles\**\*.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>		
+	</ItemGroup>
+
+	<ItemGroup>
+		<MauiXaml Update="Pages\GamePage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Pages\AchievementDetailsPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+	</ItemGroup>
   <ItemGroup>
+    <MauiXaml Update="Pages\AchievementDetailsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
     <MauiXaml Update="Pages\ProgressPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
@@ -132,6 +165,11 @@
     <Folder Include="Platforms\Android\Resources\drawable-hdpi\" />
     <Folder Include="Platforms\Android\Resources\drawable-xhdpi\" />
     <Folder Include="Platforms\Android\Resources\drawable-xxhdpi\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Pages\AchievementDetailsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
   </ItemGroup>
 
 </Project>
