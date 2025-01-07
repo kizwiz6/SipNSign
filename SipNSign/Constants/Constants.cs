@@ -13,6 +13,7 @@
         public const int MAX_TIMER_DURATION = 15;
 
         // Feedback delay settings
+        public const string SHOW_FEEDBACK_KEY = "show_feedback";
         public const string INCORRECT_DELAY_KEY = "IncorrectAnswerDelay";
         public const int DEFAULT_DELAY = 5000;
         public const int MIN_DELAY = 2000;

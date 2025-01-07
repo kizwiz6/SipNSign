@@ -234,7 +234,7 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         public bool IsFeedbackVisible
         {
-            get => _isFeedbackVisible;
+            get => _isFeedbackVisible && Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true);
             set
             {
                 if (_isFeedbackVisible != value)
@@ -472,9 +472,14 @@ namespace com.kizwiz.sipnsign.ViewModels
                     IsProcessingAnswer = true;
                     _timer?.Stop();
                     CurrentScore++;
-                    FeedbackText = GetFeedbackText(true);
-                    FeedbackBackgroundColor = GetFeedbackColor(true);  // Changed to use GetFeedbackColor
-                    IsFeedbackVisible = true;
+
+                    if (Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true))
+                    {
+                        FeedbackText = GetFeedbackText(true);
+                        FeedbackBackgroundColor = GetFeedbackColor(true);
+                        IsFeedbackVisible = true;
+                    }
+
                     await Task.Delay(2000);
                     IsFeedbackVisible = false;
                     IsSignHidden = true;
@@ -494,9 +499,14 @@ namespace com.kizwiz.sipnsign.ViewModels
                 {
                     IsProcessingAnswer = true;
                     _timer?.Stop();
-                    FeedbackText = GetFeedbackText(false);
-                    FeedbackBackgroundColor = GetFeedbackColor(false);  // Changed to use GetFeedbackColor
-                    IsFeedbackVisible = true;
+
+                    if (Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true))
+                    {
+                        FeedbackText = GetFeedbackText(false);
+                        FeedbackBackgroundColor = GetFeedbackColor(false);
+                        IsFeedbackVisible = true;
+                    }
+
                     await Task.Delay(2000);
                     IsFeedbackVisible = false;
                     IsSignHidden = true;
@@ -561,16 +571,21 @@ namespace com.kizwiz.sipnsign.ViewModels
             try
             {
                 IsProcessingAnswer = true;
-                FeedbackBackgroundColor = GetFeedbackColor(false);
-                FeedbackText = Preferences.Get(Constants.SOBER_MODE_KEY, false)
-                    ? $"Time's up!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nKeep practicing!"
-                    : $"Time's up!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
-                IsFeedbackVisible = true;
+
+                if (Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true))
+                {
+                    FeedbackBackgroundColor = GetFeedbackColor(false);
+                    FeedbackText = Preferences.Get(Constants.SOBER_MODE_KEY, false)
+                        ? $"Time's up!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nKeep practicing!"
+                        : $"Time's up!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
+                    IsFeedbackVisible = true;
+                }
 
                 // Wait for feedback display duration
                 await Task.Delay(Preferences.Get(Constants.INCORRECT_DELAY_KEY, Constants.DEFAULT_DELAY));
 
                 // Move to next question
+                await Task.Delay(Preferences.Get(Constants.INCORRECT_DELAY_KEY, Constants.DEFAULT_DELAY));
                 IsFeedbackVisible = false;
                 await LogGameActivity(false);
                 LoadNextSign();
@@ -592,7 +607,6 @@ namespace com.kizwiz.sipnsign.ViewModels
 
             try
             {
-                Debug.WriteLine("Starting HandleAnswer");
                 IsProcessingAnswer = true;
                 if (_timer != null) _timer.Stop();
 
@@ -602,12 +616,15 @@ namespace com.kizwiz.sipnsign.ViewModels
                 bool isCorrect = CheckAnswer(answer);
                 UpdateButtonColor(answer, isCorrect);
 
-                // Show feedback
-                FeedbackText = GetFeedbackText(isCorrect);
-                string color = GetFeedbackColor(isCorrect);
-                Debug.WriteLine($"Setting feedback color to: {color}");
-                FeedbackBackgroundColor = color;
-                IsFeedbackVisible = true;
+                // Only show feedback if enabled
+                if (Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true))
+                {
+                    FeedbackText = GetFeedbackText(isCorrect);
+                    string color = GetFeedbackColor(isCorrect);
+                    Debug.WriteLine($"Setting feedback color to: {color}");
+                    FeedbackBackgroundColor = color;
+                    IsFeedbackVisible = true;
+                }
 
                 if (isCorrect)
                 {
@@ -636,7 +653,6 @@ namespace com.kizwiz.sipnsign.ViewModels
             finally
             {
                 IsProcessingAnswer = false;
-                Debug.WriteLine("HandleAnswer completed");
             }
         }
 
@@ -650,6 +666,12 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private void ShowFeedback(bool isCorrect)
         {
+            // Only show feedback if enabled in settings
+            if (!Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true))
+            {
+                return;
+            }
+
             FeedbackBackgroundColor = GetFeedbackColor(isCorrect);
             FeedbackText = GetFeedbackText(isCorrect);
             IsFeedbackVisible = true;

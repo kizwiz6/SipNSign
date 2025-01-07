@@ -1,9 +1,6 @@
-using Microsoft.Maui.Storage; // For Preferences
-using Microsoft.Maui.ApplicationModel; // For AppTheme
-using System.Diagnostics;
-using Microsoft.Maui.Controls;
-using com.kizwiz.sipnsign.Services;
 using com.kizwiz.sipnsign.Enums;
+using com.kizwiz.sipnsign.Services;
+using System.Diagnostics;
 
 namespace com.kizwiz.sipnsign.Pages
 {
@@ -31,6 +28,22 @@ namespace com.kizwiz.sipnsign.Pages
             LoadSavedSettings();
         }
 
+        private void OnShowFeedbackToggled(object sender, ToggledEventArgs e)
+        {
+            Debug.WriteLine($"Show Feedback toggled: {e.Value}");
+            Preferences.Set(Constants.SHOW_FEEDBACK_KEY, e.Value);
+
+            // Update UI elements that depend on feedback visibility
+            TransparentFeedbackSwitch.IsEnabled = e.Value;
+
+            // If feedback is disabled, ensure transparent feedback is also disabled
+            if (!e.Value)
+            {
+                TransparentFeedbackSwitch.IsToggled = false;
+                Preferences.Set(Constants.TRANSPARENT_FEEDBACK_KEY, false);
+            }
+        }
+
         private void LoadSavedSettings()
         {
             // Load questions count
@@ -44,6 +57,11 @@ namespace com.kizwiz.sipnsign.Pages
             TimerValueLabel.Text = $"{savedDuration} seconds";
             DisableTimerCheckbox.IsChecked = savedDuration == 0;
             TimerSlider.IsEnabled = !DisableTimerCheckbox.IsChecked;
+
+            // Load feedback settings
+            bool showFeedback = Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true);
+            ShowFeedbackSwitch.IsToggled = showFeedback;
+            TransparentFeedbackSwitch.IsEnabled = showFeedback;
 
             // Load delay settings
             DelaySlider.Value = _preferences.Get(Constants.INCORRECT_DELAY_KEY, Constants.DEFAULT_DELAY) / 1000.0;
