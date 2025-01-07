@@ -33,6 +33,11 @@ namespace com.kizwiz.sipnsign.Pages
 
         private void LoadSavedSettings()
         {
+            // Load questions count
+            int savedQuestions = _preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
+            QuestionsSlider.Value = savedQuestions;
+            QuestionsValueLabel.Text = $"{savedQuestions} questions";
+
             // Load timer settings
             int savedDuration = _preferences.Get(Constants.TIMER_DURATION_KEY, Constants.DEFAULT_TIMER_DURATION);
             TimerSlider.Value = savedDuration;
