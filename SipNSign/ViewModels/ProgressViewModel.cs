@@ -2,6 +2,7 @@
 using com.kizwiz.sipnsign.Services;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace com.kizwiz.sipnsign.ViewModels
 {
@@ -163,8 +164,10 @@ namespace com.kizwiz.sipnsign.ViewModels
                     Title = achievement.Title,
                     Description = progressText,
                     IsUnlocked = achievement.IsUnlocked,
-                    Progress = progress
+                    Progress = progress,
+                    UnlockedDate = achievement.UnlockedDate
                 });
+                Debug.WriteLine($"Achievement {achievement.Title} - UnlockedDate: {achievement.UnlockedDate}");
             }
         }
 

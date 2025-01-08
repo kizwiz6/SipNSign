@@ -1,61 +1,76 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="com.kizwiz.sipnsign.Pages.AchievementDetailsPage"
-             Style="{StaticResource AppPageStyle}"
-             Title="Achievement Details">
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            x:Class="com.kizwiz.sipnsign.Pages.AchievementDetailsPage"
+            Style="{StaticResource AppPageStyle}"
+            Title="Achievement Details">
 
     <Grid Padding="20" RowDefinitions="Auto,*">
         <!-- Achievement Card -->
         <Border BackgroundColor="{DynamicResource CardBackground}"
-                Opacity="0.95"
-                StrokeShape="RoundRectangle 20"
-                Padding="20"
-                Margin="0,10">
+               Opacity="0.95"
+               StrokeShape="RoundRectangle 20"
+               Padding="20"
+               Margin="0,10">
             <VerticalStackLayout Spacing="20">
                 <!-- Achievement Icon -->
                 <Image Source="{Binding Icon}"
-                       HeightRequest="100"
-                       WidthRequest="100"
-                       HorizontalOptions="Center"/>
+                      HeightRequest="100"
+                      WidthRequest="100"
+                      HorizontalOptions="Center"/>
 
                 <!-- Achievement Title -->
                 <Label Text="{Binding Title}"
-                       TextColor="{DynamicResource CardText}"
-                       FontSize="28"
-                       FontAttributes="Bold"
-                       HorizontalOptions="Center"/>
+                      TextColor="{DynamicResource CardText}"
+                      FontSize="28"
+                      FontAttributes="Bold"
+                      HorizontalOptions="Center"/>
 
                 <!-- Achievement Description -->
                 <Label Text="{Binding Description}"
-                       TextColor="{DynamicResource CardText}"
-                       FontSize="18"
-                       HorizontalOptions="Center"
-                       HorizontalTextAlignment="Center"/>
+                      TextColor="{DynamicResource CardText}"
+                      FontSize="18"
+                      HorizontalOptions="Center"
+                      HorizontalTextAlignment="Center"/>
 
                 <!-- Progress Section -->
                 <VerticalStackLayout IsVisible="{Binding IsUnlocked, Converter={StaticResource InverseBoolConverter}}">
                     <ProgressBar Progress="{Binding Progress}"
-                                ProgressColor="{DynamicResource Primary}"
-                                HeightRequest="10"/>
+                               ProgressColor="{DynamicResource Primary}"
+                               HeightRequest="10"/>
                     <Label Text="{Binding ProgressText}"
-                           TextColor="{DynamicResource CardText}"
-                           HorizontalOptions="Center"
-                           Margin="0,10,0,0"/>
+                          TextColor="{DynamicResource CardText}"
+                          HorizontalOptions="Center"
+                          Margin="0,10,0,0"/>
                 </VerticalStackLayout>
 
-                <!-- Unlock Status -->
-                <Label Text="{Binding UnlockDateDisplay}"
-                       IsVisible="{Binding IsUnlocked}"
-                       TextColor="{DynamicResource CardText}"
-                       HorizontalOptions="Center"/>
+                <!-- Unlock Status with better formatting -->
+                <StackLayout IsVisible="{Binding IsUnlocked}"
+                             Orientation="Horizontal"
+                             HorizontalOptions="Center"
+                             Spacing="5">
+                    <Label Text="🏆"
+                           FontSize="20"
+                           VerticalOptions="Center"/>
+                    <Label Text="{Binding UnlockDateDisplay}"
+                           TextColor="{DynamicResource CardText}"
+                           FontAttributes="Bold"
+                           VerticalOptions="Center"/>
+                </StackLayout>
 
-                <!-- Share Button -->
-                <Button Text="Share Achievement"
-                        IsVisible="{Binding IsUnlocked}"
-                        Command="{Binding ShareCommand}"
-                        Style="{StaticResource PrimaryButton}"
-                        Margin="0,20,0,0"/>
+                <!-- Share Button with improved styling -->
+                <Button Text="SHARE ACHIEVEMENT"
+                       IsVisible="{Binding IsUnlocked}"
+                       Command="{Binding ShareCommand}"
+                       Style="{StaticResource PrimaryButton}"
+                       FontAttributes="Bold"
+                       Margin="0,20,0,0">
+                    <Button.ImageSource>
+                        <FontImageSource Glyph="🎉"
+                                      Color="White"
+                                      Size="20"/>
+                    </Button.ImageSource>
+                </Button>
             </VerticalStackLayout>
         </Border>
     </Grid>

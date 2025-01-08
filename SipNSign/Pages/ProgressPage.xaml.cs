@@ -68,7 +68,8 @@ public partial class ProgressPage : ContentPage
                         IconName = achievementItem.Icon,
                         IsUnlocked = achievementItem.IsUnlocked,
                         ProgressCurrent = (int)(achievementItem.Progress * 100), // Convert progress to current value
-                        ProgressRequired = 100 // Set required progress
+                        ProgressRequired = 100, // Set required progress
+                        UnlockedDate = achievementItem.UnlockedDate
                     };
 
                     var detailsPage = new AchievementDetailsPage(achievement);

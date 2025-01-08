@@ -21,7 +21,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         public string ProgressText => $"{_achievement.ProgressCurrent}/{_achievement.ProgressRequired}";
 
         public string UnlockDateDisplay => _achievement.UnlockedDate.HasValue
-            ? $"Unlocked on {_achievement.UnlockedDate.Value:MMM dd, yyyy at hh:mm tt}"
+            ? $"Unlocked on {_achievement.UnlockedDate.Value:MMM dd, yyyy 'at' hh:mm tt}"
             : string.Empty;
 
         public ICommand ShareCommand { get; }
@@ -37,9 +37,13 @@ namespace com.kizwiz.sipnsign.ViewModels
         {
             try
             {
-                var shareText = $"I just {(IsUnlocked ? "unlocked" : "made progress on")} the '{Title}' achievement in SipNSign! 🎉\n\n" +
-                               $"{Description}\n\n" +
-                               $"Download SipNSign and learn sign language while having fun!";
+                var shareText = $"🎮 Achievement Unlocked in SipNSign! 🎉\n\n" +
+                               $"🏆 {Title}\n" +
+                               $"📝 {Description}\n\n" +
+                               $"🗓️ Unlocked on: {_achievement.UnlockedDate:dd MMM yyyy}\n\n" +
+                               $"🎯 Progress: {_achievement.ProgressCurrent}/{_achievement.ProgressRequired}\n\n" +
+                               $"🎲 Download SipNSign and learn sign language while having fun!\n" +
+                               $"#SipNSign #SignLanguage #Gaming";
 
                 await _shareService.ShareTextAsync(shareText, "Share Achievement");
             }
@@ -62,7 +66,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         public string ProgressText { get; set; }
 
         public string UnlockDateDisplay => UnlockDate.HasValue
-            ? $"Unlocked on {UnlockDate.Value:MMM dd, yyyy at hh:mm tt}"
+            ? UnlockDate.Value.ToString("dd MMMM yyyy 'at' hh:mm tt")
             : string.Empty;
     }
 }

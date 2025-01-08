@@ -6,7 +6,7 @@ namespace com.kizwiz.sipnsign.Pages
 {
     public partial class AchievementDetailsPage : ContentPage
     {
-        private AchievementDetailsViewModel _viewModel;
+        private readonly AchievementDetailsViewModel _viewModel;
 
         public AchievementDetailsPage(Achievement achievement)
         {
