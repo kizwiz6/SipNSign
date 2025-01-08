@@ -5,6 +5,7 @@ using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Maui.Core.Primitives;
 using System.ComponentModel;
 using System.Diagnostics;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace com.kizwiz.sipnsign.Pages
 {
@@ -14,7 +15,7 @@ namespace com.kizwiz.sipnsign.Pages
         private readonly IVideoService _videoService;
         private bool _isDisposed;
         private readonly SemaphoreSlim _cleanupLock = new(1, 1);
-        private MediaElement _sharedVideo;
+        private MediaElement? _sharedVideo;
 
         public GameViewModel ViewModel => _viewModel;
 
@@ -27,7 +28,6 @@ namespace com.kizwiz.sipnsign.Pages
                 _videoService = videoService ?? throw new ArgumentNullException(nameof(videoService));
                 _viewModel = new GameViewModel(serviceProvider, videoService, logger, progressService)
                 {
-                    // Initialize required properties
                     AnswerCommand = new Command<string>(HandleAnswer),
                     RevealSignCommand = new Command(RevealSign),
                     CurrentVideoSource = MediaSource.FromFile("again.mp4")
@@ -37,12 +37,10 @@ namespace com.kizwiz.sipnsign.Pages
                 BindingContext = _viewModel;
                 ConnectToViewModel();
 
-                _sharedVideo = this.FindByName<MediaElement>("SharedVideo");
+                _sharedVideo = this.FindByName<MediaElement>("SharedVideo") ??
+                    throw new InvalidOperationException("SharedVideo element not found");
 
-                if (_sharedVideo != null)
-                {
-                    _sharedVideo.PropertyChanged += OnSharedVideoPropertyChanged;
-                }
+                _sharedVideo.PropertyChanged += OnSharedVideoPropertyChanged;
             }
             catch (Exception ex)
             {
@@ -62,22 +60,21 @@ namespace com.kizwiz.sipnsign.Pages
             _viewModel.RevealSign();
         }
 
-        private void OnSharedVideoPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void OnSharedVideoPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (sender is MediaElement mediaElement)
+            if (sender is not MediaElement mediaElement) return;
+            
+            Debug.WriteLine($"Video property changed: {e.PropertyName}");
+            if (e.PropertyName == nameof(MediaElement.CurrentState))
             {
-                Debug.WriteLine($"Video property changed: {e.PropertyName}");
-                if (e.PropertyName == nameof(MediaElement.CurrentState))
+                Debug.WriteLine($"Current state: {mediaElement.CurrentState}");
+                if (mediaElement.CurrentState == MediaElementState.Failed)
                 {
-                    Debug.WriteLine($"Current state: {mediaElement.CurrentState}");
-                    if (mediaElement.CurrentState == MediaElementState.Failed)
-                    {
-                        Debug.WriteLine("Video failed to load");
-                    }
-                    else if (mediaElement.CurrentState == MediaElementState.Playing)
-                    {
-                        Debug.WriteLine("Video is playing");
-                    }
+                    Debug.WriteLine("Video failed to load");
+                }
+                else if (mediaElement.CurrentState == MediaElementState.Playing)
+                {
+                    Debug.WriteLine("Video is playing");
                 }
             }
         }
@@ -206,7 +203,7 @@ namespace com.kizwiz.sipnsign.Pages
             }
         }
 
-        private void OnSignRevealRequested(object sender, EventArgs e)
+        private void OnSignRevealRequested(object? sender, EventArgs e)
         {
             if (_isDisposed) return;
 
@@ -245,16 +242,19 @@ namespace com.kizwiz.sipnsign.Pages
             _isDisposed = false;
         }
 
-        public void SetVideoSource(MediaSource source)
+        public void SetVideoSource(MediaSource? source)
         {
-            if (_isDisposed) return;
+            if (_isDisposed || source == null) return;
 
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 try
                 {
-                    _sharedVideo.Source = source;
-                    _sharedVideo.IsVisible = true;
+                    if (_sharedVideo != null)
+                    {
+                        _sharedVideo.Source = source;
+                        _sharedVideo.IsVisible = true;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -341,8 +341,10 @@ namespace com.kizwiz.sipnsign.Pages
             {
                 int questions = (int)e.NewValue;
                 Preferences.Set(Constants.GUESS_MODE_QUESTIONS_KEY, questions);
-                MessagingCenter.Send(this, "QuestionCountChanged", questions);
+                WeakReferenceMessenger.Default.Send(new QuestionCountChangedMessage(questions));
             }
         }
+
+        public record QuestionCountChangedMessage(int QuestionCount);
     }
 }
