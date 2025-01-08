@@ -1,5 +1,6 @@
 ﻿using com.kizwiz.sipnsign.Services;
 using System.Diagnostics;
+
 [assembly: XamlCompilation(XamlCompilationOptions.Compile)]
 
 namespace com.kizwiz.sipnsign
@@ -9,14 +10,12 @@ namespace com.kizwiz.sipnsign
     /// and sets the main page for the application.
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class App : Application
+    public partial class App : Microsoft.Maui.Controls.Application
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly Color _navBarColor = Color.FromArgb("#007BFF");
-        private readonly Color _navBarTextColor = Color.FromArgb("#FFFFFF");
 
         /// <summary>
-        /// Initialises a new instance of the <see cref="App"/> class.
+        /// Initializes a new instance of the <see cref="App"/> class.
         /// This constructor retrieves the user's saved theme preference,
         /// sets the initial application theme, and configures dependency injection.
         /// </summary>

@@ -157,9 +157,9 @@ namespace com.kizwiz.sipnsign.ViewModels
                     _ => $"{achievement.Description} ({achievement.ProgressCurrent}/{achievement.ProgressRequired})"
                 };
 
-                // Rest of your achievement creation code...
                 Achievements.Add(new AchievementItem
                 {
+                    Id = achievement.Id,
                     Icon = icon,
                     Title = achievement.Title,
                     Description = progressText,

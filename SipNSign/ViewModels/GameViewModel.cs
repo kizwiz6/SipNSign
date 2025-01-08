@@ -1153,7 +1153,7 @@ namespace com.kizwiz.sipnsign.ViewModels
 
                 Debug.WriteLine("Creating settings page");
                 var themeService = _serviceProvider.GetRequiredService<IThemeService>();
-                var settingsPage = new SettingsPage(themeService);
+                var settingsPage = new SettingsPage(themeService, _serviceProvider);
                 Debug.WriteLine("Pushing settings page");
                 await Application.Current.MainPage.Navigation.PushAsync(settingsPage);
                 Debug.WriteLine("Navigation completed");

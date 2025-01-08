@@ -11,11 +11,13 @@ namespace com.kizwiz.sipnsign.Pages
     {
         private readonly IPreferences _preferences = Preferences.Default;
         private readonly IThemeService _themeService;
+        private readonly IServiceProvider _serviceProvider;
 
-        public SettingsPage(IThemeService themeService)
+        public SettingsPage(IThemeService themeService, IServiceProvider serviceProvider)
         {
             InitializeComponent();
             _themeService = themeService;
+            _serviceProvider = serviceProvider;
 
             // Subscribe to theme changes
             _themeService.ThemeChanged += OnThemeChanged;
@@ -141,6 +143,23 @@ namespace com.kizwiz.sipnsign.Pages
                 int duration = Constants.DEFAULT_TIMER_DURATION;
                 TimerSlider.Value = duration;
                 TimerValueLabel.Text = $"{duration} seconds";
+            }
+        }
+
+        private async void OnViewLogsClicked(object sender, EventArgs e)
+        {
+            try
+            {
+                var loggingService = _serviceProvider?.GetService<ILoggingService>();
+                if (loggingService != null)
+                {
+                    var logs = await loggingService.GetLogContents();
+                    await DisplayAlert("Application Logs", logs, "OK");
+                }
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"Could not read logs: {ex.Message}", "OK");
             }
         }
 
@@ -285,7 +304,34 @@ namespace com.kizwiz.sipnsign.Pages
             QuestionsValueLabel.Text = $"{questions} questions";
         }
 
-    private async Task ViewLogs()
+        /// <summary>
+        /// Handles clearing of debug log files
+        /// </summary>
+        private async void OnClearLogsClicked(object sender, EventArgs e)
+        {
+            try
+            {
+                var loggingService = _serviceProvider?.GetService<ILoggingService>();
+                if (loggingService != null)
+                {
+                    bool answer = await DisplayAlert("Clear Logs",
+                        "Are you sure you want to clear all debug logs?",
+                        "Yes", "No");
+
+                    if (answer)
+                    {
+                        await loggingService.CleanupLogs();
+                        await DisplayAlert("Success", "Debug logs cleared successfully", "OK");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"Could not clear logs: {ex.Message}", "OK");
+            }
+        }
+
+        private async Task ViewLogs()
         {
             try
             {
