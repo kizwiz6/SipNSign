@@ -2,6 +2,8 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
             xmlns:converters="clr-namespace:com.kizwiz.sipnsign.Converters"
+            xmlns:viewmodels="clr-namespace:com.kizwiz.sipnsign.ViewModels"
+            x:DataType="viewmodels:AchievementDetailsViewModel"
             x:Class="com.kizwiz.sipnsign.Pages.AchievementDetailsPage"
             Style="{StaticResource AppPageStyle}"
             Title="Achievement Details">

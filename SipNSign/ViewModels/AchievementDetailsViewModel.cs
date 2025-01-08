@@ -2,7 +2,6 @@
 using com.kizwiz.sipnsign.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Input;
 
@@ -56,10 +55,10 @@ namespace com.kizwiz.sipnsign.ViewModels
 
     public class AchievementDetailModel : ObservableObject
     {
-        public string Id { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public string Icon { get; set; }
+        public required string Id { get; set; }
+        public required string Title { get; set; }
+        public required string Description { get; set; }
+        public required string Icon { get; set; }
         public bool IsUnlocked { get; set; }
         public DateTime? UnlockDate { get; set; }
         public double Progress { get; set; }

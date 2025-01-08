@@ -2,7 +2,6 @@
 using Android.Content.PM;
 using Android.OS;
 using AndroidX.Activity;
-using Microsoft.Maui.Controls;
 
 namespace com.kizwiz.sipnsign;
 
