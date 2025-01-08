@@ -51,16 +51,11 @@ public partial class ProgressPage : ContentPage
     }
 
     /// <summary>
-    /// Handles the tapping event on an achievement item.
+    /// Event handler for achievement tap events.
     /// </summary>
-    /// <param name="sender">The source of the tap event.</param>
-    /// <param name="e">The tap event arguments.</param>
-    /// <summary>
-    /// Handles the tapping event on an achievement item.
-    /// </summary>
-    /// <param name="sender">The source of the tap event.</param>
-    /// <param name="e">The tap event arguments.</param>
-    private async void OnAchievementTapped(object sender, TappedEventArgs e)
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">Event arguments.</param>
+    private async void OnAchievementTapped(object? sender, TappedEventArgs e)
     {
         if (_isNavigating) return; // Prevent multiple navigations
 
