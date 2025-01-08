@@ -45,7 +45,7 @@ namespace com.kizwiz.sipnsign.Pages
             }
         }
 
-        private async void OnSharedVideoPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void OnSharedVideoPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (sender is MediaElement mediaElement)
             {
