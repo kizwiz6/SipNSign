@@ -22,7 +22,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         #endregion
 
         #region Private Fields
-        private IDispatcherTimer _timer;
+        private IDispatcherTimer? _timer;
         private readonly IVideoService _videoService;
         private readonly ILoggingService _logger;
         private readonly IProgressService _progressService;
@@ -53,7 +53,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private bool _isSignHidden = true;
         private List<double> _answerTimes = new List<double>();
         private double _averageAnswerTime;
-        private UserProgress _userProgress;
+        private UserProgress? _userProgress;
         private ICommand _playAgainCommand;
         private ICommand _incorrectPerformCommand;
         private ICommand _correctPerformCommand;
@@ -371,7 +371,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         #endregion
 
         #region Commands
-        public ICommand AnswerCommand { get; private set; }
+        public required ICommand AnswerCommand { get; set; }
         public ICommand PlayAgainCommand
         {
             get
@@ -394,7 +394,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
         public ICommand VideoLoadedCommand { get; private set; }
-        public ICommand RevealSignCommand { get; private set; }
+        public required ICommand RevealSignCommand { get; set; }
         public ICommand CorrectPerformCommand => _correctPerformCommand;
         public ICommand IncorrectPerformCommand => _incorrectPerformCommand;
         public ICommand SwitchModeCommand { get; private set; }
@@ -438,6 +438,13 @@ namespace com.kizwiz.sipnsign.ViewModels
             // Initialize SignRevealRequested with a default handler
             SignRevealRequested = (sender, args) => { };
 
+            // Initialize commands
+            AnswerCommand = new Command<string>(HandleAnswer);
+            VideoLoadedCommand = new Command(() => IsLoading = false);
+            RevealSignCommand = new Command(RevealSign);
+            CurrentVideoSource = MediaSource.FromFile("again.mp4");
+            SwitchModeCommand = new Command<GameMode>(SwitchMode);
+
             InitializeCommands();
 
             // Initialize videos in a fire-and-forget Task
@@ -459,10 +466,8 @@ namespace com.kizwiz.sipnsign.ViewModels
         #region Private Methods
         private void InitializeCommands()
         {
-            AnswerCommand = new Command<string>(HandleAnswer);
             _playAgainCommand = new Command(ResetGame);
             VideoLoadedCommand = new Command(() => IsLoading = false);
-            RevealSignCommand = new Command(RevealSign);
 
             _correctPerformCommand = new Command(async () =>
             {
@@ -556,7 +561,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
             else
             {
-                _timer.Stop();
+                _timer?.Stop();
                 await Task.Run(HandleTimeOut);  // Run on background thread
             }
         }
@@ -601,7 +606,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             return answer == CurrentSign?.CorrectAnswer;
         }
 
-        private async void HandleAnswer(string answer)
+        public async void HandleAnswer(string answer)
         {
             if (!IsGameActive || IsGameOver || IsProcessingAnswer) return;
 
@@ -684,7 +689,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             _averageAnswerTime = _answerTimes.Average();
         }
 
-        private void RevealSign()
+        public void RevealSign()
         {
             _logger.Debug($"RevealSign called. CurrentSign is: {CurrentSign?.CorrectAnswer ?? "null"}");
             IsSignHidden = false;
@@ -719,7 +724,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                 Debug.WriteLine($"HandleCorrectPerform - Current transparency setting: {Preferences.Get(Constants.TRANSPARENT_FEEDBACK_KEY, false)}");
 
                 IsSignHidden = true;
-                _timer.Stop();
+                _timer?.Stop();
                 CurrentScore++;
                 FeedbackText = "Nice work!\n\nPrepare for your next sign!";
                 FeedbackBackgroundColor = GetFeedbackColor(true);
@@ -1129,7 +1134,9 @@ namespace com.kizwiz.sipnsign.ViewModels
                 var uri = new Uri($"file://{fullPath}");
                 var source = MediaSource.FromUri(uri);
 
-                if (Application.Current?.MainPage?.Navigation?.NavigationStack.LastOrDefault() is GamePage gamePage)
+                var window = Application.Current?.Windows.FirstOrDefault();
+                var gamePage = window?.Page?.Navigation?.NavigationStack.LastOrDefault() as GamePage;
+                if (gamePage != null)
                 {
                     gamePage.SetVideoSource(source);
                 }
@@ -1140,12 +1147,12 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
 
-        public MediaSource CurrentVideoSource { get; private set; }
+        public required MediaSource CurrentVideoSource { get; set; }
         public ICommand GoToSettingsCommand => new Command(async () =>
         {
             try
             {
-                if (Application.Current?.MainPage?.Navigation == null)
+                if (Application.Current?.Windows.FirstOrDefault()?.Page == null)
                 {
                     Debug.WriteLine("Navigation service not available");
                     return;
@@ -1155,7 +1162,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                 var themeService = _serviceProvider.GetRequiredService<IThemeService>();
                 var settingsPage = new SettingsPage(themeService, _serviceProvider);
                 Debug.WriteLine("Pushing settings page");
-                await Application.Current.MainPage.Navigation.PushAsync(settingsPage);
+                await Shell.Current.Navigation.PushAsync(settingsPage);
                 Debug.WriteLine("Navigation completed");
             }
             catch (Exception ex)
@@ -1163,9 +1170,10 @@ namespace com.kizwiz.sipnsign.ViewModels
                 Debug.WriteLine($"Navigation error: {ex.Message}");
                 Debug.WriteLine($"Stack trace: {ex.StackTrace}");
 
-                if (Application.Current?.MainPage != null)
+                var window = Application.Current?.Windows.FirstOrDefault();
+                if (window != null)
                 {
-                    await Application.Current.MainPage.DisplayAlert("Error", "Unable to open settings", "OK");
+                    await window.Page.DisplayAlert("Error", "Unable to open settings", "OK");
                 }
             }
         });

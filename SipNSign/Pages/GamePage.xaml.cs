@@ -25,7 +25,13 @@ namespace com.kizwiz.sipnsign.Pages
                 InitializeComponent();
 
                 _videoService = videoService ?? throw new ArgumentNullException(nameof(videoService));
-                _viewModel = new GameViewModel(serviceProvider, videoService, logger, progressService);
+                _viewModel = new GameViewModel(serviceProvider, videoService, logger, progressService)
+                {
+                    // Initialize required properties
+                    AnswerCommand = new Command<string>(HandleAnswer),
+                    RevealSignCommand = new Command(RevealSign),
+                    CurrentVideoSource = MediaSource.FromFile("again.mp4")
+                };
                 _viewModel.SignRevealRequested += OnSignRevealRequested;
 
                 BindingContext = _viewModel;
@@ -43,6 +49,17 @@ namespace com.kizwiz.sipnsign.Pages
                 Debug.WriteLine($"Error in GamePage constructor: {ex.Message}");
                 throw;
             }
+        }
+
+        // Add these methods to handle commands
+        private void HandleAnswer(string answer)
+        {
+            _viewModel.HandleAnswer(answer);
+        }
+
+        private void RevealSign()
+        {
+            _viewModel.RevealSign();
         }
 
         private void OnSharedVideoPropertyChanged(object sender, PropertyChangedEventArgs e)

@@ -198,7 +198,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             return timestamp.ToString("MMM dd");
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
