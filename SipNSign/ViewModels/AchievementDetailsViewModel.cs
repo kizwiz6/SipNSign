@@ -3,94 +3,49 @@ using com.kizwiz.sipnsign.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Windows.Input;
 
 namespace com.kizwiz.sipnsign.ViewModels
 {
-    public partial class AchievementDetailsViewModel : ObservableObject
+    public class AchievementDetailsViewModel : ObservableObject
     {
-        private readonly INavigation _navigation;
-        private readonly IProgressService _progressService;
         private readonly IShareService _shareService;
+        private Achievement _achievement;
 
-        [ObservableProperty]
-        private ObservableCollection<AchievementDetailModel> achievements;
+        public string Icon => _achievement.IconName;
+        public string Title => _achievement.Title;
+        public string Description => _achievement.Description;
+        public bool IsUnlocked => _achievement.IsUnlocked;
+        public double Progress => (double)_achievement.ProgressCurrent / _achievement.ProgressRequired;
+        public string ProgressText => $"{_achievement.ProgressCurrent}/{_achievement.ProgressRequired}";
 
-        [ObservableProperty]
-        private AchievementDetailModel currentAchievement;
+        public string UnlockDateDisplay => _achievement.UnlockedDate.HasValue
+            ? $"Unlocked on {_achievement.UnlockedDate.Value:MMM dd, yyyy at hh:mm tt}"
+            : string.Empty;
 
-        public AchievementDetailsViewModel(INavigation navigation,
-            IProgressService progressService,
-            IShareService shareService,
-            Achievement selectedAchievement = null)
+        public ICommand ShareCommand { get; }
+
+        public AchievementDetailsViewModel(Achievement achievement, IShareService shareService)
         {
-            _navigation = navigation;
-            _progressService = progressService;
+            _achievement = achievement;
             _shareService = shareService;
-
-            LoadAchievements(selectedAchievement);
+            ShareCommand = new AsyncRelayCommand(ShareAchievement);
         }
 
-        private async void LoadAchievements(Achievement selectedAchievement)
+        private async Task ShareAchievement()
         {
-            var progress = await _progressService.GetUserProgressAsync();
-            Achievements = new ObservableCollection<AchievementDetailModel>(
-                progress.Achievements.Select(a => new AchievementDetailModel
-                {
-                    Id = a.Id,
-                    Title = a.Title,
-                    Description = a.Description,
-                    Icon = a.IconName,
-                    IsUnlocked = a.IsUnlocked,
-                    UnlockDate = a.UnlockedDate,
-                    Progress = (double)a.ProgressCurrent / a.ProgressRequired,
-                    ProgressText = $"{a.ProgressCurrent}/{a.ProgressRequired}",
-                }));
-
-            if (selectedAchievement != null)
+            try
             {
-                CurrentAchievement = Achievements.FirstOrDefault(a => a.Id == selectedAchievement.Id);
+                var shareText = $"I just {(IsUnlocked ? "unlocked" : "made progress on")} the '{Title}' achievement in SipNSign! 🎉\n\n" +
+                               $"{Description}\n\n" +
+                               $"Download SipNSign and learn sign language while having fun!";
+
+                await _shareService.ShareTextAsync(shareText, "Share Achievement");
             }
-            else
+            catch (Exception ex)
             {
-                CurrentAchievement = Achievements.FirstOrDefault();
-            }
-        }
-
-        [RelayCommand]
-        private async Task Share()
-        {
-            if (CurrentAchievement?.IsUnlocked == true)
-            {
-                var shareText = $"I just unlocked the {CurrentAchievement.Title} achievement in SipNSign! ??\n" +
-                              $"{CurrentAchievement.Description}";
-
-                await _shareService.ShareTextAsync(shareText, "Achievement Unlocked!");
-            }
-        }
-
-        [RelayCommand]
-        private async Task GoBack()
-        {
-            await _navigation.PopAsync();
-        }
-
-        [RelayCommand]
-        private void Previous()
-        {
-            var currentIndex = Achievements.IndexOf(CurrentAchievement);
-            if (currentIndex > 0)
-            {
-                CurrentAchievement = Achievements[currentIndex - 1];
-            }
-        }
-
-        [RelayCommand]
-        private void Next()
-        {
-            var currentIndex = Achievements.IndexOf(CurrentAchievement);
-            if (currentIndex < Achievements.Count - 1)
-            {
-                CurrentAchievement = Achievements[currentIndex + 1];
+                Debug.WriteLine($"Error sharing achievement: {ex.Message}");
             }
         }
     }

@@ -141,48 +141,52 @@
 
             <!-- Achievements -->
             <Frame BackgroundColor="{DynamicResource CardBackground}"
-               Opacity="0.95"
-               Padding="15" 
-               CornerRadius="10" 
-               HasShadow="True">
+       Opacity="0.95"
+       Padding="15" 
+       CornerRadius="10" 
+       HasShadow="True">
                 <VerticalStackLayout Spacing="10">
                     <Label Text="Achievements"
-                       FontSize="20"
-                       FontAttributes="Bold"
-                       TextColor="{DynamicResource CardText}"/>
+               FontSize="20"
+               FontAttributes="Bold"
+               TextColor="{DynamicResource CardText}"/>
                     <CollectionView x:Name="AchievementsList"
-                              ItemsSource="{Binding Achievements}"
-                              HeightRequest="200">
+                      ItemsSource="{Binding Achievements}"
+                      HeightRequest="200">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <Grid Padding="10" ColumnDefinitions="Auto,*,Auto">
+                                <Grid Padding="10" 
+                          ColumnDefinitions="Auto,*,Auto">
+                                    <!-- Make the entire grid tappable -->
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer 
+                                Tapped="OnAchievementTapped"
+                                NumberOfTapsRequired="1"/>
+                                    </Grid.GestureRecognizers>
+
                                     <Image Source="{Binding Icon}"
-                                       HeightRequest="30"
-                                       WidthRequest="30"
-                                       Grid.Column="0"/>
-                                    <VerticalStackLayout Grid.Column="1" Margin="10,0">
+                               HeightRequest="30"
+                               WidthRequest="30"
+                               Grid.Column="0"/>
+                                    <VerticalStackLayout Grid.Column="1" 
+                                           Margin="10,0">
                                         <Label Text="{Binding Description}"
-                                           TextColor="{DynamicResource CardText}"
-                                           FontAttributes="Bold"/>
+                                   TextColor="{DynamicResource CardText}"
+                                   FontAttributes="Bold"/>
                                         <Label Text="{Binding TimeAgo}"
-                                           TextColor="{DynamicResource CardText}"
-                                           Opacity="0.7"
-                                           FontSize="12"/>
+                                   TextColor="{DynamicResource CardText}"
+                                   Opacity="0.7"
+                                   FontSize="12"/>
                                     </VerticalStackLayout>
                                     <Label Grid.Column="2"
-                                       Text="{Binding Score}"
-                                       TextColor="{DynamicResource CardText}"
-                                       FontAttributes="Bold"/>
+                               Text="{Binding Score}"
+                               TextColor="{DynamicResource CardText}"
+                               FontAttributes="Bold"/>
                                 </Grid>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </VerticalStackLayout>
-                <Frame.GestureRecognizers>
-                    <TapGestureRecognizer 
-                    CommandParameter="{Binding .}"
-                    Tapped="OnAchievementTapped"/>
-                </Frame.GestureRecognizers>
             </Frame>
         </VerticalStackLayout>
     </ScrollView>

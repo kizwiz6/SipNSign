@@ -1,112 +1,62 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             xmlns:animations="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="com.kizwiz.sipnsign.Pages.AchievementDetailsPage"
              Style="{StaticResource AppPageStyle}"
              Title="Achievement Details">
 
-    <Grid RowDefinitions="Auto,*,Auto">
-        <!-- Top Navigation Bar -->
-        <Grid Grid.Row="0" 
-              Padding="20,10"
-              ColumnDefinitions="Auto,*,Auto">
-            <Button Text="Back"
-                    Command="{Binding GoBackCommand}"
-                    Style="{StaticResource PrimaryButton}"/>
+    <Grid Padding="20" RowDefinitions="Auto,*">
+        <!-- Achievement Card -->
+        <Border BackgroundColor="{DynamicResource CardBackground}"
+                Opacity="0.95"
+                StrokeShape="RoundRectangle 20"
+                Padding="20"
+                Margin="0,10">
+            <VerticalStackLayout Spacing="20">
+                <!-- Achievement Icon -->
+                <Image Source="{Binding Icon}"
+                       HeightRequest="100"
+                       WidthRequest="100"
+                       HorizontalOptions="Center"/>
 
-            <Label Text="Trophy Cabinet"
-                   Grid.Column="1"
-                   HorizontalOptions="Center"
-                   VerticalOptions="Center"
-                   FontSize="24"
-                   TextColor="{DynamicResource TextColor}"/>
+                <!-- Achievement Title -->
+                <Label Text="{Binding Title}"
+                       TextColor="{DynamicResource CardText}"
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"/>
 
-            <Button Text="Share"
-                    Grid.Column="2"
-                    Command="{Binding ShareCommand}"
-                    IsVisible="{Binding CurrentAchievement.IsUnlocked}"
-                    Style="{StaticResource PrimaryButton}"/>
-        </Grid>
+                <!-- Achievement Description -->
+                <Label Text="{Binding Description}"
+                       TextColor="{DynamicResource CardText}"
+                       FontSize="18"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"/>
 
-        <!-- Main Achievement Display -->
-        <CarouselView Grid.Row="1"
-                      ItemsSource="{Binding Achievements}"
-                      CurrentItem="{Binding CurrentAchievement}"
-                      Loop="False">
-            <CarouselView.ItemTemplate>
-                <DataTemplate>
-                    <Grid Padding="20" RowSpacing="20">
-                        <!-- Achievement Card -->
-                        <Frame BackgroundColor="{DynamicResource Secondary}"
-                               Opacity="0.95"
-                               CornerRadius="20"
-                               HasShadow="True"
-                               Padding="20">
-                            <Grid RowDefinitions="Auto,Auto,Auto,*" RowSpacing="20">
-                                <!-- Achievement Icon -->
-                                <Image Source="{Binding Icon}"
-                                   HeightRequest="150"
-                                   WidthRequest="150"
-                                   HorizontalOptions="Center">
-                                    <Image.Behaviors>
-                                        <toolkit:IconTintColorBehavior TintColor="{DynamicResource Primary}"/>
-                                    </Image.Behaviors>
-                                </Image>
+                <!-- Progress Section -->
+                <VerticalStackLayout IsVisible="{Binding IsUnlocked, Converter={StaticResource InverseBoolConverter}}">
+                    <ProgressBar Progress="{Binding Progress}"
+                                ProgressColor="{DynamicResource Primary}"
+                                HeightRequest="10"/>
+                    <Label Text="{Binding ProgressText}"
+                           TextColor="{DynamicResource CardText}"
+                           HorizontalOptions="Center"
+                           Margin="0,10,0,0"/>
+                </VerticalStackLayout>
 
-                                <!-- Achievement Title -->
-                                <Label Grid.Row="1"
-                                       Text="{Binding Title}"
-                                       FontSize="28"
-                                       FontAttributes="Bold"
-                                       HorizontalOptions="Center"
-                                       TextColor="{DynamicResource TextColor}"/>
+                <!-- Unlock Status -->
+                <Label Text="{Binding UnlockDateDisplay}"
+                       IsVisible="{Binding IsUnlocked}"
+                       TextColor="{DynamicResource CardText}"
+                       HorizontalOptions="Center"/>
 
-                                <!-- Achievement Description -->
-                                <Label Grid.Row="2"
-                                       Text="{Binding Description}"
-                                       FontSize="18"
-                                       HorizontalOptions="Center"
-                                       HorizontalTextAlignment="Center"
-                                       TextColor="{DynamicResource TextColor}"/>
-
-                                <!-- Unlock Status/Progress -->
-                                <StackLayout Grid.Row="3" Spacing="10">
-                                    <Label Text="{Binding UnlockDateDisplay}"
-                                           IsVisible="{Binding IsUnlocked}"
-                                           HorizontalOptions="Center"
-                                           TextColor="{DynamicResource TextColor}"/>
-
-                                    <Grid IsVisible="{Binding IsUnlocked, Converter={StaticResource InverseBoolConverter}}">
-                                        <ProgressBar Progress="{Binding Progress}"
-                                                    ProgressColor="{DynamicResource Primary}"
-                                                    HeightRequest="10"/>
-                                        <Label Text="{Binding ProgressText}"
-                                               HorizontalOptions="Center"
-                                               Margin="0,20,0,0"
-                                               TextColor="{DynamicResource TextColor}"/>
-                                    </Grid>
-                                </StackLayout>
-                            </Grid>
-                        </Frame>
-                    </Grid>
-                </DataTemplate>
-            </CarouselView.ItemTemplate>
-        </CarouselView>
-
-        <!-- Bottom Navigation -->
-        <Grid Grid.Row="2" 
-              ColumnDefinitions="*,*"
-              Padding="20,10"
-              ColumnSpacing="20">
-            <Button Text="Previous"
-                    Command="{Binding PreviousCommand}"
-                    Style="{StaticResource PrimaryButton}"/>
-            <Button Text="Next"
-                    Grid.Column="1"
-                    Command="{Binding NextCommand}"
-                    Style="{StaticResource PrimaryButton}"/>
-        </Grid>
+                <!-- Share Button -->
+                <Button Text="Share Achievement"
+                        IsVisible="{Binding IsUnlocked}"
+                        Command="{Binding ShareCommand}"
+                        Style="{StaticResource PrimaryButton}"
+                        Margin="0,20,0,0"/>
+            </VerticalStackLayout>
+        </Border>
     </Grid>
 </ContentPage>

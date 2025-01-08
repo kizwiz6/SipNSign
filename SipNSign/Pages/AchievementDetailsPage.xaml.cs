@@ -10,16 +10,23 @@ namespace com.kizwiz.sipnsign.Pages
 
         public AchievementDetailsPage(Achievement achievement)
         {
+            InitializeComponent();
+
             var services = Application.Current?.Handler?.MauiContext?.Services;
+            if (services == null)
+                throw new InvalidOperationException("Services not available");
+
             _viewModel = new AchievementDetailsViewModel(
-                Navigation,
-                services.GetRequiredService<IProgressService>(),
-                services.GetRequiredService<IShareService>(),
-                achievement
+                achievement,
+                services.GetRequiredService<IShareService>()
             );
 
-            InitializeComponent();
             BindingContext = _viewModel;
+        }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
         }
     }
 }

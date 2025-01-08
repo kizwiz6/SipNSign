@@ -51,9 +51,39 @@ public partial class ProgressPage : ContentPage
 
     private async void OnAchievementTapped(object sender, TappedEventArgs e)
     {
-        if (sender is VisualElement element && element.BindingContext is Achievement achievement)
+        Debug.WriteLine("Achievement tapped!");
+        try
         {
-            await Navigation.PushAsync(new AchievementDetailsPage(achievement));
+            if (sender is VisualElement element)
+            {
+                Debug.WriteLine($"Sender is VisualElement: {element.BindingContext?.GetType()}");
+                if (element.BindingContext is AchievementItem achievementItem)
+                {
+                    Debug.WriteLine($"Opening details for achievement: {achievementItem.Title}");
+                    // Convert AchievementItem to Achievement
+                    var achievement = new Achievement
+                    {
+                        Title = achievementItem.Title,
+                        Description = achievementItem.Description,
+                        IconName = achievementItem.Icon,
+                        IsUnlocked = achievementItem.IsUnlocked,
+                        ProgressCurrent = (int)(achievementItem.Progress * 100), // Convert progress to current value
+                        ProgressRequired = 100 // Set required progress
+                    };
+
+                    var detailsPage = new AchievementDetailsPage(achievement);
+                    await Navigation.PushAsync(detailsPage);
+                }
+                else
+                {
+                    Debug.WriteLine("BindingContext is not an AchievementItem");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error navigating to achievement details: {ex.Message}");
+            await DisplayAlert("Error", "Unable to display achievement details", "OK");
         }
     }
 }
