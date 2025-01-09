@@ -118,7 +118,9 @@ namespace com.kizwiz.sipnsign.Pages
 #endif
 
                 // Handle Guess Mode
-                if (Application.Current?.MainPage?.Navigation?.NavigationStack.LastOrDefault() is GamePage gamePage)
+                var window = Application.Current?.Windows.FirstOrDefault();
+                var gamePage = window?.Page?.Navigation?.NavigationStack.LastOrDefault() as GamePage;
+                if (gamePage != null)
                 {
                     gamePage.SetVideoSource(source);
                 }

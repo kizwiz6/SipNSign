@@ -8,9 +8,9 @@ namespace com.kizwiz.sipnsign.Models
 {
     public class ActivityItem
     {
-        public string Icon { get; set; }
-        public string Description { get; set; }
-        public string TimeAgo { get; set; }
-        public string Score { get; set; }
+        public required string Icon { get; set; }
+        public required string Description { get; set; }
+        public required string TimeAgo { get; set; }
+        public required string Score { get; set; }
     }
 }

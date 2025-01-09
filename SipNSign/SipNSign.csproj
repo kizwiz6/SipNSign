@@ -30,6 +30,10 @@
 		<AndroidTargetSdk>34</AndroidTargetSdk>
     </PropertyGroup>
 
+	<PropertyGroup>
+		<MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
+	</PropertyGroup>
+
     <ItemGroup>
         <!-- Resources -->
         <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />

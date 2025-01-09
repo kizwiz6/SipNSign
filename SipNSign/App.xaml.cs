@@ -47,13 +47,12 @@ namespace com.kizwiz.sipnsign
             }
         }
 
-        protected override Window CreateWindow(IActivationState activationState)
+        protected override Window CreateWindow(IActivationState? activationState)
         {
             var window = new Window(_serviceProvider.GetRequiredService<AppShell>())
             {
                 Title = "SipNSign"
             };
-
             return window;
         }
 

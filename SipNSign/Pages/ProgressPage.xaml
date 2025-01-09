@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:com.kizwiz.sipnsign.Models"
              xmlns:viewmodels="clr-namespace:com.kizwiz.sipnsign.ViewModels"
              xmlns:converters="clr-namespace:com.kizwiz.sipnsign.Converters"
              x:DataType="viewmodels:ProgressViewModel"
@@ -115,25 +116,25 @@
                               HeightRequest="200"
                               EmptyView="No activities yet - start playing to see your progress!">
                         <CollectionView.ItemTemplate>
-                            <DataTemplate>
+                            <DataTemplate x:DataType="models:ActivityItem">
                                 <Grid Padding="10" ColumnDefinitions="Auto,*,Auto">
                                     <Image Source="{Binding Icon}"
-                                       HeightRequest="40"
-                                       WidthRequest="40"
-                                       Grid.Column="0"/>
+                   HeightRequest="40"
+                   WidthRequest="40"
+                   Grid.Column="0"/>
                                     <VerticalStackLayout Grid.Column="1" Margin="10,0">
                                         <Label Text="{Binding Description}"
-                                           TextColor="{DynamicResource CardText}"
-                                           FontAttributes="Bold"/>
+                       TextColor="{DynamicResource CardText}"
+                       FontAttributes="Bold"/>
                                         <Label Text="{Binding TimeAgo}"
-                                           TextColor="{DynamicResource CardText}"
-                                           Opacity="0.7"
-                                           FontSize="12"/>
+                       TextColor="{DynamicResource CardText}"
+                       Opacity="0.7"
+                       FontSize="12"/>
                                     </VerticalStackLayout>
                                     <Label Grid.Column="2"
-                                       Text="{Binding Score}"
-                                       TextColor="{DynamicResource CardText}"
-                                       FontAttributes="Bold"/>
+                   Text="{Binding Score}"
+                   TextColor="{DynamicResource CardText}"
+                   FontAttributes="Bold"/>
                                 </Grid>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>

@@ -10,7 +10,7 @@ namespace com.kizwiz.sipnsign.Services
     public class ThemeService : IThemeService
     {
         private const string THEME_KEY = "app_theme";
-        public event EventHandler ThemeChanged;
+        public event EventHandler? ThemeChanged;
 
         /// <summary>
         /// Theme color definitions with complementary button/text colors
@@ -297,13 +297,13 @@ namespace com.kizwiz.sipnsign.Services
         /// </summary>
         public Color CardText { get; set; } = Colors.Black;
 
-        public Color MenuButton1 { get; set; }  // Guess Mode button
-        public Color MenuButton2 { get; set; }  // Perform Mode button
-        public Color MenuButton3 { get; set; }  // Progress button
-        public Color MenuButton4 { get; set; }  // Settings button
-        public Color AnswerButton { get; set; } // Answer choice buttons
-        public Color ShellBackground { get; set; }
-        public Color ShellForeground { get; set; }  // For text/icons
-        public string BackgroundImage { get; set; }
+        public required Color MenuButton1 { get; set; }  // Guess Mode button
+        public required Color MenuButton2 { get; set; }  // Perform Mode button
+        public required Color MenuButton3 { get; set; }  // Progress button
+        public required Color MenuButton4 { get; set; }  // Settings button
+        public required Color AnswerButton { get; set; } // Answer choice buttons
+        public required Color ShellBackground { get; set; }
+        public required Color ShellForeground { get; set; }  // For text/icons
+        public required string BackgroundImage { get; set; }
     }
 }

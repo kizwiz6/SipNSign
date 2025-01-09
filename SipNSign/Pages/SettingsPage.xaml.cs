@@ -99,6 +99,16 @@ namespace com.kizwiz.sipnsign.Pages
             }
         }
 
+        public bool IsSoberMode
+        {
+            get => Preferences.Get(Constants.SOBER_MODE_KEY, false);
+            set
+            {
+                Preferences.Set(Constants.SOBER_MODE_KEY, value);
+                OnPropertyChanged(nameof(IsSoberMode));
+            }
+        }
+
         private async void SaveSettings()
         {
             if (Application.Current?.MainPage != null)
