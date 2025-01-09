@@ -112,16 +112,29 @@
                        TextColor="{DynamicResource CardText}"/>
 
                     <CollectionView x:Name="RecentActivityList"
-                                    ItemsSource="{Binding RecentActivities}"
-                                    HeightRequest="200"
-                                    EmptyView="No activities yet - start playing to see your progress!">
+                ItemsSource="{Binding RecentActivities}"
+                HeightRequest="200"
+                EmptyView="No activities yet - start playing to see your progress!">
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="models:ActivityItem">
                                 <Grid Padding="10" ColumnDefinitions="Auto,*,Auto">
-                                    <Image Source="{Binding Icon}" />
-                                    <Label Text="{Binding Description}" />
-                                    <Label Text="{Binding TimeAgo}" />
-                                    <Label Text="{Binding Score}" />
+                                    <Image Source="{Binding Icon}"
+                       HeightRequest="40"
+                       WidthRequest="40"
+                       Grid.Column="0"/>
+                                    <VerticalStackLayout Grid.Column="1" Margin="10,0">
+                                        <Label Text="{Binding Description}"
+                           TextColor="{DynamicResource CardText}"
+                           FontAttributes="Bold"/>
+                                        <Label Text="{Binding TimeAgo}"
+                           TextColor="{DynamicResource CardText}"
+                           Opacity="0.7"
+                           FontSize="12"/>
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="2"
+                       Text="{Binding Score}"
+                       TextColor="{DynamicResource CardText}"
+                       FontAttributes="Bold"/>
                                 </Grid>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
@@ -141,37 +154,36 @@
                            FontAttributes="Bold"
                            TextColor="{DynamicResource CardText}"/>
                     <CollectionView x:Name="AchievementsList"
-                                      ItemsSource="{Binding Achievements}"
-                                      HeightRequest="200">
+                                    ItemsSource="{Binding Achievements}"
+                                    HeightRequest="200">
                         <CollectionView.ItemTemplate>
-                            <DataTemplate>
+                            <DataTemplate x:DataType="models:AchievementItem">
                                 <Grid Padding="10" 
-                                    ColumnDefinitions="Auto,*,Auto">
-                                    <!-- Make the entire grid tappable -->
+                  ColumnDefinitions="Auto,*,Auto">
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer 
-                                            Tapped="OnAchievementTapped"
-                                            NumberOfTapsRequired="1"/>
+                        Tapped="OnAchievementTapped"
+                        NumberOfTapsRequired="1"/>
                                     </Grid.GestureRecognizers>
 
                                     <Image Source="{Binding Icon}"
-                                           HeightRequest="30"
-                                           WidthRequest="30"
-                                           Grid.Column="0"/>
+                       HeightRequest="30"
+                       WidthRequest="30"
+                       Grid.Column="0"/>
                                     <VerticalStackLayout Grid.Column="1" 
-                                           Margin="10,0">
+                                   Margin="10,0">
+                                        <Label Text="{Binding Title}"
+                           TextColor="{DynamicResource CardText}"
+                           FontAttributes="Bold"/>
                                         <Label Text="{Binding Description}"
-                                               TextColor="{DynamicResource CardText}"
-                                               FontAttributes="Bold"/>
-                                        <Label Text="{Binding TimeAgo}"
-                                               TextColor="{DynamicResource CardText}"
-                                               Opacity="0.7"
-                                               FontSize="12"/>
+                           TextColor="{DynamicResource CardText}"
+                           Opacity="0.7"
+                           FontSize="12"/>
                                     </VerticalStackLayout>
                                     <Label Grid.Column="2"
-                               Text="{Binding Score}"
-                               TextColor="{DynamicResource CardText}"
-                               FontAttributes="Bold"/>
+                       TextColor="{DynamicResource CardText}"
+                       Text="{Binding IsUnlocked, Converter={StaticResource BoolToOpacityConverter}}"
+                       FontAttributes="Bold"/>
                                 </Grid>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
