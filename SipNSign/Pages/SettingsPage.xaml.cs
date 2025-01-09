@@ -111,9 +111,10 @@ namespace com.kizwiz.sipnsign.Pages
 
         private async void SaveSettings()
         {
-            if (Application.Current?.MainPage != null)
+            var window = Application.Current?.Windows.FirstOrDefault();
+            if (window?.Page != null)
             {
-                await Application.Current.MainPage.DisplayAlert("Settings Saved", "Your preferences have been updated", "OK");
+                await window.Page.DisplayAlert("Settings Saved", "Your preferences have been updated", "OK");
             }
         }
 
@@ -209,8 +210,15 @@ namespace com.kizwiz.sipnsign.Pages
                 EndPoint = new Point(0, 1),
                 GradientStops = new GradientStopCollection
             {
-                new GradientStop { Color = (Color)Application.Current.Resources["AppBackground1"], Offset = 0.0f },
-                new GradientStop { Color = (Color)Application.Current.Resources["AppBackground2"], Offset = 1.0f }
+                new GradientStop
+                {
+                    Color = Application.Current?.Resources["AppBackground1"] as Color ?? Colors.Transparent,
+                    Offset = 0.0f
+                },
+                new GradientStop {
+                    Color = Application.Current?.Resources["AppBackground2"] as Color ?? Colors.Transparent,
+                    Offset = 1.0f 
+                }
             }
             };
         }

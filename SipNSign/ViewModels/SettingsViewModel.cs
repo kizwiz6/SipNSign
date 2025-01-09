@@ -4,6 +4,9 @@ namespace com.kizwiz.sipnsign.ViewModels
 {
     public class SettingsViewModel : INotifyPropertyChanged
     {
+        public bool IsToggled { get; set; }
+        public double Value { get; set; }
+
         public bool IsSoberMode
         {
             get => Preferences.Get(Constants.SOBER_MODE_KEY, false);
