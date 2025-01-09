@@ -44,13 +44,13 @@
                      Padding="10"
                      VerticalOptions="Center">
             <!-- Logo container -->
-            <Frame BackgroundColor="Transparent"
-                   BorderColor="Transparent"
-                   CornerRadius="10"
-                   Margin="40,5,40,20"
-                Padding="0"
-                HasShadow="True"
-                VerticalOptions="FillAndExpand">
+            <Border BackgroundColor="Transparent"
+                    Stroke="Transparent"
+                    StrokeShape="RoundRectangle 10"
+                    Margin="40,5,40,20"
+                    Padding="0"
+                    Shadow="{OnPlatform iOS={StaticResource DefaultShadow}}"
+                    VerticalOptions="FillAndExpand">
                 <Image Source="logo_nobg.png"
                         Aspect="AspectFit"
                         HeightRequest="{OnPlatform Android=200, iOS=230}"
@@ -58,7 +58,7 @@
                         MaximumHeightRequest="250"
                         VerticalOptions="Center"
                         HorizontalOptions="Center"/>
-            </Frame>
+            </Border>
 
             <!-- Title -->
             <!--

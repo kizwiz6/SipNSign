@@ -199,7 +199,7 @@ namespace com.kizwiz.sipnsign.Pages
         /// <summary>
         /// Handles theme selection changes and updates application appearance
         /// </summary>
-        private void OnThemeChanged(object sender, EventArgs e)
+        private void OnThemeChanged(object? sender, EventArgs e)
         {
             // Force page to redraw with new theme
             this.Background = null;
