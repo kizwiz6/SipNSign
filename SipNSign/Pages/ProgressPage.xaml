@@ -23,11 +23,11 @@
             <!-- Statistics Grid -->
             <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="15" RowSpacing="15">
                 <!-- Signs Learned -->
-                <Frame Grid.Column="0" Grid.Row="0" 
+                <Border Grid.Column="0" Grid.Row="0" 
                    BackgroundColor="{DynamicResource CardBackground}"
                    Opacity="0.95"
                    Padding="15" 
-                   HasShadow="True">
+                   Shadow="{OnPlatform iOS={StaticResource DefaultShadow}}">
                     <VerticalStackLayout>
                         <Label Text="Signs Learned"
                            TextColor="{DynamicResource CardText}"
@@ -39,14 +39,14 @@
                            TextColor="{DynamicResource CardText}"
                            HorizontalOptions="Center"/>
                     </VerticalStackLayout>
-                </Frame>
+                </Border>
 
                 <!-- Current Streak -->
-                <Frame Grid.Column="1" Grid.Row="0" 
+                <Border Grid.Column="1" Grid.Row="0" 
                    BackgroundColor="{DynamicResource CardBackground}"
                    Opacity="0.95"
                    Padding="15" 
-                   HasShadow="True">
+                   Shadow="{OnPlatform iOS={StaticResource DefaultShadow}}">
                     <VerticalStackLayout>
                         <Label Text="Day Streak"
                            TextColor="{DynamicResource CardText}"
@@ -58,14 +58,14 @@
                            TextColor="{DynamicResource CardText}"
                            HorizontalOptions="Center"/>
                     </VerticalStackLayout>
-                </Frame>
+                </Border>
 
                 <!-- Accuracy -->
-                <Frame Grid.Column="0" Grid.Row="1" 
+                <Border Grid.Column="0" Grid.Row="1" 
                    BackgroundColor="{DynamicResource CardBackground}"
                    Opacity="0.95"
                    Padding="15" 
-                   HasShadow="True">
+                   Shadow="{OnPlatform iOS={StaticResource DefaultShadow}}">
                     <VerticalStackLayout>
                         <Label Text="Accuracy"
                            TextColor="{DynamicResource CardText}"
@@ -77,14 +77,14 @@
                            TextColor="{DynamicResource CardText}"
                            HorizontalOptions="Center"/>
                     </VerticalStackLayout>
-                </Frame>
+                </Border>
 
                 <!-- Practice Time -->
-                <Frame Grid.Column="1" Grid.Row="1" 
+                <Border Grid.Column="1" Grid.Row="1" 
                    BackgroundColor="{DynamicResource CardBackground}"
                    Opacity="0.95"
                    Padding="15" 
-                   HasShadow="True">
+                   Shadow="{OnPlatform iOS={StaticResource DefaultShadow}}">
                     <VerticalStackLayout>
                         <Label Text="Practice Time"
                            TextColor="{DynamicResource CardText}"
@@ -96,15 +96,15 @@
                            TextColor="{DynamicResource CardText}"
                            HorizontalOptions="Center"/>
                     </VerticalStackLayout>
-                </Frame>
+                </Border>
             </Grid>
 
             <!-- Recent Activity -->
-            <Frame BackgroundColor="{DynamicResource CardBackground}"
+            <Border BackgroundColor="{DynamicResource CardBackground}"
                Opacity="0.95"
                Padding="15" 
-               CornerRadius="10" 
-               HasShadow="True">
+               StrokeShape="RoundRectangle 10" 
+               Shadow="{OnPlatform iOS={StaticResource DefaultShadow}}">
                 <VerticalStackLayout Spacing="10">
                     <Label Text="Recent Activity"
                        FontSize="20"
@@ -112,85 +112,84 @@
                        TextColor="{DynamicResource CardText}"/>
 
                     <CollectionView x:Name="RecentActivityList"
-                              ItemsSource="{Binding RecentActivities}"
-                              HeightRequest="200"
-                              EmptyView="No activities yet - start playing to see your progress!">
+                ItemsSource="{Binding RecentActivities}"
+                HeightRequest="200"
+                EmptyView="No activities yet - start playing to see your progress!">
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="models:ActivityItem">
                                 <Grid Padding="10" ColumnDefinitions="Auto,*,Auto">
                                     <Image Source="{Binding Icon}"
-                   HeightRequest="40"
-                   WidthRequest="40"
-                   Grid.Column="0"/>
+                       HeightRequest="40"
+                       WidthRequest="40"
+                       Grid.Column="0"/>
                                     <VerticalStackLayout Grid.Column="1" Margin="10,0">
                                         <Label Text="{Binding Description}"
-                       TextColor="{DynamicResource CardText}"
-                       FontAttributes="Bold"/>
+                           TextColor="{DynamicResource CardText}"
+                           FontAttributes="Bold"/>
                                         <Label Text="{Binding TimeAgo}"
-                       TextColor="{DynamicResource CardText}"
-                       Opacity="0.7"
-                       FontSize="12"/>
+                           TextColor="{DynamicResource CardText}"
+                           Opacity="0.7"
+                           FontSize="12"/>
                                     </VerticalStackLayout>
                                     <Label Grid.Column="2"
-                   Text="{Binding Score}"
-                   TextColor="{DynamicResource CardText}"
-                   FontAttributes="Bold"/>
+                       Text="{Binding Score}"
+                       TextColor="{DynamicResource CardText}"
+                       FontAttributes="Bold"/>
                                 </Grid>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
 
             <!-- Achievements -->
-            <Frame BackgroundColor="{DynamicResource CardBackground}"
-       Opacity="0.95"
-       Padding="15" 
-       CornerRadius="10" 
-       HasShadow="True">
+            <Border BackgroundColor="{DynamicResource CardBackground}"
+                   Opacity="0.95"
+                   Padding="15" 
+                   StrokeShape="RoundRectangle 10"
+                   Shadow="{OnPlatform iOS={StaticResource DefaultShadow}}">
                 <VerticalStackLayout Spacing="10">
                     <Label Text="Achievements"
-               FontSize="20"
-               FontAttributes="Bold"
-               TextColor="{DynamicResource CardText}"/>
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           TextColor="{DynamicResource CardText}"/>
                     <CollectionView x:Name="AchievementsList"
-                      ItemsSource="{Binding Achievements}"
-                      HeightRequest="200">
+                                    ItemsSource="{Binding Achievements}"
+                                    HeightRequest="200">
                         <CollectionView.ItemTemplate>
-                            <DataTemplate>
+                            <DataTemplate x:DataType="models:AchievementItem">
                                 <Grid Padding="10" 
-                          ColumnDefinitions="Auto,*,Auto">
-                                    <!-- Make the entire grid tappable -->
+                  ColumnDefinitions="Auto,*,Auto">
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer 
-                                Tapped="OnAchievementTapped"
-                                NumberOfTapsRequired="1"/>
+                        Tapped="OnAchievementTapped"
+                        NumberOfTapsRequired="1"/>
                                     </Grid.GestureRecognizers>
 
                                     <Image Source="{Binding Icon}"
-                               HeightRequest="30"
-                               WidthRequest="30"
-                               Grid.Column="0"/>
+                       HeightRequest="30"
+                       WidthRequest="30"
+                       Grid.Column="0"/>
                                     <VerticalStackLayout Grid.Column="1" 
-                                           Margin="10,0">
+                                   Margin="10,0">
+                                        <Label Text="{Binding Title}"
+                           TextColor="{DynamicResource CardText}"
+                           FontAttributes="Bold"/>
                                         <Label Text="{Binding Description}"
-                                   TextColor="{DynamicResource CardText}"
-                                   FontAttributes="Bold"/>
-                                        <Label Text="{Binding TimeAgo}"
-                                   TextColor="{DynamicResource CardText}"
-                                   Opacity="0.7"
-                                   FontSize="12"/>
+                           TextColor="{DynamicResource CardText}"
+                           Opacity="0.7"
+                           FontSize="12"/>
                                     </VerticalStackLayout>
                                     <Label Grid.Column="2"
-                               Text="{Binding Score}"
-                               TextColor="{DynamicResource CardText}"
-                               FontAttributes="Bold"/>
+                       TextColor="{DynamicResource CardText}"
+                       Text="{Binding IsUnlocked, Converter={StaticResource BoolToOpacityConverter}}"
+                       FontAttributes="Bold"/>
                                 </Grid>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

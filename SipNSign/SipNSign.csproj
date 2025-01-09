@@ -99,6 +99,7 @@
     <PackageReference Include="Xamarin.AndroidX.Lifecycle.ViewModel.Ktx" Version="2.8.7.1" />
     <PackageReference Include="Xamarin.AndroidX.Core" Version="1.15.0.1" />
     <PackageReference Include="Xamarin.AndroidX.Fragment" Version="1.8.5.1" />
+	  <PackageReference Include="Xamarin.AndroidX.Fragment.Ktx" Version="1.8.5.1" />
     <PackageReference Include="Xamarin.AndroidX.AppCompat" Version="1.7.0.4" />
     <PackageReference Include="Xamarin.AndroidX.Collection" Version="1.4.5.1" />
     <PackageReference Include="Xamarin.AndroidX.Collection.Ktx" Version="1.4.5.1" />
