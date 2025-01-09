@@ -1,12 +1,8 @@
 ﻿using com.kizwiz.sipnsign.Models;
 using com.kizwiz.sipnsign.Services;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace com.kizwiz.sipnsign.ViewModels
 {
@@ -161,15 +157,17 @@ namespace com.kizwiz.sipnsign.ViewModels
                     _ => $"{achievement.Description} ({achievement.ProgressCurrent}/{achievement.ProgressRequired})"
                 };
 
-                // Rest of your achievement creation code...
                 Achievements.Add(new AchievementItem
                 {
+                    Id = achievement.Id,
                     Icon = icon,
                     Title = achievement.Title,
                     Description = progressText,
                     IsUnlocked = achievement.IsUnlocked,
-                    Progress = progress
+                    Progress = progress,
+                    UnlockedDate = achievement.UnlockedDate
                 });
+                Debug.WriteLine($"Achievement {achievement.Title} - UnlockedDate: {achievement.UnlockedDate}");
             }
         }
 
@@ -200,7 +198,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             return timestamp.ToString("MMM dd");
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

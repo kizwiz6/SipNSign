@@ -1,5 +1,6 @@
 ﻿using com.kizwiz.sipnsign.Services;
 using System.Diagnostics;
+
 [assembly: XamlCompilation(XamlCompilationOptions.Compile)]
 
 namespace com.kizwiz.sipnsign
@@ -12,11 +13,9 @@ namespace com.kizwiz.sipnsign
     public partial class App : Application
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly Color _navBarColor = Color.FromArgb("#007BFF");
-        private readonly Color _navBarTextColor = Color.FromArgb("#FFFFFF");
 
         /// <summary>
-        /// Initialises a new instance of the <see cref="App"/> class.
+        /// Initializes a new instance of the <see cref="App"/> class.
         /// This constructor retrieves the user's saved theme preference,
         /// sets the initial application theme, and configures dependency injection.
         /// </summary>
@@ -35,7 +34,10 @@ namespace com.kizwiz.sipnsign
                     themeService.SetTheme(savedTheme);
                 }
 
-                MainPage = serviceProvider.GetRequiredService<AppShell>();
+                if (Application.Current?.Windows.Count > 0)
+                {
+                    Application.Current.Windows[0].Page = serviceProvider.GetRequiredService<AppShell>();
+                }
             }
             catch (Exception ex)
             {
@@ -45,6 +47,16 @@ namespace com.kizwiz.sipnsign
             }
         }
 
+        protected override Window CreateWindow(IActivationState? activationState)
+        {
+            var window = new Window(_serviceProvider.GetRequiredService<AppShell>())
+            {
+                Title = "SipNSign"
+            };
+            return window;
+        }
+
+
         /// <summary>
         /// Gets a service of type T from the service provider.
         /// </summary>
@@ -52,7 +64,8 @@ namespace com.kizwiz.sipnsign
         /// <returns>An instance of the requested service type.</returns>
         public T GetService<T>() where T : class
         {
-            return _serviceProvider.GetService<T>();
+            return _serviceProvider.GetService<T>() ??
+                throw new InvalidOperationException($"Service {typeof(T)} not found");
         }
     }
 }

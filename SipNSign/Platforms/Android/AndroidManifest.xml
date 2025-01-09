@@ -6,6 +6,7 @@
         android:supportsRtl="true"
 		android:label="SipNSign"
 		android:theme="@style/Maui.SplashTheme"
+		android:enableOnBackInvokedCallback="true"
 		android:debuggable="true">
 		<activity
 			android:name="crc64a4d5182b43e632ff.MainActivity"
@@ -22,5 +23,7 @@
 	</application>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+	<uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
 	<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 </manifest>

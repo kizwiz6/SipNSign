@@ -1,11 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
-using CommunityToolkit.Maui;
-using com.kizwiz.sipnsign;
+﻿using com.kizwiz.sipnsign.Pages;
 using com.kizwiz.sipnsign.Services;
-using com.kizwiz.sipnsign.Pages;
 using com.kizwiz.sipnsign.ViewModels;
-using System.Text.Json;
+using CommunityToolkit.Maui;
 using System.Diagnostics;
+using System.Text.Json;
 
 namespace com.kizwiz.sipnsign;
 
@@ -69,6 +67,7 @@ public static class MauiProgram
             builder.Services.AddSingleton<IProgressService, ProgressService>();
             builder.Services.AddSingleton<SignRepository>();
             builder.Services.AddSingleton<IThemeService, ThemeService>();
+            builder.Services.AddSingleton<IShareService, ShareService>();
 
             // Register pages and viewmodels
             builder.Services.AddSingleton<App>();
@@ -80,6 +79,8 @@ public static class MauiProgram
             builder.Services.AddTransient<ProgressPage>();
             builder.Services.AddTransient<ProgressViewModel>();
             builder.Services.AddTransient<SettingsPage>();
+            builder.Services.AddTransient<AchievementDetailsPage>();
+            builder.Services.AddTransient<AchievementDetailsViewModel>();
 
             return builder.Build();
         }

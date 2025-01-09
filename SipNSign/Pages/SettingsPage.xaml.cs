@@ -1,9 +1,6 @@
-using Microsoft.Maui.Storage; // For Preferences
-using Microsoft.Maui.ApplicationModel; // For AppTheme
-using System.Diagnostics;
-using Microsoft.Maui.Controls;
-using com.kizwiz.sipnsign.Services;
 using com.kizwiz.sipnsign.Enums;
+using com.kizwiz.sipnsign.Services;
+using System.Diagnostics;
 
 namespace com.kizwiz.sipnsign.Pages
 {
@@ -14,28 +11,59 @@ namespace com.kizwiz.sipnsign.Pages
     {
         private readonly IPreferences _preferences = Preferences.Default;
         private readonly IThemeService _themeService;
+        private readonly IServiceProvider _serviceProvider;
 
-        public SettingsPage(IThemeService themeService)
+        public SettingsPage(IThemeService themeService, IServiceProvider serviceProvider)
         {
             InitializeComponent();
             _themeService = themeService;
+            _serviceProvider = serviceProvider;
 
             // Subscribe to theme changes
             _themeService.ThemeChanged += OnThemeChanged;
             ThemePicker.SelectedItem = _themeService.GetCurrentTheme().ToString();
 
-            // Ensure SoberModeSwitch is initialized with the current preference value
+            // Initialize switches with current preferences
             SoberModeSwitch.IsToggled = Preferences.Get(Constants.SOBER_MODE_KEY, false);
+            TransparentFeedbackSwitch.IsToggled = Preferences.Get(Constants.TRANSPARENT_FEEDBACK_KEY, false);
+
+            LoadSavedSettings();
+        }
+
+        private void OnShowFeedbackToggled(object sender, ToggledEventArgs e)
+        {
+            Debug.WriteLine($"Show Feedback toggled: {e.Value}");
+            Preferences.Set(Constants.SHOW_FEEDBACK_KEY, e.Value);
+
+            // Update UI elements that depend on feedback visibility
+            TransparentFeedbackSwitch.IsEnabled = e.Value;
+
+            // If feedback is disabled, ensure transparent feedback is also disabled
+            if (!e.Value)
+            {
+                TransparentFeedbackSwitch.IsToggled = false;
+                Preferences.Set(Constants.TRANSPARENT_FEEDBACK_KEY, false);
+            }
         }
 
         private void LoadSavedSettings()
         {
+            // Load questions count
+            int savedQuestions = _preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
+            QuestionsSlider.Value = savedQuestions;
+            QuestionsValueLabel.Text = $"{savedQuestions} questions";
+
             // Load timer settings
             int savedDuration = _preferences.Get(Constants.TIMER_DURATION_KEY, Constants.DEFAULT_TIMER_DURATION);
             TimerSlider.Value = savedDuration;
             TimerValueLabel.Text = $"{savedDuration} seconds";
             DisableTimerCheckbox.IsChecked = savedDuration == 0;
             TimerSlider.IsEnabled = !DisableTimerCheckbox.IsChecked;
+
+            // Load feedback settings
+            bool showFeedback = Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true);
+            ShowFeedbackSwitch.IsToggled = showFeedback;
+            TransparentFeedbackSwitch.IsEnabled = showFeedback;
 
             // Load delay settings
             DelaySlider.Value = _preferences.Get(Constants.INCORRECT_DELAY_KEY, Constants.DEFAULT_DELAY) / 1000.0;
@@ -56,6 +84,28 @@ namespace com.kizwiz.sipnsign.Pages
             catch (Exception ex)
             {
                 await DisplayAlert("Error", $"Failed to save settings: {ex.Message}", "OK");
+            }
+        }
+
+        private void OnTransparentFeedbackToggled(object sender, ToggledEventArgs e)
+        {
+            Debug.WriteLine($"Toggling transparency: {e.Value}");
+            Preferences.Set(Constants.TRANSPARENT_FEEDBACK_KEY, e.Value);
+            var gamePage = Shell.Current?.CurrentPage as GamePage;
+            if (gamePage?.ViewModel?.IsFeedbackVisible == true)
+            {
+                bool isCorrect = gamePage.ViewModel.FeedbackText.Contains("Correct");
+                gamePage.ViewModel.FeedbackBackgroundColor = gamePage.ViewModel.GetFeedbackColor(isCorrect);
+            }
+        }
+
+        public bool IsSoberMode
+        {
+            get => Preferences.Get(Constants.SOBER_MODE_KEY, false);
+            set
+            {
+                Preferences.Set(Constants.SOBER_MODE_KEY, value);
+                OnPropertyChanged(nameof(IsSoberMode));
             }
         }
 
@@ -106,11 +156,29 @@ namespace com.kizwiz.sipnsign.Pages
             }
         }
 
+        private async void OnViewLogsClicked(object sender, EventArgs e)
+        {
+            try
+            {
+                var loggingService = _serviceProvider?.GetService<ILoggingService>();
+                if (loggingService != null)
+                {
+                    var logs = await loggingService.GetLogContents();
+                    await DisplayAlert("Application Logs", logs, "OK");
+                }
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"Could not read logs: {ex.Message}", "OK");
+            }
+        }
+
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            var currentTheme = _themeService.GetCurrentTheme();
-            _themeService.SetTheme(currentTheme);
+            bool isTransparent = Preferences.Get(Constants.TRANSPARENT_FEEDBACK_KEY, false);
+            TransparentFeedbackSwitch.IsToggled = isTransparent;
+            Debug.WriteLine($"Settings Page - Current transparency setting: {isTransparent}");
         }
 
         protected override void OnDisappearing()
@@ -246,7 +314,34 @@ namespace com.kizwiz.sipnsign.Pages
             QuestionsValueLabel.Text = $"{questions} questions";
         }
 
-    private async Task ViewLogs()
+        /// <summary>
+        /// Handles clearing of debug log files
+        /// </summary>
+        private async void OnClearLogsClicked(object sender, EventArgs e)
+        {
+            try
+            {
+                var loggingService = _serviceProvider?.GetService<ILoggingService>();
+                if (loggingService != null)
+                {
+                    bool answer = await DisplayAlert("Clear Logs",
+                        "Are you sure you want to clear all debug logs?",
+                        "Yes", "No");
+
+                    if (answer)
+                    {
+                        await loggingService.CleanupLogs();
+                        await DisplayAlert("Success", "Debug logs cleared successfully", "OK");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"Could not clear logs: {ex.Message}", "OK");
+            }
+        }
+
+        private async Task ViewLogs()
         {
             try
             {

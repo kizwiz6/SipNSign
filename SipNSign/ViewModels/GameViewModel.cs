@@ -1,14 +1,11 @@
-﻿using Microsoft.Maui;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Graphics;
-using System.ComponentModel;
-using System.Windows.Input;
+﻿using com.kizwiz.sipnsign.Enums;
 using com.kizwiz.sipnsign.Models;
-using com.kizwiz.sipnsign.Enums;
-using System.Diagnostics;
-using Microsoft.Extensions.Logging;
-using com.kizwiz.sipnsign.Services;
 using com.kizwiz.sipnsign.Pages;
+using com.kizwiz.sipnsign.Services;
+using CommunityToolkit.Maui.Views;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Windows.Input;
 
 namespace com.kizwiz.sipnsign.ViewModels
 {
@@ -25,7 +22,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         #endregion
 
         #region Private Fields
-        private IDispatcherTimer _timer;
+        private IDispatcherTimer? _timer;
         private readonly IVideoService _videoService;
         private readonly ILoggingService _logger;
         private readonly IProgressService _progressService;
@@ -56,7 +53,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private bool _isSignHidden = true;
         private List<double> _answerTimes = new List<double>();
         private double _averageAnswerTime;
-        private UserProgress _userProgress;
+        private UserProgress? _userProgress;
         private ICommand _playAgainCommand;
         private ICommand _incorrectPerformCommand;
         private ICommand _correctPerformCommand;
@@ -237,7 +234,7 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         public bool IsFeedbackVisible
         {
-            get => _isFeedbackVisible;
+            get => _isFeedbackVisible && Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true);
             set
             {
                 if (_isFeedbackVisible != value)
@@ -374,7 +371,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         #endregion
 
         #region Commands
-        public ICommand AnswerCommand { get; private set; }
+        public required ICommand AnswerCommand { get; set; }
         public ICommand PlayAgainCommand
         {
             get
@@ -397,7 +394,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
         public ICommand VideoLoadedCommand { get; private set; }
-        public ICommand RevealSignCommand { get; private set; }
+        public required ICommand RevealSignCommand { get; set; }
         public ICommand CorrectPerformCommand => _correctPerformCommand;
         public ICommand IncorrectPerformCommand => _incorrectPerformCommand;
         public ICommand SwitchModeCommand { get; private set; }
@@ -425,6 +422,11 @@ namespace com.kizwiz.sipnsign.ViewModels
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _progressService = progressService ?? throw new ArgumentNullException(nameof(progressService));
 
+            // Set default to colored feedback (false means colored)
+            if (!Preferences.ContainsKey(Constants.TRANSPARENT_FEEDBACK_KEY))
+            {
+                Preferences.Set(Constants.TRANSPARENT_FEEDBACK_KEY, false);
+            }
 
             // Initialize signs list first
             _signs = new SignRepository().GetSigns();
@@ -435,6 +437,13 @@ namespace com.kizwiz.sipnsign.ViewModels
 
             // Initialize SignRevealRequested with a default handler
             SignRevealRequested = (sender, args) => { };
+
+            // Initialize commands
+            AnswerCommand = new Command<string>(HandleAnswer);
+            VideoLoadedCommand = new Command(() => IsLoading = false);
+            RevealSignCommand = new Command(RevealSign);
+            CurrentVideoSource = MediaSource.FromFile("again.mp4");
+            SwitchModeCommand = new Command<GameMode>(SwitchMode);
 
             InitializeCommands();
 
@@ -457,25 +466,24 @@ namespace com.kizwiz.sipnsign.ViewModels
         #region Private Methods
         private void InitializeCommands()
         {
-            AnswerCommand = new Command<string>(HandleAnswer);
             _playAgainCommand = new Command(ResetGame);
             VideoLoadedCommand = new Command(() => IsLoading = false);
-            RevealSignCommand = new Command(RevealSign);
 
             _correctPerformCommand = new Command(async () =>
             {
                 if (IsProcessingAnswer) return;
-
                 try
                 {
                     IsProcessingAnswer = true;
                     _timer?.Stop();
                     CurrentScore++;
 
-                    // Use GetFeedbackText for correct feedback
-                    FeedbackText = GetFeedbackText(true); // true indicates a correct answer
-                    FeedbackBackgroundColor = FeedbackSuccessColor.ToArgbHex();
-                    IsFeedbackVisible = true;
+                    if (Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true))
+                    {
+                        FeedbackText = GetFeedbackText(true);
+                        FeedbackBackgroundColor = GetFeedbackColor(true);
+                        IsFeedbackVisible = true;
+                    }
 
                     await Task.Delay(2000);
                     IsFeedbackVisible = false;
@@ -492,16 +500,17 @@ namespace com.kizwiz.sipnsign.ViewModels
             _incorrectPerformCommand = new Command(async () =>
             {
                 if (IsProcessingAnswer) return;
-
                 try
                 {
                     IsProcessingAnswer = true;
                     _timer?.Stop();
 
-                    // Use GetFeedbackText for incorrect feedback
-                    FeedbackText = GetFeedbackText(false); // false indicates an incorrect answer
-                    FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
-                    IsFeedbackVisible = true;
+                    if (Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true))
+                    {
+                        FeedbackText = GetFeedbackText(false);
+                        FeedbackBackgroundColor = GetFeedbackColor(false);
+                        IsFeedbackVisible = true;
+                    }
 
                     await Task.Delay(2000);
                     IsFeedbackVisible = false;
@@ -544,7 +553,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             ResetGame();
         }
 
-        private void Timer_Tick(object? sender, EventArgs e)
+        private async void Timer_Tick(object? sender, EventArgs e)
         {
             if (RemainingTime > 0)
             {
@@ -552,30 +561,44 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
             else
             {
-                _timer.Stop();
-                HandleTimeOut();
+                _timer?.Stop();
+                await Task.Run(HandleTimeOut);  // Run on background thread
             }
         }
 
         /// <summary>
         /// Handles when the timer runs out in Guess Mode
         /// </summary>
-        private void HandleTimeOut()
+        private async void HandleTimeOut()
         {
-            IsProcessingAnswer = true;
-            bool isSoberMode = Preferences.Get(Constants.SOBER_MODE_KEY, false);
-            FeedbackText = isSoberMode
-                ? $"Time's up!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nKeep practicing!"
-                : $"Time's up!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
-            FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
-            IsFeedbackVisible = true;
+            if (IsProcessingAnswer) return;
 
-            Task.Delay(3000).ContinueWith(_ =>
+            try
             {
+                IsProcessingAnswer = true;
+
+                if (Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true))
+                {
+                    FeedbackBackgroundColor = GetFeedbackColor(false);
+                    FeedbackText = Preferences.Get(Constants.SOBER_MODE_KEY, false)
+                        ? $"Time's up!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nKeep practicing!"
+                        : $"Time's up!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
+                    IsFeedbackVisible = true;
+                }
+
+                // Wait for feedback display duration
+                await Task.Delay(Preferences.Get(Constants.INCORRECT_DELAY_KEY, Constants.DEFAULT_DELAY));
+
+                // Move to next question
+                await Task.Delay(Preferences.Get(Constants.INCORRECT_DELAY_KEY, Constants.DEFAULT_DELAY));
                 IsFeedbackVisible = false;
-                IsProcessingAnswer = false;
+                await LogGameActivity(false);
                 LoadNextSign();
-            }, TaskScheduler.FromCurrentSynchronizationContext());
+            }
+            finally
+            {
+                IsProcessingAnswer = false;
+            }
         }
 
         private bool CheckAnswer(string answer)
@@ -583,7 +606,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             return answer == CurrentSign?.CorrectAnswer;
         }
 
-        private async void HandleAnswer(string answer)
+        public async void HandleAnswer(string answer)
         {
             if (!IsGameActive || IsGameOver || IsProcessingAnswer) return;
 
@@ -598,34 +621,66 @@ namespace com.kizwiz.sipnsign.ViewModels
                 bool isCorrect = CheckAnswer(answer);
                 UpdateButtonColor(answer, isCorrect);
 
-                bool isSoberMode = Preferences.Get(Constants.SOBER_MODE_KEY, false);
+                // Only show feedback if enabled
+                if (Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true))
+                {
+                    FeedbackText = GetFeedbackText(isCorrect);
+                    string color = GetFeedbackColor(isCorrect);
+                    Debug.WriteLine($"Setting feedback color to: {color}");
+                    FeedbackBackgroundColor = color;
+                    IsFeedbackVisible = true;
+                }
+
                 if (isCorrect)
                 {
-                    FeedbackText = $"Correct!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.";
-                    FeedbackBackgroundColor = FeedbackSuccessColor.ToArgbHex();
                     CurrentScore++;
                     await LogGameActivity(true, answerTime);
                 }
                 else
                 {
-                    FeedbackText = isSoberMode
-                        ? $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nKeep learning!"
-                        : $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
-                    FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
                     await LogGameActivity(false, answerTime);
                 }
 
-                await ShowFeedbackAndContinue(isCorrect);
+                // Check if this is the last question
+                bool isLastQuestion = _availableIndices.Count == 0;
+                Debug.WriteLine($"Is last question: {isLastQuestion}");
 
-                // Force button color update
-                IsProcessingAnswer = false;
-                UpdateButtonColor(answer, isCorrect);
-                ResetButtonColors();
+                await ShowFeedbackAndContinue(isCorrect);
+                Debug.WriteLine("After ShowFeedbackAndContinue");
+
+                if (isLastQuestion)
+                {
+                    Debug.WriteLine("Ending game");
+                    EndGame();
+                    Debug.WriteLine("Game ended");
+                }
             }
             finally
             {
                 IsProcessingAnswer = false;
             }
+        }
+
+        public string GetFeedbackColor(bool isCorrect)
+        {
+            bool useTransparent = Preferences.Get(Constants.TRANSPARENT_FEEDBACK_KEY, false);
+            string color = useTransparent ? "#80000000" : (isCorrect ? "#28a745" : "#dc3545");
+            Debug.WriteLine($"Current mode: {CurrentMode}, Transparent: {useTransparent}, IsCorrect: {isCorrect}, Color: {color}");
+            return color;
+        }
+
+        private void ShowFeedback(bool isCorrect)
+        {
+            // Only show feedback if enabled in settings
+            if (!Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true))
+            {
+                return;
+            }
+
+            FeedbackBackgroundColor = GetFeedbackColor(isCorrect);
+            FeedbackText = GetFeedbackText(isCorrect);
+            IsFeedbackVisible = true;
+            Debug.WriteLine($"Showing feedback - Mode: {CurrentMode}, Color: {FeedbackBackgroundColor}");
         }
 
         private void UpdateAnswerTime(double time)
@@ -634,7 +689,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             _averageAnswerTime = _answerTimes.Average();
         }
 
-        private void RevealSign()
+        public void RevealSign()
         {
             _logger.Debug($"RevealSign called. CurrentSign is: {CurrentSign?.CorrectAnswer ?? "null"}");
             IsSignHidden = false;
@@ -664,10 +719,15 @@ namespace com.kizwiz.sipnsign.ViewModels
             try
             {
                 IsProcessingAnswer = true;
-                _timer.Stop();
+
+                // Log transparency setting for debugging
+                Debug.WriteLine($"HandleCorrectPerform - Current transparency setting: {Preferences.Get(Constants.TRANSPARENT_FEEDBACK_KEY, false)}");
+
+                IsSignHidden = true;
+                _timer?.Stop();
                 CurrentScore++;
                 FeedbackText = "Nice work!\n\nPrepare for your next sign!";
-                FeedbackBackgroundColor = FeedbackSuccessColor.ToArgbHex();
+                FeedbackBackgroundColor = GetFeedbackColor(true);
                 await ShowFeedbackAndContinue(true);
                 await LogGameActivity(true);
             }
@@ -684,12 +744,17 @@ namespace com.kizwiz.sipnsign.ViewModels
             try
             {
                 IsProcessingAnswer = true;
+
+                // Log transparency setting for debugging
+                Debug.WriteLine($"HandleCorrectPerform - Current transparency setting: {Preferences.Get(Constants.TRANSPARENT_FEEDBACK_KEY, false)}");
+
+                IsSignHidden = true;
                 _timer.Stop();
                 bool isSoberMode = Preferences.Get(Constants.SOBER_MODE_KEY, false);
                 FeedbackText = isSoberMode
                     ? $"Keep practicing '{CurrentSign?.CorrectAnswer}'!"
                     : $"Remember to practice '{CurrentSign?.CorrectAnswer}'!\n\nTake a sip!";
-                FeedbackBackgroundColor = FeedbackErrorColor.ToArgbHex();
+                FeedbackBackgroundColor = GetFeedbackColor(false);
                 await ShowFeedbackAndContinue(false);
                 await LogGameActivity(false);
             }
@@ -705,23 +770,40 @@ namespace com.kizwiz.sipnsign.ViewModels
         /// <param name="isCorrect">Whether the previous answer was correct</param>
         private async Task ShowFeedbackAndContinue(bool isCorrect)
         {
-            if (IsGameOver) return;
+            Debug.WriteLine("Starting ShowFeedbackAndContinue");
+            if (IsGameOver)
+            {
+                Debug.WriteLine("Game is over, returning early");
+                return;
+            }
 
             IsFeedbackVisible = true;
-            FeedbackBackgroundColor = isCorrect ? FeedbackSuccessColor.ToArgbHex() : FeedbackErrorColor.ToArgbHex();
+            FeedbackBackgroundColor = GetFeedbackColor(isCorrect);
 
             int delay = isCorrect ? 2000 : Preferences.Get(Constants.INCORRECT_DELAY_KEY, Constants.DEFAULT_DELAY);
+            Debug.WriteLine($"Waiting for {delay}ms");
             await Task.Delay(delay);
 
             if (!IsGameOver)
             {
+                Debug.WriteLine("Processing continue after delay");
                 IsFeedbackVisible = false;
                 if (IsPerformMode) IsSignHidden = true;
 
-                // Reset colors back to theme before loading next sign
                 ResetButtonColors();
-                LoadNextSign();
+
+                // Only load next sign if we have more questions
+                if (_availableIndices.Count > 0)
+                {
+                    Debug.WriteLine("Loading next sign");
+                    LoadNextSign();
+                }
+                else
+                {
+                    Debug.WriteLine("No more questions available");
+                }
             }
+            Debug.WriteLine("ShowFeedbackAndContinue completed");
         }
 
         private void UpdateButtonColor(string answer, bool isCorrect)
@@ -1035,11 +1117,42 @@ namespace com.kizwiz.sipnsign.ViewModels
                 IsLoading = false;
             }
         }
+
+        public async Task LoadVideoForSign(string videoPath)
+        {
+            if (string.IsNullOrEmpty(videoPath)) return;
+
+            try
+            {
+                var fullPath = await _videoService.GetVideoPath(videoPath);
+                if (!File.Exists(fullPath))
+                {
+                    Debug.WriteLine("Video file not found!");
+                    return;
+                }
+
+                var uri = new Uri($"file://{fullPath}");
+                var source = MediaSource.FromUri(uri);
+
+                var window = Application.Current?.Windows.FirstOrDefault();
+                var gamePage = window?.Page?.Navigation?.NavigationStack.LastOrDefault() as GamePage;
+                if (gamePage != null)
+                {
+                    gamePage.SetVideoSource(source);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error loading video: {ex.Message}");
+            }
+        }
+
+        public required MediaSource CurrentVideoSource { get; set; }
         public ICommand GoToSettingsCommand => new Command(async () =>
         {
             try
             {
-                if (Application.Current?.MainPage?.Navigation == null)
+                if (Application.Current?.Windows.FirstOrDefault()?.Page == null)
                 {
                     Debug.WriteLine("Navigation service not available");
                     return;
@@ -1047,9 +1160,9 @@ namespace com.kizwiz.sipnsign.ViewModels
 
                 Debug.WriteLine("Creating settings page");
                 var themeService = _serviceProvider.GetRequiredService<IThemeService>();
-                var settingsPage = new SettingsPage(themeService);
+                var settingsPage = new SettingsPage(themeService, _serviceProvider);
                 Debug.WriteLine("Pushing settings page");
-                await Application.Current.MainPage.Navigation.PushAsync(settingsPage);
+                await Shell.Current.Navigation.PushAsync(settingsPage);
                 Debug.WriteLine("Navigation completed");
             }
             catch (Exception ex)
@@ -1057,9 +1170,10 @@ namespace com.kizwiz.sipnsign.ViewModels
                 Debug.WriteLine($"Navigation error: {ex.Message}");
                 Debug.WriteLine($"Stack trace: {ex.StackTrace}");
 
-                if (Application.Current?.MainPage != null)
+                var window = Application.Current?.Windows.FirstOrDefault();
+                if (window != null)
                 {
-                    await Application.Current.MainPage.DisplayAlert("Error", "Unable to open settings", "OK");
+                    await window.Page.DisplayAlert("Error", "Unable to open settings", "OK");
                 }
             }
         });
@@ -1103,15 +1217,24 @@ namespace com.kizwiz.sipnsign.ViewModels
         /// This method stops the timer, marks the game as over, and calculates the number of correct guesses
         /// based on the total number of questions. The results are displayed in a user-friendly format.
         /// </remarks>
-        private void EndGame()
+        public void EndGame()
         {
+            Debug.WriteLine("EndGame started");
             _timer?.Stop();
-            IsGameActive = false;
-            IsGameOver = true;
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                IsGameActive = false;
+                IsGameOver = true;
 
-            // Set the results text
-            int totalQuestions = Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
-            GuessResults = $"You guessed {CurrentScore}/{totalQuestions} correctly!";
+                // Set the results text
+                int totalQuestions = Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
+                GuessResults = $"Final Score: {CurrentScore}/{totalQuestions}";
+                Debug.WriteLine("EndGame completed");
+
+                // Force UI update
+                OnPropertyChanged(nameof(IsGameOver));
+                OnPropertyChanged(nameof(GuessResults));
+            });
         }
 
         protected virtual void OnPropertyChanged(string propertyName)

@@ -213,7 +213,7 @@ namespace com.kizwiz.sipnsign.Pages
             {
                 _isNavigating = true;
                 var themeService = _serviceProvider.GetRequiredService<IThemeService>();
-                var settingsPage = new SettingsPage(themeService);
+                var settingsPage = new SettingsPage(themeService, _serviceProvider); // Update this line
                 await Navigation.PushAsync(settingsPage);
             }
             catch (Exception ex)

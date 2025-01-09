@@ -1,20 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Globalization;
 
 namespace com.kizwiz.sipnsign.Converters
 {
     public class BoolToColorConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            return (bool)value ? Colors.Green : Colors.Gray;
+            return value is bool boolValue ? (boolValue ? Colors.Green : Colors.Gray) : null;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
@@ -22,12 +17,12 @@ namespace com.kizwiz.sipnsign.Converters
 
     public class BoolToOpacityConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            return (bool)value ? 1.0 : 0.5;
+            return value is bool boolValue ? (boolValue ? 1.0 : 0.5) : null;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
@@ -35,12 +30,12 @@ namespace com.kizwiz.sipnsign.Converters
 
     public class BoolToTextColorConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            return (bool)value ? Colors.White : Colors.DarkGray;
+            return value is bool boolValue ? (boolValue ? Colors.White : Colors.DarkGray) : null;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

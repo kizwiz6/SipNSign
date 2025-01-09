@@ -39,17 +39,25 @@
            VerticalOptions="Fill" />
 
         <!-- Main content with logo and buttons -->
-        <VerticalStackLayout x:Name="MainLayout" Spacing="5" Padding="10">
+        <VerticalStackLayout x:Name="MainLayout" 
+                     Spacing="5" 
+                     Padding="10"
+                     VerticalOptions="Center">
             <!-- Logo container -->
             <Frame BackgroundColor="Transparent"
                    BorderColor="Transparent"
                    CornerRadius="10"
-                   Margin="40,5"
-                   Padding="0"
-                   HasShadow="True">
+                   Margin="40,5,40,20"
+                Padding="0"
+                HasShadow="True"
+                VerticalOptions="FillAndExpand">
                 <Image Source="logo_nobg.png"
-                       HeightRequest="230"
-                       Aspect="AspectFill"/>
+                        Aspect="AspectFit"
+                        HeightRequest="{OnPlatform Android=200, iOS=230}"
+                        MinimumHeightRequest="180"
+                        MaximumHeightRequest="250"
+                        VerticalOptions="Center"
+                        HorizontalOptions="Center"/>
             </Frame>
 
             <!-- Title -->

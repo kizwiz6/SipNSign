@@ -2,312 +2,339 @@ using com.kizwiz.sipnsign.Enums;
 using com.kizwiz.sipnsign.Services;
 using com.kizwiz.sipnsign.ViewModels;
 using CommunityToolkit.Maui.Views;
+using CommunityToolkit.Maui.Core.Primitives;
+using System.ComponentModel;
 using System.Diagnostics;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace com.kizwiz.sipnsign.Pages
 {
-    /// <summary>
-    /// Represents the game page where users guess the signs and track their scores.
-    /// </summary>
     public partial class GamePage : ContentPage
     {
         private readonly GameViewModel _viewModel;
         private readonly IVideoService _videoService;
-        private MediaElement CurrentVideoElement => IsGuessMode ? SignVideo : PerformModeVideo;
+        private bool _isDisposed;
+        private readonly SemaphoreSlim _cleanupLock = new(1, 1);
+        private MediaElement? _sharedVideo;
 
         public GameViewModel ViewModel => _viewModel;
 
-        /// <summary>
-        /// Initialises a new instance of the <see cref="GamePage"/> class.
-        /// </summary>
         public GamePage(IServiceProvider serviceProvider, IVideoService videoService, ILoggingService logger, IProgressService progressService)
         {
             try
             {
-                if (videoService == null) throw new ArgumentNullException(nameof(videoService));
-                if (logger == null) throw new ArgumentNullException(nameof(logger));
-                if (progressService == null) throw new ArgumentNullException(nameof(progressService));
-
-                Debug.WriteLine("GamePage constructor started");
                 InitializeComponent();
-                Debug.WriteLine("InitializeComponent completed");
 
-                _videoService = videoService;
-                Debug.WriteLine("Video service assigned");
-
-                _viewModel = new GameViewModel(serviceProvider, videoService, logger, progressService);
-                Debug.WriteLine("ViewModel created");
-
+                _videoService = videoService ?? throw new ArgumentNullException(nameof(videoService));
+                _viewModel = new GameViewModel(serviceProvider, videoService, logger, progressService)
+                {
+                    AnswerCommand = new Command<string>(HandleAnswer),
+                    RevealSignCommand = new Command(RevealSign),
+                    CurrentVideoSource = MediaSource.FromFile("again.mp4")
+                };
                 _viewModel.SignRevealRequested += OnSignRevealRequested;
 
                 BindingContext = _viewModel;
-                Debug.WriteLine("BindingContext set");
+                ConnectToViewModel();
 
-                _viewModel.PropertyChanged += async (s, e) =>
-                {
-                    Debug.WriteLine($"PropertyChanged event fired for: {e.PropertyName}");
-                    if (e.PropertyName == nameof(GameViewModel.CurrentSign))
-                    {
-                        Debug.WriteLine("Calling LoadCurrentVideo");
-                        await LoadCurrentVideo();
-                        Debug.WriteLine("LoadCurrentVideo completed");
-                    }
-                };
-                Debug.WriteLine("GamePage constructor completed successfully");
+                _sharedVideo = this.FindByName<MediaElement>("SharedVideo") ??
+                    throw new InvalidOperationException("SharedVideo element not found");
+
+                _sharedVideo.PropertyChanged += OnSharedVideoPropertyChanged;
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error in GamePage constructor: {ex.Message}");
-                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
-                throw; // Re-throw the exception to be caught by the caller
+                throw;
             }
         }
 
-        private void OnSignRevealRequested(object sender, EventArgs e)
+        // Add these methods to handle commands
+        private void HandleAnswer(string answer)
         {
-            PerformModeVideo.SeekTo(TimeSpan.Zero);
-            PerformModeVideo.Play();
+            _viewModel.HandleAnswer(answer);
         }
 
-        private async Task LoadCurrentVideo()
+        private void RevealSign()
         {
+            _viewModel.RevealSign();
+        }
+
+        private void OnSharedVideoPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (sender is not MediaElement mediaElement) return;
+            
+            Debug.WriteLine($"Video property changed: {e.PropertyName}");
+            if (e.PropertyName == nameof(MediaElement.CurrentState))
+            {
+                Debug.WriteLine($"Current state: {mediaElement.CurrentState}");
+                if (mediaElement.CurrentState == MediaElementState.Failed)
+                {
+                    Debug.WriteLine("Video failed to load");
+                }
+                else if (mediaElement.CurrentState == MediaElementState.Playing)
+                {
+                    Debug.WriteLine("Video is playing");
+                }
+            }
+        }
+
+        private async Task LoadVideoForCurrentSign()
+        {
+            if (_viewModel?.CurrentSign == null) return;
+
             try
             {
-                Debug.WriteLine("=== LoadCurrentVideo Start ===");
-
-                if (_viewModel?.CurrentSign == null)
-                {
-                    Debug.WriteLine("CurrentSign is null");
-                    return;
-                }
-
                 var videoFileName = Path.GetFileName(_viewModel.CurrentSign.VideoPath);
+                Debug.WriteLine($"Attempting to load video: {videoFileName}");
 
-                if (string.IsNullOrEmpty(videoFileName))
+#if ANDROID
+                // Get the resource ID
+                var context = Android.App.Application.Context;
+                var resourceId = context.Resources.GetIdentifier(
+                    Path.GetFileNameWithoutExtension(videoFileName).ToLower(),
+                    "raw",
+                    context.PackageName);
+
+                Debug.WriteLine($"Android resource ID: {resourceId}");
+
+                if (resourceId == 0)
                 {
-                    Debug.WriteLine("Video filename is null or empty");
+                    Debug.WriteLine($"Resource not found for: {videoFileName}");
                     return;
                 }
 
-                var fullPath = await _videoService.GetVideoPath(videoFileName);
+                var uri = Android.Net.Uri.Parse($"android.resource://{context.PackageName}/{resourceId}");
+                var source = MediaSource.FromUri(uri.ToString());
+#else
+        var assetPath = $"Resources/Raw/{videoFileName}";
+        var stream = await FileSystem.OpenAppPackageFileAsync(videoFileName);
+        var tempPath = Path.Combine(FileSystem.CacheDirectory, videoFileName);
+        using (var fileStream = File.Create(tempPath))
+        {
+            await stream.CopyToAsync(fileStream);
+        }
+        var source = MediaSource.FromFile(tempPath);
+#endif
 
-                Debug.WriteLine($"Loading video: {fullPath}");
-                if (!File.Exists(fullPath))
+                // Handle Guess Mode
+                var window = Application.Current?.Windows.FirstOrDefault();
+                var gamePage = window?.Page?.Navigation?.NavigationStack.LastOrDefault() as GamePage;
+                if (gamePage != null)
                 {
-                    Debug.WriteLine("Video file not found!");
-                    return;
+                    gamePage.SetVideoSource(source);
                 }
 
-                var fileInfo = new FileInfo(fullPath);
-                Debug.WriteLine($"Video file size: {fileInfo.Length} bytes");
-
-                await MainThread.InvokeOnMainThreadAsync(() =>
+                // Additional handling for Perform Mode
+                if (_viewModel.IsPerformMode && PerformVideo != null)
                 {
-                    try
+                    Debug.WriteLine("Setting source for Perform Mode video");
+                    await MainThread.InvokeOnMainThreadAsync(() =>
                     {
-                        var mediaElement = IsGuessMode ? SignVideo : PerformModeVideo;
-                        mediaElement.Source = null;
-
-                        // Try creating a file URI
-                        var uri = new Uri($"file://{fullPath}");
-                        var source = MediaSource.FromUri(uri);
-                        Debug.WriteLine($"Created MediaSource with URI: {uri}");
-
-                        mediaElement.Source = source;
-                        Debug.WriteLine("Set MediaSource to MediaElement");
-
-                        mediaElement.Play();
-                        Debug.WriteLine("Called Play() on MediaElement");
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"Error playing video: {ex.Message}");
-                    }
-                });
+                        try
+                        {
+                            PerformVideo.IsVisible = true;
+                            PerformVideo.Source = source;
+                            PerformVideo.ShouldAutoPlay = false; // Don't auto play in Perform Mode
+                            Debug.WriteLine($"Perform Mode video source set: {source}");
+                            Debug.WriteLine($"Perform Mode video visibility: {PerformVideo.IsVisible}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Error setting Perform Mode video: {ex.Message}");
+                        }
+                    });
+                }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"LoadCurrentVideo error: {ex.Message}");
-            }
-        }
-
-        private async Task<string> PrepareVideoPath()
-        {
-            if (_viewModel?.CurrentSign?.VideoPath == null)
-            {
-                throw new InvalidOperationException("Current sign or video path is null");
-            }
-
-            var videoFileName = Path.GetFileName(_viewModel.CurrentSign.VideoPath);
-            var fullPath = await _videoService.GetVideoPath(videoFileName);
-            Debug.WriteLine($"Video path: {fullPath}, Exists: {File.Exists(fullPath)}");
-            return fullPath;
-        }
-        private void HandleGameReset()
-        {
-            ResetVideo();
-            _viewModel.ResetGame();
-            _viewModel.IsGameOver = false;
-            _viewModel.IsGameActive = true;
-        }
-
-        private async Task ConfigureAndPlayVideo(MediaElement mediaElement, string fullPath)
-        {
-            Debug.WriteLine("Configuring video playback");
-            mediaElement.ShouldAutoPlay = true;
-            mediaElement.ShouldLoopPlayback = true;
-            mediaElement.Volume = 1.0;
-
-            mediaElement.Source = null;
-            await Task.Delay(50);
-
-            var source = MediaSource.FromFile(fullPath);
-            mediaElement.Source = source;
-            await Task.Delay(100);
-
-            mediaElement.Play();
-            Debug.WriteLine("Video playback started");
-        }
-
-
-        private async Task SetupAndPlayVideo(MediaElement mediaElement, MediaSource source)
-        {
-            if (mediaElement == null)
-            {
-                throw new ArgumentNullException(nameof(mediaElement));
-            }
-            if (source == null)
-            {
-                throw new ArgumentNullException(nameof(source));
-            }
-
-            try
-            {
-                Debug.WriteLine("Starting SetupAndPlayVideo");
-                Debug.WriteLine($"MediaElement null? {mediaElement == null}");
-                Debug.WriteLine($"Source null? {source == null}");
-
-                // Capture handler in a local variable
-                var handler = mediaElement.Handler;
-                if (handler != null)
-                {
-                    handler.DisconnectHandler();
-                    Debug.WriteLine("Handler disconnected");
-                }
-
-                mediaElement.Source = null;
-                Debug.WriteLine("Source cleared");
-
-                await Task.Delay(100);
-                Debug.WriteLine("Waited after clearing source");
-
-                mediaElement.Source = source;
-                Debug.WriteLine("New source set");
-
-                await Task.Delay(100);
-                Debug.WriteLine("Waited after setting source");
-
-                mediaElement.Play();
-                Debug.WriteLine("Play called");
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error in SetupAndPlayVideo: {ex.Message}");
+                Debug.WriteLine($"Error loading video: {ex.Message}");
                 Debug.WriteLine($"Stack trace: {ex.StackTrace}");
-                throw; // Re-throw to maintain the error chain
             }
         }
 
 
-        /// <summary>
-        /// initialize video on page appearing
-        /// </summary>
-        protected override async void OnAppearing()
+        private void OnMediaOpened(object sender, EventArgs e)
         {
-            base.OnAppearing();
-
-            // Force video reload when page appears
-            if (_viewModel.CurrentSign != null)
+            Debug.WriteLine($"Media opened successfully");
+            var mediaElement = sender as MediaElement;
+            if (mediaElement != null)
             {
-                await LoadCurrentVideo();
-            }
-        }
-
-        private bool IsGuessMode => _viewModel.CurrentMode == GameMode.Guess;
-
-        private void StopVideo()
-        {
-            if (IsGuessMode)
-            {
-                SignVideo?.Stop();
-            }
-            else
-            {
-                PerformModeVideo?.Stop();
-            }
-        }
-
-        /// <summary>
-        /// Displays the game over screen with the final score.
-        /// </summary>
-        private void ShowGameOver()
-        {
-            if (_viewModel != null)
-            {
-                _viewModel.IsGameOver = true;
-                _viewModel.IsGameActive = false;
-                StopVideo();
-            }
-        }
-
-        private void OnModeChanged(object sender, CheckedChangedEventArgs e)
-        {
-            if (sender is RadioButton radioButton && radioButton.IsChecked)
-            {
-                _viewModel.ResetGame();
+                mediaElement.Play();
             }
         }
 
         private void OnMediaFailed(object sender, EventArgs e)
         {
-            Debug.WriteLine($"Media failed to load: {(sender as MediaElement)?.Source}");
-        }
-
-        private void OnMediaOpened(object sender, EventArgs e)
-        {
-            Debug.WriteLine($"Media opened: {(sender as MediaElement)?.Source}");
+            var mediaElement = sender as MediaElement;
+            Debug.WriteLine($"Media failed to load: {mediaElement?.Source}");
+            if (mediaElement?.Source is UriMediaSource uriSource)
+            {
+                Debug.WriteLine($"URI was: {uriSource.Uri}");
+            }
         }
 
         private void OnMediaEnded(object sender, EventArgs e)
         {
-            Debug.WriteLine($"Media ended: {(sender as MediaElement)?.Source}");
+            Debug.WriteLine($"Media playback ended: {(sender as MediaElement)?.Source}");
         }
 
-        private void OnSeekCompleted(object sender, EventArgs e)
+        private async Task SafeVideoOperation(Func<Task> operation)
         {
-            Debug.WriteLine($"Seek completed: {(sender as MediaElement)?.Source}");
+            if (_isDisposed) return;
+
+            try
+            {
+                await _cleanupLock.WaitAsync();
+                if (!_isDisposed)
+                {
+                    await operation();
+                }
+            }
+            catch (ObjectDisposedException)
+            {
+                // Ignore
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in video operation: {ex.Message}");
+            }
+            finally
+            {
+                _cleanupLock.Release();
+            }
         }
 
-        /// <summary>
-        /// Call this method when the game ends to show the final score.
-        /// </summary>
+        private void OnSignRevealRequested(object? sender, EventArgs e)
+        {
+            if (_isDisposed) return;
+
+            try
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    Debug.WriteLine("OnSignRevealRequested: Starting");
+                    var performVideo = this.FindByName<MediaElement>("PerformVideo");
+                    if (performVideo != null)
+                    {
+                        Debug.WriteLine($"PerformVideo found, Current visibility: {performVideo.IsVisible}");
+                        Debug.WriteLine($"Current source: {performVideo.Source}");
+                        performVideo.IsVisible = true;
+                        Debug.WriteLine($"New visibility: {performVideo.IsVisible}");
+                        performVideo.SeekTo(TimeSpan.Zero);
+                        performVideo.Play();
+                        Debug.WriteLine("Play command sent");
+                    }
+                    else
+                    {
+                        Debug.WriteLine("PerformVideo element not found");
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in OnSignRevealRequested: {ex.Message}");
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+            }
+        }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            _isDisposed = false;
+        }
+
+        public void SetVideoSource(MediaSource? source)
+        {
+            if (_isDisposed || source == null) return;
+
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                try
+                {
+                    if (_sharedVideo != null)
+                    {
+                        _sharedVideo.Source = source;
+                        _sharedVideo.IsVisible = true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error setting video source: {ex.Message}");
+                }
+            });
+        }
+
+        private bool IsGuessMode => _viewModel.CurrentMode == GameMode.Guess;
+
+        protected override void OnDisappearing()
+        {
+            try
+            {
+                _isDisposed = true;
+
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    try
+                    {
+                        if (_sharedVideo != null)
+                        {
+                            _sharedVideo.Stop();
+                            _sharedVideo.Source = null;
+                            _sharedVideo.PropertyChanged -= OnSharedVideoPropertyChanged;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error cleaning up video: {ex.Message}");
+                    }
+                });
+
+                _viewModel.SignRevealRequested -= OnSignRevealRequested;
+            }
+            finally
+            {
+                base.OnDisappearing();
+            }
+        }
+
+        // Connect this method to the ViewModel's property changes
+        private void ConnectToViewModel()
+        {
+            if (_viewModel != null)
+            {
+                _viewModel.PropertyChanged += async (s, e) =>
+                {
+                    if (e.PropertyName == nameof(GameViewModel.CurrentSign))
+                    {
+                        Debug.WriteLine("CurrentSign changed, loading video...");
+                        await LoadVideoForCurrentSign();
+                    }
+                };
+            }
+        }
+
+        private void StopVideo()
+        {
+            if (_isDisposed || _sharedVideo == null) return;
+
+            try
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    _sharedVideo.Stop();
+                    _sharedVideo.Source = null;
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error stopping video: {ex.Message}");
+            }
+        }
+
         public void EndGame()
         {
-            ShowGameOver();
-        }
-
-        private void ResetVideo()
-        {
-            if (SignVideo != null)
-            {
-                SignVideo.Source = null;
-                SignVideo.Stop();
-            }
-            if (PerformModeVideo != null)
-            {
-                PerformModeVideo.Source = null;
-                PerformModeVideo.Stop();
-            }
+            _viewModel?.EndGame();
         }
 
         private void OnQuestionsCountChanged(object sender, ValueChangedEventArgs e)
@@ -316,9 +343,10 @@ namespace com.kizwiz.sipnsign.Pages
             {
                 int questions = (int)e.NewValue;
                 Preferences.Set(Constants.GUESS_MODE_QUESTIONS_KEY, questions);
-                // Update settings page
-                MessagingCenter.Send(this, "QuestionCountChanged", questions);
+                WeakReferenceMessenger.Default.Send(new QuestionCountChangedMessage(questions));
             }
         }
+
+        public record QuestionCountChangedMessage(int QuestionCount);
     }
 }

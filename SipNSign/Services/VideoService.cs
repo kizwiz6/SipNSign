@@ -70,7 +70,11 @@ namespace com.kizwiz.sipnsign.Services
                     await InitializeVideos();
                 }
 
+                Debug.WriteLine($"Attempting to get video path for: {videoFileName}");
                 var path = Path.Combine(_videoDirectory, videoFileName);
+                Debug.WriteLine($"Combined path: {path}");
+                Debug.WriteLine($"File exists: {File.Exists(path)}");
+
                 return File.Exists(path) ? path : throw new FileNotFoundException($"Video not found: {videoFileName}");
             }
             catch (Exception ex)
