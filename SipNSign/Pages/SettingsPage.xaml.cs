@@ -5,14 +5,20 @@ using System.Diagnostics;
 namespace com.kizwiz.sipnsign.Pages
 {
     /// <summary>
-    /// Handles application settings and theme changes
+    /// Manages application settings including theme, gameplay options, and debug functionality
     /// </summary>
     public partial class SettingsPage : ContentPage
     {
+        #region Fields
         private readonly IPreferences _preferences = Preferences.Default;
         private readonly IThemeService _themeService;
         private readonly IServiceProvider _serviceProvider;
+        #endregion
 
+        #region Constructor
+        /// <summary>
+        /// Initializes settings page with theme service and preferences
+        /// </summary>
         public SettingsPage(IThemeService themeService, IServiceProvider serviceProvider)
         {
             InitializeComponent();
@@ -29,6 +35,7 @@ namespace com.kizwiz.sipnsign.Pages
 
             LoadSavedSettings();
         }
+        #endregion
 
         private void OnShowFeedbackToggled(object sender, ToggledEventArgs e)
         {
@@ -46,6 +53,10 @@ namespace com.kizwiz.sipnsign.Pages
             }
         }
 
+        #region Settings Management
+        /// <summary>
+        /// Loads saved settings from preferences
+        /// </summary>
         private void LoadSavedSettings()
         {
             // Load questions count
@@ -68,6 +79,7 @@ namespace com.kizwiz.sipnsign.Pages
             // Load delay settings
             DelaySlider.Value = _preferences.Get(Constants.INCORRECT_DELAY_KEY, Constants.DEFAULT_DELAY) / 1000.0;
         }
+        #endregion
 
         // Event handler for the toggle switch
         private void OnSoberModeToggled(object sender, ToggledEventArgs e)
@@ -111,9 +123,10 @@ namespace com.kizwiz.sipnsign.Pages
 
         private async void SaveSettings()
         {
-            if (Application.Current?.MainPage != null)
+            var window = Application.Current?.Windows.FirstOrDefault();
+            if (window?.Page != null)
             {
-                await Application.Current.MainPage.DisplayAlert("Settings Saved", "Your preferences have been updated", "OK");
+                await window.Page.DisplayAlert("Settings Saved", "Your preferences have been updated", "OK");
             }
         }
 
@@ -199,7 +212,7 @@ namespace com.kizwiz.sipnsign.Pages
         /// <summary>
         /// Handles theme selection changes and updates application appearance
         /// </summary>
-        private void OnThemeChanged(object sender, EventArgs e)
+        private void OnThemeChanged(object? sender, EventArgs e)
         {
             // Force page to redraw with new theme
             this.Background = null;
@@ -209,8 +222,15 @@ namespace com.kizwiz.sipnsign.Pages
                 EndPoint = new Point(0, 1),
                 GradientStops = new GradientStopCollection
             {
-                new GradientStop { Color = (Color)Application.Current.Resources["AppBackground1"], Offset = 0.0f },
-                new GradientStop { Color = (Color)Application.Current.Resources["AppBackground2"], Offset = 1.0f }
+                new GradientStop
+                {
+                    Color = Application.Current?.Resources["AppBackground1"] as Color ?? Colors.Transparent,
+                    Offset = 0.0f
+                },
+                new GradientStop {
+                    Color = Application.Current?.Resources["AppBackground2"] as Color ?? Colors.Transparent,
+                    Offset = 1.0f 
+                }
             }
             };
         }

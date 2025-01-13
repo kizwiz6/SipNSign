@@ -4,12 +4,18 @@ using System.Text.Json;
 
 namespace com.kizwiz.sipnsign.Services
 {
+    /// <summary>
+    /// Manages user progress, achievements, and activity tracking
+    /// </summary>
     public class ProgressService : IProgressService
     {
+        #region Fields
         private readonly string _progressFile;
         private UserProgress _currentProgress;
         private readonly List<Achievement> _availableAchievements;
+        #endregion
 
+        #region Constructor
         public ProgressService()
         {
             try
@@ -31,7 +37,241 @@ namespace com.kizwiz.sipnsign.Services
                 throw;
             }
         }
+        #endregion
 
+        #region Public Methods
+        /// <summary>
+        /// Retrieves the current user progress asynchronously.
+        /// </summary>
+        /// <returns>A Task that represents the asynchronous operation, with a UserProgress result.</returns>
+        public async Task<UserProgress> GetUserProgressAsync()
+        {
+            // Simulate an async operation, even if there's none for now.
+            return await Task.FromResult(_currentProgress);
+        }
+
+        public async Task LogActivityAsync(ActivityLog activity)
+        {
+            _currentProgress.Activities.Insert(0, activity);
+
+            // Keep only last 100 activities
+            if (_currentProgress.Activities.Count > 100)
+                _currentProgress.Activities = _currentProgress.Activities.Take(100).ToList();
+
+            // Update statistics based on activity
+            UpdateStatistics(activity);
+
+            await SaveProgressAsync(_currentProgress);
+            await UpdateAchievementsAsync();
+        }
+
+        public async Task UpdateAchievementsAsync()
+        {
+            foreach (var achievement in _currentProgress.Achievements)
+            {
+                switch (achievement.Id)
+                {
+                    case "FIRST_SIGN" when _currentProgress.SignsLearned >= 1:
+                        await UnlockAchievement(achievement);
+                        achievement.ProgressCurrent = 1;
+                        break;
+
+                    case "STREAK_7" when _currentProgress.CurrentStreak >= 7:
+                        await UnlockAchievement(achievement);
+                        achievement.ProgressCurrent = _currentProgress.CurrentStreak;
+                        break;
+
+                    case "STREAK_30" when _currentProgress.CurrentStreak >= 30:
+                        await UnlockAchievement(achievement);
+                        achievement.ProgressCurrent = _currentProgress.CurrentStreak;
+                        break;
+
+                    case "SIGNS_50" when !achievement.IsUnlocked:
+                        achievement.ProgressCurrent = Math.Min(_currentProgress.SignsLearned, achievement.ProgressRequired);
+                        if (!achievement.IsUnlocked && _currentProgress.SignsLearned >= 50)
+                        {
+                            await UnlockAchievement(achievement);
+                        }
+                        break;
+
+                    case "SIGNS_100" when !achievement.IsUnlocked:
+                        achievement.ProgressCurrent = Math.Min(_currentProgress.SignsLearned, achievement.ProgressRequired);
+                        if (!achievement.IsUnlocked && _currentProgress.SignsLearned >= 100)
+                        {
+                            await UnlockAchievement(achievement);
+                        }
+                        break;
+
+                    case "QUIZ_PERFECT":
+                        var perfectQuiz = _currentProgress.Activities
+                            .Any(a => a.Type == ActivityType.Quiz && a.Score == "10/10");
+                        if (perfectQuiz)
+                        {
+                            await UnlockAchievement(achievement);
+                        }
+                        achievement.ProgressCurrent = perfectQuiz ? 1 : 0;
+                        break;
+
+                    case "PRACTICE_HOURS_10" when _currentProgress.TotalPracticeTime.TotalHours >= 10:
+                        await UnlockAchievement(achievement);
+                        achievement.ProgressCurrent = (int)_currentProgress.TotalPracticeTime.TotalHours;
+                        break;
+
+                    case "SIGNS_100_GUESS" when !achievement.IsUnlocked:
+                        achievement.ProgressCurrent = Math.Min(_currentProgress.GuessModeSigns, achievement.ProgressRequired);
+                        if (!achievement.IsUnlocked && _currentProgress.GuessModeSigns >= 100)
+                        {
+                            await UnlockAchievement(achievement);
+                        }
+                        break;
+
+                    case "SIGNS_1000_GUESS" when !achievement.IsUnlocked:
+                        achievement.ProgressCurrent = Math.Min(_currentProgress.GuessModeSigns, achievement.ProgressRequired);
+                        if (!achievement.IsUnlocked && _currentProgress.GuessModeSigns >= 1000)
+                        {
+                            await UnlockAchievement(achievement);
+                            achievement.ProgressCurrent = 1000;  // Cap at required amount
+                        }
+                        break;
+
+                    case "SIGNS_100_PERFORM" when !achievement.IsUnlocked:
+                        achievement.ProgressCurrent = Math.Min(_currentProgress.PerformModeSigns, achievement.ProgressRequired);
+                        if (!achievement.IsUnlocked && _currentProgress.PerformModeSigns >= 100)
+                        {
+                            await UnlockAchievement(achievement);
+                        }
+                        break;
+
+                    case "SIGNS_1000_PERFORM" when !achievement.IsUnlocked:
+                        achievement.ProgressCurrent = Math.Min(_currentProgress.PerformModeSigns, achievement.ProgressRequired);
+                        if (!achievement.IsUnlocked && _currentProgress.PerformModeSigns >= 1000)
+                        {
+                            await UnlockAchievement(achievement);
+                        }
+                        break;
+
+                    case "PARTY_STARTER" when !achievement.IsUnlocked:
+                        // Count completed Perform mode sessions
+                        var performSessions = _currentProgress.Activities
+                            .Count(a => a.Type == ActivityType.Practice &&
+                                       a.Description.Contains("Perform Mode completed"));
+                        achievement.ProgressCurrent = performSessions;
+                        if (performSessions >= 50)
+                        {
+                            await UnlockAchievement(achievement);
+                        }
+                        break;
+
+                    case "SOCIAL_BUTTERFLY" when !achievement.IsUnlocked:
+                        // Group activities by date and check if both modes were played
+                        var dailyModes = _currentProgress.Activities
+                            .GroupBy(a => a.Timestamp.Date)
+                            .Count(g => g.Any(a => a.Description.Contains("Guess Mode")) &&
+                                        g.Any(a => a.Description.Contains("Perform Mode")));
+                        achievement.ProgressCurrent = dailyModes;
+                        if (dailyModes >= 5)
+                        {
+                            await UnlockAchievement(achievement);
+                        }
+                        break;
+
+                    case "RAPID_FIRE" when !achievement.IsUnlocked:
+                        // Count correct answers under 5 seconds
+                        var rapidAnswers = _currentProgress.Activities
+                            .Count(a => a.Type == ActivityType.Practice &&
+                                       a.Score == "+1" &&
+                                       a.Description.Contains("under 5 seconds"));
+                        achievement.ProgressCurrent = rapidAnswers;
+                        if (rapidAnswers >= 50)
+                        {
+                            await UnlockAchievement(achievement);
+                        }
+                        break;
+
+                    case "SPEED_MASTER" when !achievement.IsUnlocked:
+                        // Check for completed sessions with average time under 3 seconds
+                        var fastSessions = _currentProgress.Activities
+                            .Count(a => a.Type == ActivityType.Practice &&
+                                       a.Description.Contains("Guess Mode completed") &&
+                                       a.Description.Contains("average time under 3 seconds"));
+                        achievement.ProgressCurrent = fastSessions;
+                        if (fastSessions >= 100)
+                        {
+                            await UnlockAchievement(achievement);
+                        }
+                        break;
+
+                    case "PERFECT_SESSION" when _currentProgress.CorrectInARow >= 50:
+                        await UnlockAchievement(achievement);
+                        achievement.ProgressCurrent = 1;
+                        break;
+                }
+            }
+        }
+
+        public async Task<bool> UpdateStreakAsync()
+        {
+            var lastActivity = _currentProgress.Activities
+                .OrderByDescending(a => a.Timestamp)
+                .FirstOrDefault();
+
+            if (lastActivity == null)
+            {
+                _currentProgress.CurrentStreak = 1;
+                return true;
+            }
+
+            var today = DateTime.Today;
+            var lastActivityDate = lastActivity.Timestamp.Date;
+
+            if (lastActivityDate == today)
+                return false;
+
+            if (lastActivityDate == today.AddDays(-1))
+                _currentProgress.CurrentStreak++;
+            else
+                _currentProgress.CurrentStreak = 1;
+
+            await SaveProgressAsync(_currentProgress);
+            await UpdateAchievementsAsync();
+            return true;
+        }
+
+        public async Task SaveProgressAsync(UserProgress progress)
+        {
+            var today = DateTime.Today;
+            var lastActivity = progress.Activities
+                .OrderByDescending(a => a.Timestamp)
+                .FirstOrDefault();
+
+            if (lastActivity != null)
+            {
+                var lastActivityDate = lastActivity.Timestamp.Date;
+                if (lastActivityDate == today)
+                {
+                    // Already updated today, keep current streak
+                }
+                else if (lastActivityDate == today.AddDays(-1))
+                {
+                    progress.CurrentStreak++; // Increment streak for consecutive days
+                }
+                else
+                {
+                    progress.CurrentStreak = 1; // Reset streak if missed a day
+                }
+            }
+            else
+            {
+                progress.CurrentStreak = 1; // First activity
+            }
+
+            var json = JsonSerializer.Serialize(progress);
+            await File.WriteAllTextAsync(_progressFile, json);
+            _currentProgress = progress;
+        }
+        #endregion
+
+        #region Private Methods
         private List<Achievement> InitializeAchievements()
         {
             return new List<Achievement>
@@ -259,31 +499,6 @@ namespace com.kizwiz.sipnsign.Services
             };
         }
 
-        /// <summary>
-        /// Retrieves the current user progress asynchronously.
-        /// </summary>
-        /// <returns>A Task that represents the asynchronous operation, with a UserProgress result.</returns>
-        public async Task<UserProgress> GetUserProgressAsync()
-        {
-            // Simulate an async operation, even if there's none for now.
-            return await Task.FromResult(_currentProgress);
-        }
-
-        public async Task LogActivityAsync(ActivityLog activity)
-        {
-            _currentProgress.Activities.Insert(0, activity);
-
-            // Keep only last 100 activities
-            if (_currentProgress.Activities.Count > 100)
-                _currentProgress.Activities = _currentProgress.Activities.Take(100).ToList();
-
-            // Update statistics based on activity
-            UpdateStatistics(activity);
-
-            await SaveProgressAsync(_currentProgress);
-            await UpdateAchievementsAsync();
-        }
-
         private void UpdateStatistics(ActivityLog activity)
         {
             switch (activity.Type)
@@ -326,150 +541,6 @@ namespace com.kizwiz.sipnsign.Services
             }
         }
 
-        public async Task UpdateAchievementsAsync()
-        {
-            foreach (var achievement in _currentProgress.Achievements)
-            {
-                switch (achievement.Id)
-                {
-                    case "FIRST_SIGN" when _currentProgress.SignsLearned >= 1:
-                        await UnlockAchievement(achievement);
-                        achievement.ProgressCurrent = 1;
-                        break;
-
-                    case "STREAK_7" when _currentProgress.CurrentStreak >= 7:
-                        await UnlockAchievement(achievement);
-                        achievement.ProgressCurrent = _currentProgress.CurrentStreak;
-                        break;
-
-                    case "STREAK_30" when _currentProgress.CurrentStreak >= 30:
-                        await UnlockAchievement(achievement);
-                        achievement.ProgressCurrent = _currentProgress.CurrentStreak;
-                        break;
-
-                    case "SIGNS_50" when !achievement.IsUnlocked:
-                        achievement.ProgressCurrent = Math.Min(_currentProgress.SignsLearned, achievement.ProgressRequired);
-                        if (!achievement.IsUnlocked && _currentProgress.SignsLearned >= 50)
-                        {
-                            await UnlockAchievement(achievement);
-                        }
-                        break;
-
-                    case "SIGNS_100" when !achievement.IsUnlocked:
-                        achievement.ProgressCurrent = Math.Min(_currentProgress.SignsLearned, achievement.ProgressRequired);
-                        if (!achievement.IsUnlocked && _currentProgress.SignsLearned >= 100)
-                        {
-                            await UnlockAchievement(achievement);
-                        }
-                        break;
-
-                    case "QUIZ_PERFECT":
-                        var perfectQuiz = _currentProgress.Activities
-                            .Any(a => a.Type == ActivityType.Quiz && a.Score == "10/10");
-                        if (perfectQuiz)
-                        {
-                            await UnlockAchievement(achievement);
-                        }
-                        achievement.ProgressCurrent = perfectQuiz ? 1 : 0;
-                        break;
-
-                    case "PRACTICE_HOURS_10" when _currentProgress.TotalPracticeTime.TotalHours >= 10:
-                        await UnlockAchievement(achievement);
-                        achievement.ProgressCurrent = (int)_currentProgress.TotalPracticeTime.TotalHours;
-                        break;
-
-                    case "SIGNS_100_GUESS" when !achievement.IsUnlocked:
-                        achievement.ProgressCurrent = Math.Min(_currentProgress.GuessModeSigns, achievement.ProgressRequired);
-                        if (!achievement.IsUnlocked && _currentProgress.GuessModeSigns >= 100)
-                        {
-                            await UnlockAchievement(achievement);
-                        }
-                        break;
-
-                    case "SIGNS_1000_GUESS" when !achievement.IsUnlocked:
-                        achievement.ProgressCurrent = Math.Min(_currentProgress.GuessModeSigns, achievement.ProgressRequired);
-                        if (!achievement.IsUnlocked && _currentProgress.GuessModeSigns >= 1000)
-                        {
-                            await UnlockAchievement(achievement);
-                            achievement.ProgressCurrent = 1000;  // Cap at required amount
-                        }
-                        break;
-
-                    case "SIGNS_100_PERFORM" when !achievement.IsUnlocked:
-                        achievement.ProgressCurrent = Math.Min(_currentProgress.PerformModeSigns, achievement.ProgressRequired);
-                        if(!achievement.IsUnlocked && _currentProgress.PerformModeSigns >= 100)
-                        {
-                            await UnlockAchievement(achievement);
-                        }
-                        break;
-
-                    case "SIGNS_1000_PERFORM" when !achievement.IsUnlocked:
-                        achievement.ProgressCurrent = Math.Min(_currentProgress.PerformModeSigns, achievement.ProgressRequired);
-                        if (!achievement.IsUnlocked && _currentProgress.PerformModeSigns >= 1000)
-                        {
-                            await UnlockAchievement(achievement);
-                        }
-                        break;
-
-                    case "PARTY_STARTER" when !achievement.IsUnlocked:
-                        // Count completed Perform mode sessions
-                        var performSessions = _currentProgress.Activities
-                            .Count(a => a.Type == ActivityType.Practice &&
-                                       a.Description.Contains("Perform Mode completed"));
-                        achievement.ProgressCurrent = performSessions;
-                        if (performSessions >= 50)
-                        {
-                            await UnlockAchievement(achievement);
-                        }
-                        break;
-
-                    case "SOCIAL_BUTTERFLY" when !achievement.IsUnlocked:
-                        // Group activities by date and check if both modes were played
-                        var dailyModes = _currentProgress.Activities
-                            .GroupBy(a => a.Timestamp.Date)
-                            .Count(g => g.Any(a => a.Description.Contains("Guess Mode")) &&
-                                        g.Any(a => a.Description.Contains("Perform Mode")));
-                        achievement.ProgressCurrent = dailyModes;
-                        if (dailyModes >= 5)
-                        {
-                            await UnlockAchievement(achievement);
-                        }
-                        break;
-
-                    case "RAPID_FIRE" when !achievement.IsUnlocked:
-                        // Count correct answers under 5 seconds
-                        var rapidAnswers = _currentProgress.Activities
-                            .Count(a => a.Type == ActivityType.Practice &&
-                                       a.Score == "+1" &&
-                                       a.Description.Contains("under 5 seconds"));
-                        achievement.ProgressCurrent = rapidAnswers;
-                        if (rapidAnswers >= 50)
-                        {
-                            await UnlockAchievement(achievement);
-                        }
-                        break;
-
-                    case "SPEED_MASTER" when !achievement.IsUnlocked:
-                        // Check for completed sessions with average time under 3 seconds
-                        var fastSessions = _currentProgress.Activities
-                            .Count(a => a.Type == ActivityType.Practice &&
-                                       a.Description.Contains("Guess Mode completed") &&
-                                       a.Description.Contains("average time under 3 seconds"));
-                        achievement.ProgressCurrent = fastSessions;
-                        if (fastSessions >= 100)
-                        {
-                            await UnlockAchievement(achievement);
-                        }
-                        break;
-
-                    case "PERFECT_SESSION" when _currentProgress.CorrectInARow >= 50:
-                        await UnlockAchievement(achievement);
-                        achievement.ProgressCurrent = 1;
-                        break;
-                }
-            }
-        }
-
         private async Task UnlockAchievement(Achievement achievement)
         {
             // Only unlock and log if it hasn't been unlocked before
@@ -505,66 +576,6 @@ namespace com.kizwiz.sipnsign.Services
                 });
             }
         }
-
-        public async Task<bool> UpdateStreakAsync()
-        {
-            var lastActivity = _currentProgress.Activities
-                .OrderByDescending(a => a.Timestamp)
-                .FirstOrDefault();
-
-            if (lastActivity == null)
-            {
-                _currentProgress.CurrentStreak = 1;
-                return true;
-            }
-
-            var today = DateTime.Today;
-            var lastActivityDate = lastActivity.Timestamp.Date;
-
-            if (lastActivityDate == today)
-                return false;
-
-            if (lastActivityDate == today.AddDays(-1))
-                _currentProgress.CurrentStreak++;
-            else
-                _currentProgress.CurrentStreak = 1;
-
-            await SaveProgressAsync(_currentProgress);
-            await UpdateAchievementsAsync();
-            return true;
-        }
-
-        public async Task SaveProgressAsync(UserProgress progress)
-        {
-            var today = DateTime.Today;
-            var lastActivity = progress.Activities
-                .OrderByDescending(a => a.Timestamp)
-                .FirstOrDefault();
-
-            if (lastActivity != null)
-            {
-                var lastActivityDate = lastActivity.Timestamp.Date;
-                if (lastActivityDate == today)
-                {
-                    // Already updated today, keep current streak
-                }
-                else if (lastActivityDate == today.AddDays(-1))
-                {
-                    progress.CurrentStreak++; // Increment streak for consecutive days
-                }
-                else
-                {
-                    progress.CurrentStreak = 1; // Reset streak if missed a day
-                }
-            }
-            else
-            {
-                progress.CurrentStreak = 1; // First activity
-            }
-
-            var json = JsonSerializer.Serialize(progress);
-            await File.WriteAllTextAsync(_progressFile, json);
-            _currentProgress = progress;
-        }
+        #endregion
     }
 }

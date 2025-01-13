@@ -6,14 +6,14 @@ using System.Diagnostics;
 
 namespace com.kizwiz.sipnsign.ViewModels
 {
+    /// <summary>
+    /// View model for managing user progress and achievements display
+    /// </summary>
     public class ProgressViewModel : INotifyPropertyChanged
     {
+        #region Fields
         private readonly IProgressService _progressService;
         private UserProgress _userProgress;
-
-        public ObservableCollection<ActivityItem> RecentActivities { get; private set; }
-        public ObservableCollection<AchievementItem> Achievements { get; private set; }
-
         private int _signsLearned;
         public int SignsLearned
         {
@@ -57,8 +57,6 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
 
-        public string AccuracyDisplay => $"{Accuracy:P0}";
-
         private TimeSpan _practiceTime;
         public TimeSpan PracticeTime
         {
@@ -73,6 +71,18 @@ namespace com.kizwiz.sipnsign.ViewModels
                 }
             }
         }
+        #endregion
+
+        #region Properties
+        public ObservableCollection<ActivityItem> RecentActivities { get; private set; }
+        public ObservableCollection<AchievementItem> Achievements { get; private set; }
+        public string AchievementsHeaderText => $"Achievements ({_userProgress.Achievements.Count(a => a.IsUnlocked)}/{_userProgress.Achievements.Count})";
+        #endregion
+
+
+        public string AccuracyDisplay => $"{Accuracy:P0}";
+
+        
 
         public string PracticeTimeDisplay
         {
@@ -84,6 +94,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
 
+        #region Constructor
         public ProgressViewModel(IProgressService progressService)
         {
             _progressService = progressService ?? throw new ArgumentNullException(nameof(progressService));
@@ -96,13 +107,20 @@ namespace com.kizwiz.sipnsign.ViewModels
                 Activities = new List<ActivityLog>()
             };
         }
+        #endregion
 
+        #region Public Methods
+        /// <summary>
+        /// Loads and updates user progress data
+        /// </summary>
         public async Task LoadProgressAsync()
         {
             _userProgress = await _progressService.GetUserProgressAsync();
             UpdateUI();
         }
+        #endregion
 
+        #region Private Methods
         private void UpdateUI()
         {
             SignsLearned = _userProgress.SignsLearned;
@@ -113,17 +131,27 @@ namespace com.kizwiz.sipnsign.ViewModels
             RecentActivities.Clear();
             foreach (var activity in _userProgress.Activities.OrderByDescending(a => a.Timestamp).Take(10))
             {
-                var icon = activity.Type == ActivityType.Practice && activity.Score == "+1"
-                    ? "quiz_correct_icon"
-                    : GetActivityIcon(activity.Type);
+                var icon = activity.Type switch
+                {
+                    ActivityType.Achievement => "achievement_icon",
+                    ActivityType.Practice when activity.Score == "+1" => "quiz_correct_icon",
+                    ActivityType.Practice => "quiz_incorrect_icon",
+                    ActivityType.Quiz => "quiz_icon",
+                    ActivityType.Streak => "streak_icon",
+                    _ => "quiz_icon"
+                };
+
+                var score = activity.Type == ActivityType.Achievement ? "🏆" : activity.Score;
 
                 RecentActivities.Add(new ActivityItem
                 {
-                    Icon = activity.IconName ?? icon,  // Use activity's icon if provided, otherwise use our determined icon
+                    Icon = activity.IconName ?? icon,
                     Description = activity.Description,
                     TimeAgo = FormatTimeAgo(activity.Timestamp),
-                    Score = activity.Score
+                    Score = score
                 });
+
+                OnPropertyChanged(nameof(AchievementsHeaderText));
             }
 
             Achievements.Clear();
@@ -146,16 +174,16 @@ namespace com.kizwiz.sipnsign.ViewModels
 
                 var iconPath = $"{icon}.svg";
 
-                // Calculate progress text
-                var progressText = achievement.Id switch
+                // Calculate progress text only if achievement is not unlocked
+                var progressText = !achievement.IsUnlocked ? achievement.Id switch
                 {
-                    "SIGNS_50" => $"Learn 50 signs ({_userProgress.SignsLearned}/50)",
-                    "SIGNS_100" => $"Learn 100 signs ({_userProgress.SignsLearned}/100)",
-                    "PRACTICE_HOURS_10" => $"Practice for 10 hours ({(int)_userProgress.TotalPracticeTime.TotalHours}/10)",
-                    "STREAK_7" => $"Practice for 7 consecutive days ({_userProgress.CurrentStreak}/7)",
-                    "STREAK_30" => $"Practice for 30 consecutive days ({_userProgress.CurrentStreak}/30)",
-                    _ => $"{achievement.Description} ({achievement.ProgressCurrent}/{achievement.ProgressRequired})"
-                };
+                    "SIGNS_50" => $"Learn 50 signs ({Math.Min(_userProgress.SignsLearned, 50)}/50)",
+                    "SIGNS_100" => $"Learn 100 signs ({Math.Min(_userProgress.SignsLearned, 100)}/100)",
+                    "PRACTICE_HOURS_10" => $"Practice for 10 hours ({Math.Min((int)_userProgress.TotalPracticeTime.TotalHours, 10)}/10)",
+                    "STREAK_7" => $"Practice for 7 consecutive days ({Math.Min(_userProgress.CurrentStreak, 7)}/7)",
+                    "STREAK_30" => $"Practice for 30 consecutive days ({Math.Min(_userProgress.CurrentStreak, 30)}/30)",
+                    _ => $"{achievement.Description} ({Math.Min(achievement.ProgressCurrent, achievement.ProgressRequired)}/{achievement.ProgressRequired})"
+                } : achievement.Description;
 
                 Achievements.Add(new AchievementItem
                 {
@@ -164,7 +192,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                     Title = achievement.Title,
                     Description = progressText,
                     IsUnlocked = achievement.IsUnlocked,
-                    Progress = progress,
+                    Progress = achievement.IsUnlocked ? 1.0 : 0.0,
                     UnlockedDate = achievement.UnlockedDate
                 });
                 Debug.WriteLine($"Achievement {achievement.Title} - UnlockedDate: {achievement.UnlockedDate}");
@@ -197,40 +225,14 @@ namespace com.kizwiz.sipnsign.ViewModels
                 return $"{timeSpan.Days}d ago";
             return timestamp.ToString("MMM dd");
         }
+        #endregion
 
+        #region Event Handlers
         public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
-        public double OverallProgressPercentage
-        {
-            get
-            {
-                if (_userProgress?.Achievements == null || !_userProgress.Achievements.Any())
-                    return 0;
-
-                double totalProgress = 0;
-                var achievementsCount = _userProgress.Achievements.Count;
-
-                foreach (var achievement in _userProgress.Achievements)
-                {
-                    if (achievement.IsUnlocked)
-                    {
-                        totalProgress += 1.0;
-                    }
-                    else if (achievement.ProgressRequired > 0)
-                    {
-                        var currentProgress = (double)achievement.ProgressCurrent / achievement.ProgressRequired;
-                        totalProgress += Math.Min(currentProgress, 1.0); // Cap at 100%
-                    }
-                }
-
-                return totalProgress / achievementsCount;
-            }
-        }
-
-        public string OverallProgressText => $"{(OverallProgressPercentage * 100):F0}% Complete";
+        #endregion
     }
 }

@@ -13,8 +13,12 @@ namespace com.kizwiz.sipnsign;
                                 ConfigChanges.ScreenLayout |
                                 ConfigChanges.SmallestScreenSize |
                                 ConfigChanges.Density)]
+/// <summary>
+/// Main Android activity for the application
+/// </summary>
 public class MainActivity : MauiAppCompatActivity
 {
+    #region Lifecycle Methods
     protected override void OnCreate(Bundle? savedInstanceState)
     {
         base.OnCreate(savedInstanceState);
@@ -26,7 +30,9 @@ public class MainActivity : MauiAppCompatActivity
             OnBackPressedDispatcher.AddCallback(this, new BackCallback(this));
         }
     }
+    #endregion
 
+    #region Inner Classes
     private class BackCallback : OnBackPressedCallback
     {
         private readonly MainActivity _activity;
@@ -54,4 +60,5 @@ public class MainActivity : MauiAppCompatActivity
             }
         }
     }
+    #endregion
 }

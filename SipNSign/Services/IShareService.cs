@@ -1,13 +1,29 @@
 ﻿namespace com.kizwiz.sipnsign.Services
 {
+    /// <summary>
+    /// Interface for handling sharing functionality in the application
+    /// </summary>
     public interface IShareService
     {
+        /// <summary>
+        /// Shares text content with a specified title
+        /// </summary>
         Task ShareTextAsync(string text, string title);
+        /// <summary>
+        /// Shares an image with a specified title
+        /// </summary>
         Task ShareImageAsync(string imagePath, string title);
     }
 
+    /// <summary>
+    /// Implementation of sharing functionality using MAUI Share API
+    /// </summary>
     public class ShareService : IShareService
     {
+        #region Public Methods
+        /// <summary>
+        /// Shares text content using the native share dialog
+        /// </summary>
         public async Task ShareTextAsync(string text, string title)
         {
             try
@@ -25,6 +41,9 @@
             }
         }
 
+        /// <summary>
+        /// Shares an image file using the native share dialog
+        /// </summary>
         public async Task ShareImageAsync(string imagePath, string title)
         {
             try
@@ -41,5 +60,6 @@
                 throw;
             }
         }
+        #endregion
     }
 }

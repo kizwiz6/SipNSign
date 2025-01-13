@@ -1,24 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 
 namespace com.kizwiz.sipnsign.Services
 {
+    /// <summary>
+    /// Service for managing video file operations and initialization
+    /// </summary>
     public class VideoService : IVideoService
     {
+        #region Fields
         private bool _isInitialized = false;
         private readonly string _videoDirectory;
         private readonly SemaphoreSlim _initializationLock = new SemaphoreSlim(1, 1);
+        #endregion
 
+        #region Constructor
+        /// <summary>
+        /// Initializes the video service with app's data directory
+        /// </summary>
         public VideoService()
         {
             _videoDirectory = FileSystem.AppDataDirectory;
             Debug.WriteLine($"Video directory initialized: {_videoDirectory}");
         }
+        #endregion
 
+        #region Public Methods
         public async Task InitializeVideos()
         {
             try
@@ -61,6 +67,11 @@ namespace com.kizwiz.sipnsign.Services
             }
         }
 
+        /// <summary>
+        /// Gets the full path of a video file
+        /// </summary>
+        /// <param name="videoFileName">Name of the video file to locate</param>
+        /// <returns>Full path to the video file</returns>
         public async Task<string> GetVideoPath(string videoFileName)
         {
             try
@@ -83,7 +94,12 @@ namespace com.kizwiz.sipnsign.Services
                 throw;
             }
         }
+        #endregion
 
+        #region Private Methods
+        /// <summary>
+        /// Copies a video file from app package to local storage
+        /// </summary>
         private async Task CopyVideoToAppData(string videoFileName)
         {
             try
@@ -116,5 +132,6 @@ namespace com.kizwiz.sipnsign.Services
                 throw; 
             }
         }
+        #endregion
     }
 }

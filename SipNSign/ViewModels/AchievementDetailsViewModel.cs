@@ -7,11 +7,17 @@ using System.Windows.Input;
 
 namespace com.kizwiz.sipnsign.ViewModels
 {
+    /// <summary>
+    /// View model for displaying achievement details
+    /// </summary>
     public class AchievementDetailsViewModel : ObservableObject
     {
+        #region Fields
         private readonly IShareService _shareService;
         private Achievement _achievement;
+        #endregion
 
+        #region Properties
         public string Icon => _achievement.IconName;
         public string Title => _achievement.Title;
         public string Description => _achievement.Description;
@@ -24,14 +30,18 @@ namespace com.kizwiz.sipnsign.ViewModels
             : string.Empty;
 
         public ICommand ShareCommand { get; }
+        #endregion
 
+        #region Constructor
         public AchievementDetailsViewModel(Achievement achievement, IShareService shareService)
         {
             _achievement = achievement;
             _shareService = shareService;
             ShareCommand = new AsyncRelayCommand(ShareAchievement);
         }
+        #endregion
 
+        #region Private Methods
         private async Task ShareAchievement()
         {
             try
@@ -51,6 +61,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                 Debug.WriteLine($"Error sharing achievement: {ex.Message}");
             }
         }
+        #endregion
     }
 
     public class AchievementDetailModel : ObservableObject

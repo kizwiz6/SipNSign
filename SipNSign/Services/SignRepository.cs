@@ -1,9 +1,21 @@
 ﻿using com.kizwiz.sipnsign.Models;
 
+/// <summary>
+/// Repository for managing sign data and video mappings
+/// </summary>
 public class SignRepository
 {
+    #region Properties
+    /// <summary>
+    /// Gets the total number of available signs
+    /// </summary>
     public int TotalSignsCount => GetSigns().Count;
+    #endregion
 
+    #region Public Methods
+    /// <summary>
+    /// Returns a list of all available signs with their video paths and multiple choice options
+    /// </summary>
     public List<SignModel> GetSigns()
     {
         return new List<SignModel>
@@ -219,4 +231,5 @@ public class SignRepository
 
         };
     }
+    #endregion
 }
