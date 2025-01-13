@@ -5,14 +5,20 @@ using System.Diagnostics;
 namespace com.kizwiz.sipnsign.Pages
 {
     /// <summary>
-    /// Handles application settings and theme changes
+    /// Manages application settings including theme, gameplay options, and debug functionality
     /// </summary>
     public partial class SettingsPage : ContentPage
     {
+        #region Fields
         private readonly IPreferences _preferences = Preferences.Default;
         private readonly IThemeService _themeService;
         private readonly IServiceProvider _serviceProvider;
+        #endregion
 
+        #region Constructor
+        /// <summary>
+        /// Initializes settings page with theme service and preferences
+        /// </summary>
         public SettingsPage(IThemeService themeService, IServiceProvider serviceProvider)
         {
             InitializeComponent();
@@ -29,6 +35,7 @@ namespace com.kizwiz.sipnsign.Pages
 
             LoadSavedSettings();
         }
+        #endregion
 
         private void OnShowFeedbackToggled(object sender, ToggledEventArgs e)
         {
@@ -46,6 +53,10 @@ namespace com.kizwiz.sipnsign.Pages
             }
         }
 
+        #region Settings Management
+        /// <summary>
+        /// Loads saved settings from preferences
+        /// </summary>
         private void LoadSavedSettings()
         {
             // Load questions count
@@ -68,6 +79,7 @@ namespace com.kizwiz.sipnsign.Pages
             // Load delay settings
             DelaySlider.Value = _preferences.Get(Constants.INCORRECT_DELAY_KEY, Constants.DEFAULT_DELAY) / 1000.0;
         }
+        #endregion
 
         // Event handler for the toggle switch
         private void OnSoberModeToggled(object sender, ToggledEventArgs e)

@@ -9,16 +9,28 @@ using CommunityToolkit.Mvvm.Messaging;
 
 namespace com.kizwiz.sipnsign.Pages
 {
+    /// <summary>
+    /// Handles game interactions and video playback for both Guess and Perform modes
+    /// </summary>
     public partial class GamePage : ContentPage
     {
+        #region Fields
         private readonly GameViewModel _viewModel;
         private readonly IVideoService _videoService;
         private bool _isDisposed;
         private readonly SemaphoreSlim _cleanupLock = new(1, 1);
         private MediaElement? _sharedVideo;
+        #endregion
 
+        #region Properties
         public GameViewModel ViewModel => _viewModel;
+        private bool IsGuessMode => _viewModel.CurrentMode == GameMode.Guess;
+        #endregion
 
+        #region Constructor
+        /// <summary>
+        /// Initializes game page with required services and video handling
+        /// </summary>
         public GamePage(IServiceProvider serviceProvider, IVideoService videoService, ILoggingService logger, IProgressService progressService)
         {
             try
@@ -48,37 +60,12 @@ namespace com.kizwiz.sipnsign.Pages
                 throw;
             }
         }
+        #endregion
 
-        // Add these methods to handle commands
-        private void HandleAnswer(string answer)
-        {
-            _viewModel.HandleAnswer(answer);
-        }
-
-        private void RevealSign()
-        {
-            _viewModel.RevealSign();
-        }
-
-        private void OnSharedVideoPropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            if (sender is not MediaElement mediaElement) return;
-            
-            Debug.WriteLine($"Video property changed: {e.PropertyName}");
-            if (e.PropertyName == nameof(MediaElement.CurrentState))
-            {
-                Debug.WriteLine($"Current state: {mediaElement.CurrentState}");
-                if (mediaElement.CurrentState == MediaElementState.Failed)
-                {
-                    Debug.WriteLine("Video failed to load");
-                }
-                else if (mediaElement.CurrentState == MediaElementState.Playing)
-                {
-                    Debug.WriteLine("Video is playing");
-                }
-            }
-        }
-
+        #region Video Handling
+        /// <summary>
+        /// Loads and displays video for current sign based on game mode
+        /// </summary>
         private async Task LoadVideoForCurrentSign()
         {
             if (_viewModel?.CurrentSign == null) return;
@@ -107,14 +94,14 @@ namespace com.kizwiz.sipnsign.Pages
                 var uri = Android.Net.Uri.Parse($"android.resource://{context.PackageName}/{resourceId}");
                 var source = MediaSource.FromUri(uri.ToString());
 #else
-        var assetPath = $"Resources/Raw/{videoFileName}";
-        var stream = await FileSystem.OpenAppPackageFileAsync(videoFileName);
-        var tempPath = Path.Combine(FileSystem.CacheDirectory, videoFileName);
-        using (var fileStream = File.Create(tempPath))
-        {
-            await stream.CopyToAsync(fileStream);
-        }
-        var source = MediaSource.FromFile(tempPath);
+                var assetPath = $"Resources/Raw/{videoFileName}";
+                var stream = await FileSystem.OpenAppPackageFileAsync(videoFileName);
+                var tempPath = Path.Combine(FileSystem.CacheDirectory, videoFileName);
+                using (var fileStream = File.Create(tempPath))
+                {
+                    await stream.CopyToAsync(fileStream);
+                }
+                var source = MediaSource.FromFile(tempPath);
 #endif
 
                 // Handle Guess Mode
@@ -153,7 +140,57 @@ namespace com.kizwiz.sipnsign.Pages
             }
         }
 
+        /// <summary>
+        /// Sets video source and updates UI visibility
+        /// </summary>
+        public void SetVideoSource(MediaSource? source)
+        {
+            if (_isDisposed || source == null) return;
 
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                try
+                {
+                    if (_sharedVideo != null)
+                    {
+                        _sharedVideo.Source = source;
+                        _sharedVideo.IsVisible = true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error setting video source: {ex.Message}");
+                }
+            });
+        }
+        #endregion
+
+        #region Event Handlers
+        /// <summary>
+        /// Handles video property changes and logs state transitions
+        /// </summary>
+        private void OnSharedVideoPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (sender is not MediaElement mediaElement) return;
+
+            Debug.WriteLine($"Video property changed: {e.PropertyName}");
+            if (e.PropertyName == nameof(MediaElement.CurrentState))
+            {
+                Debug.WriteLine($"Current state: {mediaElement.CurrentState}");
+                if (mediaElement.CurrentState == MediaElementState.Failed)
+                {
+                    Debug.WriteLine("Video failed to load");
+                }
+                else if (mediaElement.CurrentState == MediaElementState.Playing)
+                {
+                    Debug.WriteLine("Video is playing");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handles video open event and starts playback
+        /// </summary>
         private void OnMediaOpened(object sender, EventArgs e)
         {
             Debug.WriteLine($"Media opened successfully");
@@ -163,6 +200,7 @@ namespace com.kizwiz.sipnsign.Pages
                 mediaElement.Play();
             }
         }
+        #endregion
 
         private void OnMediaFailed(object sender, EventArgs e)
         {
@@ -177,32 +215,6 @@ namespace com.kizwiz.sipnsign.Pages
         private void OnMediaEnded(object sender, EventArgs e)
         {
             Debug.WriteLine($"Media playback ended: {(sender as MediaElement)?.Source}");
-        }
-
-        private async Task SafeVideoOperation(Func<Task> operation)
-        {
-            if (_isDisposed) return;
-
-            try
-            {
-                await _cleanupLock.WaitAsync();
-                if (!_isDisposed)
-                {
-                    await operation();
-                }
-            }
-            catch (ObjectDisposedException)
-            {
-                // Ignore
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error in video operation: {ex.Message}");
-            }
-            finally
-            {
-                _cleanupLock.Release();
-            }
         }
 
         private void OnSignRevealRequested(object? sender, EventArgs e)
@@ -238,34 +250,12 @@ namespace com.kizwiz.sipnsign.Pages
             }
         }
 
+        #region Lifecycle Methods
         protected override void OnAppearing()
         {
             base.OnAppearing();
             _isDisposed = false;
         }
-
-        public void SetVideoSource(MediaSource? source)
-        {
-            if (_isDisposed || source == null) return;
-
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                try
-                {
-                    if (_sharedVideo != null)
-                    {
-                        _sharedVideo.Source = source;
-                        _sharedVideo.IsVisible = true;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Error setting video source: {ex.Message}");
-                }
-            });
-        }
-
-        private bool IsGuessMode => _viewModel.CurrentMode == GameMode.Guess;
 
         protected override void OnDisappearing()
         {
@@ -297,6 +287,7 @@ namespace com.kizwiz.sipnsign.Pages
                 base.OnDisappearing();
             }
         }
+        #endregion
 
         // Connect this method to the ViewModel's property changes
         private void ConnectToViewModel()
@@ -332,10 +323,30 @@ namespace com.kizwiz.sipnsign.Pages
             }
         }
 
+        #region Game Controls
+        /// <summary>
+        /// Processes user answer selection
+        /// </summary>
+        private void HandleAnswer(string answer)
+        {
+            _viewModel.HandleAnswer(answer);
+        }
+
+        /// <summary>
+        /// Reveals sign video in perform mode
+        /// </summary> 
+        private void RevealSign()
+        {
+            _viewModel.RevealSign();
+        }
+        /// <summary>
+        /// Ends current game session
+        /// </summary>
         public void EndGame()
         {
             _viewModel?.EndGame();
         }
+        #endregion
 
         private void OnQuestionsCountChanged(object sender, ValueChangedEventArgs e)
         {

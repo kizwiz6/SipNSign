@@ -6,14 +6,14 @@ using System.Diagnostics;
 
 namespace com.kizwiz.sipnsign.ViewModels
 {
+    /// <summary>
+    /// View model for managing user progress and achievements display
+    /// </summary>
     public class ProgressViewModel : INotifyPropertyChanged
     {
+        #region Fields
         private readonly IProgressService _progressService;
         private UserProgress _userProgress;
-
-        public ObservableCollection<ActivityItem> RecentActivities { get; private set; }
-        public ObservableCollection<AchievementItem> Achievements { get; private set; }
-
         private int _signsLearned;
         public int SignsLearned
         {
@@ -57,8 +57,6 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
 
-        public string AccuracyDisplay => $"{Accuracy:P0}";
-
         private TimeSpan _practiceTime;
         public TimeSpan PracticeTime
         {
@@ -73,6 +71,18 @@ namespace com.kizwiz.sipnsign.ViewModels
                 }
             }
         }
+        #endregion
+
+        #region Properties
+        public ObservableCollection<ActivityItem> RecentActivities { get; private set; }
+        public ObservableCollection<AchievementItem> Achievements { get; private set; }
+        #endregion
+
+
+
+        public string AccuracyDisplay => $"{Accuracy:P0}";
+
+        
 
         public string PracticeTimeDisplay
         {
@@ -84,6 +94,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
 
+        #region Constructor
         public ProgressViewModel(IProgressService progressService)
         {
             _progressService = progressService ?? throw new ArgumentNullException(nameof(progressService));
@@ -96,13 +107,20 @@ namespace com.kizwiz.sipnsign.ViewModels
                 Activities = new List<ActivityLog>()
             };
         }
+        #endregion
 
+        #region Public Methods
+        /// <summary>
+        /// Loads and updates user progress data
+        /// </summary>
         public async Task LoadProgressAsync()
         {
             _userProgress = await _progressService.GetUserProgressAsync();
             UpdateUI();
         }
+        #endregion
 
+        #region Private Methods
         private void UpdateUI()
         {
             SignsLearned = _userProgress.SignsLearned;
@@ -197,40 +215,14 @@ namespace com.kizwiz.sipnsign.ViewModels
                 return $"{timeSpan.Days}d ago";
             return timestamp.ToString("MMM dd");
         }
+        #endregion
 
+        #region Event Handlers
         public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
-        public double OverallProgressPercentage
-        {
-            get
-            {
-                if (_userProgress?.Achievements == null || !_userProgress.Achievements.Any())
-                    return 0;
-
-                double totalProgress = 0;
-                var achievementsCount = _userProgress.Achievements.Count;
-
-                foreach (var achievement in _userProgress.Achievements)
-                {
-                    if (achievement.IsUnlocked)
-                    {
-                        totalProgress += 1.0;
-                    }
-                    else if (achievement.ProgressRequired > 0)
-                    {
-                        var currentProgress = (double)achievement.ProgressCurrent / achievement.ProgressRequired;
-                        totalProgress += Math.Min(currentProgress, 1.0); // Cap at 100%
-                    }
-                }
-
-                return totalProgress / achievementsCount;
-            }
-        }
-
-        public string OverallProgressText => $"{(OverallProgressPercentage * 100):F0}% Complete";
+        #endregion
     }
 }
