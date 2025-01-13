@@ -164,16 +164,16 @@ namespace com.kizwiz.sipnsign.ViewModels
 
                 var iconPath = $"{icon}.svg";
 
-                // Calculate progress text
-                var progressText = achievement.Id switch
+                // Calculate progress text only if achievement is not unlocked
+                var progressText = !achievement.IsUnlocked ? achievement.Id switch
                 {
-                    "SIGNS_50" => $"Learn 50 signs ({_userProgress.SignsLearned}/50)",
-                    "SIGNS_100" => $"Learn 100 signs ({_userProgress.SignsLearned}/100)",
-                    "PRACTICE_HOURS_10" => $"Practice for 10 hours ({(int)_userProgress.TotalPracticeTime.TotalHours}/10)",
-                    "STREAK_7" => $"Practice for 7 consecutive days ({_userProgress.CurrentStreak}/7)",
-                    "STREAK_30" => $"Practice for 30 consecutive days ({_userProgress.CurrentStreak}/30)",
-                    _ => $"{achievement.Description} ({achievement.ProgressCurrent}/{achievement.ProgressRequired})"
-                };
+                    "SIGNS_50" => $"Learn 50 signs ({Math.Min(_userProgress.SignsLearned, 50)}/50)",
+                    "SIGNS_100" => $"Learn 100 signs ({Math.Min(_userProgress.SignsLearned, 100)}/100)",
+                    "PRACTICE_HOURS_10" => $"Practice for 10 hours ({Math.Min((int)_userProgress.TotalPracticeTime.TotalHours, 10)}/10)",
+                    "STREAK_7" => $"Practice for 7 consecutive days ({Math.Min(_userProgress.CurrentStreak, 7)}/7)",
+                    "STREAK_30" => $"Practice for 30 consecutive days ({Math.Min(_userProgress.CurrentStreak, 30)}/30)",
+                    _ => $"{achievement.Description} ({Math.Min(achievement.ProgressCurrent, achievement.ProgressRequired)}/{achievement.ProgressRequired})"
+                } : achievement.Description;
 
                 Achievements.Add(new AchievementItem
                 {
