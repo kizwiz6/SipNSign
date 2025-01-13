@@ -149,7 +149,7 @@
                    StrokeShape="RoundRectangle 10"
                    Shadow="{OnPlatform iOS={StaticResource DefaultShadow}}">
                 <VerticalStackLayout Spacing="10">
-                    <Label Text="Achievements"
+                    <Label Text="{Binding AchievementsHeaderText}"
                            FontSize="20"
                            FontAttributes="Bold"
                            TextColor="{DynamicResource CardText}"/>

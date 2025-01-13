@@ -76,8 +76,8 @@ namespace com.kizwiz.sipnsign.ViewModels
         #region Properties
         public ObservableCollection<ActivityItem> RecentActivities { get; private set; }
         public ObservableCollection<AchievementItem> Achievements { get; private set; }
+        public string AchievementsHeaderText => $"Achievements ({_userProgress.Achievements.Count(a => a.IsUnlocked)}/{_userProgress.Achievements.Count})";
         #endregion
-
 
 
         public string AccuracyDisplay => $"{Accuracy:P0}";
@@ -150,6 +150,8 @@ namespace com.kizwiz.sipnsign.ViewModels
                     TimeAgo = FormatTimeAgo(activity.Timestamp),
                     Score = score
                 });
+
+                OnPropertyChanged(nameof(AchievementsHeaderText));
             }
 
             Achievements.Clear();
@@ -190,7 +192,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                     Title = achievement.Title,
                     Description = progressText,
                     IsUnlocked = achievement.IsUnlocked,
-                    Progress = progress,
+                    Progress = achievement.IsUnlocked ? 1.0 : 0.0,
                     UnlockedDate = achievement.UnlockedDate
                 });
                 Debug.WriteLine($"Achievement {achievement.Title} - UnlockedDate: {achievement.UnlockedDate}");
