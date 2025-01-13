@@ -131,16 +131,24 @@ namespace com.kizwiz.sipnsign.ViewModels
             RecentActivities.Clear();
             foreach (var activity in _userProgress.Activities.OrderByDescending(a => a.Timestamp).Take(10))
             {
-                var icon = activity.Type == ActivityType.Practice && activity.Score == "+1"
-                    ? "quiz_correct_icon"
-                    : GetActivityIcon(activity.Type);
+                var icon = activity.Type switch
+                {
+                    ActivityType.Achievement => "achievement_icon",
+                    ActivityType.Practice when activity.Score == "+1" => "quiz_correct_icon",
+                    ActivityType.Practice => "quiz_incorrect_icon",
+                    ActivityType.Quiz => "quiz_icon",
+                    ActivityType.Streak => "streak_icon",
+                    _ => "quiz_icon"
+                };
+
+                var score = activity.Type == ActivityType.Achievement ? "🏆" : activity.Score;
 
                 RecentActivities.Add(new ActivityItem
                 {
-                    Icon = activity.IconName ?? icon,  // Use activity's icon if provided, otherwise use our determined icon
+                    Icon = activity.IconName ?? icon,
                     Description = activity.Description,
                     TimeAgo = FormatTimeAgo(activity.Timestamp),
-                    Score = activity.Score
+                    Score = score
                 });
             }
 
