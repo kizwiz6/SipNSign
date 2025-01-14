@@ -14,6 +14,7 @@
             <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
             <converters:BoolToOpacityConverter x:Key="BoolToOpacityConverter"/>
             <converters:BoolToTextColorConverter x:Key="BoolToTextColorConverter"/>
+            <converters:BoolToAchievementStatusConverter x:Key="BoolToAchievementStatusConverter"/>
         </ResourceDictionary>
     </ContentPage.Resources>
 
@@ -181,9 +182,9 @@
                            FontSize="12"/>
                                     </VerticalStackLayout>
                                     <Label Grid.Column="2"
-                       TextColor="{DynamicResource CardText}"
-                       Text="{Binding IsUnlocked, Converter={StaticResource BoolToOpacityConverter}}"
-                       FontAttributes="Bold"/>
+                            TextColor="{DynamicResource CardText}"
+                            Text="{Binding IsUnlocked, Converter={StaticResource BoolToAchievementStatusConverter}}"
+                            FontAttributes="Bold"/>
                                 </Grid>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
