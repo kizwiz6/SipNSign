@@ -281,7 +281,7 @@ namespace com.kizwiz.sipnsign.Services
                     Id = "STREAK_7",
                     Title = "Week Warrior",
                     Description = "Practice for 7 consecutive days",
-                    IconName = "streak_icon",
+                    IconName = "streak_weekly_icon",
                     ProgressRequired = 7
                 },
                 new Achievement
@@ -289,7 +289,7 @@ namespace com.kizwiz.sipnsign.Services
                     Id = "SIGNS_50",
                     Title = "Sign Master",
                     Description = "Learn 50 signs",
-                    IconName = "practice_icon",
+                    IconName = "fifty_signs_icon",
                     ProgressRequired = 50
                 },
                 new Achievement
@@ -313,7 +313,7 @@ namespace com.kizwiz.sipnsign.Services
                     Id = "STREAK_30",
                     Title = "Monthly Master",
                     Description = "Practice for 30 consecutive days",
-                    IconName = "streak_icon",
+                    IconName = "streak_monthly_icon",
                     ProgressRequired = 30
                 },
                 new Achievement
@@ -337,7 +337,7 @@ namespace com.kizwiz.sipnsign.Services
                     Id = "SIGNS_100_GUESS",
                     Title = "Guess Master",
                     Description = "Get 100 signs correct in Guess Mode",
-                    IconName = "mastery_icon",
+                    IconName = "guess_mastery_100.svg",
                     ProgressRequired = 100
                 },
                 new Achievement
@@ -553,16 +553,16 @@ namespace com.kizwiz.sipnsign.Services
                 string iconName = achievement.Id switch
                 {
                     "FIRST_SIGN" => "first_sign_icon",
-                    "STREAK_7" => "streak_icon",
-                    "STREAK_30" => "streak_icon",
-                    "SIGNS_50" => "mastery_icon",
+                    "STREAK_7" => "streak_weekly_icon",
+                    "STREAK_30" => "streak_monthly_icon",
+                    "SIGNS_50" => "50_signs_icon.svg",
                     "SIGNS_100" => "mastery_icon",
                     "QUIZ_PERFECT" => "quiz_icon",
                     "PRACTICE_HOURS_10" => "time_icon",
                     "PARTY_STARTER" => "party_icon",
                     "SOCIAL_BUTTERFLY" => "social_icon",
                     "RAPID_FIRE" => "speed_icon",
-                    "SPEED_MASTER" => "lightning_icon",
+                    "SPEED_MASTER" => "speed_master_icon",
                     _ => "achievement_icon"  // Default case (underscore, not asterisk)
                 };
 

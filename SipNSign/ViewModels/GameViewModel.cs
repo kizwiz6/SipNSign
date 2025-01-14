@@ -1038,7 +1038,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                         Id = Guid.NewGuid().ToString(),
                         Type = ActivityType.Practice,
                         Description = "Guess Mode completed with average time under 3 seconds",
-                        IconName = "lightning_icon",
+                        IconName = "speed_master_icon",
                         Timestamp = DateTime.Now
                     });
                 }
