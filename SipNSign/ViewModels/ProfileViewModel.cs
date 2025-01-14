@@ -9,7 +9,7 @@ namespace com.kizwiz.sipnsign.ViewModels
     /// <summary>
     /// View model for managing user progress and achievements display
     /// </summary>
-    public class ProgressViewModel : INotifyPropertyChanged
+    public class ProfileViewModel : INotifyPropertyChanged
     {
         #region Fields
         private readonly IProgressService _progressService;
@@ -95,7 +95,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         }
 
         #region Constructor
-        public ProgressViewModel(IProgressService progressService)
+        public ProfileViewModel(IProgressService progressService)
         {
             _progressService = progressService ?? throw new ArgumentNullException(nameof(progressService));
             RecentActivities = new ObservableCollection<ActivityItem>();

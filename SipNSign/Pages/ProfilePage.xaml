@@ -4,10 +4,10 @@
              xmlns:models="clr-namespace:com.kizwiz.sipnsign.Models"
              xmlns:viewmodels="clr-namespace:com.kizwiz.sipnsign.ViewModels"
              xmlns:converters="clr-namespace:com.kizwiz.sipnsign.Converters"
-             x:DataType="viewmodels:ProgressViewModel"
-             x:Class="com.kizwiz.sipnsign.Pages.ProgressPage"
+             x:DataType="viewmodels:ProfileViewModel"
+             x:Class="com.kizwiz.sipnsign.Pages.ProfilePage"
              Style="{StaticResource AppPageStyle}"
-             Title="Progress">
+             Title="Profile">
 
     <ContentPage.Resources>
         <ResourceDictionary>

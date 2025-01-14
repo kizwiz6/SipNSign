@@ -50,9 +50,9 @@
         ContentTemplate="{DataTemplate local:SettingsPage}"
         Route="SettingsPage" />
 
-    <!-- Progress Page -->
+    <!-- Profile Page -->
     <ShellContent
-        Title="Progress"
-        ContentTemplate="{DataTemplate local:ProgressPage}"
-        Route="ProgressPage" />
+        Title="Profile"
+        ContentTemplate="{DataTemplate local:ProfilePage}"
+        Route="profile" />
 </Shell>

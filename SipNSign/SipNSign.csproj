@@ -122,8 +122,8 @@
 		<MauiXaml Remove="**/*.xaml" />
 	</ItemGroup>
   <ItemGroup>
-    <Compile Update="Pages\ProgressPage.xaml.cs">
-      <DependentUpon>ProgressPage.xaml</DependentUpon>
+    <Compile Update="Pages\ProfilePage.xaml.cs">
+      <DependentUpon>ProfilePage.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -159,7 +159,7 @@
     <MauiXaml Update="Pages\AchievementDetailsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
-    <MauiXaml Update="Pages\ProgressPage.xaml">
+    <MauiXaml Update="Pages\ProfilePage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
     <MauiXaml Update="Resources\Styles\SplashScreen.xaml">

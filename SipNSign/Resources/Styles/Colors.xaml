@@ -97,7 +97,7 @@
     <!-- App Mode Colors -->
     <Color x:Key="GuessMode">#007BFF</Color>
     <Color x:Key="PerformMode">#28a745</Color>
-    <Color x:Key="Progress">#FFC107</Color>
+    <Color x:Key="Profile">#FFC107</Color>
     <Color x:Key="Settings">#FF5722</Color>
     <Color x:Key="GameOver">#6200EE</Color>
 

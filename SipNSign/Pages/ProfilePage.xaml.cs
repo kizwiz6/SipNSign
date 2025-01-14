@@ -8,21 +8,21 @@ namespace com.kizwiz.sipnsign.Pages;
 /// <summary>
 /// Displays user progress, achievements and activity history
 /// </summary>
-public partial class ProgressPage : ContentPage
+public partial class ProfilePage : ContentPage
 {
-    private readonly ProgressViewModel _viewModel;
+    private readonly ProfileViewModel _viewModel;
     private bool _isNavigating = false;
 
     /// <summary>
     /// Initializes a new instance of ProgressPage
     /// </summary>
     /// <param name="progressService">Service to manage user progress data</param>
-    public ProgressPage(IProgressService progressService)
+    public ProfilePage(IProgressService progressService)
     {
         try
         {
             InitializeComponent();
-            _viewModel = new ProgressViewModel(progressService);
+            _viewModel = new ProfileViewModel(progressService);
             BindingContext = _viewModel;
         }
         catch (Exception ex)

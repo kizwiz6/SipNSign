@@ -190,8 +190,8 @@ namespace com.kizwiz.sipnsign.Pages
                 Debug.WriteLine("OnViewScoresClicked started");
 
                 var progressService = _progressService ?? _serviceProvider.GetRequiredService<IProgressService>();
-                var progressPage = new ProgressPage(progressService);
-                await Navigation.PushAsync(progressPage);
+                var profilePage = new ProfilePage(progressService);
+                await Navigation.PushAsync(profilePage);
             }
             catch (Exception ex)
             {
