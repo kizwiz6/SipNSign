@@ -236,9 +236,9 @@
         </Grid>
         <!-- Game Over Screen Overlay -->
         <Grid IsVisible="{Binding IsGameOver}" 
-      InputTransparent="False" 
-      ZIndex="99"
-      Grid.RowSpan="3">
+              InputTransparent="False" 
+              ZIndex="99"
+              Grid.RowSpan="3">
             <!-- Theme background gradient -->
             <Grid.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
@@ -249,34 +249,30 @@
 
             <!-- Game Over card -->
             <Border Margin="20"
-           BackgroundColor="{DynamicResource Primary}"
-           Opacity="0.95"
-           VerticalOptions="Center"
-           HorizontalOptions="Fill"
-           StrokeShape="RoundRectangle 20">
+            BackgroundColor="{DynamicResource CardBackground}"
+            Opacity="0.95"
+            VerticalOptions="Center"
+            HorizontalOptions="Fill"
+            StrokeShape="RoundRectangle 20">
                 <VerticalStackLayout Spacing="20" Padding="20">
                     <Label Text="Game Over!"
-                   TextColor="White"
+                   TextColor="{DynamicResource CardText}"
                    FontSize="32"
                    FontAttributes="Bold"
                    HorizontalOptions="Center"/>
 
                     <Label Text="{Binding GuessResults}"
-                       TextColor="White"
-                       FontSize="24"
-                       HorizontalOptions="Center"/>
+                   TextColor="{DynamicResource CardText}"
+                   FontSize="24"
+                   HorizontalOptions="Center"/>
 
                     <Button Text="Play Again"
                     Command="{Binding PlayAgainCommand}"
-                    Style="{StaticResource PrimaryButton}"
-                    BackgroundColor="White"
-                    TextColor="{DynamicResource Primary}"/>
+                    Style="{StaticResource PrimaryButton}"/>
 
                     <Button Text="Adjust Questions in Settings"
                     Command="{Binding GoToSettingsCommand}"
                     Style="{StaticResource PrimaryButton}"
-                    BackgroundColor="White"
-                    TextColor="{DynamicResource Primary}"
                     FontSize="14"/>
                 </VerticalStackLayout>
             </Border>

@@ -133,21 +133,34 @@ namespace com.kizwiz.sipnsign.Pages
         {
             MainThread.BeginInvokeOnMainThread(() =>
             {
-                if (Application.Current?.Resources == null) return;
-                var mainLayout = this.FindByName<VerticalStackLayout>("MainLayout");
-                if (mainLayout != null)
+                try
                 {
-                    foreach (var child in mainLayout.Children)
+                    if (Application.Current?.Resources == null) return;
+
+                    var mainLayout = this.FindByName<VerticalStackLayout>("MainLayout");
+                    if (mainLayout != null)
                     {
-                        if (child is Button button && !string.IsNullOrEmpty(button.StyleId))
+                        // Create a snapshot of the children to avoid enumeration issues
+                        var buttons = mainLayout.Children.OfType<Button>().ToList();
+
+                        foreach (var button in buttons)
                         {
-                            if (Application.Current.Resources.TryGetValue(button.StyleId, out var colorValue) &&
-                                colorValue is Color color)
+                            if (!string.IsNullOrEmpty(button.StyleId))
                             {
-                                button.BackgroundColor = color;
+                                Debug.WriteLine($"Refreshing button: {button.StyleId}");
+                                if (Application.Current.Resources.TryGetValue(button.StyleId, out var colorValue) &&
+                                    colorValue is Color color)
+                                {
+                                    button.BackgroundColor = color;
+                                }
                             }
                         }
                     }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error in ForceRefresh: {ex.Message}");
+                    Debug.WriteLine($"Stack trace: {ex.StackTrace}");
                 }
             });
         }
