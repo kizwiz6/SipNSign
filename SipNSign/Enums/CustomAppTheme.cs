@@ -10,6 +10,7 @@
         Light,
         Sunset,
         Forest,
+        Space,
         Ocean,
         Neon,
         Monochrome

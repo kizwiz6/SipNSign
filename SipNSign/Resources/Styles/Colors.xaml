@@ -4,7 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <!-- Theme Colors - Define these first -->
+    <!-- Theme Colors -->
     <!-- Blue Theme -->
     <Color x:Key="BlueBackground1">#1a237e</Color>
     <Color x:Key="BlueBackground2">#0d47a1</Color>
@@ -12,7 +12,7 @@
     <Color x:Key="BlueSecondary">#FFD95B</Color>
     <Color x:Key="BlueText">White</Color>
 
-    <!-- Dark Theme - Let's add some nice purple accents -->
+    <!-- Dark Theme -->
     <Color x:Key="DarkBackground1">#121212</Color>
     <Color x:Key="DarkBackground2">#1E1E1E</Color>
     <Color x:Key="DarkPrimary">#BB86FC</Color>

@@ -1033,15 +1033,23 @@ namespace com.kizwiz.sipnsign.ViewModels
                 // For Speed Master achievement (Guess Mode)
                 if (CurrentMode == GameMode.Guess && _averageAnswerTime < 3.0)
                 {
-                    await _progressService.LogActivityAsync(new ActivityLog
+                    // Check if Speed Master achievement is already unlocked
+                    var speedMasterAchievement = _userProgress?.Achievements
+                        .FirstOrDefault(a => a.Id == "SPEED_MASTER");
+
+                    // Only log if achievement isn't already unlocked
+                    if (speedMasterAchievement != null && !speedMasterAchievement.IsUnlocked)
                     {
-                        Id = Guid.NewGuid().ToString(),
-                        Type = ActivityType.Practice,
-                        Description = "Guess Mode completed with average time under 3 seconds",
-                        IconName = "speed_master_icon",
-                        Timestamp = DateTime.Now
-                    });
-                    await _progressService.UpdateAchievementsAsync();
+                        await _progressService.LogActivityAsync(new ActivityLog
+                        {
+                            Id = Guid.NewGuid().ToString(),
+                            Type = ActivityType.Practice,
+                            Description = "Guess Mode completed with average time under 3 seconds",
+                            IconName = "speed_master_icon",
+                            Timestamp = DateTime.Now
+                        });
+                        await _progressService.UpdateAchievementsAsync();
+                    }
                 }
             }
         }

@@ -398,8 +398,8 @@ namespace com.kizwiz.sipnsign.Services
                     Id = "SPEED_MASTER",
                     Title = "Speed Master",
                     Description = "Complete a 100 Guess Mode session with average time under 3 seconds",
-                    IconName = "lightning_icon",
-                    ProgressRequired = 100
+                    IconName = "speed_master_icon",
+                    ProgressRequired = 1
                 }
             };
         }

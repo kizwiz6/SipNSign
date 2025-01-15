@@ -163,6 +163,7 @@
                                 <x:String>Ocean</x:String>
                                 <x:String>Neon</x:String>
                                 <x:String>Monochrome</x:String>
+                                <x:String>Space</x:String>
                             </x:Array>
                         </Picker.ItemsSource>
                     </Picker>
