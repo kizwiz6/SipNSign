@@ -144,6 +144,12 @@ namespace com.kizwiz.sipnsign.Pages
             // Convert seconds to milliseconds
             int delayMs = (int)(e.NewValue * 1000);
             Preferences.Set(Constants.INCORRECT_DELAY_KEY, delayMs);
+
+            // Update the label text
+            if (DelayValueLabel != null)
+            {
+                DelayValueLabel.Text = $"{(int)e.NewValue} seconds";
+            }
         }
 
         private void OnTimerDurationChanged(object sender, ValueChangedEventArgs e)

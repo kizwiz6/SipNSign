@@ -121,21 +121,21 @@
                        TextColor="{DynamicResource CardText}"
                        FontSize="14"/>
 
-                    <!-- Answer Delay -->
+                    <!-- Feedback Duration -->
                     <Label Text="Feedback Duration"
-                       TextColor="{DynamicResource CardText}"
-                       FontAttributes="Bold"/>
+       TextColor="{DynamicResource CardText}"
+       FontAttributes="Bold"/>
                     <Label Text="{Binding Source={x:Reference DelaySlider}, Path=Value, StringFormat='{0:F0} seconds'}"
-                       TextColor="{DynamicResource CardText}"
-                       HorizontalOptions="Center"/>
+       TextColor="{DynamicResource CardText}"
+       FontSize="14"
+       HorizontalOptions="Center"
+       Margin="0,5,0,10"
+       x:Name="DelayValueLabel"/>
                     <Slider x:Name="DelaySlider"
-                        Minimum="2"
-                        Maximum="10"
-                        Value="5"
-                        ValueChanged="OnDelaySliderChanged"/>
-                    <Label Text="How long to show feedback for correct and incorrect answers"
-                       TextColor="{DynamicResource CardText}"
-                       FontSize="14"/>
+        Minimum="2"
+        Maximum="10"
+        Value="5"
+        ValueChanged="OnDelaySliderChanged"/>
                 </VerticalStackLayout>
             </Border>
 

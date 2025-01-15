@@ -1041,6 +1041,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                         IconName = "speed_master_icon",
                         Timestamp = DateTime.Now
                     });
+                    await _progressService.UpdateAchievementsAsync();
                 }
             }
         }

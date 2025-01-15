@@ -150,6 +150,8 @@ namespace com.kizwiz.sipnsign.Services
                         }
                         break;
 
+                    
+
                     case "PARTY_STARTER" when !achievement.IsUnlocked:
                         // Count completed Perform mode sessions
                         var performSessions = _currentProgress.Activities
@@ -189,13 +191,12 @@ namespace com.kizwiz.sipnsign.Services
                         break;
 
                     case "SPEED_MASTER" when !achievement.IsUnlocked:
-                        // Check for completed sessions with average time under 3 seconds
-                        var fastSessions = _currentProgress.Activities
-                            .Count(a => a.Type == ActivityType.Practice &&
-                                       a.Description.Contains("Guess Mode completed") &&
-                                       a.Description.Contains("average time under 3 seconds"));
-                        achievement.ProgressCurrent = fastSessions;
-                        if (fastSessions >= 100)
+                        // Check for at least one completed session with average time under 3 seconds
+                        var hasFastSession = _currentProgress.Activities
+                            .Any(a => a.Type == ActivityType.Practice &&
+                                     a.Description.Contains("Guess Mode completed with average time under 3 seconds"));
+                        achievement.ProgressCurrent = hasFastSession ? 1 : 0;
+                        if (hasFastSession)
                         {
                             await UnlockAchievement(achievement);
                         }

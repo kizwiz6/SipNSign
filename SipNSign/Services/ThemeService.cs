@@ -199,7 +199,7 @@ namespace com.kizwiz.sipnsign.Services
                 resources["Secondary"] = themeColors.Secondary;
                 resources["GuessMode"] = themeColors.MenuButton1;
                 resources["PerformMode"] = themeColors.MenuButton2;
-                resources["Progress"] = themeColors.MenuButton3;
+                resources["Profile"] = themeColors.MenuButton3;
                 resources["Settings"] = themeColors.MenuButton4;
                 resources["AnswerButton"] = themeColors.AnswerButton;
                 resources["CardBackground"] = themeColors.CardBackground;
