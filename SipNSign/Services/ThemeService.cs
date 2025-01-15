@@ -12,6 +12,9 @@ namespace com.kizwiz.sipnsign.Services
         private const string THEME_KEY = "app_theme";
         public event EventHandler? ThemeChanged;
 
+        private readonly Dictionary<CustomAppTheme, Dictionary<string, object>> _themeCache
+       = new Dictionary<CustomAppTheme, Dictionary<string, object>>();
+
         /// <summary>
         /// Theme color definitions with complementary button/text colors
         /// </summary>
@@ -163,6 +166,28 @@ namespace com.kizwiz.sipnsign.Services
             }
         };
 
+        private void CacheThemeResources(CustomAppTheme theme, ThemeColors colors)
+        {
+            if (!_themeCache.ContainsKey(theme))
+            {
+                _themeCache[theme] = new Dictionary<string, object>
+                {
+                    ["AppBackground1"] = colors.Background1,
+                    ["AppBackground2"] = colors.Background2,
+                    ["Primary"] = colors.Primary,
+                    ["Secondary"] = colors.Secondary,
+                    ["GuessMode"] = colors.MenuButton1,
+                    ["PerformMode"] = colors.MenuButton2,
+                    ["Profile"] = colors.MenuButton3,
+                    ["Settings"] = colors.MenuButton4,
+                    ["AnswerButton"] = colors.AnswerButton,
+                    ["CardBackground"] = colors.CardBackground,
+                    ["CardText"] = colors.CardText,
+                    ["CurrentThemeBackground"] = $"Themes/{colors.BackgroundImage}"
+                };
+            }
+        }
+
         /// <summary>
         /// Gets current theme colors based on saved preferences
         /// </summary>
@@ -174,17 +199,12 @@ namespace com.kizwiz.sipnsign.Services
         /// <param name="theme">The theme to set for the application.</param>
         public void SetTheme(CustomAppTheme theme)
         {
-            // Save the selected theme to preferences
             Preferences.Set(THEME_KEY, theme.ToString());
 
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 var resources = Application.Current?.Resources;
-                if (resources == null)
-                {
-                    Debug.WriteLine("Application resources are null. Theme update aborted.");
-                    return;
-                }
+                if (resources == null) return;
 
                 if (!ThemeDefinitions.TryGetValue(theme, out var themeColors))
                 {
@@ -192,22 +212,14 @@ namespace com.kizwiz.sipnsign.Services
                     return;
                 }
 
-                // Update theme-related resources
-                resources["AppBackground1"] = themeColors.Background1;
-                resources["AppBackground2"] = themeColors.Background2;
-                resources["Primary"] = themeColors.Primary;
-                resources["Secondary"] = themeColors.Secondary;
-                resources["GuessMode"] = themeColors.MenuButton1;
-                resources["PerformMode"] = themeColors.MenuButton2;
-                resources["Profile"] = themeColors.MenuButton3;
-                resources["Settings"] = themeColors.MenuButton4;
-                resources["AnswerButton"] = themeColors.AnswerButton;
-                resources["CardBackground"] = themeColors.CardBackground;
-                resources["CardText"] = themeColors.CardText;
+                // Cache theme resources if not already cached
+                CacheThemeResources(theme, themeColors);
 
-                // Set the background image resource
-                resources["CurrentThemeBackground"] = $"Themes/{themeColors.BackgroundImage}";
-                Debug.WriteLine($"Theme '{theme}' applied with AnswerButton color: {themeColors.AnswerButton} and background image: {themeColors.BackgroundImage}");
+                // Apply cached resources
+                foreach (var resource in _themeCache[theme])
+                {
+                    resources[resource.Key] = resource.Value;
+                }
 
                 // Update Shell background
                 if (Shell.Current != null)
@@ -215,29 +227,15 @@ namespace com.kizwiz.sipnsign.Services
                     Shell.Current.BackgroundColor = themeColors.ShellBackground;
                 }
 
-                // Refresh the UI for Shell and MainPage
+                // Update UI
                 if (Application.Current?.MainPage is Shell shell)
                 {
                     shell.ForceLayout();
-
-                    // Refresh MainMenuPage if present
                     var mainPage = shell.Navigation?.NavigationStack
                         .FirstOrDefault(page => page is MainMenuPage) as MainMenuPage;
-
                     mainPage?.Dispatcher.Dispatch(mainPage.ForceRefresh);
                 }
 
-                // Update all pages in the navigation stack
-                var navigation = Application.Current?.MainPage?.Navigation;
-                if (navigation != null)
-                {
-                    foreach (var page in navigation.NavigationStack.OfType<MainMenuPage>())
-                    {
-                        page.Dispatcher.Dispatch(page.ForceRefresh);
-                    }
-                }
-
-                // Notify listeners that the theme has changed
                 ThemeChanged?.Invoke(this, EventArgs.Empty);
             });
         }
