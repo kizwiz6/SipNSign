@@ -1131,6 +1131,15 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
 
+        public void Cleanup()
+        {
+            if (_timer != null)
+            {
+                _timer.Stop();
+                _timer = null;
+            }
+        }
+
         public required MediaSource CurrentVideoSource { get; set; }
         public ICommand GoToSettingsCommand => new Command(async () =>
         {

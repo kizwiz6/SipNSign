@@ -249,9 +249,21 @@ namespace com.kizwiz.sipnsign.Services
                 if (Application.Current?.MainPage is Shell shell)
                 {
                     shell.ForceLayout();
+
                     var mainPage = shell.Navigation?.NavigationStack
                         .FirstOrDefault(page => page is MainMenuPage) as MainMenuPage;
-                    mainPage?.Dispatcher.Dispatch(mainPage.ForceRefresh);
+
+                    if (mainPage != null)
+                    {
+                        // Immediate refresh
+                        mainPage.ForceRefresh();
+
+                        // Delayed refreshes to ensure update
+                        mainPage.Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(50), () => mainPage.ForceRefresh());
+                        mainPage.Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(100), () => mainPage.ForceRefresh());
+                    }
+
+                    shell.BackgroundColor = themeColors.ShellBackground;
                 }
 
                 ThemeChanged?.Invoke(this, EventArgs.Empty);

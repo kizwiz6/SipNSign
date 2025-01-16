@@ -311,9 +311,21 @@ namespace com.kizwiz.sipnsign.Pages
         {
             try
             {
-                _isDisposed = true;
-                await CleanupMediaElements();
-                _viewModel.SignRevealRequested -= OnSignRevealRequested;
+                ViewModel?.Cleanup();
+
+                if (_sharedVideo != null)
+                {
+                    _sharedVideo.Handler?.DisconnectHandler();
+                    _sharedVideo = null;
+                }
+
+                if (PerformVideo != null)
+                {
+                    PerformVideo.Handler?.DisconnectHandler();
+                    PerformVideo = null;
+                }
+
+                await Task.Delay(100); // Give time for cleanup
             }
             catch (Exception ex)
             {

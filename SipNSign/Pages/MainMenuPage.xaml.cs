@@ -103,8 +103,9 @@ namespace com.kizwiz.sipnsign.Pages
         protected override void OnAppearing()
         {
             base.OnAppearing();
-
             _themeService.ThemeChanged += OnThemeChanged;
+            // Force initial refresh
+            ForceRefresh();
         }
 
         protected override void OnDisappearing()
@@ -113,20 +114,40 @@ namespace com.kizwiz.sipnsign.Pages
             _themeService.ThemeChanged -= OnThemeChanged;
         }
 
-        public void OnThemeChanged(object sender, EventArgs e)
+        private void OnThemeChanged(object sender, EventArgs e)
         {
-            var mainLayout = this.FindByName<VerticalStackLayout>("MainLayout");
-            if (mainLayout != null)
+            MainThread.BeginInvokeOnMainThread(() =>
             {
-                foreach (var child in mainLayout.Children)
+                try
                 {
-                    if (child is Button button)
+                    var mainLayout = this.FindByName<VerticalStackLayout>("MainLayout");
+                    if (mainLayout == null) return;
+
+                    var buttons = new[] { "GuessMode", "PerformMode", "Profile", "Settings" };
+                    foreach (var styleId in buttons)
                     {
-                        button.BackgroundColor = null; // Clear cached color
-                        button.BackgroundColor = (Color)Application.Current.Resources[button.StyleId]; // Reapply from resources
+                        // Safely get resource value
+                        if (Application.Current != null &&
+                            Application.Current.Resources.TryGetValue(styleId, out object resourceValue) &&
+                            resourceValue is Color themeColor)
+                        {
+                            var button = mainLayout.Children
+                                .OfType<Button>()
+                                .FirstOrDefault(b => b.StyleId == styleId);
+
+                            if (button != null)
+                            {
+                                button.BackgroundColor = themeColor;
+                                Debug.WriteLine($"Updated {styleId} button color to {themeColor}");
+                            }
+                        }
                     }
                 }
-            }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error updating theme: {ex.Message}");
+                }
+            });
         }
 
         public void ForceRefresh()
@@ -140,7 +161,6 @@ namespace com.kizwiz.sipnsign.Pages
                     var mainLayout = this.FindByName<VerticalStackLayout>("MainLayout");
                     if (mainLayout != null)
                     {
-                        // Create a snapshot of the children to avoid enumeration issues
                         var buttons = mainLayout.Children.OfType<Button>().ToList();
 
                         foreach (var button in buttons)
@@ -151,6 +171,8 @@ namespace com.kizwiz.sipnsign.Pages
                                 if (Application.Current.Resources.TryGetValue(button.StyleId, out var colorValue) &&
                                     colorValue is Color color)
                                 {
+                                    // Force color update by briefly setting to null then new color
+                                    button.BackgroundColor = null;
                                     button.BackgroundColor = color;
                                 }
                             }
