@@ -306,7 +306,7 @@ namespace com.kizwiz.sipnsign.Services
                     Id = "SIGNS_100_GUESS",
                     Title = "Guess Master",
                     Description = "Got 100 signs correct in Guess Mode",
-                    IconName = "guess_mastery_100_icon",
+                    IconName = "guess_100_icon",
                     ProgressRequired = 100
                 },
                 new Achievement
@@ -314,7 +314,7 @@ namespace com.kizwiz.sipnsign.Services
                     Id = "SIGNS_1000_GUESS",
                     Title = "Ultimate Guesser",
                     Description = "Got 1000 signs correct in Guess Mode",
-                    IconName = "mastery_icon",
+                    IconName = "guess_1000_icon",
                     ProgressRequired = 1000
                 },
                 new Achievement
@@ -322,7 +322,7 @@ namespace com.kizwiz.sipnsign.Services
                     Id = "SIGNS_100_PERFORM",
                     Title = "Performance Pro",
                     Description = "Successfully performed 100 signs",
-                    IconName = "mastery_icon",
+                    IconName = "perform_100_icon",
                     ProgressRequired = 100
                 },
                 new Achievement
@@ -330,7 +330,7 @@ namespace com.kizwiz.sipnsign.Services
                     Id = "SIGNS_1000_PERFORM",
                     Title = "Sign Language Star",
                     Description = "Successfully performed 1000 signs",
-                    IconName = "mastery_icon",
+                    IconName = "perform_1000_icon",
                     ProgressRequired = 1000
                 },
                 new Achievement
@@ -338,7 +338,7 @@ namespace com.kizwiz.sipnsign.Services
                     Id = "QUIZ_PERFECT",
                     Title = "Perfect Score",
                     Description = "Got 100% on a quiz",
-                    IconName = "quiz_icon",
+                    IconName = "quiz_master_icon",
                     ProgressRequired = 1
                 },
                 new Achievement
@@ -370,7 +370,7 @@ namespace com.kizwiz.sipnsign.Services
                     Id = "PERFECT_SESSION",
                     Title = "Perfect Session",
                     Description = "Got 50 signs correct in a row",
-                    IconName = "quiz_icon",
+                    IconName = "perfect_session_icon",
                     ProgressRequired = 1
                 },
                 new Achievement {
@@ -558,13 +558,13 @@ namespace com.kizwiz.sipnsign.Services
                     "STREAK_30" => "streak_monthly_icon",
                     "SIGNS_50" => "fifty_signs_icon",
                     "SIGNS_100" => "century_club_icon",
-                    "QUIZ_PERFECT" => "quiz_icon",
+                    "QUIZ_PERFECT" => "quiz_master_icon",
                     "PRACTICE_HOURS_10" => "time_icon",
-                    "SIGNS_100_GUESS" => "guess_mastery_100_icon",
-                    "SIGNS_1000_GUESS" => "mastery_icon",
-                    "SIGNS_100_PERFORM" => "practice_icon",
-                    "SIGNS_1000_PERFORM" => "mastery_icon",
-                    "PERFECT_SESSION" => "quiz_correct_icon",
+                    "SIGNS_100_GUESS" => "guess_100_icon",
+                    "SIGNS_1000_GUESS" => "guess_1000_icon",
+                    "SIGNS_100_PERFORM" => "perform_100_icon",
+                    "SIGNS_1000_PERFORM" => "perform_1000_icon",
+                    "PERFECT_SESSION" => "perfect_session_icon",
                     "PARTY_STARTER" => "party_icon",
                     "SOCIAL_BUTTERFLY" => "social_icon",
                     "RAPID_FIRE" => "speed_icon",
