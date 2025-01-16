@@ -17,6 +17,7 @@ namespace com.kizwiz.sipnsign.Pages
         #region Fields
         private readonly GameViewModel _viewModel;
         private readonly IVideoService _videoService;
+        private readonly SemaphoreSlim _videoLoadLock = new SemaphoreSlim(1, 1);
         private bool _isDisposed;
         private readonly SemaphoreSlim _cleanupLock = new(1, 1);
         private MediaElement? _sharedVideo;
@@ -72,27 +73,57 @@ namespace com.kizwiz.sipnsign.Pages
 
             try
             {
+                await _videoLoadLock.WaitAsync();
+
+
                 var videoFileName = Path.GetFileName(_viewModel.CurrentSign.VideoPath);
                 Debug.WriteLine($"Attempting to load video: {videoFileName}");
 
-#if ANDROID
-                // Get the resource ID
-                var context = Android.App.Application.Context;
-                var resourceId = context.Resources.GetIdentifier(
-                    Path.GetFileNameWithoutExtension(videoFileName).ToLower(),
-                    "raw",
-                    context.PackageName);
-
-                Debug.WriteLine($"Android resource ID: {resourceId}");
-
-                if (resourceId == 0)
+                if (_sharedVideo == null)
                 {
-                    Debug.WriteLine($"Resource not found for: {videoFileName}");
-                    return;
+                    Debug.WriteLine("Shared video is null, recreating...");
+                    _sharedVideo = this.FindByName<MediaElement>("SharedVideo");
+                    if (_sharedVideo != null)
+                    {
+                        _sharedVideo.PropertyChanged += OnSharedVideoPropertyChanged;
+                    }
                 }
 
-                var uri = Android.Net.Uri.Parse($"android.resource://{context.PackageName}/{resourceId}");
-                var source = MediaSource.FromUri(uri.ToString());
+#if ANDROID
+        var context = Android.App.Application.Context;
+        var resourceId = context.Resources.GetIdentifier(
+            Path.GetFileNameWithoutExtension(videoFileName).ToLower(),
+            "raw",
+            context.PackageName);
+
+        if (resourceId == 0)
+        {
+            Debug.WriteLine($"Resource not found for: {videoFileName}");
+            return;
+        }
+
+        var uri = Android.Net.Uri.Parse($"android.resource://{context.PackageName}/{resourceId}");
+        var source = MediaSource.FromUri(uri.ToString());
+
+        await MainThread.InvokeOnMainThreadAsync(() =>
+        {
+            try
+            {
+                if (_sharedVideo != null && !_isDisposed)
+                {
+                    _sharedVideo.Stop();
+                    _sharedVideo.Source = null;
+                    _sharedVideo.Source = source;
+                    _sharedVideo.IsVisible = true;
+                    _sharedVideo.ShouldAutoPlay = true;
+                    _sharedVideo.Play();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error setting video source: {ex.Message}");
+            }
+        });
 #else
                 var assetPath = $"Resources/Raw/{videoFileName}";
                 var stream = await FileSystem.OpenAppPackageFileAsync(videoFileName);
@@ -138,6 +169,10 @@ namespace com.kizwiz.sipnsign.Pages
                 Debug.WriteLine($"Error loading video: {ex.Message}");
                 Debug.WriteLine($"Stack trace: {ex.StackTrace}");
             }
+            finally
+            {
+                _videoLoadLock.Release();
+            }
         }
 
         /// <summary>
@@ -153,8 +188,11 @@ namespace com.kizwiz.sipnsign.Pages
                 {
                     if (_sharedVideo != null)
                     {
+                        _sharedVideo.Stop();
+                        _sharedVideo.Source = null;
                         _sharedVideo.Source = source;
                         _sharedVideo.IsVisible = true;
+                        _sharedVideo.SeekTo(TimeSpan.Zero);
                     }
                 }
                 catch (Exception ex)
@@ -194,11 +232,14 @@ namespace com.kizwiz.sipnsign.Pages
         private void OnMediaOpened(object sender, EventArgs e)
         {
             Debug.WriteLine($"Media opened successfully");
-            var mediaElement = sender as MediaElement;
-            if (mediaElement != null)
+            MainThread.BeginInvokeOnMainThread(async () =>
             {
-                mediaElement.Play();
-            }
+                var mediaElement = sender as MediaElement;
+                if (mediaElement != null)
+                {
+                    mediaElement.Play();
+                }
+            });
         }
         #endregion
 
@@ -255,32 +296,28 @@ namespace com.kizwiz.sipnsign.Pages
         {
             base.OnAppearing();
             _isDisposed = false;
+
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                if (_sharedVideo != null)
+                {
+                    _sharedVideo.Stop();
+                    _sharedVideo.Source = null;
+                }
+            });
         }
 
-        protected override void OnDisappearing()
+        protected override async void OnDisappearing()
         {
             try
             {
                 _isDisposed = true;
-
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    try
-                    {
-                        if (_sharedVideo != null)
-                        {
-                            _sharedVideo.Stop();
-                            _sharedVideo.Source = null;
-                            _sharedVideo.PropertyChanged -= OnSharedVideoPropertyChanged;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"Error cleaning up video: {ex.Message}");
-                    }
-                });
-
+                await CleanupMediaElements();
                 _viewModel.SignRevealRequested -= OnSignRevealRequested;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in OnDisappearing: {ex.Message}");
             }
             finally
             {
@@ -304,6 +341,43 @@ namespace com.kizwiz.sipnsign.Pages
                 };
             }
         }
+
+        private async Task CleanupMediaElements()
+        {
+            try
+            {
+                await _videoLoadLock.WaitAsync();
+
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    if (_sharedVideo != null)
+                    {
+                        _sharedVideo.Stop();
+                        _sharedVideo.Source = null;
+                        _sharedVideo.PropertyChanged -= OnSharedVideoPropertyChanged;
+                        _sharedVideo.Handler?.DisconnectHandler();
+                    }
+
+                    if (PerformVideo != null)
+                    {
+                        PerformVideo.Stop();
+                        PerformVideo.Source = null;
+                        PerformVideo.Handler?.DisconnectHandler();
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error cleaning up media elements: {ex.Message}");
+            }
+            finally
+            {
+                _sharedVideo = null;
+                PerformVideo = null;
+                _videoLoadLock.Release();
+            }
+        }
+
 
         private void StopVideo()
         {
@@ -344,7 +418,17 @@ namespace com.kizwiz.sipnsign.Pages
         /// </summary>
         public void EndGame()
         {
-            _viewModel?.EndGame();
+            try
+            {
+                if (ViewModel != null)
+                {
+                    ViewModel.EndGame();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error ending game: {ex.Message}");
+            }
         }
         #endregion
 

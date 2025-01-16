@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-            xmlns:viewmodels="clr-namespace:com.kizwiz.sipnsign.ViewModels"
-            x:DataType="viewmodels:SettingsViewModel"
+             xmlns:viewmodels="clr-namespace:com.kizwiz.sipnsign.ViewModels"
+             x:DataType="viewmodels:SettingsViewModel"
              x:Class="com.kizwiz.sipnsign.Pages.SettingsPage"
              Style="{StaticResource AppPageStyle}"
              Title="Settings">
-
-    <ContentPage.Resources>
-        <ResourceDictionary>
-            <viewmodels:SettingsViewModel x:Key="ViewModel"/>
-        </ResourceDictionary>
-    </ContentPage.Resources>
 
     <ScrollView>
         <VerticalStackLayout Spacing="20" Padding="20">

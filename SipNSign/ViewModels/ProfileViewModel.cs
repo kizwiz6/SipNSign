@@ -163,12 +163,21 @@ namespace com.kizwiz.sipnsign.ViewModels
                 var icon = achievement.IsUnlocked ? achievement.Id switch
                 {
                     "FIRST_SIGN" => "first_sign_icon",
-                    "STREAK_7" => "streak_icon",
-                    "STREAK_30" => "streak_icon",
-                    "SIGNS_50" => "mastery_icon",
-                    "SIGNS_100" => "mastery_icon",
+                    "STREAK_7" => "streak_weekly_icon",
+                    "STREAK_30" => "streak_monthly_icon",
+                    "SIGNS_50" => "fifty_signs_icon",
+                    "SIGNS_100" => "century_club_icon",
                     "QUIZ_PERFECT" => "quiz_icon",
                     "PRACTICE_HOURS_10" => "time_icon",
+                    "SIGNS_100_GUESS" => "guess_mastery_100_icon",
+                    "SIGNS_1000_GUESS" => "mastery_icon",
+                    "SIGNS_100_PERFORM" => "practice_icon",
+                    "SIGNS_1000_PERFORM" => "mastery_icon",
+                    "PERFECT_SESSION" => "quiz_correct_icon",
+                    "PARTY_STARTER" => "party_icon",
+                    "SOCIAL_BUTTERFLY" => "social_icon",
+                    "RAPID_FIRE" => "speed_icon",
+                    "SPEED_MASTER" => "speed_master_icon",
                     _ => "achievement_icon"
                 } : "locked_icon";
 

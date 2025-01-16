@@ -39,7 +39,7 @@
                 <Label Text="{Binding RemainingTime}"
                        HorizontalOptions="Center"
                        VerticalOptions="Center"
-                       FontSize="16"
+                       FontSize="18"
                        TextColor="{DynamicResource Primary}"
                        IsVisible="{Binding IsTimerEnabled}">
                     <Label.Triggers>
@@ -78,9 +78,9 @@
                     ShouldShowPlaybackControls="False"
                     ShouldAutoPlay="True"
                     ShouldLoopPlayback="True"
-                    Aspect="AspectFit"
+                    Aspect="AspectFill"
                     HeightRequest="300"
-                    WidthRequest="300"
+                    WidthRequest="380"
                     HorizontalOptions="Center"
                     VerticalOptions="Center"
                     MediaOpened="OnMediaOpened"
@@ -92,11 +92,11 @@
 
                     <!-- Feedback Overlay -->
                     <Border IsVisible="{Binding IsFeedbackVisible}"
-                        StrokeShape="RoundRectangle 20"
-                        Margin="20,0"
-                        VerticalOptions="Center">
+                            StrokeShape="RoundRectangle 20"
+                            Margin="20,0"
+                            VerticalOptions="Center">
                         <Border.Background>
-                            <SolidColorBrush Color="{Binding FeedbackBackgroundColor}"/>
+                            <SolidColorBrush Color="{Binding FeedbackBackgroundColor}" />
                         </Border.Background>
                         <Label Text="{Binding FeedbackText}"
                            TextColor="White"
@@ -174,10 +174,10 @@
                                     ShouldAutoPlay="True"
                                     ShouldLoopPlayback="True"
                                     HeightRequest="300"
-                                    WidthRequest="300"
+                                    WidthRequest="380"
                                     HorizontalOptions="Center"
                                     VerticalOptions="Center"
-                                    Aspect="AspectFit"
+                                    Aspect="AspectFill"
                                     MediaOpened="OnMediaOpened"
                                     MediaFailed="OnMediaFailed"
                                     MediaEnded="OnMediaEnded"

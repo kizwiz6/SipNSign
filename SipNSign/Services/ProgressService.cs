@@ -281,7 +281,7 @@ namespace com.kizwiz.sipnsign.Services
                 {
                     Id = "STREAK_7",
                     Title = "Week Warrior",
-                    Description = "Practice for 7 consecutive days",
+                    Description = "Practiced for 7 consecutive days",
                     IconName = "streak_weekly_icon",
                     ProgressRequired = 7
                 },
@@ -289,63 +289,31 @@ namespace com.kizwiz.sipnsign.Services
                 {
                     Id = "SIGNS_50",
                     Title = "Sign Master",
-                    Description = "Learn 50 signs",
+                    Description = "Learnt 50 signs",
                     IconName = "fifty_signs_icon",
                     ProgressRequired = 50
                 },
                 new Achievement
                 {
-                    Id = "QUIZ_PERFECT",
-                    Title = "Perfect Score",
-                    Description = "Get 100% on a quiz",
-                    IconName = "quiz_icon",
-                    ProgressRequired = 1
-                },
-                new Achievement
-                {
-                    Id = "FIRST_SIGN",
-                    Title = "First Steps",
-                    Description = "Learn your first sign",
-                    IconName = "practice_icon",
-                    ProgressRequired = 1
-                },
-                new Achievement
-                {
-                    Id = "STREAK_30",
-                    Title = "Monthly Master",
-                    Description = "Practice for 30 consecutive days",
-                    IconName = "streak_monthly_icon",
-                    ProgressRequired = 30
-                },
-                new Achievement
-                {
                     Id = "SIGNS_100",
                     Title = "Century Club",
-                    Description = "Learn 100 signs",
-                    IconName = "practice_icon",
+                    Description = "Learnt 100 signs",
+                    IconName = "century_club_icon",
                     ProgressRequired = 100
-                },
-                new Achievement
-                {
-                    Id = "PRACTICE_HOURS_10",
-                    Title = "Dedicated Student",
-                    Description = "Practice for 10 hours",
-                    IconName = "time_icon",
-                    ProgressRequired = 10
                 },
                 new Achievement
                 {
                     Id = "SIGNS_100_GUESS",
                     Title = "Guess Master",
-                    Description = "Get 100 signs correct in Guess Mode",
-                    IconName = "guess_mastery_100.svg",
+                    Description = "Got 100 signs correct in Guess Mode",
+                    IconName = "guess_mastery_100_icon",
                     ProgressRequired = 100
                 },
                 new Achievement
                 {
                     Id = "SIGNS_1000_GUESS",
                     Title = "Ultimate Guesser",
-                    Description = "Get 1000 signs correct in Guess Mode",
+                    Description = "Got 1000 signs correct in Guess Mode",
                     IconName = "mastery_icon",
                     ProgressRequired = 1000
                 },
@@ -353,7 +321,7 @@ namespace com.kizwiz.sipnsign.Services
                 {
                     Id = "SIGNS_100_PERFORM",
                     Title = "Performance Pro",
-                    Description = "Successfully perform 100 signs",
+                    Description = "Successfully performed 100 signs",
                     IconName = "mastery_icon",
                     ProgressRequired = 100
                 },
@@ -361,15 +329,47 @@ namespace com.kizwiz.sipnsign.Services
                 {
                     Id = "SIGNS_1000_PERFORM",
                     Title = "Sign Language Star",
-                    Description = "Successfully perform 1000 signs",
+                    Description = "Successfully performed 1000 signs",
                     IconName = "mastery_icon",
                     ProgressRequired = 1000
                 },
                 new Achievement
                 {
+                    Id = "QUIZ_PERFECT",
+                    Title = "Perfect Score",
+                    Description = "Got 100% on a quiz",
+                    IconName = "quiz_icon",
+                    ProgressRequired = 1
+                },
+                new Achievement
+                {
+                    Id = "FIRST_SIGN",
+                    Title = "First Steps",
+                    Description = "Learnt your first sign",
+                    IconName = "first_sign_icon",
+                    ProgressRequired = 1
+                },
+                new Achievement
+                {
+                    Id = "STREAK_30",
+                    Title = "Monthly Master",
+                    Description = "Practiced for 30 consecutive days",
+                    IconName = "streak_monthly_icon",
+                    ProgressRequired = 30
+                },
+                new Achievement
+                {
+                    Id = "PRACTICE_HOURS_10",
+                    Title = "Dedicated Student",
+                    Description = "Practiced for 10 hours",
+                    IconName = "time_icon",
+                    ProgressRequired = 10
+                },
+                new Achievement
+                {
                     Id = "PERFECT_SESSION",
                     Title = "Perfect Session",
-                    Description = "Get 50 signs correct in a row",
+                    Description = "Got 50 signs correct in a row",
                     IconName = "quiz_icon",
                     ProgressRequired = 1
                 },
@@ -383,21 +383,21 @@ namespace com.kizwiz.sipnsign.Services
                 new Achievement {
                     Id = "SOCIAL_BUTTERFLY",
                     Title = "Social Butterfly",
-                    Description = "Play in both modes in the same day for 5 days",
+                    Description = "Played in both modes in the same day for 5 days",
                     IconName = "social_icon",
                     ProgressRequired = 5
                 },
                 new Achievement {
                     Id = "RAPID_FIRE",
                     Title = "Rapid Fire",
-                    Description = "Answer 50 signs correctly in under 5 seconds each",
+                    Description = "Answered 50 signs correctly in under 5 seconds each",
                     IconName = "speed_icon",
                     ProgressRequired = 5
                 },
                 new Achievement {
                     Id = "SPEED_MASTER",
                     Title = "Speed Master",
-                    Description = "Complete a 100 Guess Mode session with average time under 3 seconds",
+                    Description = "Completed a 100 Guess Mode session with average time under 3 seconds",
                     IconName = "speed_master_icon",
                     ProgressRequired = 1
                 }
@@ -556,15 +556,20 @@ namespace com.kizwiz.sipnsign.Services
                     "FIRST_SIGN" => "first_sign_icon",
                     "STREAK_7" => "streak_weekly_icon",
                     "STREAK_30" => "streak_monthly_icon",
-                    "SIGNS_50" => "50_signs_icon.svg",
-                    "SIGNS_100" => "mastery_icon",
+                    "SIGNS_50" => "fifty_signs_icon",
+                    "SIGNS_100" => "century_club_icon",
                     "QUIZ_PERFECT" => "quiz_icon",
                     "PRACTICE_HOURS_10" => "time_icon",
+                    "SIGNS_100_GUESS" => "guess_mastery_100_icon",
+                    "SIGNS_1000_GUESS" => "mastery_icon",
+                    "SIGNS_100_PERFORM" => "practice_icon",
+                    "SIGNS_1000_PERFORM" => "mastery_icon",
+                    "PERFECT_SESSION" => "quiz_correct_icon",
                     "PARTY_STARTER" => "party_icon",
                     "SOCIAL_BUTTERFLY" => "social_icon",
                     "RAPID_FIRE" => "speed_icon",
                     "SPEED_MASTER" => "speed_master_icon",
-                    _ => "achievement_icon"  // Default case (underscore, not asterisk)
+                    _ => "achievement_icon" // Default case (underscore, not asterisk)
                 };
 
                 await LogActivityAsync(new ActivityLog
