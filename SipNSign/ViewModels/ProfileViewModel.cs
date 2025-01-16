@@ -71,6 +71,34 @@ namespace com.kizwiz.sipnsign.ViewModels
                 }
             }
         }
+
+        private int _guessModeCount;
+        public int GuessModeSigns
+        {
+            get => _guessModeCount;
+            set
+            {
+                if (_guessModeCount != value)
+                {
+                    _guessModeCount = value;
+                    OnPropertyChanged(nameof(GuessModeSigns));
+                }
+            }
+        }
+
+        private int _performModeCount;
+        public int PerformModeSigns
+        {
+            get => _performModeCount;
+            set
+            {
+                if (_performModeCount != value)
+                {
+                    _performModeCount = value;
+                    OnPropertyChanged(nameof(PerformModeSigns));
+                }
+            }
+        }
         #endregion
 
         #region Properties
@@ -127,6 +155,8 @@ namespace com.kizwiz.sipnsign.ViewModels
             CurrentStreak = _userProgress.CurrentStreak;
             Accuracy = _userProgress.Accuracy;
             PracticeTime = _userProgress.TotalPracticeTime;
+            GuessModeSigns = _userProgress.GuessModeSigns;
+            PerformModeSigns = _userProgress.PerformModeSigns;
 
             RecentActivities.Clear();
             foreach (var activity in _userProgress.Activities.OrderByDescending(a => a.Timestamp).Take(10))

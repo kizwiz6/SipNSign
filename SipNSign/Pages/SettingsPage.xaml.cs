@@ -276,6 +276,11 @@ namespace com.kizwiz.sipnsign.Pages
             }
         }
 
+        private async void OnDisclaimerClicked(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new DisclaimerPage());
+        }
+
         private void OnThemeSelectionChanged(object sender, EventArgs e)
         {
             if (ThemePicker?.SelectedItem is string selectedTheme
