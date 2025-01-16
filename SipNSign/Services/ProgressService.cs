@@ -104,7 +104,9 @@ namespace com.kizwiz.sipnsign.Services
 
                     case "QUIZ_PERFECT":
                         var perfectQuiz = _currentProgress.Activities
-                            .Any(a => a.Type == ActivityType.Quiz && a.Score == "10/10");
+                            .Any(a => a.Type == ActivityType.Quiz &&
+                                 a.Description.Contains("100 questions") &&
+                                 a.Score == "100/100");
                         if (perfectQuiz)
                         {
                             await UnlockAchievement(achievement);
@@ -151,39 +153,30 @@ namespace com.kizwiz.sipnsign.Services
                         break;
 
                     
-
-                    case "PARTY_STARTER" when !achievement.IsUnlocked:
-                        // Count completed Perform mode sessions
-                        var performSessions = _currentProgress.Activities
-                            .Count(a => a.Type == ActivityType.Practice &&
-                                       a.Description.Contains("Perform Mode completed"));
-                        achievement.ProgressCurrent = performSessions;
-                        if (performSessions >= 50)
-                        {
-                            await UnlockAchievement(achievement);
-                        }
-                        break;
+                    // REMVOED AS PERFORM MODE DOES NOT HAVE SESSIONS
+                        //case "PARTY_STARTER" when !achievement.IsUnlocked:
+                    //    // Count completed Perform mode sessions
+                    //    var performSessions = _currentProgress.Activities
+                    //        .Count(a => a.Type == ActivityType.Practice &&
+                    //                   a.Description.Contains("Perform Mode completed"));
+                    //    achievement.ProgressCurrent = performSessions;
+                    //    if (performSessions >= 50)
+                    //    {
+                    //        await UnlockAchievement(achievement);
+                    //    }
+                    //    break;
 
                     case "SOCIAL_BUTTERFLY" when !achievement.IsUnlocked:
-                        // Group activities by date and check if both modes were played
-                        var dailyModes = _currentProgress.Activities
-                            .GroupBy(a => a.Timestamp.Date)
-                            .Count(g => g.Any(a => a.Description.Contains("Guess Mode")) &&
-                                        g.Any(a => a.Description.Contains("Perform Mode")));
-                        achievement.ProgressCurrent = dailyModes;
-                        if (dailyModes >= 5)
-                        {
-                            await UnlockAchievement(achievement);
-                        }
+                        // Triggered from ShareAchievements() in AchievementDetailsViewModel
                         break;
 
                     case "RAPID_FIRE" when !achievement.IsUnlocked:
                         // Count correct answers under 5 seconds
                         var rapidAnswers = _currentProgress.Activities
                             .Count(a => a.Type == ActivityType.Practice &&
-                                       a.Score == "+1" &&
-                                       a.Description.Contains("under 5 seconds"));
+                                       a.Description.Contains("correctly under 5 seconds"));
                         achievement.ProgressCurrent = rapidAnswers;
+                        achievement.ProgressRequired = 50;
                         if (rapidAnswers >= 50)
                         {
                             await UnlockAchievement(achievement);
@@ -337,7 +330,7 @@ namespace com.kizwiz.sipnsign.Services
                 {
                     Id = "QUIZ_PERFECT",
                     Title = "Perfect Score",
-                    Description = "Got 100% on a quiz",
+                    Description = "Got 100% on a 100-question quiz",
                     IconName = "quiz_master_icon",
                     ProgressRequired = 1
                 },
@@ -373,19 +366,19 @@ namespace com.kizwiz.sipnsign.Services
                     IconName = "perfect_session_icon",
                     ProgressRequired = 1
                 },
-                new Achievement {
-                    Id = "PARTY_STARTER",
-                    Title = "Party Starter",
-                    Description = "Played 50 complete sessions in Perform mode",
-                    IconName = "party_icon",
-                    ProgressRequired = 50
-                },
+                //new Achievement {
+                //    Id = "PARTY_STARTER",
+                //    Title = "Party Starter",
+                //    Description = "Played 50 complete sessions in Perform mode",
+                //    IconName = "party_icon",
+                //    ProgressRequired = 50
+                //},
                 new Achievement {
                     Id = "SOCIAL_BUTTERFLY",
                     Title = "Social Butterfly",
-                    Description = "Played in both modes in the same day for 5 days",
+                    Description = "Shared your first achievement",
                     IconName = "social_icon",
-                    ProgressRequired = 5
+                    ProgressRequired = 1
                 },
                 new Achievement {
                     Id = "RAPID_FIRE",
@@ -565,7 +558,7 @@ namespace com.kizwiz.sipnsign.Services
                     "SIGNS_100_PERFORM" => "perform_100_icon",
                     "SIGNS_1000_PERFORM" => "perform_1000_icon",
                     "PERFECT_SESSION" => "perfect_session_icon",
-                    "PARTY_STARTER" => "party_icon",
+                    //"PARTY_STARTER" => "party_icon",
                     "SOCIAL_BUTTERFLY" => "social_icon",
                     "RAPID_FIRE" => "speed_icon",
                     "SPEED_MASTER" => "speed_master_icon",

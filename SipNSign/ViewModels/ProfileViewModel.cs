@@ -174,7 +174,6 @@ namespace com.kizwiz.sipnsign.ViewModels
                     "SIGNS_100_PERFORM" => "perform_100_icon",
                     "SIGNS_1000_PERFORM" => "perform_1000_icon",
                     "PERFECT_SESSION" => "perfect_session_icon",
-                    "PARTY_STARTER" => "party_icon",
                     "SOCIAL_BUTTERFLY" => "social_icon",
                     "RAPID_FIRE" => "speed_icon",
                     "SPEED_MASTER" => "speed_master_icon",

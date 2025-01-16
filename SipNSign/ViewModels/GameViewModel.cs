@@ -1016,18 +1016,6 @@ namespace com.kizwiz.sipnsign.ViewModels
             // At the end of a session (when all questions are answered)
             if (_availableIndices.Count == 0)
             {
-                // For Party Starter achievement (Perform Mode)
-                if (CurrentMode == GameMode.Perform)
-                {
-                    await _progressService.LogActivityAsync(new ActivityLog
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        Type = ActivityType.Practice,
-                        Description = "Perform Mode session completed",
-                        IconName = "party_icon",
-                        Timestamp = DateTime.Now
-                    });
-                }
 
                 // For Speed Master achievement (Guess Mode)
                 if (CurrentMode == GameMode.Guess && _averageAnswerTime < 3.0)
@@ -1051,18 +1039,6 @@ namespace com.kizwiz.sipnsign.ViewModels
                     }
                 }
             }
-        }
-
-        private async Task LogAchievementActivity(string achievementTitle)
-        {
-            await _progressService.LogActivityAsync(new ActivityLog
-            {
-                Id = Guid.NewGuid().ToString(),
-                Type = ActivityType.Achievement,
-                Description = $"Unlocked: {achievementTitle}",
-                IconName = "achievement_icon.svg",
-                Timestamp = DateTime.Now
-            });
         }
 
         #endregion

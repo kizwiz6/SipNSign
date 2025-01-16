@@ -14,7 +14,9 @@ namespace com.kizwiz.sipnsign.ViewModels
     {
         #region Fields
         private readonly IShareService _shareService;
+        private readonly IProgressService _progressService;
         private Achievement _achievement;
+        private UserProgress? _userProgress;
         #endregion
 
         #region Properties
@@ -33,15 +35,30 @@ namespace com.kizwiz.sipnsign.ViewModels
         #endregion
 
         #region Constructor
-        public AchievementDetailsViewModel(Achievement achievement, IShareService shareService)
+        public AchievementDetailsViewModel(Achievement achievement, IShareService shareService, IProgressService progressService)
         {
             _achievement = achievement;
             _shareService = shareService;
+            _progressService = progressService;
             ShareCommand = new AsyncRelayCommand(ShareAchievement);
+
+            // Initialize user progress
+            InitializeUserProgress();
         }
         #endregion
 
         #region Private Methods
+        private async void InitializeUserProgress()
+        {
+            try
+            {
+                _userProgress = await _progressService.GetUserProgressAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error initializing user progress: {ex.Message}");
+            }
+        }
         private async Task ShareAchievement()
         {
             try
@@ -55,6 +72,18 @@ namespace com.kizwiz.sipnsign.ViewModels
                                $"#SipNSign #SignLanguage #Gaming";
 
                 await _shareService.ShareTextAsync(shareText, "Share Achievement");
+
+                // Trigger Social Butterfly achievement
+                if (_userProgress != null)
+                {
+                    var socialAchievement = _userProgress.Achievements
+                        .FirstOrDefault(a => a.Id == "SOCIAL_BUTTERFLY");
+
+                    if (socialAchievement != null && !socialAchievement.IsUnlocked)
+                    {
+                        await _progressService.UpdateAchievementsAsync();
+                    }
+                }
             }
             catch (Exception ex)
             {

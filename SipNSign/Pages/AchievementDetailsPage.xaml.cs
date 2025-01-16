@@ -15,9 +15,6 @@ namespace com.kizwiz.sipnsign.Pages
                 var logger = Application.Current?.Handler?.MauiContext?.Services?.GetService<ILoggingService>();
                 logger?.Debug($"Starting AchievementDetailsPage initialization for: {achievement?.Title ?? "null"}");
 
-                // Check if Application.Current.Resources contains our converter
-                logger?.Debug($"Checking for InverseBoolConverter in resources: {Application.Current?.Resources.ContainsKey("InverseBoolConverter")}");
-
                 InitializeComponent();
                 logger?.Debug("InitializeComponent completed");
 
@@ -27,18 +24,20 @@ namespace com.kizwiz.sipnsign.Pages
                 if (services == null)
                 {
                     logger?.Error("Services not available - attempting fallback");
-                    // Create a fallback ShareService
-                    _viewModel = new AchievementDetailsViewModel(achievement, new ShareService());
+                    var shareService = new ShareService();
+                    var progressService = services.GetRequiredService<IProgressService>();
+                    _viewModel = new AchievementDetailsViewModel(achievement, shareService, progressService);
                 }
                 else
                 {
                     var shareService = services.GetService<IShareService>();
+                    var progressService = services.GetRequiredService<IProgressService>();
                     if (shareService == null)
                     {
                         logger?.Error("IShareService not found - using fallback");
                         shareService = new ShareService();
                     }
-                    _viewModel = new AchievementDetailsViewModel(achievement, shareService);
+                    _viewModel = new AchievementDetailsViewModel(achievement, shareService, progressService);
                 }
 
                 BindingContext = _viewModel;
