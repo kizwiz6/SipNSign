@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="com.kizwiz.sipnsign.Pages.StorePage"
+             Style="{StaticResource AppPageStyle}"
+             Title="Store">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="20" Padding="20">
+            <!-- Starter Pack -->
+            <Border BackgroundColor="{DynamicResource CardBackground}"
+                    Opacity="0.95"
+                    Padding="15" 
+                    StrokeShape="RoundRectangle 10">
+                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto">
+                    <Label Text="Starter Pack" 
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="24" 
+                           FontAttributes="Bold"
+                           Grid.ColumnSpan="2"/>
+
+                    <Label Text="Basic signs including numbers, colors, and everyday items"
+                           TextColor="{DynamicResource CardText}"
+                           Grid.Row="1"
+                           Grid.ColumnSpan="2"/>
+
+                    <Button Text="FREE" 
+                            IsEnabled="False"
+                            Style="{StaticResource PrimaryButton}"
+                            Grid.Row="2"
+                            Grid.Column="1"/>
+                </Grid>
+            </Border>
+
+            <!-- Animals Pack -->
+            <Border BackgroundColor="{DynamicResource CardBackground}"
+                    Opacity="0.95"
+                    Padding="15" 
+                    StrokeShape="RoundRectangle 10">
+                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto">
+                    <Label Text="Animal Pack" 
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="24" 
+                           FontAttributes="Bold"
+                           Grid.ColumnSpan="2"/>
+
+                    <Label Text="Signs for pets, farm animals, and wildlife"
+                           TextColor="{DynamicResource CardText}"
+                           Grid.Row="1"
+                           Grid.ColumnSpan="2"/>
+
+                    <Button Text="£0.99" 
+                            Command="{Binding PurchasePackCommand}"
+                            CommandParameter="animals"
+                            Style="{StaticResource PrimaryButton}"
+                            Grid.Row="2"
+                            Grid.Column="1"/>
+                </Grid>
+            </Border>
+
+            <!-- Geography Pack -->
+            <Border BackgroundColor="{DynamicResource CardBackground}"
+                    Opacity="0.95"
+                    Padding="15" 
+                    StrokeShape="RoundRectangle 10">
+                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto">
+                    <Label Text="Geography Pack" 
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="24" 
+                           FontAttributes="Bold"
+                           Grid.ColumnSpan="2"/>
+
+                    <Label Text="Countries, cities, and travel-related signs"
+                           TextColor="{DynamicResource CardText}"
+                           Grid.Row="1"
+                           Grid.ColumnSpan="2"/>
+
+                    <Button Text="£0.99" 
+                            Command="{Binding PurchasePackCommand}"
+                            CommandParameter="geography"
+                            Style="{StaticResource PrimaryButton}"
+                            Grid.Row="2"
+                            Grid.Column="1"/>
+                </Grid>
+            </Border>
+
+            <!-- Food & Drink Pack -->
+            <Border BackgroundColor="{DynamicResource CardBackground}"
+                    Opacity="0.95"
+                    Padding="15" 
+                    StrokeShape="RoundRectangle 10">
+                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto">
+                    <Label Text="Food and Drink Pack" 
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="24" 
+                           FontAttributes="Bold"
+                           Grid.ColumnSpan="2"/>
+
+                    <Label Text="Signs for food, drinks, and dining"
+                           TextColor="{DynamicResource CardText}"
+                           Grid.Row="1"
+                           Grid.ColumnSpan="2"/>
+
+                    <Button Text="£0.99" 
+                            Command="{Binding PurchasePackCommand}"
+                            CommandParameter="food_drink"
+                            Style="{StaticResource PrimaryButton}"
+                            Grid.Row="2"
+                            Grid.Column="1"/>
+                </Grid>
+            </Border>
+
+            <!-- Emotions Pack -->
+            <Border BackgroundColor="{DynamicResource CardBackground}"
+                    Opacity="0.95"
+                    Padding="15" 
+                    StrokeShape="RoundRectangle 10">
+                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto">
+                    <Label Text="Emotions Pack" 
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="24" 
+                           FontAttributes="Bold"
+                           Grid.ColumnSpan="2"/>
+
+                    <Label Text="Signs for feelings, emotions, and expressions"
+                           TextColor="{DynamicResource CardText}"
+                           Grid.Row="1"
+                           Grid.ColumnSpan="2"/>
+
+                    <Button Text="£0.99" 
+                            Command="{Binding PurchasePackCommand}"
+                            CommandParameter="emotions"
+                            Style="{StaticResource PrimaryButton}"
+                            Grid.Row="2"
+                            Grid.Column="1"/>
+                </Grid>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

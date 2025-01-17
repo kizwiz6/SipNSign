@@ -46,19 +46,6 @@ public static class MauiProgram
             };
         });
 
-        //builder.Services.AddSingleton<IServiceProvider>(sp =>
-        //{
-        //    try
-        //    {
-        //        return sp;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Debug.WriteLine($"Error initializing ServiceProvider: {ex}");
-        //        throw;
-        //    }
-        //});
-
         try
         {
             // Register core services
@@ -68,6 +55,7 @@ public static class MauiProgram
             builder.Services.AddSingleton<SignRepository>();
             builder.Services.AddSingleton<IThemeService, ThemeService>();
             builder.Services.AddSingleton<IShareService, ShareService>();
+            builder.Services.AddSingleton<IIAPService, IAPService>();
 
             // Register pages and viewmodels
             builder.Services.AddSingleton<App>();
@@ -79,6 +67,8 @@ public static class MauiProgram
             builder.Services.AddTransient<ProfilePage>();
             builder.Services.AddTransient<ProfileViewModel>();
             builder.Services.AddTransient<SettingsPage>();
+            builder.Services.AddTransient<StorePage>();
+            builder.Services.AddTransient<StoreViewModel>();
             builder.Services.AddTransient<AchievementDetailsPage>();
             builder.Services.AddTransient<AchievementDetailsViewModel>();
 

@@ -262,6 +262,28 @@ namespace com.kizwiz.sipnsign.Pages
             }
         }
 
+        private async void OnStoreClicked(object sender, EventArgs e)
+        {
+            if (_isNavigating) return;
+            var logger = _serviceProvider?.GetService<ILoggingService>();
+
+            try
+            {
+                _isNavigating = true;
+                var storePage = new StorePage(_serviceProvider);
+                await Navigation.PushAsync(storePage);
+            }
+            catch (Exception ex)
+            {
+                logger?.Error($"Store error: {ex.Message}");
+                await DisplayAlert("Error", "Unable to open store", "OK");
+            }
+            finally
+            {
+                _isNavigating = false;
+            }
+        }
+
         private async void OnViewLogsClicked(object sender, EventArgs e)
         {
             try

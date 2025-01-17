@@ -1,5 +1,6 @@
 ﻿using com.kizwiz.sipnsign.Enums;
 using com.kizwiz.sipnsign.Models;
+using System.Text.Json;
 
 /// <summary>
 /// Repository for managing sign data and video mappings
@@ -7,6 +8,8 @@ using com.kizwiz.sipnsign.Models;
 public class SignRepository
 {
     private readonly Dictionary<SignLanguage, List<SignModel>> _signsByLanguage;
+    private readonly List<SignPack> _signPacks;
+    private const string PURCHASED_PACKS_KEY = "purchased_packs";
 
     public SignRepository()
     {
@@ -14,6 +17,8 @@ public class SignRepository
         {
             [SignLanguage.BSL] = InitializeBSLSigns()
         };
+
+        _signPacks = InitializeSignPacks();
     }
 
     #region Properties
@@ -22,16 +27,52 @@ public class SignRepository
     /// </summary>
     public int GetSignCount(SignLanguage language = SignLanguage.BSL) =>
         _signsByLanguage.TryGetValue(language, out var signs) ? signs.Count : 0;
+
+    public Dictionary<SignCategory, int> GetSignCountByCategory(SignLanguage language = SignLanguage.BSL)
+    {
+        return _signsByLanguage[language]
+            .GroupBy(s => s.Category)
+            .ToDictionary(g => g.Key, g => g.Count());
+    }
     #endregion
 
     #region Public Methods
+    public List<SignPack> GetSignPacks()
+    {
+        var purchasedPacks = GetPurchasedPacks();
+        foreach (var pack in _signPacks)
+        {
+            pack.IsUnlocked = purchasedPacks.Contains(pack.Id) || pack.Id == "starter";
+        }
+        return _signPacks;
+    }
+
+
     /// <summary>
     /// Returns a list of all available signs with their video paths and multiple choice options
     /// for the specified language
     /// </summary>
     public List<SignModel> GetSigns(SignLanguage language = SignLanguage.BSL)
     {
-        return _signsByLanguage.TryGetValue(language, out var signs) ? signs : new List<SignModel>();
+        var allSigns = _signsByLanguage[language];
+        var purchasedPacks = GetPurchasedPacks();
+        var availableCategories = new HashSet<SignCategory>();
+
+        // Get all categories from purchased packs
+        foreach (var packId in purchasedPacks)
+        {
+            var pack = _signPacks.FirstOrDefault(p => p.Id == packId);
+            if (pack != null)
+            {
+                foreach (var category in pack.Categories)
+                {
+                    availableCategories.Add(category);
+                }
+            }
+        }
+
+        // Filter signs by available categories
+        return allSigns.Where(sign => availableCategories.Contains(sign.Category)).ToList();
     }
 
     /// <summary>
@@ -39,11 +80,97 @@ public class SignRepository
     /// </summary>
     public List<SignModel> GetSignsByCategory(SignCategory category, SignLanguage language = SignLanguage.BSL)
     {
-        return GetSigns(language).Where(s => s.Category == category).ToList();
+        var purchasedPacks = GetPurchasedPacks();
+        var categoryPack = _signPacks.FirstOrDefault(p => p.Categories.Contains(category));
+
+        // If the category's pack isn't purchased and it's not in the starter pack, return empty list
+        if (categoryPack != null && !purchasedPacks.Contains(categoryPack.Id) && categoryPack.Id != "starter")
+        {
+            return new List<SignModel>();
+        }
+
+        // Return signs for the category
+        return _signsByLanguage[language].Where(s => s.Category == category).ToList();
     }
     #endregion
 
     #region Private Methods
+    private List<string> GetPurchasedPacks()
+    {
+        var json = Preferences.Get(PURCHASED_PACKS_KEY, "[]");
+        var packs = JsonSerializer.Deserialize<List<string>>(json) ?? new List<string>();
+        packs.Add("starter"); // Starter pack is always available
+        return packs;
+    }
+    private SignPack? GetPackForCategory(SignCategory category)
+    {
+        return _signPacks.FirstOrDefault(pack => pack.Categories.Contains(category));
+    }
+    private List<SignPack> InitializeSignPacks()
+    {
+        return new List<SignPack>
+        {
+            new SignPack
+            {
+                Id = "starter",
+                Name = "Starter Pack",
+                Description = "Basic signs including numbers, colours, and everyday items",
+                Price = 0,
+                Categories = new List<SignCategory>
+                {
+                    SignCategory.Colors,
+                    SignCategory.Numbers,
+                    SignCategory.Time
+                }
+            },
+            new SignPack
+            {
+                Id = "animals",
+                Name = "Animals Pack",
+                Description = "Signs for animals and wildlife",
+                Price = 0.99m,
+                Categories = new List<SignCategory>
+                {
+                    SignCategory.Animals
+                }
+            },
+            new SignPack
+            {
+                Id = "geography",
+                Name = "Geography Pack",
+                Description = "Countries, cities, and travel-related signs",
+                Price = 0.99m,
+                Categories = new List<SignCategory>
+                {
+                    SignCategory.Countries,
+                    SignCategory.Travel
+                }
+            },
+            new SignPack
+            {
+                Id = "food_drink",
+                Name = "Food & Drink Pack",
+                Description = "Signs for food, drinks, and dining",
+                Price = 0.99m,
+                Categories = new List<SignCategory>
+                {
+                    SignCategory.Food,
+                    SignCategory.Drinks
+                }
+            },
+            new SignPack
+            {
+                Id = "emotions",
+                Name = "Emotions Pack",
+                Description = "Signs for feelings, emotions, and expressions",
+                Price = 0.99m,
+                Categories = new List<SignCategory>
+                {
+                    SignCategory.Emotions
+                }
+            }
+        };
+    }
     private List<SignModel> InitializeBSLSigns()
     {
         return new List<SignModel>
