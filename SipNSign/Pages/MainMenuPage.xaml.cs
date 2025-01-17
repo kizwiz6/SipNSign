@@ -123,7 +123,7 @@ namespace com.kizwiz.sipnsign.Pages
                     var mainLayout = this.FindByName<VerticalStackLayout>("MainLayout");
                     if (mainLayout == null) return;
 
-                    var buttons = new[] { "GuessMode", "PerformMode", "Profile", "Settings" };
+                    var buttons = new[] { "GuessMode", "PerformMode", "Profile", "Settings", "Store" };
                     foreach (var styleId in buttons)
                     {
                         // Safely get resource value

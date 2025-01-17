@@ -13,20 +13,25 @@
                     Padding="15" 
                     StrokeShape="RoundRectangle 10">
                 <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto">
+                    <Image Source="starter_pack_icon.png"
+                           HeightRequest="40"
+                           WidthRequest="40"
+                           Grid.RowSpan="2"/>
+
                     <Label Text="Starter Pack" 
                            TextColor="{DynamicResource CardText}"
                            FontSize="24" 
                            FontAttributes="Bold"
-                           Grid.ColumnSpan="2"/>
+                           Grid.Column="1"/>
 
                     <Label Text="Basic signs including numbers, colors, and everyday items"
                            TextColor="{DynamicResource CardText}"
                            Grid.Row="1"
-                           Grid.ColumnSpan="2"/>
+                           Grid.Column="1"/>
 
-                    <Button Text="FREE" 
+                    <Button Text="OWNED" 
                             IsEnabled="False"
-                            Style="{StaticResource PrimaryButton}"
+                            Style="{StaticResource SecondaryButton}"
                             Grid.Row="2"
                             Grid.Column="1"/>
                 </Grid>
@@ -38,21 +43,27 @@
                     Padding="15" 
                     StrokeShape="RoundRectangle 10">
                 <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto">
+                    <Image Source="animal_pack_icon.png"
+                           HeightRequest="40"
+                           WidthRequest="40"
+                           Grid.RowSpan="2"/>
+
                     <Label Text="Animal Pack" 
                            TextColor="{DynamicResource CardText}"
                            FontSize="24" 
                            FontAttributes="Bold"
-                           Grid.ColumnSpan="2"/>
+                           Grid.Column="1"/>
 
                     <Label Text="Signs for pets, farm animals, and wildlife"
                            TextColor="{DynamicResource CardText}"
                            Grid.Row="1"
-                           Grid.ColumnSpan="2"/>
+                           Grid.Column="1"/>
 
-                    <Button Text="£0.99" 
+                    <Button Text="{Binding AnimalsPackButtonText}" 
                             Command="{Binding PurchasePackCommand}"
                             CommandParameter="animals"
-                            Style="{StaticResource PrimaryButton}"
+                            IsEnabled="{Binding IsAnimalPackPurchasable}"
+                            Style="{Binding AnimalsPackButtonStyle}"
                             Grid.Row="2"
                             Grid.Column="1"/>
                 </Grid>
@@ -90,7 +101,7 @@
                     Padding="15" 
                     StrokeShape="RoundRectangle 10">
                 <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto">
-                    <Label Text="Food and Drink Pack" 
+                    <Label Text="Food &amp; Drink Pack" 
                            TextColor="{DynamicResource CardText}"
                            FontSize="24" 
                            FontAttributes="Bold"
