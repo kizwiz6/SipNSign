@@ -35,5 +35,14 @@ namespace com.kizwiz.sipnsign.Models
         /// Gets or sets the category for the sign (e.g., "Numbers", "Animals").
         /// </summary>
         public SignCategory Category { get; set; }
+        /// <summary>
+        /// Indicates if this sign is part of premium content
+        /// </summary>
+        public bool IsPremium { get; set; }
+
+        /// <summary>
+        /// The set/pack this sign belongs to (e.g., "Base", "Premium Pack 1", etc.)
+        /// </summary>
+        public string PackName { get; set; }
     }
 }

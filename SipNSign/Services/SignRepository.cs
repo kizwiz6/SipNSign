@@ -1,5 +1,6 @@
 ﻿using com.kizwiz.sipnsign.Enums;
 using com.kizwiz.sipnsign.Models;
+using com.kizwiz.sipnsign.Services;
 
 /// <summary>
 /// Repository for managing sign data and video mappings
@@ -40,6 +41,16 @@ public class SignRepository
     public List<SignModel> GetSignsByCategory(SignCategory category, SignLanguage language = SignLanguage.BSL)
     {
         return GetSigns(language).Where(s => s.Category == category).ToList();
+    }
+
+    public async Task<List<SignModel>> GetAvailableSigns(IPurchaseService purchaseService)
+    {
+        var signs = GetAllSigns();
+        var isPremium = await purchaseService.IsPremiumUnlocked();
+
+        return isPremium
+            ? signs
+            : signs.Where(s => !s.IsPremium).ToList();
     }
     #endregion
 
