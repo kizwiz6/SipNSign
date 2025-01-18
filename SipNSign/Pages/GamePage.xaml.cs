@@ -21,6 +21,7 @@ namespace com.kizwiz.sipnsign.Pages
         private bool _isDisposed;
         private readonly SemaphoreSlim _cleanupLock = new(1, 1);
         private MediaElement? _sharedVideo;
+        private IDispatcherTimer? _timer;
         #endregion
 
         #region Properties
@@ -313,19 +314,23 @@ namespace com.kizwiz.sipnsign.Pages
             {
                 ViewModel?.Cleanup();
 
+                // Stop any playing videos
                 if (_sharedVideo != null)
                 {
+                    _sharedVideo.Stop();
+                    _sharedVideo.Source = null;
                     _sharedVideo.Handler?.DisconnectHandler();
-                    _sharedVideo = null;
                 }
 
                 if (PerformVideo != null)
                 {
+                    PerformVideo.Stop();
+                    PerformVideo.Source = null;
                     PerformVideo.Handler?.DisconnectHandler();
-                    PerformVideo = null;
                 }
 
-                await Task.Delay(100); // Give time for cleanup
+                // Give time for cleanup
+                await Task.Delay(100);
             }
             catch (Exception ex)
             {
@@ -387,6 +392,24 @@ namespace com.kizwiz.sipnsign.Pages
                 _sharedVideo = null;
                 PerformVideo = null;
                 _videoLoadLock.Release();
+            }
+        }
+
+        public async void Cleanup()
+        {
+            try
+            {
+                if (_timer != null)
+                {
+                    _timer.Stop();
+                    _timer = null;
+                }
+
+                await CleanupMediaElements();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in Cleanup: {ex.Message}");
             }
         }
 

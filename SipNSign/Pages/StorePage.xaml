@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="com.kizwiz.sipnsign.Pages.StorePage"
-             Style="{StaticResource AppPageStyle}"
-             Title="Store">
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            x:Class="com.kizwiz.sipnsign.Pages.StorePage"
+            Style="{StaticResource AppPageStyle}"
+            Title="Store">
 
     <ScrollView>
         <VerticalStackLayout Spacing="20" Padding="20">
@@ -12,60 +12,56 @@
                     Opacity="0.95"
                     Padding="15" 
                     StrokeShape="RoundRectangle 10">
-                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto">
-                    <Image Source="starter_pack_icon.png"
-                           HeightRequest="40"
-                           WidthRequest="40"
-                           Grid.RowSpan="2"/>
+                <Grid ColumnDefinitions="*,Auto" RowSpacing="5">
+                    <VerticalStackLayout Grid.Column="0">
+                        <Label Text="Starter Pack" 
+                               TextColor="{DynamicResource CardText}"
+                               FontSize="24" 
+                               FontAttributes="Bold"
+                               Margin="0,0,0,5"/>
 
-                    <Label Text="Starter Pack" 
-                           TextColor="{DynamicResource CardText}"
-                           FontSize="24" 
-                           FontAttributes="Bold"
-                           Grid.Column="1"/>
-
-                    <Label Text="Basic signs including numbers, colors, and everyday items"
-                           TextColor="{DynamicResource CardText}"
-                           Grid.Row="1"
-                           Grid.Column="1"/>
+                        <Label Text="Basic signs including numbers, colors, and everyday items"
+                               TextColor="{DynamicResource CardText}"
+                               FontSize="14"/>
+                    </VerticalStackLayout>
 
                     <Button Text="OWNED" 
                             IsEnabled="False"
                             Style="{StaticResource SecondaryButton}"
-                            Grid.Row="2"
-                            Grid.Column="1"/>
+                            HeightRequest="40"
+                            WidthRequest="100"
+                            Grid.Column="1"
+                            VerticalOptions="Center"/>
                 </Grid>
             </Border>
 
-            <!-- Animals Pack -->
+            <!-- Animal Pack -->
             <Border BackgroundColor="{DynamicResource CardBackground}"
                     Opacity="0.95"
                     Padding="15" 
                     StrokeShape="RoundRectangle 10">
-                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto">
-                    <Image Source="animal_pack_icon.png"
-                           HeightRequest="40"
-                           WidthRequest="40"
-                           Grid.RowSpan="2"/>
+                <Grid ColumnDefinitions="*,Auto" RowSpacing="5">
+                    <VerticalStackLayout Grid.Column="0">
+                        <Label Text="Animal Pack" 
+                               TextColor="{DynamicResource CardText}"
+                               FontSize="24" 
+                               FontAttributes="Bold"
+                               Margin="0,0,0,5"/>
 
-                    <Label Text="Animal Pack" 
-                           TextColor="{DynamicResource CardText}"
-                           FontSize="24" 
-                           FontAttributes="Bold"
-                           Grid.Column="1"/>
+                        <Label Text="Signs for pets, farm animals, and wildlife"
+                               TextColor="{DynamicResource CardText}"
+                               FontSize="14"/>
+                    </VerticalStackLayout>
 
-                    <Label Text="Signs for pets, farm animals, and wildlife"
-                           TextColor="{DynamicResource CardText}"
-                           Grid.Row="1"
-                           Grid.Column="1"/>
-
-                    <Button Text="{Binding AnimalsPackButtonText}" 
+                    <Button Text="{Binding AnimalPackButtonText}" 
                             Command="{Binding PurchasePackCommand}"
                             CommandParameter="animals"
                             IsEnabled="{Binding IsAnimalPackPurchasable}"
-                            Style="{Binding AnimalsPackButtonStyle}"
-                            Grid.Row="2"
-                            Grid.Column="1"/>
+                            Style="{StaticResource PrimaryButton}"
+                            HeightRequest="40"
+                            WidthRequest="100"
+                            Grid.Column="1"
+                            VerticalOptions="Center"/>
                 </Grid>
             </Border>
 
@@ -74,24 +70,28 @@
                     Opacity="0.95"
                     Padding="15" 
                     StrokeShape="RoundRectangle 10">
-                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto">
-                    <Label Text="Geography Pack" 
-                           TextColor="{DynamicResource CardText}"
-                           FontSize="24" 
-                           FontAttributes="Bold"
-                           Grid.ColumnSpan="2"/>
+                <Grid ColumnDefinitions="*,Auto" RowSpacing="5">
+                    <VerticalStackLayout Grid.Column="0">
+                        <Label Text="Geography Pack" 
+                               TextColor="{DynamicResource CardText}"
+                               FontSize="24" 
+                               FontAttributes="Bold"
+                               Margin="0,0,0,5"/>
 
-                    <Label Text="Countries, cities, and travel-related signs"
-                           TextColor="{DynamicResource CardText}"
-                           Grid.Row="1"
-                           Grid.ColumnSpan="2"/>
+                        <Label Text="Countries, cities, and travel-related signs"
+                               TextColor="{DynamicResource CardText}"
+                               FontSize="14"/>
+                    </VerticalStackLayout>
 
-                    <Button Text="£0.99" 
+                    <Button Text="{Binding GeographyPackButtonText}" 
                             Command="{Binding PurchasePackCommand}"
                             CommandParameter="geography"
+                            IsEnabled="{Binding IsGeographyPackPurchasable}"
                             Style="{StaticResource PrimaryButton}"
-                            Grid.Row="2"
-                            Grid.Column="1"/>
+                            HeightRequest="40"
+                            WidthRequest="100"
+                            Grid.Column="1"
+                            VerticalOptions="Center"/>
                 </Grid>
             </Border>
 
@@ -100,24 +100,28 @@
                     Opacity="0.95"
                     Padding="15" 
                     StrokeShape="RoundRectangle 10">
-                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto">
-                    <Label Text="Food &amp; Drink Pack" 
-                           TextColor="{DynamicResource CardText}"
-                           FontSize="24" 
-                           FontAttributes="Bold"
-                           Grid.ColumnSpan="2"/>
+                <Grid ColumnDefinitions="*,Auto" RowSpacing="5">
+                    <VerticalStackLayout Grid.Column="0">
+                        <Label Text="Food &amp; Drink Pack" 
+                               TextColor="{DynamicResource CardText}"
+                               FontSize="24" 
+                               FontAttributes="Bold"
+                               Margin="0,0,0,5"/>
 
-                    <Label Text="Signs for food, drinks, and dining"
-                           TextColor="{DynamicResource CardText}"
-                           Grid.Row="1"
-                           Grid.ColumnSpan="2"/>
+                        <Label Text="Signs for food, drinks, and dining"
+                               TextColor="{DynamicResource CardText}"
+                               FontSize="14"/>
+                    </VerticalStackLayout>
 
-                    <Button Text="£0.99" 
+                    <Button Text="{Binding FoodPackButtonText}" 
                             Command="{Binding PurchasePackCommand}"
                             CommandParameter="food_drink"
+                            IsEnabled="{Binding IsFoodPackPurchasable}"
                             Style="{StaticResource PrimaryButton}"
-                            Grid.Row="2"
-                            Grid.Column="1"/>
+                            HeightRequest="40"
+                            WidthRequest="100"
+                            Grid.Column="1"
+                            VerticalOptions="Center"/>
                 </Grid>
             </Border>
 
@@ -126,26 +130,63 @@
                     Opacity="0.95"
                     Padding="15" 
                     StrokeShape="RoundRectangle 10">
-                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto">
-                    <Label Text="Emotions Pack" 
-                           TextColor="{DynamicResource CardText}"
-                           FontSize="24" 
-                           FontAttributes="Bold"
-                           Grid.ColumnSpan="2"/>
+                <Grid ColumnDefinitions="*,Auto" RowSpacing="5">
+                    <VerticalStackLayout Grid.Column="0">
+                        <Label Text="Emotions Pack" 
+                               TextColor="{DynamicResource CardText}"
+                               FontSize="24" 
+                               FontAttributes="Bold"
+                               Margin="0,0,0,5"/>
 
-                    <Label Text="Signs for feelings, emotions, and expressions"
-                           TextColor="{DynamicResource CardText}"
-                           Grid.Row="1"
-                           Grid.ColumnSpan="2"/>
+                        <Label Text="Signs for feelings, emotions, and expressions"
+                               TextColor="{DynamicResource CardText}"
+                               FontSize="14"/>
+                    </VerticalStackLayout>
 
-                    <Button Text="£0.99" 
+                    <Button Text="{Binding EmotionsPackButtonText}" 
                             Command="{Binding PurchasePackCommand}"
                             CommandParameter="emotions"
+                            IsEnabled="{Binding IsEmotionsPackPurchasable}"
                             Style="{StaticResource PrimaryButton}"
-                            Grid.Row="2"
-                            Grid.Column="1"/>
+                            HeightRequest="40"
+                            WidthRequest="100"
+                            Grid.Column="1"
+                            VerticalOptions="Center"/>
                 </Grid>
             </Border>
+
+            <!-- Restore Purchases -->
+            <Border BackgroundColor="{DynamicResource CardBackground}"
+                    Opacity="0.95"
+                    Padding="15" 
+                    StrokeShape="RoundRectangle 10">
+                <Grid RowSpacing="10">
+                    <VerticalStackLayout>
+                        <Label Text="Previously Purchased?" 
+                               TextColor="{DynamicResource CardText}"
+                               FontSize="20" 
+                               FontAttributes="Bold"
+                               Margin="0,0,0,5"/>
+
+                        <Label Text="If you've reinstalled the app or switched devices, restore your purchases here."
+                               TextColor="{DynamicResource CardText}"
+                               FontSize="14"
+                               Margin="0,0,0,10"/>
+
+                        <Button Text="Restore Purchases" 
+                                Command="{Binding RestorePurchasesCommand}"
+                                Style="{StaticResource PrimaryButton}"/>
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator IsRunning="{Binding IsLoading}"
+                             IsVisible="{Binding IsLoading}"
+                             Color="{DynamicResource Primary}"
+                             HeightRequest="50"
+                             WidthRequest="50"
+                             HorizontalOptions="Center"/>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
