@@ -46,7 +46,7 @@ public partial class AppShell : Shell
             Routing.RegisterRoute("gamepage", typeof(GamePage));
             Routing.RegisterRoute("profile", typeof(ProfilePage));
             Routing.RegisterRoute("settings", typeof(SettingsPage));
-            Routing.RegisterRoute("howtoplay", typeof(HowToPlayPage));
+            Routing.RegisterRoute("settings", typeof(StorePage));
             Debug.WriteLine("All routes registered");
         }
         catch (Exception ex)
