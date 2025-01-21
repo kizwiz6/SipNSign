@@ -123,7 +123,7 @@ namespace com.kizwiz.sipnsign.Pages
                     var mainLayout = this.FindByName<VerticalStackLayout>("MainLayout");
                     if (mainLayout == null) return;
 
-                    var buttons = new[] { "GuessMode", "PerformMode", "Profile", "Settings" };
+                    var buttons = new[] { "GuessMode", "PerformMode", "Profile", "Settings", "Store" };
                     foreach (var styleId in buttons)
                     {
                         // Safely get resource value
@@ -255,6 +255,28 @@ namespace com.kizwiz.sipnsign.Pages
             {
                 logger?.Error($"Settings error: {ex.Message}");
                 await DisplayAlert("Error", "Unable to open settings", "OK");
+            }
+            finally
+            {
+                _isNavigating = false;
+            }
+        }
+
+        private async void OnStoreClicked(object sender, EventArgs e)
+        {
+            if (_isNavigating) return;
+            var logger = _serviceProvider?.GetService<ILoggingService>();
+
+            try
+            {
+                _isNavigating = true;
+                var storePage = new StorePage(_serviceProvider);
+                await Navigation.PushAsync(storePage);
+            }
+            catch (Exception ex)
+            {
+                logger?.Error($"Store error: {ex.Message}");
+                await DisplayAlert("Error", "Unable to open store", "OK");
             }
             finally
             {

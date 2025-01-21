@@ -32,6 +32,7 @@ namespace com.kizwiz.sipnsign.Services
                     MenuButton2 = Color.FromArgb("#28a745"),
                     MenuButton3 = Color.FromArgb("#FFC107"),
                     MenuButton4 = Color.FromArgb("#FF5722"),
+                    MenuButton5 = Color.FromArgb("#9C27B0"),  // Deep Purple - contrasts well with blue theme
                     AnswerButton = Color.FromArgb("#4FC3F7"),
                     ShellBackground = Color.FromArgb("#1a237e"),
                     ShellForeground = Colors.White,
@@ -50,6 +51,7 @@ namespace com.kizwiz.sipnsign.Services
                     MenuButton2 = Color.FromArgb("#00695C"),
                     MenuButton3 = Color.FromArgb("#7B1FA2"),
                     MenuButton4 = Color.FromArgb("#FF7597"),
+                    MenuButton5 = Color.FromArgb("#673AB7"),  // Deep Purple, darker shade for dark theme
                     AnswerButton = Color.FromArgb("#C2185B"),
                     ShellBackground = Color.FromArgb("#121212"),
                     ShellForeground = Color.FromArgb("#BB86FC"),
@@ -68,6 +70,7 @@ namespace com.kizwiz.sipnsign.Services
                 MenuButton2 = Color.FromArgb("#DEBACE"),  // Soft pink for Perform Mode
                 MenuButton3 = Color.FromArgb("#BFA2DB"),  // Light purple for Profile
                 MenuButton4 = Color.FromArgb("#95B8D1"),  // Sky blue for Settings
+                MenuButton5 = Color.FromArgb("#8E44AD"),  // Soft Purple for light theme
                 AnswerButton = Color.FromArgb("#8DDFCB"), // Mint
                 ShellBackground = Colors.White,
                 ShellForeground = Color.FromArgb("#9ED5C5"),
@@ -86,6 +89,7 @@ namespace com.kizwiz.sipnsign.Services
                     MenuButton2 = Color.FromArgb("#FFB900"),
                     MenuButton3 = Color.FromArgb("#FF8C42"),
                     MenuButton4 = Color.FromArgb("#FF5757"),
+                    MenuButton5 = Color.FromArgb("#E91E63"),  // Pink, complements sunset colors
                     AnswerButton = Color.FromArgb("#FFB74D"),
                     ShellBackground = Color.FromArgb("#FF512F"),
                     ShellForeground = Colors.White,
@@ -104,6 +108,7 @@ namespace com.kizwiz.sipnsign.Services
                     MenuButton2 = Color.FromArgb("#40916C"),
                     MenuButton3 = Color.FromArgb("#52B788"),
                     MenuButton4 = Color.FromArgb("#74C69D"),
+                    MenuButton5 = Color.FromArgb("#8BC34A"),  // Light Green, matches forest theme
                     AnswerButton = Color.FromArgb("#81C784"),
                     ShellBackground = Color.FromArgb("#2D5A27"),
                     ShellForeground = Color.FromArgb("#95D5B2"),
@@ -122,6 +127,7 @@ namespace com.kizwiz.sipnsign.Services
                     MenuButton2 = Color.FromArgb("#F72585"),  // Hot pink for Perform Mode
                     MenuButton3 = Color.FromArgb("#7209B7"),  // Deep purple for Profile
                     MenuButton4 = Color.FromArgb("#3A0CA3"),  // Royal blue for Settings
+                    MenuButton5 = Color.FromArgb("#BA68C8"),  // Space Purple
                     AnswerButton = Color.FromArgb("#4361EE"), // Electric blue
                     ShellBackground = Color.FromArgb("#0B0B1F"),
                     ShellForeground = Color.FromArgb("#4CC9F0"),
@@ -140,6 +146,7 @@ namespace com.kizwiz.sipnsign.Services
                     MenuButton2 = Color.FromArgb("#48CAE4"),
                     MenuButton3 = Color.FromArgb("#90E0EF"),
                     MenuButton4 = Color.FromArgb("#ADE8F4"),
+                    MenuButton5 = Color.FromArgb("#00BCD4"),  // Cyan, matches ocean theme
                     AnswerButton = Color.FromArgb("#4DD0E1"),
                     ShellBackground = Color.FromArgb("#1A5F7A"),
                     ShellForeground = Color.FromArgb("#00FFE1"),
@@ -158,6 +165,7 @@ namespace com.kizwiz.sipnsign.Services
                     MenuButton2 = Color.FromArgb("#00FF9F"),
                     MenuButton3 = Color.FromArgb("#9945FF"),
                     MenuButton4 = Color.FromArgb("#FF3366"),
+                    MenuButton5 = Color.FromArgb("#FF00FF"),  // Bright Magenta for neon effect
                     AnswerButton = Color.FromArgb("#00E5FF"),
                     ShellBackground = Color.FromArgb("#0C0032"),
                     ShellForeground = Color.FromArgb("#FF00FF"),
@@ -176,6 +184,7 @@ namespace com.kizwiz.sipnsign.Services
                     MenuButton2 = Color.FromArgb("#34495E"),
                     MenuButton3 = Color.FromArgb("#2C3E50"),
                     MenuButton4 = Color.FromArgb("#34495E"),
+                    MenuButton5 = Color.FromArgb("#757575"),  // Gray to maintain monochrome scheme
                     AnswerButton = Color.FromArgb("#2C3E50"),
                     ShellBackground = Color.FromArgb("#2C3E50"),
                     ShellForeground = Color.FromArgb("#ECF0F1"),
@@ -198,6 +207,7 @@ namespace com.kizwiz.sipnsign.Services
                     ["PerformMode"] = colors.MenuButton2,
                     ["Profile"] = colors.MenuButton3,
                     ["Settings"] = colors.MenuButton4,
+                    ["Store"] = colors.MenuButton5,
                     ["AnswerButton"] = colors.AnswerButton,
                     ["CardBackground"] = colors.CardBackground,
                     ["CardText"] = colors.CardText,
@@ -329,6 +339,7 @@ namespace com.kizwiz.sipnsign.Services
         public required Color MenuButton2 { get; set; }  // Perform Mode button
         public required Color MenuButton3 { get; set; }  // Progress button
         public required Color MenuButton4 { get; set; }  // Settings button
+        public required Color MenuButton5 { get; set; }  // Store button
         public required Color AnswerButton { get; set; } // Answer choice buttons
         public required Color ShellBackground { get; set; }
         public required Color ShellForeground { get; set; }  // For text/icons

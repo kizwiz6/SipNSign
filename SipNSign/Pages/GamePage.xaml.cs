@@ -21,6 +21,7 @@ namespace com.kizwiz.sipnsign.Pages
         private bool _isDisposed;
         private readonly SemaphoreSlim _cleanupLock = new(1, 1);
         private MediaElement? _sharedVideo;
+        private IDispatcherTimer? _timer;
         #endregion
 
         #region Properties
@@ -69,17 +70,16 @@ namespace com.kizwiz.sipnsign.Pages
         /// </summary>
         private async Task LoadVideoForCurrentSign()
         {
-            if (_viewModel?.CurrentSign == null) return;
+            if (_isDisposed || _viewModel?.CurrentSign == null) return;
 
             try
             {
                 await _videoLoadLock.WaitAsync();
 
-
                 var videoFileName = Path.GetFileName(_viewModel.CurrentSign.VideoPath);
                 Debug.WriteLine($"Attempting to load video: {videoFileName}");
 
-                if (_sharedVideo == null)
+                if (_sharedVideo == null && !_isDisposed)
                 {
                     Debug.WriteLine("Shared video is null, recreating...");
                     _sharedVideo = this.FindByName<MediaElement>("SharedVideo");
@@ -89,51 +89,29 @@ namespace com.kizwiz.sipnsign.Pages
                     }
                 }
 
-#if ANDROID
-        var context = Android.App.Application.Context;
-        var resourceId = context.Resources.GetIdentifier(
-            Path.GetFileNameWithoutExtension(videoFileName).ToLower(),
-            "raw",
-            context.PackageName);
+                // Get the video path/URI from the VideoService
+                var videoPath = await _videoService.GetVideoPath(videoFileName);
+                var source = MediaSource.FromUri(videoPath);
 
-        if (resourceId == 0)
-        {
-            Debug.WriteLine($"Resource not found for: {videoFileName}");
-            return;
-        }
-
-        var uri = Android.Net.Uri.Parse($"android.resource://{context.PackageName}/{resourceId}");
-        var source = MediaSource.FromUri(uri.ToString());
-
-        await MainThread.InvokeOnMainThreadAsync(() =>
-        {
-            try
-            {
-                if (_sharedVideo != null && !_isDisposed)
+                await MainThread.InvokeOnMainThreadAsync(() =>
                 {
-                    _sharedVideo.Stop();
-                    _sharedVideo.Source = null;
-                    _sharedVideo.Source = source;
-                    _sharedVideo.IsVisible = true;
-                    _sharedVideo.ShouldAutoPlay = true;
-                    _sharedVideo.Play();
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error setting video source: {ex.Message}");
-            }
-        });
-#else
-                var assetPath = $"Resources/Raw/{videoFileName}";
-                var stream = await FileSystem.OpenAppPackageFileAsync(videoFileName);
-                var tempPath = Path.Combine(FileSystem.CacheDirectory, videoFileName);
-                using (var fileStream = File.Create(tempPath))
-                {
-                    await stream.CopyToAsync(fileStream);
-                }
-                var source = MediaSource.FromFile(tempPath);
-#endif
+                    try
+                    {
+                        if (_sharedVideo != null && !_isDisposed)
+                        {
+                            _sharedVideo.Stop();
+                            _sharedVideo.Source = null;
+                            _sharedVideo.Source = source;
+                            _sharedVideo.IsVisible = true;
+                            _sharedVideo.ShouldAutoPlay = true;
+                            _sharedVideo.Play();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error setting video source: {ex.Message}");
+                    }
+                });
 
                 // Handle Guess Mode
                 var window = Application.Current?.Windows.FirstOrDefault();
@@ -313,19 +291,23 @@ namespace com.kizwiz.sipnsign.Pages
             {
                 ViewModel?.Cleanup();
 
+                // Stop any playing videos
                 if (_sharedVideo != null)
                 {
+                    _sharedVideo.Stop();
+                    _sharedVideo.Source = null;
                     _sharedVideo.Handler?.DisconnectHandler();
-                    _sharedVideo = null;
                 }
 
                 if (PerformVideo != null)
                 {
+                    PerformVideo.Stop();
+                    PerformVideo.Source = null;
                     PerformVideo.Handler?.DisconnectHandler();
-                    PerformVideo = null;
                 }
 
-                await Task.Delay(100); // Give time for cleanup
+                // Give time for cleanup
+                await Task.Delay(100);
             }
             catch (Exception ex)
             {
@@ -387,6 +369,24 @@ namespace com.kizwiz.sipnsign.Pages
                 _sharedVideo = null;
                 PerformVideo = null;
                 _videoLoadLock.Release();
+            }
+        }
+
+        public async void Cleanup()
+        {
+            try
+            {
+                if (_timer != null)
+                {
+                    _timer.Stop();
+                    _timer = null;
+                }
+
+                await CleanupMediaElements();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in Cleanup: {ex.Message}");
             }
         }
 

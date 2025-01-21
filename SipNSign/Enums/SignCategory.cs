@@ -12,9 +12,11 @@
         Emotions,
         Family,
         Food,
+        Hobbies,
         Nature,
         Numbers,
         Occupations,
+        Sports,
         Time,
         Travel,
         Weather

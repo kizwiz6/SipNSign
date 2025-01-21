@@ -36,20 +36,39 @@
                 <ProgressBar x:Name="GameProgress"
                              Style="{StaticResource ProgressBarStyle}"
                              Progress="{Binding ProgressPercentage}"/>
-                <Label Text="{Binding RemainingTime}"
-                       HorizontalOptions="Center"
-                       VerticalOptions="Center"
-                       FontSize="18"
-                       TextColor="{DynamicResource Primary}"
-                       IsVisible="{Binding IsTimerEnabled}">
-                    <Label.Triggers>
-                        <DataTrigger TargetType="Label"
-                                     Binding="{Binding RemainingTime}"
-                                     Value="0">
-                            <Setter Property="Text" Value="∞"/>
-                        </DataTrigger>
-                    </Label.Triggers>
-                </Label>
+
+
+                <!-- Timer Display with improved visibility -->
+                <Border 
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        BackgroundColor="{DynamicResource Primary}"
+                        StrokeShape="RoundRectangle 15"
+                        Padding="10,2"
+                        Opacity="0.9">
+                    <Label 
+                        Text="{Binding RemainingTime}"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        FontSize="20"
+                        FontAttributes="Bold"
+                        TextColor="White">
+                        <Label.Shadow>
+                            <Shadow 
+                        Brush="Black"
+                        Offset="0,1"
+                        Radius="2"
+                        Opacity="0.5"/>
+                        </Label.Shadow>
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label"
+                                Binding="{Binding RemainingTime}"
+                                Value="0">
+                                <Setter Property="Text" Value="∞"/>
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </Border>
             </Grid>
 
             <!-- Score -->

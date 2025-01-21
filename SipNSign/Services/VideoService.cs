@@ -11,60 +11,27 @@ namespace com.kizwiz.sipnsign.Services
         private bool _isInitialized = false;
         private readonly string _videoDirectory;
         private readonly SemaphoreSlim _initializationLock = new SemaphoreSlim(1, 1);
+        private readonly ILoggingService _logger;
         #endregion
 
         #region Constructor
         /// <summary>
         /// Initializes the video service with app's data directory
         /// </summary>
-        public VideoService()
+        public VideoService(ILoggingService logger)
         {
+            _logger = logger;
             _videoDirectory = FileSystem.AppDataDirectory;
             Debug.WriteLine($"Video directory initialized: {_videoDirectory}");
         }
         #endregion
 
         #region Public Methods
-        public async Task InitializeVideos()
+        public Task InitializeVideos()
         {
-            try
-            {
-                await _initializationLock.WaitAsync();
-
-                if (_isInitialized)
-                {
-                    Debug.WriteLine("Videos already initialized");
-                    return;
-                }
-
-                Debug.WriteLine("Starting video initialization");
-                var signs = new SignRepository().GetSigns();
-                Debug.WriteLine($"Found {signs.Count} signs to initialize");
-
-                foreach (var sign in signs)
-                {
-                    string filename = Path.GetFileName(sign.VideoPath);
-                    string targetPath = Path.Combine(_videoDirectory, filename);
-
-                    if (!File.Exists(targetPath))
-                    {
-                        Debug.WriteLine($"Copying video: {filename}");
-                        await CopyVideoToAppData(filename);
-                    }
-                }
-
-                _isInitialized = true;
-                Debug.WriteLine("Video initialization complete");
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error in InitializeVideos: {ex.Message}");
-                throw;
-            }
-            finally
-            {
-                _initializationLock.Release();
-            }
+            // No need to copy files on Android as we access raw resources directly
+            _isInitialized = true;
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -76,21 +43,45 @@ namespace com.kizwiz.sipnsign.Services
         {
             try
             {
-                if (!_isInitialized)
+                _logger.Debug($"GetVideoPath called for: {videoFileName}");
+
+#if ANDROID
+                var context = Android.App.Application.Context;
+                var resourceName = Path.GetFileNameWithoutExtension(videoFileName).ToLower();
+                var resourceId = context.Resources.GetIdentifier(
+                    resourceName,
+                    "raw",
+                    context.PackageName);
+
+                if (resourceId == 0)
                 {
-                    await InitializeVideos();
+                    _logger.Error($"Resource not found for: {videoFileName}");
+                    throw new FileNotFoundException($"Video resource not found: {videoFileName}");
                 }
 
-                Debug.WriteLine($"Attempting to get video path for: {videoFileName}");
-                var path = Path.Combine(_videoDirectory, videoFileName);
-                Debug.WriteLine($"Combined path: {path}");
-                Debug.WriteLine($"File exists: {File.Exists(path)}");
+                var uri = $"android.resource://{context.PackageName}/{resourceId}";
+                _logger.Debug($"Resource URI created: {uri}");
+                return uri;
+#else
+                var assetPath = $"Resources/Raw/{videoFileName}";
+                _logger.Debug($"Looking for video at: {assetPath}");
 
-                return File.Exists(path) ? path : throw new FileNotFoundException($"Video not found: {videoFileName}");
+                using var stream = await FileSystem.OpenAppPackageFileAsync(videoFileName);
+                var tempPath = Path.Combine(_videoDirectory, videoFileName);
+
+                using (var fileStream = File.Create(tempPath))
+                {
+                    await stream.CopyToAsync(fileStream);
+                }
+
+                _logger.Debug($"Video copied to: {tempPath}");
+                return tempPath;
+#endif
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in GetVideoPath: {ex.Message}");
+                _logger.Error($"Error in GetVideoPath: {ex.Message}");
+                _logger.Error($"Stack trace: {ex.StackTrace}");
                 throw;
             }
         }
