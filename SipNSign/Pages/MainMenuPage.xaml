@@ -89,10 +89,10 @@
             BackgroundColor="{DynamicResource PerformMode}"
             Clicked="OnPerformGameClicked"/>
 
-            <Button Text="Progress"
-            StyleId="Progress"
+            <Button Text="Profile"
+            StyleId="Profile"
             Style="{StaticResource MenuButton}"
-            BackgroundColor="{DynamicResource Progress}"
+            BackgroundColor="{DynamicResource Profile}"
             Clicked="OnViewScoresClicked"/>
 
             <Button Text="Settings"
@@ -100,6 +100,12 @@
             Style="{StaticResource MenuButton}"
             BackgroundColor="{DynamicResource Settings}"
             Clicked="OnSettingsClicked"/>
+
+            <Button Text="Store"
+            StyleId="Store"
+            Style="{StaticResource MenuButton}"
+            BackgroundColor="{DynamicResource Store}"
+            Clicked="OnStoreClicked"/>
         </VerticalStackLayout>
     </Grid>
 </ContentPage>

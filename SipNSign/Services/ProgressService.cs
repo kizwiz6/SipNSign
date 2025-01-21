@@ -104,7 +104,9 @@ namespace com.kizwiz.sipnsign.Services
 
                     case "QUIZ_PERFECT":
                         var perfectQuiz = _currentProgress.Activities
-                            .Any(a => a.Type == ActivityType.Quiz && a.Score == "10/10");
+                            .Any(a => a.Type == ActivityType.Quiz &&
+                                 a.Description.Contains("100 questions") &&
+                                 a.Score == "100/100");
                         if (perfectQuiz)
                         {
                             await UnlockAchievement(achievement);
@@ -150,38 +152,31 @@ namespace com.kizwiz.sipnsign.Services
                         }
                         break;
 
-                    case "PARTY_STARTER" when !achievement.IsUnlocked:
-                        // Count completed Perform mode sessions
-                        var performSessions = _currentProgress.Activities
-                            .Count(a => a.Type == ActivityType.Practice &&
-                                       a.Description.Contains("Perform Mode completed"));
-                        achievement.ProgressCurrent = performSessions;
-                        if (performSessions >= 50)
-                        {
-                            await UnlockAchievement(achievement);
-                        }
-                        break;
+                    
+                    // REMVOED AS PERFORM MODE DOES NOT HAVE SESSIONS
+                        //case "PARTY_STARTER" when !achievement.IsUnlocked:
+                    //    // Count completed Perform mode sessions
+                    //    var performSessions = _currentProgress.Activities
+                    //        .Count(a => a.Type == ActivityType.Practice &&
+                    //                   a.Description.Contains("Perform Mode completed"));
+                    //    achievement.ProgressCurrent = performSessions;
+                    //    if (performSessions >= 50)
+                    //    {
+                    //        await UnlockAchievement(achievement);
+                    //    }
+                    //    break;
 
                     case "SOCIAL_BUTTERFLY" when !achievement.IsUnlocked:
-                        // Group activities by date and check if both modes were played
-                        var dailyModes = _currentProgress.Activities
-                            .GroupBy(a => a.Timestamp.Date)
-                            .Count(g => g.Any(a => a.Description.Contains("Guess Mode")) &&
-                                        g.Any(a => a.Description.Contains("Perform Mode")));
-                        achievement.ProgressCurrent = dailyModes;
-                        if (dailyModes >= 5)
-                        {
-                            await UnlockAchievement(achievement);
-                        }
+                        // Triggered from ShareAchievements() in AchievementDetailsViewModel
                         break;
 
                     case "RAPID_FIRE" when !achievement.IsUnlocked:
                         // Count correct answers under 5 seconds
                         var rapidAnswers = _currentProgress.Activities
                             .Count(a => a.Type == ActivityType.Practice &&
-                                       a.Score == "+1" &&
-                                       a.Description.Contains("under 5 seconds"));
+                                       a.Description.Contains("correctly under 5 seconds"));
                         achievement.ProgressCurrent = rapidAnswers;
+                        achievement.ProgressRequired = 50;
                         if (rapidAnswers >= 50)
                         {
                             await UnlockAchievement(achievement);
@@ -189,13 +184,12 @@ namespace com.kizwiz.sipnsign.Services
                         break;
 
                     case "SPEED_MASTER" when !achievement.IsUnlocked:
-                        // Check for completed sessions with average time under 3 seconds
-                        var fastSessions = _currentProgress.Activities
-                            .Count(a => a.Type == ActivityType.Practice &&
-                                       a.Description.Contains("Guess Mode completed") &&
-                                       a.Description.Contains("average time under 3 seconds"));
-                        achievement.ProgressCurrent = fastSessions;
-                        if (fastSessions >= 100)
+                        // Check for at least one completed session with average time under 3 seconds
+                        var hasFastSession = _currentProgress.Activities
+                            .Any(a => a.Type == ActivityType.Practice &&
+                                     a.Description.Contains("Guess Mode completed with average time under 3 seconds"));
+                        achievement.ProgressCurrent = hasFastSession ? 1 : 0;
+                        if (hasFastSession)
                         {
                             await UnlockAchievement(achievement);
                         }
@@ -280,125 +274,125 @@ namespace com.kizwiz.sipnsign.Services
                 {
                     Id = "STREAK_7",
                     Title = "Week Warrior",
-                    Description = "Practice for 7 consecutive days",
-                    IconName = "streak_icon",
+                    Description = "Practiced for 7 consecutive days",
+                    IconName = "streak_weekly_icon",
                     ProgressRequired = 7
                 },
                 new Achievement
                 {
                     Id = "SIGNS_50",
                     Title = "Sign Master",
-                    Description = "Learn 50 signs",
-                    IconName = "practice_icon",
+                    Description = "Learnt 50 signs",
+                    IconName = "fifty_signs_icon",
                     ProgressRequired = 50
-                },
-                new Achievement
-                {
-                    Id = "QUIZ_PERFECT",
-                    Title = "Perfect Score",
-                    Description = "Get 100% on a quiz",
-                    IconName = "quiz_icon",
-                    ProgressRequired = 1
-                },
-                new Achievement
-                {
-                    Id = "FIRST_SIGN",
-                    Title = "First Steps",
-                    Description = "Learn your first sign",
-                    IconName = "practice_icon",
-                    ProgressRequired = 1
-                },
-                new Achievement
-                {
-                    Id = "STREAK_30",
-                    Title = "Monthly Master",
-                    Description = "Practice for 30 consecutive days",
-                    IconName = "streak_icon",
-                    ProgressRequired = 30
                 },
                 new Achievement
                 {
                     Id = "SIGNS_100",
                     Title = "Century Club",
-                    Description = "Learn 100 signs",
-                    IconName = "practice_icon",
+                    Description = "Learnt 100 signs",
+                    IconName = "century_club_icon",
                     ProgressRequired = 100
-                },
-                new Achievement
-                {
-                    Id = "PRACTICE_HOURS_10",
-                    Title = "Dedicated Student",
-                    Description = "Practice for 10 hours",
-                    IconName = "time_icon",
-                    ProgressRequired = 10
                 },
                 new Achievement
                 {
                     Id = "SIGNS_100_GUESS",
                     Title = "Guess Master",
-                    Description = "Get 100 signs correct in Guess Mode",
-                    IconName = "mastery_icon",
+                    Description = "Got 100 signs correct in Guess Mode",
+                    IconName = "guess_100_icon",
                     ProgressRequired = 100
                 },
                 new Achievement
                 {
                     Id = "SIGNS_1000_GUESS",
                     Title = "Ultimate Guesser",
-                    Description = "Get 1000 signs correct in Guess Mode",
-                    IconName = "mastery_icon",
+                    Description = "Got 1000 signs correct in Guess Mode",
+                    IconName = "guess_1000_icon",
                     ProgressRequired = 1000
                 },
                 new Achievement
                 {
                     Id = "SIGNS_100_PERFORM",
                     Title = "Performance Pro",
-                    Description = "Successfully perform 100 signs",
-                    IconName = "mastery_icon",
+                    Description = "Successfully performed 100 signs",
+                    IconName = "perform_100_icon",
                     ProgressRequired = 100
                 },
                 new Achievement
                 {
                     Id = "SIGNS_1000_PERFORM",
                     Title = "Sign Language Star",
-                    Description = "Successfully perform 1000 signs",
-                    IconName = "mastery_icon",
+                    Description = "Successfully performed 1000 signs",
+                    IconName = "perform_1000_icon",
                     ProgressRequired = 1000
+                },
+                new Achievement
+                {
+                    Id = "QUIZ_PERFECT",
+                    Title = "Perfect Score",
+                    Description = "Got 100% on a 100-question quiz",
+                    IconName = "quiz_master_icon",
+                    ProgressRequired = 1
+                },
+                new Achievement
+                {
+                    Id = "FIRST_SIGN",
+                    Title = "First Steps",
+                    Description = "Learnt your first sign",
+                    IconName = "first_sign_icon",
+                    ProgressRequired = 1
+                },
+                new Achievement
+                {
+                    Id = "STREAK_30",
+                    Title = "Monthly Master",
+                    Description = "Practiced for 30 consecutive days",
+                    IconName = "streak_monthly_icon",
+                    ProgressRequired = 30
+                },
+                new Achievement
+                {
+                    Id = "PRACTICE_HOURS_10",
+                    Title = "Dedicated Student",
+                    Description = "Practiced for 10 hours",
+                    IconName = "time_icon",
+                    ProgressRequired = 10
                 },
                 new Achievement
                 {
                     Id = "PERFECT_SESSION",
                     Title = "Perfect Session",
-                    Description = "Get 50 signs correct in a row",
-                    IconName = "quiz_icon",
+                    Description = "Got 50 signs correct in a row",
+                    IconName = "perfect_session_icon",
                     ProgressRequired = 1
                 },
-                new Achievement {
-                    Id = "PARTY_STARTER",
-                    Title = "Party Starter",
-                    Description = "Played 50 complete sessions in Perform mode",
-                    IconName = "party_icon",
-                    ProgressRequired = 50
-                },
+                //new Achievement {
+                //    Id = "PARTY_STARTER",
+                //    Title = "Party Starter",
+                //    Description = "Played 50 complete sessions in Perform mode",
+                //    IconName = "party_icon",
+                //    ProgressRequired = 50
+                //},
                 new Achievement {
                     Id = "SOCIAL_BUTTERFLY",
                     Title = "Social Butterfly",
-                    Description = "Play in both modes in the same day for 5 days",
+                    Description = "Shared your first achievement",
                     IconName = "social_icon",
-                    ProgressRequired = 5
+                    ProgressRequired = 1
                 },
                 new Achievement {
                     Id = "RAPID_FIRE",
                     Title = "Rapid Fire",
-                    Description = "Answer 50 signs correctly in under 5 seconds each",
+                    Description = "Answered 50 signs correctly in under 5 seconds each",
                     IconName = "speed_icon",
                     ProgressRequired = 5
                 },
                 new Achievement {
                     Id = "SPEED_MASTER",
                     Title = "Speed Master",
-                    Description = "Complete a 100 Guess Mode session with average time under 3 seconds",
-                    IconName = "lightning_icon",
-                    ProgressRequired = 100
+                    Description = "Completed a 100 Guess Mode session with average time under 3 seconds",
+                    IconName = "speed_master_icon",
+                    ProgressRequired = 1
                 }
             };
         }
@@ -553,17 +547,22 @@ namespace com.kizwiz.sipnsign.Services
                 string iconName = achievement.Id switch
                 {
                     "FIRST_SIGN" => "first_sign_icon",
-                    "STREAK_7" => "streak_icon",
-                    "STREAK_30" => "streak_icon",
-                    "SIGNS_50" => "mastery_icon",
-                    "SIGNS_100" => "mastery_icon",
-                    "QUIZ_PERFECT" => "quiz_icon",
+                    "STREAK_7" => "streak_weekly_icon",
+                    "STREAK_30" => "streak_monthly_icon",
+                    "SIGNS_50" => "fifty_signs_icon",
+                    "SIGNS_100" => "century_club_icon",
+                    "QUIZ_PERFECT" => "quiz_master_icon",
                     "PRACTICE_HOURS_10" => "time_icon",
-                    "PARTY_STARTER" => "party_icon",
+                    "SIGNS_100_GUESS" => "guess_100_icon",
+                    "SIGNS_1000_GUESS" => "guess_1000_icon",
+                    "SIGNS_100_PERFORM" => "perform_100_icon",
+                    "SIGNS_1000_PERFORM" => "perform_1000_icon",
+                    "PERFECT_SESSION" => "perfect_session_icon",
+                    //"PARTY_STARTER" => "party_icon",
                     "SOCIAL_BUTTERFLY" => "social_icon",
                     "RAPID_FIRE" => "speed_icon",
-                    "SPEED_MASTER" => "lightning_icon",
-                    _ => "achievement_icon"  // Default case (underscore, not asterisk)
+                    "SPEED_MASTER" => "speed_master_icon",
+                    _ => "achievement_icon" // Default case (underscore, not asterisk)
                 };
 
                 await LogActivityAsync(new ActivityLog

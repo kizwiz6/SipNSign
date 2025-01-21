@@ -41,7 +41,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private bool _isGameOver;
         private bool _isGameActive = true;
         private double _progressPercentage;
-        private string _feedbackBackgroundColor;
+        private Color _feedbackBackgroundColor;
         private string _guessResults;
         private bool _isFeedbackVisible;
         private int _finalScore;
@@ -218,8 +218,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                 }
             }
         }
-
-        public string FeedbackBackgroundColor
+        public Color FeedbackBackgroundColor
         {
             get => _feedbackBackgroundColor;
             set
@@ -432,7 +431,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             _signs = new SignRepository().GetSigns();
             _availableIndices = new List<int>();
             _feedbackText = string.Empty;
-            _feedbackBackgroundColor = string.Empty;
+            _feedbackBackgroundColor = Colors.Transparent;
             _guessResults = string.Empty;
 
             // Initialize SignRevealRequested with a default handler
@@ -527,8 +526,6 @@ namespace com.kizwiz.sipnsign.ViewModels
             SwitchModeCommand = new Command<GameMode>(SwitchMode);
         }
 
-
-
         private string GetFeedbackText(bool isCorrect)
         {
             bool isSoberMode = Preferences.Get(Constants.SOBER_MODE_KEY, false);
@@ -549,7 +546,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         {
             ProgressPercentage = 0;
             IsFeedbackVisible = false;
-            FeedbackBackgroundColor = Colors.Transparent.ToArgbHex();
+            FeedbackBackgroundColor = Colors.Transparent;
             ResetGame();
         }
 
@@ -625,7 +622,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                 if (Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true))
                 {
                     FeedbackText = GetFeedbackText(isCorrect);
-                    string color = GetFeedbackColor(isCorrect);
+                    Color color = GetFeedbackColor(isCorrect);
                     Debug.WriteLine($"Setting feedback color to: {color}");
                     FeedbackBackgroundColor = color;
                     IsFeedbackVisible = true;
@@ -661,10 +658,12 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
 
-        public string GetFeedbackColor(bool isCorrect)
+        public Color GetFeedbackColor(bool isCorrect)
         {
             bool useTransparent = Preferences.Get(Constants.TRANSPARENT_FEEDBACK_KEY, false);
-            string color = useTransparent ? "#80000000" : (isCorrect ? "#28a745" : "#dc3545");
+            Color color = useTransparent ?
+                Colors.Black.WithAlpha(0.5f) :
+                (isCorrect ? Color.FromArgb("#28a745") : Color.FromArgb("#dc3545"));
             Debug.WriteLine($"Current mode: {CurrentMode}, Transparent: {useTransparent}, IsCorrect: {isCorrect}, Color: {color}");
             return color;
         }
@@ -1017,44 +1016,29 @@ namespace com.kizwiz.sipnsign.ViewModels
             // At the end of a session (when all questions are answered)
             if (_availableIndices.Count == 0)
             {
-                // For Party Starter achievement (Perform Mode)
-                if (CurrentMode == GameMode.Perform)
-                {
-                    await _progressService.LogActivityAsync(new ActivityLog
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        Type = ActivityType.Practice,
-                        Description = "Perform Mode session completed",
-                        IconName = "party_icon",
-                        Timestamp = DateTime.Now
-                    });
-                }
 
                 // For Speed Master achievement (Guess Mode)
                 if (CurrentMode == GameMode.Guess && _averageAnswerTime < 3.0)
                 {
-                    await _progressService.LogActivityAsync(new ActivityLog
+                    // Check if Speed Master achievement is already unlocked
+                    var speedMasterAchievement = _userProgress?.Achievements
+                        .FirstOrDefault(a => a.Id == "SPEED_MASTER");
+
+                    // Only log if achievement isn't already unlocked
+                    if (speedMasterAchievement != null && !speedMasterAchievement.IsUnlocked)
                     {
-                        Id = Guid.NewGuid().ToString(),
-                        Type = ActivityType.Practice,
-                        Description = "Guess Mode completed with average time under 3 seconds",
-                        IconName = "lightning_icon",
-                        Timestamp = DateTime.Now
-                    });
+                        await _progressService.LogActivityAsync(new ActivityLog
+                        {
+                            Id = Guid.NewGuid().ToString(),
+                            Type = ActivityType.Practice,
+                            Description = "Guess Mode completed with average time under 3 seconds",
+                            IconName = "speed_master_icon",
+                            Timestamp = DateTime.Now
+                        });
+                        await _progressService.UpdateAchievementsAsync();
+                    }
                 }
             }
-        }
-
-        private async Task LogAchievementActivity(string achievementTitle)
-        {
-            await _progressService.LogActivityAsync(new ActivityLog
-            {
-                Id = Guid.NewGuid().ToString(),
-                Type = ActivityType.Achievement,
-                Description = $"Unlocked: {achievementTitle}",
-                IconName = "achievement_icon.svg",
-                Timestamp = DateTime.Now
-            });
         }
 
         #endregion
@@ -1147,6 +1131,15 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
 
+        public void Cleanup()
+        {
+            if (_timer != null)
+            {
+                _timer.Stop();
+                _timer = null;
+            }
+        }
+
         public required MediaSource CurrentVideoSource { get; set; }
         public ICommand GoToSettingsCommand => new Command(async () =>
         {
@@ -1219,23 +1212,36 @@ namespace com.kizwiz.sipnsign.ViewModels
         /// </remarks>
         public void EndGame()
         {
-            Debug.WriteLine("EndGame started");
-            _timer?.Stop();
-            MainThread.BeginInvokeOnMainThread(() =>
+            try
             {
-                IsGameActive = false;
-                IsGameOver = true;
+                Debug.WriteLine("EndGame started");
 
-                // Set the results text
-                int totalQuestions = Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
-                GuessResults = $"Final Score: {CurrentScore}/{totalQuestions}";
-                Debug.WriteLine("EndGame completed");
+                // Stop the timer
+                _timer?.Stop();
 
-                // Force UI update
-                OnPropertyChanged(nameof(IsGameOver));
-                OnPropertyChanged(nameof(GuessResults));
-            });
+                // Update UI state
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    IsGameActive = false;
+                    IsGameOver = true;
+
+                    // Set the results text
+                    int totalQuestions = Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
+                    GuessResults = $"Final Score: {CurrentScore}/{totalQuestions}";
+
+                    Debug.WriteLine("EndGame completed");
+
+                    // Force UI update
+                    OnPropertyChanged(nameof(IsGameOver));
+                    OnPropertyChanged(nameof(GuessResults));
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error ending game: {ex.Message}");
+            }
         }
+
 
         protected virtual void OnPropertyChanged(string propertyName)
         {

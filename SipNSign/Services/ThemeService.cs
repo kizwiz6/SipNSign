@@ -12,6 +12,9 @@ namespace com.kizwiz.sipnsign.Services
         private const string THEME_KEY = "app_theme";
         public event EventHandler? ThemeChanged;
 
+        private readonly Dictionary<CustomAppTheme, Dictionary<string, object>> _themeCache
+       = new Dictionary<CustomAppTheme, Dictionary<string, object>>();
+
         /// <summary>
         /// Theme color definitions with complementary button/text colors
         /// </summary>
@@ -29,6 +32,7 @@ namespace com.kizwiz.sipnsign.Services
                     MenuButton2 = Color.FromArgb("#28a745"),
                     MenuButton3 = Color.FromArgb("#FFC107"),
                     MenuButton4 = Color.FromArgb("#FF5722"),
+                    MenuButton5 = Color.FromArgb("#9C27B0"),  // Deep Purple - contrasts well with blue theme
                     AnswerButton = Color.FromArgb("#4FC3F7"),
                     ShellBackground = Color.FromArgb("#1a237e"),
                     ShellForeground = Colors.White,
@@ -43,11 +47,12 @@ namespace com.kizwiz.sipnsign.Services
                     Secondary = Color.FromArgb("#03DAC6"),    // Teal
                     CardBackground = Color.FromArgb("#2D2D2D"), // Slightly lighter dark for cards
                     CardText = Colors.White,                  // White text for dark theme
-                    MenuButton1 = Color.FromArgb("#BB86FC"),
-                    MenuButton2 = Color.FromArgb("#03DAC6"),
-                    MenuButton3 = Color.FromArgb("#CF6679"),
+                    MenuButton1 = Color.FromArgb("#7B1FA2"),
+                    MenuButton2 = Color.FromArgb("#00695C"),
+                    MenuButton3 = Color.FromArgb("#7B1FA2"),
                     MenuButton4 = Color.FromArgb("#FF7597"),
-                    AnswerButton = Color.FromArgb("#B39DDB"),
+                    MenuButton5 = Color.FromArgb("#673AB7"),  // Deep Purple, darker shade for dark theme
+                    AnswerButton = Color.FromArgb("#C2185B"),
                     ShellBackground = Color.FromArgb("#121212"),
                     ShellForeground = Color.FromArgb("#BB86FC"),
                     BackgroundImage = "dark_theme_bg.png"
@@ -55,20 +60,21 @@ namespace com.kizwiz.sipnsign.Services
             },
             {
                 CustomAppTheme.Light, new ThemeColors {
-                    Background1 = Colors.White,
-                    Background2 = Color.FromArgb("#F5F5F5"),  // Very light gray
-                    Primary = Color.FromArgb("#1976D2"),      // Blue
-                    Secondary = Color.FromArgb("#2196F3"),    // Lighter blue
-                    CardBackground = Color.FromArgb("#E3F2FD"), // Very light blue for cards
-                    CardText = Color.FromArgb("#1E1E1E"),    // Almost black text
-                    MenuButton1 = Color.FromArgb("#0056b3"),
-                    MenuButton2 = Color.FromArgb("#004d40"),
-                    MenuButton3 = Color.FromArgb("#e65100"),
-                    MenuButton4 = Color.FromArgb("#b71c1c"),
-                    AnswerButton = Color.FromArgb("#0056b3"),
-                    ShellBackground = Colors.White,
-                    ShellForeground = Color.FromArgb("#1976D2"),
-                    BackgroundImage = "light_theme_bg.png"
+                Background1 = Color.FromArgb("#DEBACE"),
+                Background2 = Color.FromArgb("#F8F9FA"),
+                Primary = Color.FromArgb("#9ED5C5"),      // Soft mint
+                Secondary = Color.FromArgb("#BFACE2"),    // Soft lavender
+                CardBackground = Color.FromArgb("#E3F2FD"),
+                CardText = Color.FromArgb("#2C3E50"),     // Dark blue-gray for contrast
+                MenuButton1 = Color.FromArgb("#8DDFCB"),  // Mint for Guess Mode
+                MenuButton2 = Color.FromArgb("#DEBACE"),  // Soft pink for Perform Mode
+                MenuButton3 = Color.FromArgb("#BFA2DB"),  // Light purple for Profile
+                MenuButton4 = Color.FromArgb("#95B8D1"),  // Sky blue for Settings
+                MenuButton5 = Color.FromArgb("#8E44AD"),  // Soft Purple for light theme
+                AnswerButton = Color.FromArgb("#8DDFCB"), // Mint
+                ShellBackground = Colors.White,
+                ShellForeground = Color.FromArgb("#9ED5C5"),
+                BackgroundImage = "pastel_garden_bg.png"
                 }
             },
             {
@@ -83,6 +89,7 @@ namespace com.kizwiz.sipnsign.Services
                     MenuButton2 = Color.FromArgb("#FFB900"),
                     MenuButton3 = Color.FromArgb("#FF8C42"),
                     MenuButton4 = Color.FromArgb("#FF5757"),
+                    MenuButton5 = Color.FromArgb("#E91E63"),  // Pink, complements sunset colors
                     AnswerButton = Color.FromArgb("#FFB74D"),
                     ShellBackground = Color.FromArgb("#FF512F"),
                     ShellForeground = Colors.White,
@@ -101,10 +108,30 @@ namespace com.kizwiz.sipnsign.Services
                     MenuButton2 = Color.FromArgb("#40916C"),
                     MenuButton3 = Color.FromArgb("#52B788"),
                     MenuButton4 = Color.FromArgb("#74C69D"),
+                    MenuButton5 = Color.FromArgb("#8BC34A"),  // Light Green, matches forest theme
                     AnswerButton = Color.FromArgb("#81C784"),
                     ShellBackground = Color.FromArgb("#2D5A27"),
                     ShellForeground = Color.FromArgb("#95D5B2"),
                     BackgroundImage = "forest_theme_bg.png"
+                }
+            },
+            {
+                CustomAppTheme.Space, new ThemeColors {
+                    Background1 = Color.FromArgb("#0B0B1F"),  // Very dark blue
+                    Background2 = Color.FromArgb("#1B1B3A"),  // Dark blue-purple
+                    Primary = Color.FromArgb("#4CC9F0"),      // Bright cyan
+                    Secondary = Color.FromArgb("#7209B7"),    // Deep purple
+                    CardBackground = Color.FromArgb("#20205A"), // Deep space blue
+                    CardText = Colors.White,
+                    MenuButton1 = Color.FromArgb("#4CC9F0"),  // Bright cyan for Guess Mode
+                    MenuButton2 = Color.FromArgb("#F72585"),  // Hot pink for Perform Mode
+                    MenuButton3 = Color.FromArgb("#7209B7"),  // Deep purple for Profile
+                    MenuButton4 = Color.FromArgb("#3A0CA3"),  // Royal blue for Settings
+                    MenuButton5 = Color.FromArgb("#BA68C8"),  // Space Purple
+                    AnswerButton = Color.FromArgb("#4361EE"), // Electric blue
+                    ShellBackground = Color.FromArgb("#0B0B1F"),
+                    ShellForeground = Color.FromArgb("#4CC9F0"),
+                    BackgroundImage = "space_theme_bg.png"
                 }
             },
             {
@@ -119,6 +146,7 @@ namespace com.kizwiz.sipnsign.Services
                     MenuButton2 = Color.FromArgb("#48CAE4"),
                     MenuButton3 = Color.FromArgb("#90E0EF"),
                     MenuButton4 = Color.FromArgb("#ADE8F4"),
+                    MenuButton5 = Color.FromArgb("#00BCD4"),  // Cyan, matches ocean theme
                     AnswerButton = Color.FromArgb("#4DD0E1"),
                     ShellBackground = Color.FromArgb("#1A5F7A"),
                     ShellForeground = Color.FromArgb("#00FFE1"),
@@ -135,8 +163,9 @@ namespace com.kizwiz.sipnsign.Services
                     CardText = Colors.White,                  // White text
                     MenuButton1 = Color.FromArgb("#FF00FF"),
                     MenuButton2 = Color.FromArgb("#00FF9F"),
-                    MenuButton3 = Color.FromArgb("#FFFF00"),
+                    MenuButton3 = Color.FromArgb("#9945FF"),
                     MenuButton4 = Color.FromArgb("#FF3366"),
+                    MenuButton5 = Color.FromArgb("#FF00FF"),  // Bright Magenta for neon effect
                     AnswerButton = Color.FromArgb("#00E5FF"),
                     ShellBackground = Color.FromArgb("#0C0032"),
                     ShellForeground = Color.FromArgb("#FF00FF"),
@@ -147,21 +176,45 @@ namespace com.kizwiz.sipnsign.Services
                 CustomAppTheme.Monochrome, new ThemeColors {
                     Background1 = Color.FromArgb("#2C3E50"),  // Dark gray-blue
                     Background2 = Color.FromArgb("#34495E"),  // Slightly lighter gray-blue
-                    Primary = Color.FromArgb("#ECF0F1"),      // Very light gray
-                    Secondary = Color.FromArgb("#BDC3C7"),    // Light gray
+                    Primary = Color.FromArgb("#2C3E50"),      // Very light gray
+                    Secondary = Color.FromArgb("#34495E"),    // Light gray
                     CardBackground = Color.FromArgb("#465C70"), // Mid gray for cards
                     CardText = Colors.White,                  // White text
-                    MenuButton1 = Color.FromArgb("#95A5A6"),
-                    MenuButton2 = Color.FromArgb("#7F8C8D"),
-                    MenuButton3 = Color.FromArgb("#34495E"),
-                    MenuButton4 = Color.FromArgb("#2C3E50"),
-                    AnswerButton = Color.FromArgb("#BDBDBD"),
+                  MenuButton1 = Color.FromArgb("#2C3E50"),
+                    MenuButton2 = Color.FromArgb("#34495E"),
+                    MenuButton3 = Color.FromArgb("#2C3E50"),
+                    MenuButton4 = Color.FromArgb("#34495E"),
+                    MenuButton5 = Color.FromArgb("#757575"),  // Gray to maintain monochrome scheme
+                    AnswerButton = Color.FromArgb("#2C3E50"),
                     ShellBackground = Color.FromArgb("#2C3E50"),
                     ShellForeground = Color.FromArgb("#ECF0F1"),
                     BackgroundImage = "monochrome_theme_bg.png"
                 }
             }
         };
+
+        private void CacheThemeResources(CustomAppTheme theme, ThemeColors colors)
+        {
+            if (!_themeCache.ContainsKey(theme))
+            {
+                _themeCache[theme] = new Dictionary<string, object>
+                {
+                    ["AppBackground1"] = colors.Background1,
+                    ["AppBackground2"] = colors.Background2,
+                    ["Primary"] = colors.Primary,
+                    ["Secondary"] = colors.Secondary,
+                    ["GuessMode"] = colors.MenuButton1,
+                    ["PerformMode"] = colors.MenuButton2,
+                    ["Profile"] = colors.MenuButton3,
+                    ["Settings"] = colors.MenuButton4,
+                    ["Store"] = colors.MenuButton5,
+                    ["AnswerButton"] = colors.AnswerButton,
+                    ["CardBackground"] = colors.CardBackground,
+                    ["CardText"] = colors.CardText,
+                    ["CurrentThemeBackground"] = $"Themes/{colors.BackgroundImage}"
+                };
+            }
+        }
 
         /// <summary>
         /// Gets current theme colors based on saved preferences
@@ -174,17 +227,12 @@ namespace com.kizwiz.sipnsign.Services
         /// <param name="theme">The theme to set for the application.</param>
         public void SetTheme(CustomAppTheme theme)
         {
-            // Save the selected theme to preferences
             Preferences.Set(THEME_KEY, theme.ToString());
 
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 var resources = Application.Current?.Resources;
-                if (resources == null)
-                {
-                    Debug.WriteLine("Application resources are null. Theme update aborted.");
-                    return;
-                }
+                if (resources == null) return;
 
                 if (!ThemeDefinitions.TryGetValue(theme, out var themeColors))
                 {
@@ -192,22 +240,14 @@ namespace com.kizwiz.sipnsign.Services
                     return;
                 }
 
-                // Update theme-related resources
-                resources["AppBackground1"] = themeColors.Background1;
-                resources["AppBackground2"] = themeColors.Background2;
-                resources["Primary"] = themeColors.Primary;
-                resources["Secondary"] = themeColors.Secondary;
-                resources["GuessMode"] = themeColors.MenuButton1;
-                resources["PerformMode"] = themeColors.MenuButton2;
-                resources["Progress"] = themeColors.MenuButton3;
-                resources["Settings"] = themeColors.MenuButton4;
-                resources["AnswerButton"] = themeColors.AnswerButton;
-                resources["CardBackground"] = themeColors.CardBackground;
-                resources["CardText"] = themeColors.CardText;
+                // Cache theme resources if not already cached
+                CacheThemeResources(theme, themeColors);
 
-                // Set the background image resource
-                resources["CurrentThemeBackground"] = $"Themes/{themeColors.BackgroundImage}";
-                Debug.WriteLine($"Theme '{theme}' applied with AnswerButton color: {themeColors.AnswerButton} and background image: {themeColors.BackgroundImage}");
+                // Apply cached resources
+                foreach (var resource in _themeCache[theme])
+                {
+                    resources[resource.Key] = resource.Value;
+                }
 
                 // Update Shell background
                 if (Shell.Current != null)
@@ -215,29 +255,27 @@ namespace com.kizwiz.sipnsign.Services
                     Shell.Current.BackgroundColor = themeColors.ShellBackground;
                 }
 
-                // Refresh the UI for Shell and MainPage
+                // Update UI
                 if (Application.Current?.MainPage is Shell shell)
                 {
                     shell.ForceLayout();
 
-                    // Refresh MainMenuPage if present
                     var mainPage = shell.Navigation?.NavigationStack
                         .FirstOrDefault(page => page is MainMenuPage) as MainMenuPage;
 
-                    mainPage?.Dispatcher.Dispatch(mainPage.ForceRefresh);
-                }
-
-                // Update all pages in the navigation stack
-                var navigation = Application.Current?.MainPage?.Navigation;
-                if (navigation != null)
-                {
-                    foreach (var page in navigation.NavigationStack.OfType<MainMenuPage>())
+                    if (mainPage != null)
                     {
-                        page.Dispatcher.Dispatch(page.ForceRefresh);
+                        // Immediate refresh
+                        mainPage.ForceRefresh();
+
+                        // Delayed refreshes to ensure update
+                        mainPage.Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(50), () => mainPage.ForceRefresh());
+                        mainPage.Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(100), () => mainPage.ForceRefresh());
                     }
+
+                    shell.BackgroundColor = themeColors.ShellBackground;
                 }
 
-                // Notify listeners that the theme has changed
                 ThemeChanged?.Invoke(this, EventArgs.Empty);
             });
         }
@@ -301,6 +339,7 @@ namespace com.kizwiz.sipnsign.Services
         public required Color MenuButton2 { get; set; }  // Perform Mode button
         public required Color MenuButton3 { get; set; }  // Progress button
         public required Color MenuButton4 { get; set; }  // Settings button
+        public required Color MenuButton5 { get; set; }  // Store button
         public required Color AnswerButton { get; set; } // Answer choice buttons
         public required Color ShellBackground { get; set; }
         public required Color ShellForeground { get; set; }  // For text/icons

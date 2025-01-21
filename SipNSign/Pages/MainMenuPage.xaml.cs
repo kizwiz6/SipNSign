@@ -103,8 +103,9 @@ namespace com.kizwiz.sipnsign.Pages
         protected override void OnAppearing()
         {
             base.OnAppearing();
-
             _themeService.ThemeChanged += OnThemeChanged;
+            // Force initial refresh
+            ForceRefresh();
         }
 
         protected override void OnDisappearing()
@@ -113,41 +114,75 @@ namespace com.kizwiz.sipnsign.Pages
             _themeService.ThemeChanged -= OnThemeChanged;
         }
 
-        public void OnThemeChanged(object sender, EventArgs e)
+        private void OnThemeChanged(object sender, EventArgs e)
         {
-            var mainLayout = this.FindByName<VerticalStackLayout>("MainLayout");
-            if (mainLayout != null)
+            MainThread.BeginInvokeOnMainThread(() =>
             {
-                foreach (var child in mainLayout.Children)
+                try
                 {
-                    if (child is Button button)
+                    var mainLayout = this.FindByName<VerticalStackLayout>("MainLayout");
+                    if (mainLayout == null) return;
+
+                    var buttons = new[] { "GuessMode", "PerformMode", "Profile", "Settings", "Store" };
+                    foreach (var styleId in buttons)
                     {
-                        button.BackgroundColor = null; // Clear cached color
-                        button.BackgroundColor = (Color)Application.Current.Resources[button.StyleId]; // Reapply from resources
+                        // Safely get resource value
+                        if (Application.Current != null &&
+                            Application.Current.Resources.TryGetValue(styleId, out object resourceValue) &&
+                            resourceValue is Color themeColor)
+                        {
+                            var button = mainLayout.Children
+                                .OfType<Button>()
+                                .FirstOrDefault(b => b.StyleId == styleId);
+
+                            if (button != null)
+                            {
+                                button.BackgroundColor = themeColor;
+                                Debug.WriteLine($"Updated {styleId} button color to {themeColor}");
+                            }
+                        }
                     }
                 }
-            }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error updating theme: {ex.Message}");
+                }
+            });
         }
 
         public void ForceRefresh()
         {
             MainThread.BeginInvokeOnMainThread(() =>
             {
-                if (Application.Current?.Resources == null) return;
-                var mainLayout = this.FindByName<VerticalStackLayout>("MainLayout");
-                if (mainLayout != null)
+                try
                 {
-                    foreach (var child in mainLayout.Children)
+                    if (Application.Current?.Resources == null) return;
+
+                    var mainLayout = this.FindByName<VerticalStackLayout>("MainLayout");
+                    if (mainLayout != null)
                     {
-                        if (child is Button button && !string.IsNullOrEmpty(button.StyleId))
+                        var buttons = mainLayout.Children.OfType<Button>().ToList();
+
+                        foreach (var button in buttons)
                         {
-                            if (Application.Current.Resources.TryGetValue(button.StyleId, out var colorValue) &&
-                                colorValue is Color color)
+                            if (!string.IsNullOrEmpty(button.StyleId))
                             {
-                                button.BackgroundColor = color;
+                                Debug.WriteLine($"Refreshing button: {button.StyleId}");
+                                if (Application.Current.Resources.TryGetValue(button.StyleId, out var colorValue) &&
+                                    colorValue is Color color)
+                                {
+                                    // Force color update by briefly setting to null then new color
+                                    button.BackgroundColor = null;
+                                    button.BackgroundColor = color;
+                                }
                             }
                         }
                     }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error in ForceRefresh: {ex.Message}");
+                    Debug.WriteLine($"Stack trace: {ex.StackTrace}");
                 }
             });
         }
@@ -190,8 +225,8 @@ namespace com.kizwiz.sipnsign.Pages
                 Debug.WriteLine("OnViewScoresClicked started");
 
                 var progressService = _progressService ?? _serviceProvider.GetRequiredService<IProgressService>();
-                var progressPage = new ProgressPage(progressService);
-                await Navigation.PushAsync(progressPage);
+                var profilePage = new ProfilePage(progressService);
+                await Navigation.PushAsync(profilePage);
             }
             catch (Exception ex)
             {
@@ -220,6 +255,28 @@ namespace com.kizwiz.sipnsign.Pages
             {
                 logger?.Error($"Settings error: {ex.Message}");
                 await DisplayAlert("Error", "Unable to open settings", "OK");
+            }
+            finally
+            {
+                _isNavigating = false;
+            }
+        }
+
+        private async void OnStoreClicked(object sender, EventArgs e)
+        {
+            if (_isNavigating) return;
+            var logger = _serviceProvider?.GetService<ILoggingService>();
+
+            try
+            {
+                _isNavigating = true;
+                var storePage = new StorePage(_serviceProvider);
+                await Navigation.PushAsync(storePage);
+            }
+            catch (Exception ex)
+            {
+                logger?.Error($"Store error: {ex.Message}");
+                await DisplayAlert("Error", "Unable to open store", "OK");
             }
             finally
             {

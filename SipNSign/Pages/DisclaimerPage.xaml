@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="com.kizwiz.sipnsign.Pages.DisclaimerPage"
+             Style="{StaticResource AppPageStyle}"
+             Title="Terms &amp; Disclaimer">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+            <Border BackgroundColor="{DynamicResource CardBackground}"
+                    Opacity="0.95"
+                    Padding="20"
+                    StrokeShape="RoundRectangle 10">
+                <VerticalStackLayout Spacing="15">
+                    <!-- Age Verification -->
+                    <Label Text="Age Verification"
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="20"
+                           FontAttributes="Bold"/>
+                    <Label TextColor="{DynamicResource CardText}"
+                           Text="This app is strictly for users aged 18 and over in accordance with UK law. By using this app, you confirm that you meet the legal drinking age requirements."/>
+
+                    <!-- Responsible Drinking -->
+                    <Label Text="Responsible Drinking"
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="20"
+                           Margin="0,10,0,0"
+                           FontAttributes="Bold"/>
+                    <Label TextColor="{DynamicResource CardText}"
+                           Text="SipNSign encourages responsible drinking. Know your limits and never drink and drive. If you're concerned about your drinking, contact Drinkline on 0300 123 1110 or visit www.drinkaware.co.uk"/>
+
+                    <!-- Educational Purpose -->
+                    <Label Text="Educational Purpose"
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="20"
+                           Margin="0,10,0,0"
+                           FontAttributes="Bold"/>
+                    <Label TextColor="{DynamicResource CardText}"
+                           Text="This app is designed as an educational tool to help learn British Sign Language (BSL) in a social context. The drinking game element is optional, and the app can be used in 'Sober Mode' for pure educational purposes."/>
+
+                    <!-- BSL Attribution -->
+                    <Label Text="BSL Recognition"
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="20"
+                           Margin="0,10,0,0"
+                           FontAttributes="Bold"/>
+                    <Label TextColor="{DynamicResource CardText}"
+                           Text="British Sign Language (BSL) is a rich, complex language with its own grammar and structure. This app aims to introduce basic signs respectfully while acknowledging BSL's significance as a recognized language in the UK."/>
+
+                    <!-- Health & Safety -->
+                    <Label Text="Health &amp; Safety"
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="20"
+                           Margin="0,10,0,0"
+                           FontAttributes="Bold"/>
+                    <Label TextColor="{DynamicResource CardText}"
+                           Text="Excessive alcohol consumption can be dangerous to your health and impair your judgment. Stop playing if you feel unwell or intoxicated. In case of emergency, dial 999."/>
+
+                    <!-- Liability -->
+                    <Label Text="Liability"
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="20"
+                           Margin="0,10,0,0"
+                           FontAttributes="Bold"/>
+                    <Label TextColor="{DynamicResource CardText}"
+                           Text="By using this app, you agree that you are solely responsible for your actions and any consequences that may arise from using this app. The developers assume no liability for any incidents related to alcohol consumption or misuse of the app."/>
+
+                    <!-- Contact -->
+                    <Label Text="Contact"
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="20"
+                           Margin="0,10,0,0"
+                           FontAttributes="Bold"/>
+                    <Label TextColor="{DynamicResource CardText}"
+                           Text="For support, concerns, or feedback about BSL signs, please contact us through the app's support channels."/>
+                </VerticalStackLayout>
+            </Border>
+
+            <Button Text="I Understand"
+                    Style="{StaticResource PrimaryButton}"
+                    Clicked="OnUnderstandClicked"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

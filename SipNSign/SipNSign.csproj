@@ -108,22 +108,36 @@
 		<AndroidResource Include="Platforms\Android\Resources\raw\*.mp4" />
 	</ItemGroup>
   <ItemGroup>
-    <MauiImage Include="Platforms\Android\Resources\Images\achievement_icon.svg" />
-    <MauiImage Include="Platforms\Android\Resources\Images\first_sign_icon.svg" />
-    <MauiImage Include="Platforms\Android\Resources\Images\locked_icon.svg" />
-    <MauiImage Include="Platforms\Android\Resources\Images\mastery_icon.svg" />
-    <MauiImage Include="Platforms\Android\Resources\Images\quiz_incorrect_icon.svg" />
-    <MauiImage Include="Platforms\Android\Resources\Images\quiz_correct_icon.svg" />
-    <MauiImage Include="Platforms\Android\Resources\Images\quiz_icon.svg" />
-    <MauiImage Include="Platforms\Android\Resources\Images\streak_icon.svg" />
-    <MauiImage Include="Platforms\Android\Resources\Images\time_icon.svg" />
+	  <MauiImage Include="Platforms\Android\Resources\Images\achievement_icon.svg" />
+	  <MauiImage Include="Platforms\Android\Resources\Images\century_club_icon.svg" />
+	  <MauiImage Include="Platforms\Android\Resources\Images\fifty_signs_icon.svg" />
+	  <MauiImage Include="Platforms\Android\Resources\Images\first_sign_icon.svg" />
+	  <MauiImage Include="Platforms\Android\Resources\Images\guess_100_icon.svg" />
+	  <MauiImage Include="Platforms\Android\Resources\Images\guess_1000_icon.svg" />
+	  <MauiImage Include="Platforms\Android\Resources\Images\locked_icon.svg" />
+	  <MauiImage Include="Platforms\Android\Resources\Images\mastery_icon.svg" />
+	  <MauiImage Include="Platforms\Android\Resources\Images\party_icon.svg" />
+	  <MauiImage Include="Platforms\Android\Resources\Images\perfect_session_icon.svg" />
+	  <MauiImage Include="Platforms\Android\Resources\Images\perform_100_icon.svg" />
+	  <MauiImage Include="Platforms\Android\Resources\Images\perform_1000_icon.svg" />
+	  <MauiImage Include="Platforms\Android\Resources\Images\quiz_correct_icon.svg" />
+	  <MauiImage Include="Platforms\Android\Resources\Images\quiz_icon.svg" />
+	  <MauiImage Include="Platforms\Android\Resources\Images\quiz_master_icon.svg" />
+	  <MauiImage Include="Platforms\Android\Resources\Images\quiz_incorrect_icon.svg" />
+	  <MauiImage Include="Platforms\Android\Resources\Images\social_icon.svg" />
+	  <MauiImage Include="Platforms\Android\Resources\Images\speed_master_icon.svg" />
+	  <MauiImage Include="Platforms\Android\Resources\Images\streak_icon.svg" />
+	  <MauiImage Include="Platforms\Android\Resources\Images\streak_monthly_icon.svg" />
+	  <MauiImage Include="Platforms\Android\Resources\Images\streak_weekly_icon.svg" />
+	  <MauiImage Include="Platforms\Android\Resources\Images\time_icon.svg" />
+
   </ItemGroup>
 	<ItemGroup>
 		<MauiXaml Remove="**/*.xaml" />
 	</ItemGroup>
   <ItemGroup>
-    <Compile Update="Pages\ProgressPage.xaml.cs">
-      <DependentUpon>ProgressPage.xaml</DependentUpon>
+    <Compile Update="Pages\ProfilePage.xaml.cs">
+      <DependentUpon>ProfilePage.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -159,7 +173,7 @@
     <MauiXaml Update="Pages\AchievementDetailsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
-    <MauiXaml Update="Pages\ProgressPage.xaml">
+    <MauiXaml Update="Pages\ProfilePage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
     <MauiXaml Update="Resources\Styles\SplashScreen.xaml">

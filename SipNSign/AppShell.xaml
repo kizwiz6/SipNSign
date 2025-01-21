@@ -38,21 +38,21 @@
         ContentTemplate="{DataTemplate local:GamePage}"
         Route="GamePage" />
 
-    <!-- High Scores Page -->
-    <ShellContent
-        Title="High Scores"
-        ContentTemplate="{DataTemplate local:HighScorePage}"
-        Route="HighScorePage" />
-
     <!-- Settings Page -->
     <ShellContent
         Title="Settings"
         ContentTemplate="{DataTemplate local:SettingsPage}"
         Route="SettingsPage" />
 
-    <!-- Progress Page -->
+    <!-- Store Page -->
     <ShellContent
-        Title="Progress"
-        ContentTemplate="{DataTemplate local:ProgressPage}"
-        Route="ProgressPage" />
+        Title="Store"
+        ContentTemplate="{DataTemplate local:StorePage}"
+        Route="StorePage" />
+
+    <!-- Profile Page -->
+    <ShellContent
+        Title="Profile"
+        ContentTemplate="{DataTemplate local:ProfilePage}"
+        Route="profile" />
 </Shell>

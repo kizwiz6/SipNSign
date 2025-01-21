@@ -4,20 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="com.kizwiz.sipnsign.Resources.Styles.ColoursResourceDictionary">
 
-    <!-- Light Theme Colors -->
-    <Color x:Key="LightBackgroundColor">White</Color>
-    <Color x:Key="LightTextColor">Black</Color>
-    <Color x:Key="LightPrimary">#512BD4</Color>
-    <Color x:Key="LightSecondary">#DFD8F7</Color>
-    <Color x:Key="LightTertiary">#2B0B98</Color>
-
-    <!-- Dark Theme Colors -->
-    <Color x:Key="DarkBackgroundColor">#121212</Color>
-    <Color x:Key="DarkTextColor">White</Color>
-    <Color x:Key="DarkPrimary">#AC99EA</Color>
-    <Color x:Key="DarkSecondary">#9880E5</Color>
-    <Color x:Key="DarkTertiary">#2B0B98</Color>
-
     <!-- Neutral Colors -->
     <Color x:Key="White">White</Color>
     <Color x:Key="Black">Black</Color>

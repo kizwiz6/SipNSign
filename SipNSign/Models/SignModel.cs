@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using com.kizwiz.sipnsign.Enums;
 
 namespace com.kizwiz.sipnsign.Models
 {
@@ -27,5 +26,14 @@ namespace com.kizwiz.sipnsign.Models
         /// Gets or sets the list of multiple choice options for the user to select from.
         /// </summary>
         public List<string> Choices { get; set; }
+
+        /// <summary>
+        /// Gets or sets the specific sign language (e.g., BSL or ASL).
+        /// </summary>
+        public SignLanguage Language { get; set; }
+        /// <summary>
+        /// Gets or sets the category for the sign (e.g., "Numbers", "Animals").
+        /// </summary>
+        public SignCategory Category { get; set; }
     }
 }

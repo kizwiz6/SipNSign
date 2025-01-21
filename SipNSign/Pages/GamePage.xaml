@@ -36,20 +36,39 @@
                 <ProgressBar x:Name="GameProgress"
                              Style="{StaticResource ProgressBarStyle}"
                              Progress="{Binding ProgressPercentage}"/>
-                <Label Text="{Binding RemainingTime}"
-                       HorizontalOptions="Center"
-                       VerticalOptions="Center"
-                       FontSize="16"
-                       TextColor="{DynamicResource Primary}"
-                       IsVisible="{Binding IsTimerEnabled}">
-                    <Label.Triggers>
-                        <DataTrigger TargetType="Label"
-                                     Binding="{Binding RemainingTime}"
-                                     Value="0">
-                            <Setter Property="Text" Value="∞"/>
-                        </DataTrigger>
-                    </Label.Triggers>
-                </Label>
+
+
+                <!-- Timer Display with improved visibility -->
+                <Border 
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        BackgroundColor="{DynamicResource Primary}"
+                        StrokeShape="RoundRectangle 15"
+                        Padding="10,2"
+                        Opacity="0.9">
+                    <Label 
+                        Text="{Binding RemainingTime}"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        FontSize="20"
+                        FontAttributes="Bold"
+                        TextColor="White">
+                        <Label.Shadow>
+                            <Shadow 
+                        Brush="Black"
+                        Offset="0,1"
+                        Radius="2"
+                        Opacity="0.5"/>
+                        </Label.Shadow>
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label"
+                                Binding="{Binding RemainingTime}"
+                                Value="0">
+                                <Setter Property="Text" Value="∞"/>
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </Border>
             </Grid>
 
             <!-- Score -->
@@ -78,9 +97,9 @@
                     ShouldShowPlaybackControls="False"
                     ShouldAutoPlay="True"
                     ShouldLoopPlayback="True"
-                    Aspect="AspectFit"
+                    Aspect="AspectFill"
                     HeightRequest="300"
-                    WidthRequest="300"
+                    WidthRequest="380"
                     HorizontalOptions="Center"
                     VerticalOptions="Center"
                     MediaOpened="OnMediaOpened"
@@ -92,11 +111,11 @@
 
                     <!-- Feedback Overlay -->
                     <Border IsVisible="{Binding IsFeedbackVisible}"
-                        StrokeShape="RoundRectangle 20"
-                        Margin="20,0"
-                        VerticalOptions="Center">
+                            StrokeShape="RoundRectangle 20"
+                            Margin="20,0"
+                            VerticalOptions="Center">
                         <Border.Background>
-                            <SolidColorBrush Color="{Binding FeedbackBackgroundColor}"/>
+                            <SolidColorBrush Color="{Binding FeedbackBackgroundColor}" />
                         </Border.Background>
                         <Label Text="{Binding FeedbackText}"
                            TextColor="White"
@@ -174,10 +193,10 @@
                                     ShouldAutoPlay="True"
                                     ShouldLoopPlayback="True"
                                     HeightRequest="300"
-                                    WidthRequest="300"
+                                    WidthRequest="380"
                                     HorizontalOptions="Center"
                                     VerticalOptions="Center"
-                                    Aspect="AspectFit"
+                                    Aspect="AspectFill"
                                     MediaOpened="OnMediaOpened"
                                     MediaFailed="OnMediaFailed"
                                     MediaEnded="OnMediaEnded"
@@ -236,9 +255,9 @@
         </Grid>
         <!-- Game Over Screen Overlay -->
         <Grid IsVisible="{Binding IsGameOver}" 
-      InputTransparent="False" 
-      ZIndex="99"
-      Grid.RowSpan="3">
+              InputTransparent="False" 
+              ZIndex="99"
+              Grid.RowSpan="3">
             <!-- Theme background gradient -->
             <Grid.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
@@ -249,34 +268,30 @@
 
             <!-- Game Over card -->
             <Border Margin="20"
-           BackgroundColor="{DynamicResource Primary}"
-           Opacity="0.95"
-           VerticalOptions="Center"
-           HorizontalOptions="Fill"
-           StrokeShape="RoundRectangle 20">
+            BackgroundColor="{DynamicResource CardBackground}"
+            Opacity="0.95"
+            VerticalOptions="Center"
+            HorizontalOptions="Fill"
+            StrokeShape="RoundRectangle 20">
                 <VerticalStackLayout Spacing="20" Padding="20">
                     <Label Text="Game Over!"
-                   TextColor="White"
+                   TextColor="{DynamicResource CardText}"
                    FontSize="32"
                    FontAttributes="Bold"
                    HorizontalOptions="Center"/>
 
                     <Label Text="{Binding GuessResults}"
-                       TextColor="White"
-                       FontSize="24"
-                       HorizontalOptions="Center"/>
+                   TextColor="{DynamicResource CardText}"
+                   FontSize="24"
+                   HorizontalOptions="Center"/>
 
                     <Button Text="Play Again"
                     Command="{Binding PlayAgainCommand}"
-                    Style="{StaticResource PrimaryButton}"
-                    BackgroundColor="White"
-                    TextColor="{DynamicResource Primary}"/>
+                    Style="{StaticResource PrimaryButton}"/>
 
                     <Button Text="Adjust Questions in Settings"
                     Command="{Binding GoToSettingsCommand}"
                     Style="{StaticResource PrimaryButton}"
-                    BackgroundColor="White"
-                    TextColor="{DynamicResource Primary}"
                     FontSize="14"/>
                 </VerticalStackLayout>
             </Border>
