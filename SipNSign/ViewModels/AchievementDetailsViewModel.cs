@@ -73,16 +73,24 @@ namespace com.kizwiz.sipnsign.ViewModels
 
                 await _shareService.ShareTextAsync(shareText, "Share Achievement");
 
-                // Trigger Social Butterfly achievement
-                if (_userProgress != null)
+                // Log the sharing activity
+                await _progressService.LogActivityAsync(new ActivityLog
                 {
-                    var socialAchievement = _userProgress.Achievements
-                        .FirstOrDefault(a => a.Id == "SOCIAL_BUTTERFLY");
+                    Id = Guid.NewGuid().ToString(),
+                    Type = ActivityType.Achievement,
+                    Description = "Shared an achievement",
+                    IconName = "social_icon",
+                    Timestamp = DateTime.Now
+                });
 
-                    if (socialAchievement != null && !socialAchievement.IsUnlocked)
-                    {
-                        await _progressService.UpdateAchievementsAsync();
-                    }
+                // Mark the Social Butterfly achievement as completed
+                var socialAchievement = _userProgress?.Achievements
+                    .FirstOrDefault(a => a.Id == "SOCIAL_BUTTERFLY");
+
+                if (socialAchievement != null && !socialAchievement.IsUnlocked)
+                {
+                    socialAchievement.ProgressCurrent = 1;
+                    await _progressService.UpdateAchievementsAsync();
                 }
             }
             catch (Exception ex)
