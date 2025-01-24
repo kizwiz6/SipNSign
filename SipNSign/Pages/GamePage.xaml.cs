@@ -289,25 +289,33 @@ namespace com.kizwiz.sipnsign.Pages
         {
             try
             {
-                ViewModel?.Cleanup();
+                _isDisposed = true;
 
-                // Stop any playing videos
-                if (_sharedVideo != null)
+                // Stop videos first
+                if (SharedVideo != null)
                 {
-                    _sharedVideo.Stop();
-                    _sharedVideo.Source = null;
-                    _sharedVideo.Handler?.DisconnectHandler();
+                    await MainThread.InvokeOnMainThreadAsync(() =>
+                    {
+                        SharedVideo.Stop();
+                        SharedVideo.Source = null;
+                        SharedVideo.Handler?.DisconnectHandler();
+                    });
                 }
 
                 if (PerformVideo != null)
                 {
-                    PerformVideo.Stop();
-                    PerformVideo.Source = null;
-                    PerformVideo.Handler?.DisconnectHandler();
+                    await MainThread.InvokeOnMainThreadAsync(() =>
+                    {
+                        PerformVideo.Stop();
+                        PerformVideo.Source = null;
+                        PerformVideo.Handler?.DisconnectHandler();
+                    });
                 }
 
                 // Give time for cleanup
                 await Task.Delay(100);
+
+                ViewModel?.Cleanup();
             }
             catch (Exception ex)
             {
@@ -316,6 +324,7 @@ namespace com.kizwiz.sipnsign.Pages
             finally
             {
                 base.OnDisappearing();
+                _isDisposed = false;
             }
         }
         #endregion
@@ -374,6 +383,8 @@ namespace com.kizwiz.sipnsign.Pages
 
         public async void Cleanup()
         {
+            if (_isDisposed) return;
+
             try
             {
                 if (_timer != null)
@@ -382,7 +393,25 @@ namespace com.kizwiz.sipnsign.Pages
                     _timer = null;
                 }
 
-                await CleanupMediaElements();
+                await Task.Run(async () =>
+                {
+                    await MainThread.InvokeOnMainThreadAsync(() =>
+                    {
+                        if (SharedVideo != null)
+                        {
+                            SharedVideo.Stop();
+                            SharedVideo.Source = null;
+                            SharedVideo.Handler?.DisconnectHandler();
+                        }
+
+                        if (PerformVideo != null)
+                        {
+                            PerformVideo.Stop();
+                            PerformVideo.Source = null;
+                            PerformVideo.Handler?.DisconnectHandler();
+                        }
+                    });
+                });
             }
             catch (Exception ex)
             {

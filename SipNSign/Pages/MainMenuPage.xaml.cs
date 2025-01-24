@@ -24,29 +24,43 @@ namespace com.kizwiz.sipnsign.Pages
         {
             try
             {
+#if ANDROID
+                Android.Util.Log.Debug("SipNSignApp", "Starting MainMenuPage initialization");
+#endif
                 InitializeComponent();
-
+#if ANDROID
+                Android.Util.Log.Debug("SipNSignApp", "MainMenuPage InitializeComponent completed");
+#endif
                 _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
-                // Initialize services directly in constructor
+                // Initialize services with logging
                 _videoService = _serviceProvider.GetRequiredService<IVideoService>();
+#if ANDROID
+                Android.Util.Log.Debug("SipNSignApp", "Video service initialized");
+#endif
                 _logger = _serviceProvider.GetRequiredService<ILoggingService>();
+#if ANDROID
+                Android.Util.Log.Debug("SipNSignApp", "Logger service initialized");
+#endif
                 _progressService = _serviceProvider.GetRequiredService<IProgressService>();
+#if ANDROID
+                Android.Util.Log.Debug("SipNSignApp", "Progress service initialized");
+#endif
                 _themeService = _serviceProvider.GetRequiredService<IThemeService>();
-
-                // Ensure _logger is initialized
-                if (_logger == null)
-                {
-                    throw new InvalidOperationException("Logging service failed to initialize.");
-                }
-
-                _logger?.Debug("MainMenuPage initialized successfully with all services");
+#if ANDROID
+                Android.Util.Log.Debug("SipNSignApp", "Theme service initialized");
+#endif
+                ForceRefresh();
+#if ANDROID
+                Android.Util.Log.Debug("SipNSignApp", "MainMenuPage force refresh completed");
+#endif
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"MainMenuPage initialization error: {ex}");
-                // Displaying an error message to the user if initialization fails
-                DisplayAlert("Error", "Failed to initialize application services", "OK").Wait();
+#if ANDROID
+                Android.Util.Log.Error("SipNSignApp", $"Critical error in MainMenuPage: {ex}");
+#endif
+                throw;
             }
         }
 
