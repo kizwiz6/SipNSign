@@ -11,17 +11,32 @@ public partial class AppShell : Shell
     {
         try
         {
+#if ANDROID
+        Android.Util.Log.Debug("SipNSignApp", "==== AppShell Constructor Start ====");
+#endif
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+#if ANDROID
+        Android.Util.Log.Debug("SipNSignApp", "Service provider assigned to AppShell");
+#endif
+
             InitializeComponent();
+#if ANDROID
+        Android.Util.Log.Debug("SipNSignApp", "AppShell InitializeComponent completed");
+#endif
 
             Debug.WriteLine("Registering routes...");
             RegisterRoutes();
-            Debug.WriteLine("Routes registered successfully");
+#if ANDROID
+        Android.Util.Log.Debug("SipNSignApp", "Routes registered successfully");
+        Android.Util.Log.Debug("SipNSignApp", "==== AppShell Constructor End ====");
+#endif
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Error initializing AppShell: {ex.Message}");
-            Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+#if ANDROID
+        Android.Util.Log.Error("SipNSignApp", $"Error initializing AppShell: {ex.Message}");
+        Android.Util.Log.Error("SipNSignApp", $"Stack trace: {ex.StackTrace}");
+#endif
             throw;
         }
     }

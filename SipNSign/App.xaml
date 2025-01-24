@@ -12,6 +12,12 @@
             <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
             <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
 
+            <Shadow x:Key="DefaultShadow"
+                    Brush="Black"
+                    Offset="0,3"
+                    Radius="3"
+                    Opacity="0.3"/>
+
             <!-- Converters -->
             <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
             <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>

@@ -2,6 +2,7 @@
 using Android.Content.PM;
 using Android.OS;
 using AndroidX.Activity;
+using System.Diagnostics;
 
 namespace com.kizwiz.sipnsign;
 
@@ -21,13 +22,31 @@ public class MainActivity : MauiAppCompatActivity
     #region Lifecycle Methods
     protected override void OnCreate(Bundle? savedInstanceState)
     {
-        base.OnCreate(savedInstanceState);
-        Window?.SetStatusBarColor(Android.Graphics.Color.ParseColor("#1a237e"));
-
-        // Register back callback
-        if (OperatingSystem.IsAndroidVersionAtLeast(33))
+        try
         {
-            OnBackPressedDispatcher.AddCallback(this, new BackCallback(this));
+#if ANDROID
+            Android.Util.Log.Debug("SipNSignApp", "MainActivity OnCreate starting");
+#endif
+            System.Diagnostics.Debug.WriteLine("MainActivity OnCreate starting");
+
+            base.OnCreate(savedInstanceState);
+            Window?.SetStatusBarColor(Android.Graphics.Color.ParseColor("#1a237e"));
+
+            System.Diagnostics.Debug.WriteLine("MainActivity base.OnCreate completed");
+
+            if (OperatingSystem.IsAndroidVersionAtLeast(33))
+            {
+                System.Diagnostics.Debug.WriteLine("Registering back callback");
+                OnBackPressedDispatcher.AddCallback(this, new BackCallback(this));
+            }
+
+            System.Diagnostics.Debug.WriteLine("MainActivity OnCreate completed");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error in MainActivity.OnCreate: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+            throw;
         }
     }
     #endregion

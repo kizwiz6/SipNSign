@@ -57,6 +57,8 @@ namespace com.kizwiz.sipnsign.ViewModels
         private ICommand _playAgainCommand;
         private ICommand _incorrectPerformCommand;
         private ICommand _correctPerformCommand;
+        private int GetTotalQuestions() => Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
+        public int TotalQuestions => GetTotalQuestions();
         #endregion
 
         /// <summary>
@@ -947,25 +949,16 @@ namespace com.kizwiz.sipnsign.ViewModels
             // Update total attempts and correct attempts
             _userProgress.TotalAttempts++;
 
-            if (isCorrect)
+            if (isCorrect && answerTime.HasValue && answerTime.Value < 5.0)
             {
-                _userProgress.SignsLearned++;
-                _userProgress.CorrectAttempts++;
-                _userProgress.CorrectInARow++;
-
-                // Update mode-specific counters
-                if (CurrentMode == GameMode.Guess)
+                await _progressService.LogActivityAsync(new ActivityLog
                 {
-                    _userProgress.GuessModeSigns++;
-                }
-                else
-                {
-                    _userProgress.PerformModeSigns++;
-                }
-            }
-            else
-            {
-                _userProgress.CorrectInARow = 0;  // Reset streak on wrong answer
+                    Id = Guid.NewGuid().ToString(),
+                    Type = ActivityType.Practice,
+                    Description = "Fast answer", // Simplified description
+                    IconName = "speed_icon",
+                    Timestamp = DateTime.Now
+                });
             }
 
             // Calculate and update accuracy
@@ -1014,30 +1007,16 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
 
             // At the end of a session (when all questions are answered)
-            if (_availableIndices.Count == 0)
+            if (_availableIndices.Count == 0 && TotalQuestions == 100 && _averageAnswerTime < 3.0)
             {
-
-                // For Speed Master achievement (Guess Mode)
-                if (CurrentMode == GameMode.Guess && _averageAnswerTime < 3.0)
+                await _progressService.LogActivityAsync(new ActivityLog
                 {
-                    // Check if Speed Master achievement is already unlocked
-                    var speedMasterAchievement = _userProgress?.Achievements
-                        .FirstOrDefault(a => a.Id == "SPEED_MASTER");
-
-                    // Only log if achievement isn't already unlocked
-                    if (speedMasterAchievement != null && !speedMasterAchievement.IsUnlocked)
-                    {
-                        await _progressService.LogActivityAsync(new ActivityLog
-                        {
-                            Id = Guid.NewGuid().ToString(),
-                            Type = ActivityType.Practice,
-                            Description = "Guess Mode completed with average time under 3 seconds",
-                            IconName = "speed_master_icon",
-                            Timestamp = DateTime.Now
-                        });
-                        await _progressService.UpdateAchievementsAsync();
-                    }
-                }
+                    Id = Guid.NewGuid().ToString(),
+                    Type = ActivityType.Practice,
+                    Description = "Completed 100-question Guess Mode session with average time under 3 seconds",
+                    IconName = "speed_master_icon",
+                    Timestamp = DateTime.Now
+                });
             }
         }
 

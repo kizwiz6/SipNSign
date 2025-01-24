@@ -170,25 +170,12 @@ namespace com.kizwiz.sipnsign.Services
                         // Triggered from ShareAchievements() in AchievementDetailsViewModel
                         break;
 
-                    case "RAPID_FIRE" when !achievement.IsUnlocked:
-                        // Count correct answers under 5 seconds
-                        var rapidAnswers = _currentProgress.Activities
-                            .Count(a => a.Type == ActivityType.Practice &&
-                                       a.Description.Contains("correctly under 5 seconds"));
-                        achievement.ProgressCurrent = rapidAnswers;
-                        achievement.ProgressRequired = 50;
-                        if (rapidAnswers >= 50)
-                        {
-                            await UnlockAchievement(achievement);
-                        }
-                        break;
-
                     case "SPEED_MASTER" when !achievement.IsUnlocked:
-                        // Check for at least one completed session with average time under 3 seconds
+                        // Only unlock if completed a full 100-question session with average time under 3 seconds
                         var hasFastSession = _currentProgress.Activities
                             .Any(a => a.Type == ActivityType.Practice &&
-                                     a.Description.Contains("Guess Mode completed with average time under 3 seconds"));
-                        achievement.ProgressCurrent = hasFastSession ? 1 : 0;
+                                     a.Description.Contains("Completed 100-question Guess Mode session with average time under 3 seconds"));
+
                         if (hasFastSession)
                         {
                             await UnlockAchievement(achievement);
