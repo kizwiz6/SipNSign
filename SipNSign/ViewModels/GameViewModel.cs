@@ -955,7 +955,6 @@ namespace com.kizwiz.sipnsign.ViewModels
                 {
                     Id = Guid.NewGuid().ToString(),
                     Type = ActivityType.Practice,
-                    Description = "Fast answer", // Simplified description
                     IconName = "speed_icon",
                     Timestamp = DateTime.Now
                 });
@@ -990,20 +989,6 @@ namespace com.kizwiz.sipnsign.ViewModels
             else
             {
                 _correctInARow = 0;
-            }
-
-            // For Rapid Fire achievement
-            if (isCorrect && answerTime.HasValue && answerTime.Value < 5.0)
-            {
-                await _progressService.LogActivityAsync(new ActivityLog
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Type = ActivityType.Practice,
-                    Description = $"Answered '{CurrentSign?.CorrectAnswer}' correctly under 5 seconds",
-                    IconName = "speed_icon",
-                    Timestamp = DateTime.Now,
-                    Score = "+1"
-                });
             }
 
             // At the end of a session (when all questions are answered)
