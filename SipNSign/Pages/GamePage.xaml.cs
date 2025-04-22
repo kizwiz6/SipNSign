@@ -393,24 +393,23 @@ namespace com.kizwiz.sipnsign.Pages
                     _timer = null;
                 }
 
-                await Task.Run(async () =>
+                await MainThread.InvokeOnMainThreadAsync(() =>
                 {
-                    await MainThread.InvokeOnMainThreadAsync(() =>
+                    if (SharedVideo != null)
                     {
-                        if (SharedVideo != null)
-                        {
-                            SharedVideo.Stop();
-                            SharedVideo.Source = null;
-                            SharedVideo.Handler?.DisconnectHandler();
-                        }
+                        SharedVideo.Stop();
+                        SharedVideo.Source = null;
+                        SharedVideo.Handler?.DisconnectHandler();
+                    }
 
-                        if (PerformVideo != null)
-                        {
-                            PerformVideo.Stop();
-                            PerformVideo.Source = null;
-                            PerformVideo.Handler?.DisconnectHandler();
-                        }
-                    });
+                    if (PerformVideo != null)
+                    {
+                        PerformVideo.Stop();
+                        PerformVideo.Source = null;
+                        PerformVideo.Handler?.DisconnectHandler();
+                    }
+
+                    System.GC.Collect(); // Force garbage collection
                 });
             }
             catch (Exception ex)

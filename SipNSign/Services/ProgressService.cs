@@ -172,9 +172,11 @@ namespace com.kizwiz.sipnsign.Services
 
                     case "SPEED_MASTER" when !achievement.IsUnlocked:
                         // Only unlock if completed a full 100-question session with average time under 3 seconds
-                        var hasFastSession = _currentProgress.Activities
+                        var hasFastSession = _currentProgress.Activities?
                             .Any(a => a.Type == ActivityType.Practice &&
-                                     a.Description.Contains("Completed 100-question Guess Mode session with average time under 3 seconds"));
+                                     a.Description != null && // Add null check here
+                                     a.Description.Contains("Completed 100-question Guess Mode session with average time under 3 seconds"))
+                            ?? false; // Add fallback if Activities is null
 
                         if (hasFastSession)
                         {

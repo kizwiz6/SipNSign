@@ -618,18 +618,21 @@ namespace com.kizwiz.sipnsign.ViewModels
                 UpdateAnswerTime(answerTime);
 
                 bool isCorrect = CheckAnswer(answer);
-                UpdateButtonColor(answer, isCorrect);
 
-                // Only show feedback if enabled
-                if (Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true))
-                {
-                    FeedbackText = GetFeedbackText(isCorrect);
-                    Color color = GetFeedbackColor(isCorrect);
-                    Debug.WriteLine($"Setting feedback color to: {color}");
-                    FeedbackBackgroundColor = color;
-                    IsFeedbackVisible = true;
-                }
+                // Run UI updates on main thread
+                await MainThread.InvokeOnMainThreadAsync(() => {
+                    UpdateButtonColor(answer, isCorrect);
 
+                    // Only show feedback if enabled
+                    if (Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true))
+                    {
+                        FeedbackText = GetFeedbackText(isCorrect);
+                        FeedbackBackgroundColor = GetFeedbackColor(isCorrect);
+                        IsFeedbackVisible = true;
+                    }
+                });
+
+                // Log activity
                 if (isCorrect)
                 {
                     CurrentScore++;
@@ -642,16 +645,12 @@ namespace com.kizwiz.sipnsign.ViewModels
 
                 // Check if this is the last question
                 bool isLastQuestion = _availableIndices.Count == 0;
-                Debug.WriteLine($"Is last question: {isLastQuestion}");
 
                 await ShowFeedbackAndContinue(isCorrect);
-                Debug.WriteLine("After ShowFeedbackAndContinue");
 
                 if (isLastQuestion)
                 {
-                    Debug.WriteLine("Ending game");
                     EndGame();
-                    Debug.WriteLine("Game ended");
                 }
             }
             finally
@@ -955,7 +954,6 @@ namespace com.kizwiz.sipnsign.ViewModels
                 {
                     Id = Guid.NewGuid().ToString(),
                     Type = ActivityType.Practice,
-                    Description = "Fast answer", // Simplified description
                     IconName = "speed_icon",
                     Timestamp = DateTime.Now
                 });
@@ -990,20 +988,6 @@ namespace com.kizwiz.sipnsign.ViewModels
             else
             {
                 _correctInARow = 0;
-            }
-
-            // For Rapid Fire achievement
-            if (isCorrect && answerTime.HasValue && answerTime.Value < 5.0)
-            {
-                await _progressService.LogActivityAsync(new ActivityLog
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Type = ActivityType.Practice,
-                    Description = $"Answered '{CurrentSign?.CorrectAnswer}' correctly under 5 seconds",
-                    IconName = "speed_icon",
-                    Timestamp = DateTime.Now,
-                    Score = "+1"
-                });
             }
 
             // At the end of a session (when all questions are answered)

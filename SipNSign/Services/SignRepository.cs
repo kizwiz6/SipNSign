@@ -175,9 +175,9 @@ public class SignRepository
             },
             new SignPack
             {
-                Id = "hobbies",
+                Id = "sports_hobbies",
                 Name = "Sports & Hobbies Pack",
-                Description = "Learn signs for sports, games, and leisure activities!",
+                Description = "Signs for sports, games, and leisure activities!",
                 Price = 0.99m,
                 Categories = new List<SignCategory>
                 {
@@ -252,6 +252,23 @@ public class SignRepository
             new SignModel { VideoPath = "rabbit.mp4", Choices = new List<string> { "Hare", "Squirrel", "Deer", "Rabbit" }, CorrectAnswer = "Rabbit", Language = SignLanguage.BSL, Category = SignCategory.Animals },
             new SignModel { VideoPath = "snake.mp4", Choices = new List<string> { "Snake", "Lizard", "Frog", "Turtle" }, CorrectAnswer = "Snake", Language = SignLanguage.BSL, Category = SignCategory.Animals },
             new SignModel { VideoPath = "tiger.mp4", Choices = new List<string> { "Cheetah", "Leopard", "Lion", "Tiger" }, CorrectAnswer = "Tiger", Language = SignLanguage.BSL, Category = SignCategory.Animals },
+            // Add these to your AnimalsCategory in InitializeBSLSigns()
+            new SignModel { VideoPath = "cat.mp4", Choices = new List<string> { "Cat", "Dog", "Lion", "Tiger" }, CorrectAnswer = "Cat", Language = SignLanguage.BSL, Category = SignCategory.Animals },
+            new SignModel { VideoPath = "bear.mp4", Choices = new List<string> { "Bear", "Wolf", "Lion", "Tiger" }, CorrectAnswer = "Bear", Language = SignLanguage.BSL, Category = SignCategory.Animals },
+            new SignModel { VideoPath = "panda.mp4", Choices = new List<string> { "Panda", "Bear", "Koala", "Raccoon" }, CorrectAnswer = "Panda", Language = SignLanguage.BSL, Category = SignCategory.Animals },
+            new SignModel { VideoPath = "wolf.mp4", Choices = new List<string> { "Wolf", "Dog", "Fox", "Coyote" }, CorrectAnswer = "Wolf", Language = SignLanguage.BSL, Category = SignCategory.Animals },
+            new SignModel { VideoPath = "fox.mp4", Choices = new List<string> { "Fox", "Wolf", "Dog", "Coyote" }, CorrectAnswer = "Fox", Language = SignLanguage.BSL, Category = SignCategory.Animals },
+            new SignModel { VideoPath = "hamster.mp4", Choices = new List<string> { "Hamster", "Mouse", "Rat", "Guinea Pig" }, CorrectAnswer = "Hamster", Language = SignLanguage.BSL, Category = SignCategory.Animals },
+            new SignModel { VideoPath = "guinea_pig.mp4", Choices = new List<string> { "Guinea Pig", "Hamster", "Rabbit", "Mouse" }, CorrectAnswer = "Guinea Pig", Language = SignLanguage.BSL, Category = SignCategory.Animals },
+            new SignModel { VideoPath = "lizard.mp4", Choices = new List<string> { "Lizard", "Snake", "Dragon", "Iguana" }, CorrectAnswer = "Lizard", Language = SignLanguage.BSL, Category = SignCategory.Animals },
+            new SignModel { VideoPath = "dragon.mp4", Choices = new List<string> { "Dragon", "Lizard", "Snake", "Dinosaur" }, CorrectAnswer = "Dragon", Language = SignLanguage.BSL, Category = SignCategory.Animals },
+            new SignModel { VideoPath = "butterfly.mp4", Choices = new List<string> { "Butterfly", "Bird", "Bee", "Ant" }, CorrectAnswer = "Butterfly", Language = SignLanguage.BSL, Category = SignCategory.Animals },
+            new SignModel { VideoPath = "ant.mp4", Choices = new List<string> { "Ant", "Spider", "Beetle", "Fly" }, CorrectAnswer = "Ant", Language = SignLanguage.BSL, Category = SignCategory.Animals },
+            new SignModel { VideoPath = "spider.mp4", Choices = new List<string> { "Spider", "Ant", "Beetle", "Scorpion" }, CorrectAnswer = "Spider", Language = SignLanguage.BSL, Category = SignCategory.Animals },
+            new SignModel { VideoPath = "mouse.mp4", Choices = new List<string> { "Mouse", "Rat", "Hamster", "Guinea Pig" }, CorrectAnswer = "Mouse", Language = SignLanguage.BSL, Category = SignCategory.Animals },
+            new SignModel { VideoPath = "rat.mp4", Choices = new List<string> { "Rat", "Mouse", "Hamster", "Guinea Pig" }, CorrectAnswer = "Rat", Language = SignLanguage.BSL, Category = SignCategory.Animals },
+            new SignModel { VideoPath = "goat.mp4", Choices = new List<string> { "Goat", "Sheep", "Cow", "Donkey" }, CorrectAnswer = "Goat", Language = SignLanguage.BSL, Category = SignCategory.Animals },
+            new SignModel { VideoPath = "sheep.mp4", Choices = new List<string> { "Sheep", "Goat", "Cow", "Lamb" }, CorrectAnswer = "Sheep", Language = SignLanguage.BSL, Category = SignCategory.Animals },
             });
 
             // Nature (part of Animals pack)
@@ -369,42 +386,41 @@ public class SignRepository
             #endregion
 
         #region SPORTS AND HOBBIES
-            // Already have videos
             new SignModel { VideoPath = "football2.mp4", Choices = new List<string> { "Football", "Soccer", "Rugby", "Sport" }, CorrectAnswer = "Football", Language = SignLanguage.BSL, Category = SignCategory.Sports },
             new SignModel { VideoPath = "dance.mp4", Choices = new List<string> { "Dance", "Move", "Jump", "Exercise" }, CorrectAnswer = "Dance", Language = SignLanguage.BSL, Category = SignCategory.Sports },
             new SignModel { VideoPath = "chess.mp4", Choices = new List<string> { "Chess", "Game", "Board", "Think" }, CorrectAnswer = "Chess", Language = SignLanguage.BSL, Category = SignCategory.Hobbies },
             new SignModel { VideoPath = "guitar.mp4", Choices = new List<string> { "Guitar", "Music", "Play", "Instrument" }, CorrectAnswer = "Guitar", Language = SignLanguage.BSL, Category = SignCategory.Hobbies },
             new SignModel { VideoPath = "game.mp4", Choices = new List<string> { "Game", "Play", "Fun", "Sport" }, CorrectAnswer = "Game", Language = SignLanguage.BSL, Category = SignCategory.Hobbies },
+            new SignModel { VideoPath = "basketball.mp4", Choices = new List<string> { "Basketball", "Sport", "Ball", "Game" }, CorrectAnswer = "Basketball", Language = SignLanguage.BSL, Category = SignCategory.Sports },
+            new SignModel { VideoPath = "tennis.mp4", Choices = new List<string> { "Tennis", "Sport", "Racket", "Game" }, CorrectAnswer = "Tennis", Language = SignLanguage.BSL, Category = SignCategory.Sports },
+            new SignModel { VideoPath = "swimming.mp4", Choices = new List<string> { "Swimming", "Sport", "Water", "Pool" }, CorrectAnswer = "Swimming", Language = SignLanguage.BSL, Category = SignCategory.Sports },
+            new SignModel { VideoPath = "boxing.mp4", Choices = new List<string> { "Boxing", "Fight", "Sport", "Punch" }, CorrectAnswer = "Boxing", Language = SignLanguage.BSL, Category = SignCategory.Sports },
+            new SignModel { VideoPath = "golf.mp4", Choices = new List<string> { "Golf", "Sport", "Club", "Ball" }, CorrectAnswer = "Golf", Language = SignLanguage.BSL, Category = SignCategory.Sports },
+            new SignModel { VideoPath = "skiing.mp4", Choices = new List<string> { "Skiing", "Snow", "Sport", "Winter" }, CorrectAnswer = "Skiing", Language = SignLanguage.BSL, Category = SignCategory.Sports },
+            new SignModel { VideoPath = "volleyball.mp4", Choices = new List<string> { "Volleyball", "Sport", "Ball", "Game" }, CorrectAnswer = "Volleyball", Language = SignLanguage.BSL, Category = SignCategory.Sports },
+            new SignModel { VideoPath = "baseball.mp4", Choices = new List<string> { "Baseball", "Sport", "Ball", "Game" }, CorrectAnswer = "Baseball", Language = SignLanguage.BSL, Category = SignCategory.Sports },
 
             //// Sports - Future videos
-            //new SignModel { VideoPath = "basketball.mp4", Choices = new List<string> { "Basketball", "Sport", "Ball", "Game" }, CorrectAnswer = "Basketball", Language = SignLanguage.BSL, Category = SignCategory.Sports },
-            //new SignModel { VideoPath = "tennis.mp4", Choices = new List<string> { "Tennis", "Sport", "Racket", "Game" }, CorrectAnswer = "Tennis", Language = SignLanguage.BSL, Category = SignCategory.Sports },
-            //new SignModel { VideoPath = "swimming.mp4", Choices = new List<string> { "Swimming", "Sport", "Water", "Pool" }, CorrectAnswer = "Swimming", Language = SignLanguage.BSL, Category = SignCategory.Sports },
             //new SignModel { VideoPath = "running.mp4", Choices = new List<string> { "Running", "Sprint", "Jog", "Exercise" }, CorrectAnswer = "Running", Language = SignLanguage.BSL, Category = SignCategory.Sports },
             //new SignModel { VideoPath = "cycling.mp4", Choices = new List<string> { "Cycling", "Bike", "Sport", "Exercise" }, CorrectAnswer = "Cycling", Language = SignLanguage.BSL, Category = SignCategory.Sports },
-            //new SignModel { VideoPath = "boxing.mp4", Choices = new List<string> { "Boxing", "Fight", "Sport", "Punch" }, CorrectAnswer = "Boxing", Language = SignLanguage.BSL, Category = SignCategory.Sports },
             //new SignModel { VideoPath = "yoga.mp4", Choices = new List<string> { "Yoga", "Exercise", "Stretch", "Meditate" }, CorrectAnswer = "Yoga", Language = SignLanguage.BSL, Category = SignCategory.Sports },
-            //new SignModel { VideoPath = "golf.mp4", Choices = new List<string> { "Golf", "Sport", "Club", "Ball" }, CorrectAnswer = "Golf", Language = SignLanguage.BSL, Category = SignCategory.Sports },
-            //new SignModel { VideoPath = "skiing.mp4", Choices = new List<string> { "Skiing", "Snow", "Sport", "Winter" }, CorrectAnswer = "Skiing", Language = SignLanguage.BSL, Category = SignCategory.Sports },
-            //new SignModel { VideoPath = "volleyball.mp4", Choices = new List<string> { "Volleyball", "Sport", "Ball", "Game" }, CorrectAnswer = "Volleyball", Language = SignLanguage.BSL, Category = SignCategory.Sports },
-            //new SignModel { VideoPath = "baseball.mp4", Choices = new List<string> { "Baseball", "Sport", "Ball", "Game" }, CorrectAnswer = "Baseball", Language = SignLanguage.BSL, Category = SignCategory.Sports },
             //new SignModel { VideoPath = "skating.mp4", Choices = new List<string> { "Skating", "Ice", "Sport", "Roll" }, CorrectAnswer = "Skating", Language = SignLanguage.BSL, Category = SignCategory.Sports },
 
-            //// Hobbies - Future videos
-            //new SignModel { VideoPath = "painting.mp4", Choices = new List<string> { "Painting", "Art", "Draw", "Create" }, CorrectAnswer = "Painting", Language = SignLanguage.BSL, Category = SignCategory.Hobbies },
+            //// Hobbies 
+            new SignModel { VideoPath = "painting.mp4", Choices = new List<string> { "Painting", "Art", "Draw", "Create" }, CorrectAnswer = "Painting", Language = SignLanguage.BSL, Category = SignCategory.Hobbies },
             //new SignModel { VideoPath = "reading.mp4", Choices = new List<string> { "Reading", "Book", "Study", "Learn" }, CorrectAnswer = "Reading", Language = SignLanguage.BSL, Category = SignCategory.Hobbies },
             //new SignModel { VideoPath = "writing.mp4", Choices = new List<string> { "Writing", "Pen", "Story", "Create" }, CorrectAnswer = "Writing", Language = SignLanguage.BSL, Category = SignCategory.Hobbies },
             //new SignModel { VideoPath = "photography.mp4", Choices = new List<string> { "Photography", "Camera", "Photo", "Picture" }, CorrectAnswer = "Photography", Language = SignLanguage.BSL, Category = SignCategory.Hobbies },
             //new SignModel { VideoPath = "gardening.mp4", Choices = new List<string> { "Gardening", "Plants", "Grow", "Garden" }, CorrectAnswer = "Gardening", Language = SignLanguage.BSL, Category = SignCategory.Hobbies },
-            //new SignModel { VideoPath = "fishing.mp4", Choices = new List<string> { "Fishing", "Fish", "Catch", "Rod" }, CorrectAnswer = "Fishing", Language = SignLanguage.BSL, Category = SignCategory.Hobbies },
+            new SignModel { VideoPath = "fishing.mp4", Choices = new List<string> { "Fishing", "Fish", "Catch", "Rod" }, CorrectAnswer = "Fishing", Language = SignLanguage.BSL, Category = SignCategory.Hobbies },
             //new SignModel { VideoPath = "camping.mp4", Choices = new List<string> { "Camping", "Tent", "Outdoors", "Nature" }, CorrectAnswer = "Camping", Language = SignLanguage.BSL, Category = SignCategory.Hobbies },
-            //new SignModel { VideoPath = "singing.mp4", Choices = new List<string> { "Singing", "Song", "Music", "Voice" }, CorrectAnswer = "Singing", Language = SignLanguage.BSL, Category = SignCategory.Hobbies },
-            //new SignModel { VideoPath = "piano.mp4", Choices = new List<string> { "Piano", "Music", "Play", "Instrument" }, CorrectAnswer = "Piano", Language = SignLanguage.BSL, Category = SignCategory.Hobbies },
+            new SignModel { VideoPath = "singing.mp4", Choices = new List<string> { "Singing", "Song", "Music", "Voice" }, CorrectAnswer = "Singing", Language = SignLanguage.BSL, Category = SignCategory.Hobbies },
+            new SignModel { VideoPath = "piano.mp4", Choices = new List<string> { "Piano", "Music", "Play", "Instrument" }, CorrectAnswer = "Piano", Language = SignLanguage.BSL, Category = SignCategory.Hobbies },
             //new SignModel { VideoPath = "drums.mp4", Choices = new List<string> { "Drums", "Music", "Play", "Instrument" }, CorrectAnswer = "Drums", Language = SignLanguage.BSL, Category = SignCategory.Hobbies },
             //new SignModel { VideoPath = "videogames.mp4", Choices = new List<string> { "Video Games", "Gaming", "Play", "Console" }, CorrectAnswer = "Video Games", Language = SignLanguage.BSL, Category = SignCategory.Hobbies },
             //new SignModel { VideoPath = "cards.mp4", Choices = new List<string> { "Cards", "Game", "Play", "Deck" }, CorrectAnswer = "Cards", Language = SignLanguage.BSL, Category = SignCategory.Hobbies },
             //new SignModel { VideoPath = "movies.mp4", Choices = new List<string> { "Movies", "Film", "Watch", "Cinema" }, CorrectAnswer = "Movies", Language = SignLanguage.BSL, Category = SignCategory.Hobbies },
-            //new SignModel { VideoPath = "knitting.mp4", Choices = new List<string> { "Knitting", "Craft", "Make", "Wool" }, CorrectAnswer = "Knitting", Language = SignLanguage.BSL, Category = SignCategory.Hobbies },
+            new SignModel { VideoPath = "knitting.mp4", Choices = new List<string> { "Knitting", "Craft", "Make", "Wool" }, CorrectAnswer = "Knitting", Language = SignLanguage.BSL, Category = SignCategory.Hobbies },
             //new SignModel { VideoPath = "pottery.mp4", Choices = new List<string> { "Pottery", "Clay", "Make", "Craft" }, CorrectAnswer = "Pottery", Language = SignLanguage.BSL, Category = SignCategory.Hobbies }
         #endregion
         });

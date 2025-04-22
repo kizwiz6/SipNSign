@@ -14,7 +14,8 @@
                 { "animals", 0.99m },
                 { "geography", 0.99m },
                 { "food_drink", 0.99m },
-                { "emotions", 0.99m }
+                { "emotions", 0.99m },
+                { "sports_hobbies", 0.99m }
             };
         }
 
