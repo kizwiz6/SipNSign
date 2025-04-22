@@ -291,28 +291,27 @@ namespace com.kizwiz.sipnsign.Pages
             {
                 _isDisposed = true;
 
-                // Stop videos first
-                if (SharedVideo != null)
+                // Call Cleanup explicitly first
+                Cleanup();
+
+                // Then proceed with existing code if needed
+                await MainThread.InvokeOnMainThreadAsync(() =>
                 {
-                    await MainThread.InvokeOnMainThreadAsync(() =>
+                    if (SharedVideo != null)
                     {
                         SharedVideo.Stop();
                         SharedVideo.Source = null;
                         SharedVideo.Handler?.DisconnectHandler();
-                    });
-                }
+                    }
 
-                if (PerformVideo != null)
-                {
-                    await MainThread.InvokeOnMainThreadAsync(() =>
+                    if (PerformVideo != null)
                     {
                         PerformVideo.Stop();
                         PerformVideo.Source = null;
                         PerformVideo.Handler?.DisconnectHandler();
-                    });
-                }
+                    }
+                });
 
-                // Give time for cleanup
                 await Task.Delay(100);
 
                 ViewModel?.Cleanup();
@@ -387,30 +386,57 @@ namespace com.kizwiz.sipnsign.Pages
 
             try
             {
+                _isDisposed = true; // Mark as disposed immediately to prevent concurrent access
+
                 if (_timer != null)
                 {
                     _timer.Stop();
                     _timer = null;
                 }
 
+                // Create a local reference to prevent null checks
+                var sharedVideoRef = SharedVideo;
+                var performVideoRef = PerformVideo;
+
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
-                    if (SharedVideo != null)
+                    if (sharedVideoRef != null)
                     {
-                        SharedVideo.Stop();
-                        SharedVideo.Source = null;
-                        SharedVideo.Handler?.DisconnectHandler();
+                        try
+                        {
+                            // Try to safely stop and clean up the MediaElement
+                            sharedVideoRef.Stop();
+                            sharedVideoRef.Source = null;
+                            sharedVideoRef.Handler?.DisconnectHandler();
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Error cleaning up SharedVideo: {ex.Message}");
+                        }
                     }
 
-                    if (PerformVideo != null)
+                    if (performVideoRef != null)
                     {
-                        PerformVideo.Stop();
-                        PerformVideo.Source = null;
-                        PerformVideo.Handler?.DisconnectHandler();
+                        try
+                        {
+                            // Try to safely stop and clean up the MediaElement
+                            performVideoRef.Stop();
+                            performVideoRef.Source = null;
+                            performVideoRef.Handler?.DisconnectHandler();
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Error cleaning up PerformVideo: {ex.Message}");
+                        }
                     }
-
-                    System.GC.Collect(); // Force garbage collection
                 });
+
+                // Wait a moment for cleanup to complete
+                await Task.Delay(50);
+
+                // Now it's safe to null the references
+                SharedVideo = null;
+                PerformVideo = null;
             }
             catch (Exception ex)
             {

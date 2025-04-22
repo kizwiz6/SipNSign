@@ -156,9 +156,9 @@ namespace com.kizwiz.sipnsign.Services
                         }
                         break;
 
-                    
+
                     // REMVOED AS PERFORM MODE DOES NOT HAVE SESSIONS
-                        //case "PARTY_STARTER" when !achievement.IsUnlocked:
+                    //case "PARTY_STARTER" when !achievement.IsUnlocked:
                     //    // Count completed Perform mode sessions
                     //    var performSessions = _currentProgress.Activities
                     //        .Count(a => a.Type == ActivityType.Practice &&
@@ -171,7 +171,17 @@ namespace com.kizwiz.sipnsign.Services
                     //    break;
 
                     case "SOCIAL_BUTTERFLY" when !achievement.IsUnlocked:
-                        // Triggered from ShareAchievements() in AchievementDetailsViewModel
+                        // Check if there's any sharing activity in the log
+                        var hasShared = _currentProgress.Activities
+                            .Any(a => a.Type == ActivityType.Achievement &&
+                                 (a.Description.Contains("Shared an achievement") ||
+                                  a.Description.Contains("Social Butterfly")));
+
+                        if (hasShared)
+                        {
+                            await UnlockAchievement(achievement);
+                            achievement.ProgressCurrent = achievement.ProgressRequired;
+                        }
                         break;
 
                     case "SPEED_MASTER" when !achievement.IsUnlocked:
