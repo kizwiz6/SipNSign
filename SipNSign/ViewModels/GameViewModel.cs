@@ -3,6 +3,8 @@ using com.kizwiz.sipnsign.Models;
 using com.kizwiz.sipnsign.Pages;
 using com.kizwiz.sipnsign.Services;
 using CommunityToolkit.Maui.Views;
+using CommunityToolkit.Mvvm.Input;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Input;
@@ -12,7 +14,7 @@ namespace com.kizwiz.sipnsign.ViewModels
     /// <summary>
     /// Manages the game state and logic for both Guess and Perform modes
     /// </summary>
-    public class GameViewModel : INotifyPropertyChanged
+    public partial class GameViewModel : INotifyPropertyChanged
     {
         #region Color Constants
         private readonly Color _guessPrimaryColor = Color.FromArgb("#007BFF");
@@ -447,6 +449,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             SwitchModeCommand = new Command<GameMode>(SwitchMode);
 
             InitializeCommands();
+            InitializePlayers();
 
             // Initialize videos in a fire-and-forget Task
             Task.Run(async () =>
@@ -693,6 +696,16 @@ namespace com.kizwiz.sipnsign.ViewModels
         {
             _logger.Debug($"RevealSign called. CurrentSign is: {CurrentSign?.CorrectAnswer ?? "null"}");
             IsSignHidden = false;
+
+            // In multiplayer, reset the players' answer status
+            if (IsMultiplayer)
+            {
+                foreach (var player in Players)
+                {
+                    player.GotCurrentAnswerCorrect = false;
+                }
+            }
+
             SignRevealRequested?.Invoke(this, EventArgs.Empty);
         }
 
@@ -1221,6 +1234,69 @@ namespace com.kizwiz.sipnsign.ViewModels
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        #endregion
+
+        #region Multiplayer Support
+        public GameParameters GameParameters { get; set; } = new GameParameters
+        {
+            IsMultiplayer = false,
+            Players = new List<Player> { new Player { Name = "You", IsMainPlayer = true } }
+        };
+
+        public bool IsMultiplayer => GameParameters.IsMultiplayer;
+
+        public ObservableCollection<Player> Players { get; } = new();
+
+        private void InitializePlayers()
+        {
+            Players.Clear();
+            foreach (var player in GameParameters.Players)
+            {
+                Players.Add(player);
+            }
+            OnPropertyChanged(nameof(Players));
+        }
+
+        public void RecordPlayerAnswer(Player player, bool isCorrect)
+        {
+            player.GotCurrentAnswerCorrect = isCorrect;
+
+            // If it's the main player, update their stats
+            if (player.IsMainPlayer)
+            {
+                if (isCorrect)
+                {
+                    // Update the main player stats as we do in single player
+                    CurrentScore++;
+                    _userProgress.PerformModeSigns++;
+                }
+                // Log only the main player's activity for progression
+                _ = LogGameActivity(isCorrect);
+            }
+
+            // Update the player's score
+            if (isCorrect)
+            {
+                player.Score++;
+            }
+        }
+
+        [RelayCommand]
+        private void RecordPlayerAnswer(PlayerAnswerParameter param)
+        {
+            if (param?.Player != null)
+            {
+                RecordPlayerAnswer(param.Player, param.IsCorrect);
+            }
+        }
+
+        [RelayCommand]
+        private void NextSign()
+        {
+            IsFeedbackVisible = false;
+            IsSignHidden = true;
+            LoadNextSign();
         }
         #endregion
     }
