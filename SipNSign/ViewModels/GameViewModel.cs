@@ -947,7 +947,18 @@ namespace com.kizwiz.sipnsign.ViewModels
 
             // Update total attempts and correct attempts
             _userProgress.TotalAttempts++;
+            if (isCorrect)
+            {
+                _userProgress.CorrectAttempts++;
 
+                // Count correct answers for Guess/Perform modes
+                if (IsGuessMode)
+                    _userProgress.GuessModeSigns++;
+                else
+                    _userProgress.PerformModeSigns++;
+            }
+
+            // Log speed-related activity if applicable
             if (isCorrect && answerTime.HasValue && answerTime.Value < 5.0)
             {
                 await _progressService.LogActivityAsync(new ActivityLog
@@ -964,6 +975,7 @@ namespace com.kizwiz.sipnsign.ViewModels
 
             await _progressService.SaveProgressAsync(_userProgress);
 
+            // Log the activity
             await _progressService.LogActivityAsync(new ActivityLog
             {
                 Id = Guid.NewGuid().ToString(),

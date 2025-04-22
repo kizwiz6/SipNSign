@@ -496,6 +496,18 @@ namespace com.kizwiz.sipnsign.Services
 
                         // Update practice time (increment by 30 seconds per attempt)
                         _currentProgress.TotalPracticeTime = _currentProgress.TotalPracticeTime.Add(TimeSpan.FromSeconds(30));
+
+                        // Increment SignsLearned counter when answering correctly
+                        _currentProgress.SignsLearned++;
+
+                        // Update Guess/Perform mode specific counters
+                        if (!string.IsNullOrEmpty(activity.Description))
+                        {
+                            if (activity.Description.Contains("Guess Mode", StringComparison.OrdinalIgnoreCase))
+                                _currentProgress.GuessModeSigns++;
+                            else if (activity.Description.Contains("Perform Mode", StringComparison.OrdinalIgnoreCase))
+                                _currentProgress.PerformModeSigns++;
+                        }
                     }
                     break;
             }
