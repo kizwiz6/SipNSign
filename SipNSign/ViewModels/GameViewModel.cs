@@ -618,18 +618,21 @@ namespace com.kizwiz.sipnsign.ViewModels
                 UpdateAnswerTime(answerTime);
 
                 bool isCorrect = CheckAnswer(answer);
-                UpdateButtonColor(answer, isCorrect);
 
-                // Only show feedback if enabled
-                if (Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true))
-                {
-                    FeedbackText = GetFeedbackText(isCorrect);
-                    Color color = GetFeedbackColor(isCorrect);
-                    Debug.WriteLine($"Setting feedback color to: {color}");
-                    FeedbackBackgroundColor = color;
-                    IsFeedbackVisible = true;
-                }
+                // Run UI updates on main thread
+                await MainThread.InvokeOnMainThreadAsync(() => {
+                    UpdateButtonColor(answer, isCorrect);
 
+                    // Only show feedback if enabled
+                    if (Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true))
+                    {
+                        FeedbackText = GetFeedbackText(isCorrect);
+                        FeedbackBackgroundColor = GetFeedbackColor(isCorrect);
+                        IsFeedbackVisible = true;
+                    }
+                });
+
+                // Log activity
                 if (isCorrect)
                 {
                     CurrentScore++;
@@ -642,16 +645,12 @@ namespace com.kizwiz.sipnsign.ViewModels
 
                 // Check if this is the last question
                 bool isLastQuestion = _availableIndices.Count == 0;
-                Debug.WriteLine($"Is last question: {isLastQuestion}");
 
                 await ShowFeedbackAndContinue(isCorrect);
-                Debug.WriteLine("After ShowFeedbackAndContinue");
 
                 if (isLastQuestion)
                 {
-                    Debug.WriteLine("Ending game");
                     EndGame();
-                    Debug.WriteLine("Game ended");
                 }
             }
             finally
