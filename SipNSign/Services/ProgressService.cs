@@ -52,6 +52,10 @@ namespace com.kizwiz.sipnsign.Services
 
         public async Task LogActivityAsync(ActivityLog activity)
         {
+            // Validate activity before adding it
+            if (string.IsNullOrWhiteSpace(activity.Description))
+                return; // Skip adding activities without descriptions
+
             _currentProgress.Activities.Insert(0, activity);
 
             // Keep only last 100 activities

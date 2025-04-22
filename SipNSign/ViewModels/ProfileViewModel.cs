@@ -158,8 +158,12 @@ namespace com.kizwiz.sipnsign.ViewModels
             GuessModeSigns = _userProgress.GuessModeSigns;
             PerformModeSigns = _userProgress.PerformModeSigns;
 
+            // Update RecentActivities
             RecentActivities.Clear();
-            foreach (var activity in _userProgress.Activities.OrderByDescending(a => a.Timestamp).Take(10))
+            foreach (var activity in _userProgress.Activities
+                .Where(a => !string.IsNullOrEmpty(a.Description)) // Filter out empty descriptions
+                .OrderByDescending(a => a.Timestamp)
+                .Take(10))
             {
                 var icon = activity.Type switch
                 {
@@ -176,14 +180,15 @@ namespace com.kizwiz.sipnsign.ViewModels
                 RecentActivities.Add(new ActivityItem
                 {
                     Icon = activity.IconName ?? icon,
-                    Description = activity.Description,
+                    Description = activity.Description ?? "Activity recorded", // Provide fallback
                     TimeAgo = FormatTimeAgo(activity.Timestamp),
-                    Score = score
+                    Score = score ?? "" // Provide fallback for score
                 });
-
-                OnPropertyChanged(nameof(AchievementsHeaderText));
             }
 
+            OnPropertyChanged(nameof(AchievementsHeaderText));
+
+            // Update Achievements
             Achievements.Clear();
             foreach (var achievement in _userProgress.Achievements.OrderBy(a => a.IsUnlocked))
             {
