@@ -80,16 +80,26 @@ namespace com.kizwiz.sipnsign.ViewModels
                     Type = ActivityType.Achievement,
                     Description = "Shared an achievement",
                     IconName = "social_icon",
-                    Timestamp = DateTime.Now
+                    Timestamp = DateTime.Now,
+                    Score = "🏆"  // Use trophy emoji for score
                 });
 
-                // Mark the Social Butterfly achievement as completed
-                var socialAchievement = _userProgress?.Achievements
+                // Find and unlock the Social Butterfly achievement
+                var userProgress = await _progressService.GetUserProgressAsync();
+                var socialAchievement = userProgress.Achievements
                     .FirstOrDefault(a => a.Id == "SOCIAL_BUTTERFLY");
 
                 if (socialAchievement != null && !socialAchievement.IsUnlocked)
                 {
-                    socialAchievement.ProgressCurrent = 1;
+                    // Force set progress and unlock status
+                    socialAchievement.ProgressCurrent = socialAchievement.ProgressRequired;
+                    socialAchievement.IsUnlocked = true;
+                    socialAchievement.UnlockedDate = DateTime.Now;
+
+                    // Save progress
+                    await _progressService.SaveProgressAsync(userProgress);
+
+                    // Force update achievements
                     await _progressService.UpdateAchievementsAsync();
                 }
             }
