@@ -3,6 +3,7 @@ using com.kizwiz.sipnsign.Models;
 using com.kizwiz.sipnsign.Pages;
 using com.kizwiz.sipnsign.Services;
 using CommunityToolkit.Maui.Views;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -63,8 +64,6 @@ namespace com.kizwiz.sipnsign.ViewModels
         private ICommand _nextSignCommand;
         private ICommand _recordPlayerAnswerCommand;
         private ICommand _showScoreboardCommand;
-        private ICommand _markCorrectCommand;
-        private ICommand _markIncorrectCommand;
         private string _currentPlayerTurnText = string.Empty;
         private int GetTotalQuestions() => Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
         public int TotalQuestions => GetTotalQuestions();
@@ -130,7 +129,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         public Color FeedbackErrorColor => _errorColor.WithAlpha(0.9f);
         public string ModeTitle => _currentMode == GameMode.Guess ? "Guess Mode" : "Perform Mode";
         public bool IsTimerEnabled => Preferences.Get(Constants.TIMER_DURATION_KEY, Constants.DEFAULT_TIMER_DURATION) > 0;
-        
+
         // Property to determine if all players have answered in Multiplayer mode
         public bool HasAllPlayersAnswered
         {
@@ -139,19 +138,26 @@ namespace com.kizwiz.sipnsign.ViewModels
                 if (!IsMultiplayer || Players == null || !Players.Any())
                     return true;
 
-                // Check if all players have answered (either correctly or incorrectly)
+                // Check if all players have answered
                 foreach (var player in Players)
                 {
-                    // If the GotCurrentAnswerCorrect property has been explicitly set (to true or false),
-                    // then this player has answered
-                    bool hasAnswered = player.GotCurrentAnswerCorrect ||
-                                       (player.GotCurrentAnswerCorrect == false &&
-                                        player.GetType().GetProperty("GotCurrentAnswerCorrect").GetSetMethod().IsPublic);
+                    // Simply check the GotCurrentAnswerCorrect property - it will be true or false
+                    // if they've answered, but the default is false which means they haven't answered
+                    // We need to know if the answer has been set, not just what its value is
+                    var propInfo = player.GetType().GetProperty("GotCurrentAnswerCorrect");
+                    var defaultValue = false; // Default value for bool
 
-                    if (!hasAnswered)
+                    // If the value is still the default and the property has a setter (meaning it could be changed)
+                    // then this player hasn't answered yet
+                    if (player.GotCurrentAnswerCorrect == defaultValue &&
+                        !propInfo.GetCustomAttributes(typeof(ObservablePropertyAttribute), true).Any())
+                    {
+                        Debug.WriteLine($"Player {player.Name} has not answered yet");
                         return false;
+                    }
                 }
 
+                Debug.WriteLine("All players have answered");
                 return true;
             }
         }
@@ -492,6 +498,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                             // Reset all players' answer status for the next sign
                             foreach (var player in Players)
                             {
+                                // Use property setting instead of direct field access
                                 player.GotCurrentAnswerCorrect = false;
                             }
 
@@ -522,19 +529,20 @@ namespace com.kizwiz.sipnsign.ViewModels
                 return _recordPlayerAnswerCommand ??= new Command<PlayerAnswerParameter>(param =>
                 {
                     if (param?.Player == null) return;
-                    if (IsProcessingAnswer) return;
 
                     try
                     {
-                        IsProcessingAnswer = true;
-
                         // Record the player's answer
                         param.Player.GotCurrentAnswerCorrect = param.IsCorrect;
+
+                        // Log the player's action
+                        Debug.WriteLine($"Player {param.Player.Name} answered {(param.IsCorrect ? "correctly" : "incorrectly")}");
 
                         // Update the score if correct
                         if (param.IsCorrect)
                         {
                             param.Player.Score++;
+                            Debug.WriteLine($"Updated {param.Player.Name}'s score to {param.Player.Score}");
 
                             // If it's the main player, update progression stats
                             if (param.Player.IsMainPlayer)
@@ -549,12 +557,16 @@ namespace com.kizwiz.sipnsign.ViewModels
                             _ = LogGameActivity(false);
                         }
 
+                        // Force UI update for the entire players collection
+                        OnPropertyChanged(nameof(Players));
+                        OnPropertyChanged(nameof(HasAllPlayersAnswered));
+
                         // Show feedback with updated scores
                         ShowFeedback(param.IsCorrect);
                     }
-                    finally
+                    catch (Exception ex)
                     {
-                        IsProcessingAnswer = false;
+                        Debug.WriteLine($"Error recording player answer: {ex.Message}");
                     }
                 });
             }
@@ -1467,6 +1479,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private void InitializePlayers()
         {
             Players.Clear();
+            Debug.WriteLine($"Initializing players. IsMultiplayer: {GameParameters?.IsMultiplayer}");
 
             // Add players from game parameters
             if (GameParameters?.Players != null)
@@ -1474,12 +1487,14 @@ namespace com.kizwiz.sipnsign.ViewModels
                 foreach (var player in GameParameters.Players)
                 {
                     Players.Add(player);
+                    Debug.WriteLine($"Added player: {player.Name}, IsMainPlayer: {player.IsMainPlayer}");
                 }
             }
             else
             {
                 // Default to single player if no parameters
                 Players.Add(new Player { Name = "You", IsMainPlayer = true });
+                Debug.WriteLine("Added default player 'You'");
             }
 
             // Update player turn text
@@ -1487,6 +1502,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             {
                 var mainPlayer = Players.FirstOrDefault(p => p.IsMainPlayer);
                 CurrentPlayerTurnText = mainPlayer != null ? $"{mainPlayer.Name}'s Turn" : "Player 1's Turn";
+                Debug.WriteLine($"Set CurrentPlayerTurnText to: {CurrentPlayerTurnText}");
             }
 
             OnPropertyChanged(nameof(Players));

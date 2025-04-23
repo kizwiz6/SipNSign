@@ -63,6 +63,9 @@ public partial class PlayerSelectionPage : ContentPage
     {
         try
         {
+            // Log player information for debugging
+            LogPlayersInfo(parameters);
+
             // Get services from the application
             var serviceProvider = Application.Current.Handler.MauiContext.Services.GetService<IServiceProvider>();
             var videoService = serviceProvider.GetRequiredService<IVideoService>();
@@ -74,13 +77,22 @@ public partial class PlayerSelectionPage : ContentPage
             gamePage.ViewModel.CurrentMode = GameMode.Perform;
             gamePage.ViewModel.GameParameters = parameters;
 
-            // Navigate to the game page
+            // Navigation to the game page
             await Navigation.PushAsync(gamePage);
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"Error starting game: {ex.Message}");
             await DisplayAlert("Error", "Failed to start game", "OK");
+        }
+    }
+
+    private void LogPlayersInfo(GameParameters parameters)
+    {
+        Debug.WriteLine($"Starting game with {parameters.Players.Count} players:");
+        foreach (var player in parameters.Players)
+        {
+            Debug.WriteLine($"  - Player: {player.Name}, IsMainPlayer: {player.IsMainPlayer}");
         }
     }
 }
