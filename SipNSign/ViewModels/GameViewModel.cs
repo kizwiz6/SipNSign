@@ -46,6 +46,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private Color _feedbackBackgroundColor;
         private string _guessResults;
         private bool _isFeedbackVisible;
+        private bool _isScoreboardVisible = false;
         private int _finalScore;
         private Color _button1Color = Colors.Transparent;
         private Color _button2Color = Colors.Transparent;
@@ -61,6 +62,9 @@ namespace com.kizwiz.sipnsign.ViewModels
         private ICommand _correctPerformCommand;
         private ICommand _nextSignCommand;
         private ICommand _recordPlayerAnswerCommand;
+        private ICommand _showScoreboardCommand;
+        private ICommand _markCorrectCommand;
+        private ICommand _markIncorrectCommand;
         private string _currentPlayerTurnText = string.Empty;
         private int GetTotalQuestions() => Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
         public int TotalQuestions => GetTotalQuestions();
@@ -1498,6 +1502,8 @@ namespace com.kizwiz.sipnsign.ViewModels
             try
             {
                 IsProcessingAnswer = true;
+
+                Debug.WriteLine($"Recording answer for player: {param.Player.Name}, IsCorrect: {param.IsCorrect}");
 
                 // Record the player's answer
                 param.Player.GotCurrentAnswerCorrect = param.IsCorrect;

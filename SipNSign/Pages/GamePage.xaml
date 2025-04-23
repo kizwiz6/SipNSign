@@ -75,13 +75,34 @@
                 </Border>
             </Grid>
 
-            <!-- Score -->
+            <!-- Score display - Single player version -->
             <Border Grid.Column="1" 
                    Padding="15,5"
                    Background="{DynamicResource Primary}"
-                   StrokeShape="RoundRectangle 20">
+                   StrokeShape="RoundRectangle 20"
+                   IsVisible="{Binding IsMultiplayer, Converter={StaticResource InverseBoolConverter}}">
                 <Label Style="{StaticResource ScoreStyle}"
-                       Text="{Binding CurrentScore, StringFormat='Score: {0}'}"/>
+                        Text="{Binding CurrentScore, StringFormat='Score: {0}'}"/>
+            </Border>
+
+            <!-- Scoreboard Button - Multiplayer version -->
+            <Border Grid.Column="1" 
+                   Padding="15,5"
+                   Background="{DynamicResource Primary}"
+                   StrokeShape="RoundRectangle 20"
+                   IsVisible="{Binding IsMultiplayer}">
+                <StackLayout Orientation="Horizontal" Spacing="5">
+                    <Label Text="Scores" 
+               Style="{StaticResource ScoreStyle}"/>
+                    <Label Text="👥" 
+               FontSize="18" 
+               TextColor="White" 
+               VerticalOptions="Center"/>
+                </StackLayout>
+
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ShowScoreboardCommand}"/>
+                </Border.GestureRecognizers>
             </Border>
         </Grid>
 
@@ -129,33 +150,7 @@
                                    HorizontalOptions="Center"
                                    HorizontalTextAlignment="Center"/>
 
-                            <!-- Multiplayer Score Display -->
-                            <CollectionView ItemsSource="{Binding Players}"
-                                            IsVisible="{Binding IsMultiplayer}"
-                                            HeightRequest="150">
-                                <CollectionView.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid Padding="5" ColumnDefinitions="Auto,*,Auto">
-                                            <Label Text="⭐" 
-                                                   IsVisible="{Binding IsMainPlayer}"
-                                                   TextColor="Gold"
-                                                   FontSize="18"
-                                                   VerticalOptions="Center"/>
-                                            <Label Grid.Column="1"
-                                                   Text="{Binding Name}"
-                                                   TextColor="White"
-                                                   FontSize="16"
-                                                   VerticalOptions="Center"/>
-                                            <Label Grid.Column="2"
-                                                   Text="{Binding Score}"
-                                                   TextColor="White"
-                                                   FontSize="18"
-                                                   FontAttributes="Bold"
-                                                   VerticalOptions="Center"/>
-                                        </Grid>
-                                    </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
+                           
                         </VerticalStackLayout>
                     </Border>
                 </Grid>
@@ -331,18 +326,25 @@
                                             <!-- Player Name -->
                                             <StackLayout Grid.Column="0" Orientation="Horizontal">
                                                 <Label Text="{Binding Name}"
-                                                       TextColor="White"
-                                                       FontSize="20"
-                                                       FontAttributes="Bold"
-                                                       VerticalOptions="Center"/>
+                           TextColor="White"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           VerticalOptions="Center"/>
 
                                                 <!-- Status indicator - shows after an answer is recorded -->
                                                 <Label Text="{Binding AnswerStatus}"
-                                                       IsVisible="{Binding GotCurrentAnswerCorrect}"
-                                                       TextColor="ForestGreen"
-                                                       FontSize="16"
-                                                       Margin="10,0,0,0"
-                                                       VerticalOptions="Center"/>
+                           IsVisible="{Binding GotCurrentAnswerCorrect}"
+                           TextColor="ForestGreen"
+                           FontSize="16"
+                           Margin="10,0,0,0"
+                           VerticalOptions="Center"/>
+                                            </StackLayout>
+
+                                            <!-- Score display under player name -->
+                                                <Label Text="{Binding Score, StringFormat='Score: {0}'}"
+                                                       TextColor="LightGray"
+                                                       FontSize="14"
+                                                       Margin="0,5,0,0"/>
                                             </StackLayout>
 
                                             <!-- Correct Button -->
@@ -350,23 +352,43 @@
                                                     Text="✓"
                                                     BackgroundColor="ForestGreen"
                                                     TextColor="White"
-                                                    FontSize="20"
-                                                    WidthRequest="50"
-                                                    HeightRequest="50"
+                                                    FontSize="22"
+                                                    WidthRequest="55"
+                                                    HeightRequest="55"
                                                     Margin="5,0" 
                                                     Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:GameViewModel}}, Path=RecordPlayerAnswerCommand}"
-                                                    CommandParameter="{Binding ., Converter={StaticResource PlayerAnswerConverter}, ConverterParameter=true}"/>
+                                                    CommandParameter="{Binding ., Converter={StaticResource PlayerAnswerConverter}, ConverterParameter=true}">
+                                                <Button.Triggers>
+                                                    <!-- Disable button if player has already answered -->
+                                                    <DataTrigger TargetType="Button" 
+                                                                 Binding="{Binding GotCurrentAnswerCorrect}" 
+                                                                 Value="True">
+                                                        <Setter Property="IsEnabled" Value="False"/>
+                                                        <Setter Property="Opacity" Value="0.5"/>
+                                                    </DataTrigger>
+                                                </Button.Triggers>
+                                            </Button>
 
                                             <!-- Incorrect Button -->
                                             <Button Grid.Column="2"
                                                     Text="✗"
                                                     BackgroundColor="Crimson"
                                                     TextColor="White" 
-                                                    FontSize="20"
-                                                    WidthRequest="50"
-                                                    HeightRequest="50"
+                                                    FontSize="22"
+                                                    WidthRequest="55"
+                                                    HeightRequest="55"
                                                     Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:GameViewModel}}, Path=RecordPlayerAnswerCommand}"
-                                                    CommandParameter="{Binding ., Converter={StaticResource PlayerAnswerConverter}, ConverterParameter=false}"/>
+                                                    CommandParameter="{Binding ., Converter={StaticResource PlayerAnswerConverter}, ConverterParameter=false}">
+                                                <Button.Triggers>
+                                                    <!-- Disable button if player has already answered -->
+                                                    <DataTrigger TargetType="Button" 
+                             Binding="{Binding GotCurrentAnswerCorrect}" 
+                             Value="True">
+                                                        <Setter Property="IsEnabled" Value="False"/>
+                                                        <Setter Property="Opacity" Value="0.5"/>
+                                                    </DataTrigger>
+                                                </Button.Triggers>
+                                            </Button>
                                         </Grid>
                                     </DataTemplate>
                                 </CollectionView.ItemTemplate>
@@ -376,7 +398,23 @@
                                     Command="{Binding NextSignCommand}"
                                     Style="{StaticResource PrimaryButton}"
                                     BackgroundColor="{DynamicResource Primary}"
-                                    Margin="0,10,0,5"/>
+                                    IsEnabled="{Binding HasAllPlayersAnswered}"
+                                    Margin="0,10,0,5">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" 
+                                                 Binding="{Binding HasAllPlayersAnswered}" 
+                                                 Value="False">
+                                        <Setter Property="Opacity" Value="0.6"/>
+                                        <Setter Property="BackgroundColor" Value="Gray"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Button" 
+                                                 Binding="{Binding HasAllPlayersAnswered}" 
+                                                 Value="True">
+                                        <Setter Property="Opacity" Value="1.0"/>
+                                        <Setter Property="BackgroundColor" Value="{DynamicResource Primary}"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
                         </StackLayout>
                     </StackLayout>
                 </VerticalStackLayout>
