@@ -59,6 +59,9 @@ namespace com.kizwiz.sipnsign.ViewModels
         private ICommand _playAgainCommand;
         private ICommand _incorrectPerformCommand;
         private ICommand _correctPerformCommand;
+        private ICommand _nextSignCommand;
+        private ICommand _recordPlayerAnswerCommand;
+        private string _currentPlayerTurnText = string.Empty;
         private int GetTotalQuestions() => Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
         public int TotalQuestions => GetTotalQuestions();
         #endregion
@@ -371,6 +374,24 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         public bool IsSignRevealed => !IsSignHidden;
 
+        // Multiplayer Properties
+        public bool IsMultiplayer => GameParameters?.IsMultiplayer ?? false;
+
+        public ObservableCollection<Player> Players { get; } = new ObservableCollection<Player>();
+
+        public string CurrentPlayerTurnText
+        {
+            get => _currentPlayerTurnText;
+            set
+            {
+                if (_currentPlayerTurnText != value)
+                {
+                    _currentPlayerTurnText = value;
+                    OnPropertyChanged(nameof(CurrentPlayerTurnText));
+                }
+            }
+        }
+
         #endregion
 
         #region Commands
@@ -401,6 +422,89 @@ namespace com.kizwiz.sipnsign.ViewModels
         public ICommand CorrectPerformCommand => _correctPerformCommand;
         public ICommand IncorrectPerformCommand => _incorrectPerformCommand;
         public ICommand SwitchModeCommand { get; private set; }
+        public ICommand NextSignCommand
+        {
+            get
+            {
+                return _nextSignCommand ??= new Command(async () =>
+                {
+                    if (IsProcessingAnswer) return;
+
+                    try
+                    {
+                        IsProcessingAnswer = true;
+                        IsFeedbackVisible = false;
+                        IsSignHidden = true;
+
+                        // Check if we have more signs
+                        if (_availableIndices.Count > 0)
+                        {
+                            // Reset any current answer status for all players
+                            foreach (var player in Players)
+                            {
+                                player.GotCurrentAnswerCorrect = false;
+                            }
+
+                            // Load the next sign
+                            LoadNextSign();
+                        }
+                        else
+                        {
+                            // End the game if no more signs
+                            EndGame();
+                        }
+                    }
+                    finally
+                    {
+                        IsProcessingAnswer = false;
+                    }
+                });
+            }
+        }
+        public ICommand RecordPlayerAnswerCommand
+        {
+            get
+            {
+                return _recordPlayerAnswerCommand ??= new Command<PlayerAnswerParameter>(param =>
+                {
+                    if (param?.Player == null) return;
+                    if (IsProcessingAnswer) return;
+
+                    try
+                    {
+                        IsProcessingAnswer = true;
+
+                        // Record the player's answer
+                        param.Player.GotCurrentAnswerCorrect = param.IsCorrect;
+
+                        // Update the score if correct
+                        if (param.IsCorrect)
+                        {
+                            param.Player.Score++;
+
+                            // If it's the main player, update progression stats
+                            if (param.Player.IsMainPlayer)
+                            {
+                                CurrentScore++;
+                                _ = LogGameActivity(true);
+                            }
+                        }
+                        else if (param.Player.IsMainPlayer)
+                        {
+                            // Log incorrect answers for the main player
+                            _ = LogGameActivity(false);
+                        }
+
+                        // Show feedback with updated scores
+                        ShowFeedback(param.IsCorrect);
+                    }
+                    finally
+                    {
+                        IsProcessingAnswer = false;
+                    }
+                });
+            }
+        }
         #endregion
 
         #region Events
@@ -681,9 +785,23 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
 
             FeedbackBackgroundColor = GetFeedbackColor(isCorrect);
-            FeedbackText = GetFeedbackText(isCorrect);
+
+            // If in multiplayer, show a different message that doesn't target a specific player
+            if (IsMultiplayer)
+            {
+                bool isSoberMode = Preferences.Get(Constants.SOBER_MODE_KEY, false);
+                FeedbackText = isCorrect
+                    ? $"Correct!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'."
+                    : (isSoberMode
+                        ? $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nKeep Learning!"
+                        : $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!");
+            }
+            else
+            {
+                FeedbackText = GetFeedbackText(isCorrect);
+            }
+
             IsFeedbackVisible = true;
-            Debug.WriteLine($"Showing feedback - Mode: {CurrentMode}, Color: {FeedbackBackgroundColor}");
         }
 
         private void UpdateAnswerTime(double time)
@@ -697,7 +815,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             _logger.Debug($"RevealSign called. CurrentSign is: {CurrentSign?.CorrectAnswer ?? "null"}");
             IsSignHidden = false;
 
-            // In multiplayer, reset the players' answer status
+            // In multiplayer, reset all players' answer status
             if (IsMultiplayer)
             {
                 foreach (var player in Players)
@@ -762,7 +880,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                 Debug.WriteLine($"HandleCorrectPerform - Current transparency setting: {Preferences.Get(Constants.TRANSPARENT_FEEDBACK_KEY, false)}");
 
                 IsSignHidden = true;
-                _timer.Stop();
+                _timer?.Stop();
                 bool isSoberMode = Preferences.Get(Constants.SOBER_MODE_KEY, false);
                 FeedbackText = isSoberMode
                     ? $"Keep practicing '{CurrentSign?.CorrectAnswer}'!"
@@ -805,15 +923,26 @@ namespace com.kizwiz.sipnsign.ViewModels
 
                 ResetButtonColors();
 
-                // Only load next sign if we have more questions
-                if (_availableIndices.Count > 0)
+                // In multiplayer mode for Perform Mode, wait for all players to have their turn
+                if (IsMultiplayer && IsPerformMode)
                 {
-                    Debug.WriteLine("Loading next sign");
-                    LoadNextSign();
+                    // Let the NextSign button handle loading the next sign
+                    // We'll just reset the UI for the next player's answer
+                    return;
                 }
                 else
                 {
-                    Debug.WriteLine("No more questions available");
+                    // Single player mode - proceed as normal
+                    if (_availableIndices.Count > 0)
+                    {
+                        Debug.WriteLine("Loading next sign");
+                        LoadNextSign();
+                    }
+                    else
+                    {
+                        Debug.WriteLine("No more questions available");
+                        EndGame();
+                    }
                 }
             }
             Debug.WriteLine("ShowFeedbackAndContinue completed");
@@ -1028,7 +1157,6 @@ namespace com.kizwiz.sipnsign.ViewModels
                 });
             }
         }
-
         #endregion
 
         #region Public Methods
@@ -1167,6 +1295,20 @@ namespace com.kizwiz.sipnsign.ViewModels
             CurrentScore = 0;
             ResetButtonColors();
 
+            // Reset player scores for multiplayer
+            if (IsMultiplayer)
+            {
+                foreach (var player in Players)
+                {
+                    player.Score = 0;
+                    player.GotCurrentAnswerCorrect = false;
+                }
+
+                // Reset to first player
+                CurrentPlayerTurnText = Players.FirstOrDefault(p => p.IsMainPlayer)?.Name ?? "Player 1's Turn";
+                OnPropertyChanged(nameof(CurrentPlayerTurnText));
+            }
+
             if (_signs == null || !_signs.Any())
             {
                 Debug.WriteLine("Warning: Signs list is empty or null");
@@ -1179,9 +1321,9 @@ namespace com.kizwiz.sipnsign.ViewModels
             if (IsGuessMode)
             {
                 _availableIndices = Enumerable.Range(0, _signs.Count)
-                                            .OrderBy(x => Guid.NewGuid())
-                                            .Take(questionLimit)
-                                            .ToList();
+                                          .OrderBy(x => Guid.NewGuid())
+                                          .Take(questionLimit)
+                                          .ToList();
             }
             else
             {
@@ -1213,9 +1355,17 @@ namespace com.kizwiz.sipnsign.ViewModels
                     IsGameActive = false;
                     IsGameOver = true;
 
-                    // Set the results text
-                    int totalQuestions = Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
-                    GuessResults = $"Final Score: {CurrentScore}/{totalQuestions}";
+                    // Set different results text for multiplayer
+                    if (IsMultiplayer)
+                    {
+                        var winner = Players.OrderByDescending(p => p.Score).First();
+                        GuessResults = $"Winner: {winner.Name}\nScore: {winner.Score} points!";
+                    }
+                    else
+                    {
+                        int totalQuestions = Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
+                        GuessResults = $"Final Score: {CurrentScore}/{totalQuestions}";
+                    }
 
                     Debug.WriteLine("EndGame completed");
 
@@ -1238,65 +1388,102 @@ namespace com.kizwiz.sipnsign.ViewModels
         #endregion
 
         #region Multiplayer Support
-        public GameParameters GameParameters { get; set; } = new GameParameters
+        private GameParameters _gameParameters = new()
         {
             IsMultiplayer = false,
             Players = new List<Player> { new Player { Name = "You", IsMainPlayer = true } }
         };
 
-        public bool IsMultiplayer => GameParameters.IsMultiplayer;
+        public GameParameters GameParameters
+        {
+            get => _gameParameters;
+            set
+            {
+                if (_gameParameters != value)
+                {
+                    _gameParameters = value;
+                    InitializePlayers();
+                    OnPropertyChanged(nameof(GameParameters));
+                    OnPropertyChanged(nameof(IsMultiplayer));
+                }
+            }
+        }
 
-        public ObservableCollection<Player> Players { get; } = new();
-
+        // Initialize players from game parameters
         private void InitializePlayers()
         {
             Players.Clear();
-            foreach (var player in GameParameters.Players)
-            {
-                Players.Add(player);
-            }
-            OnPropertyChanged(nameof(Players));
-        }
 
-        public void RecordPlayerAnswer(Player player, bool isCorrect)
-        {
-            player.GotCurrentAnswerCorrect = isCorrect;
-
-            // If it's the main player, update their stats
-            if (player.IsMainPlayer)
+            // Add players from game parameters
+            if (GameParameters?.Players != null)
             {
-                if (isCorrect)
+                foreach (var player in GameParameters.Players)
                 {
-                    // Update the main player stats as we do in single player
-                    CurrentScore++;
-                    _userProgress.PerformModeSigns++;
+                    Players.Add(player);
                 }
-                // Log only the main player's activity for progression
-                _ = LogGameActivity(isCorrect);
+            }
+            else
+            {
+                // Default to single player if no parameters
+                Players.Add(new Player { Name = "You", IsMainPlayer = true });
             }
 
-            // Update the player's score
-            if (isCorrect)
+            // Update player turn text
+            if (IsMultiplayer)
             {
-                player.Score++;
+                var mainPlayer = Players.FirstOrDefault(p => p.IsMainPlayer);
+                CurrentPlayerTurnText = mainPlayer != null ? $"{mainPlayer.Name}'s Turn" : "Player 1's Turn";
             }
+
+            OnPropertyChanged(nameof(Players));
+            OnPropertyChanged(nameof(IsMultiplayer));
+            OnPropertyChanged(nameof(CurrentPlayerTurnText));
         }
 
-        [RelayCommand]
-        private void RecordPlayerAnswer(PlayerAnswerParameter param)
+        public void RecordPlayerAnswer(PlayerAnswerParameter param)
         {
-            if (param?.Player != null)
-            {
-                RecordPlayerAnswer(param.Player, param.IsCorrect);
-            }
-        }
+            if (param?.Player == null) return;
+            if (IsProcessingAnswer) return;
 
-        [RelayCommand]
-        private void NextSign()
-        {
-            IsFeedbackVisible = false;
-            IsSignHidden = true;
-            LoadNextSign();
+            try
+            {
+                IsProcessingAnswer = true;
+
+                // Record the player's answer
+                param.Player.GotCurrentAnswerCorrect = param.IsCorrect;
+
+                // Update the player's score if correct
+                if (param.IsCorrect)
+                {
+                    param.Player.Score++;
+
+                    // If it's the main player, update progression stats
+                    if (param.Player.IsMainPlayer)
+                    {
+                        CurrentScore++;
+                        _ = LogGameActivity(true);
+                    }
+                }
+                else if (param.Player.IsMainPlayer)
+                {
+                    // Log incorrect answers for the main player
+                    _ = LogGameActivity(false);
+                }
+
+                // Provide temporary visual feedback
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    // Brief delay to allow the UI to reflect the answer status
+                    await Task.Delay(250);
+
+                    // Notify UI of property changes to update the display
+                    OnPropertyChanged(nameof(Players));
+                });
+            }
+            finally
+            {
+                IsProcessingAnswer = false;
+            }
         }
         #endregion
     }

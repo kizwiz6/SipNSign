@@ -3,6 +3,10 @@ using System.Globalization;
 
 namespace com.kizwiz.sipnsign.Converters
 {
+    /// <summary>
+    /// Converts a Player object and boolean parameter into a PlayerAnswerParameter
+    /// for use with the RecordPlayerAnswer command
+    /// </summary>
     public class PlayerAnswerConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

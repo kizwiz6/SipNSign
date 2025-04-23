@@ -7,7 +7,7 @@ using System.Diagnostics;
 namespace com.kizwiz.sipnsign.Pages;
 
 /// <summary>
-/// 
+/// Page for selecting single player or multiplayer modes and configuring players
 /// </summary>
 public partial class PlayerSelectionPage : ContentPage
 {
@@ -22,6 +22,9 @@ public partial class PlayerSelectionPage : ContentPage
 
     private async void OnSinglePlayerClicked(object sender, EventArgs e)
     {
+        // Set ModeSelectionLayout to invisible to prevent UI overlap
+        ModeSelectionLayout.IsVisible = false;
+
         // Start game with just the main player
         var gameParameters = new GameParameters
         {
@@ -32,9 +35,10 @@ public partial class PlayerSelectionPage : ContentPage
         await StartGame(gameParameters);
     }
 
-    private async void OnMultiplayerClicked(object sender, EventArgs e)
+    private void OnMultiplayerClicked(object sender, EventArgs e)
     {
-        // Show player configuration UI
+        // Hide mode selection and show player configuration
+        ModeSelectionLayout.IsVisible = false;
         PlayerConfigLayout.IsVisible = true;
     }
 
@@ -57,15 +61,26 @@ public partial class PlayerSelectionPage : ContentPage
 
     private async Task StartGame(GameParameters parameters)
     {
-        var gameService = Application.Current.MainPage.Handler.MauiContext.Services.GetService<IServiceProvider>();
-        var videoService = gameService.GetRequiredService<IVideoService>();
-        var logger = gameService.GetRequiredService<ILoggingService>();
-        var progressService = gameService.GetRequiredService<IProgressService>();
+        try
+        {
+            // Get services from the application
+            var serviceProvider = Application.Current.Handler.MauiContext.Services.GetService<IServiceProvider>();
+            var videoService = serviceProvider.GetRequiredService<IVideoService>();
+            var logger = serviceProvider.GetRequiredService<ILoggingService>();
+            var progressService = serviceProvider.GetRequiredService<IProgressService>();
 
-        var gamePage = new GamePage(gameService, videoService, logger, progressService);
-        gamePage.ViewModel.CurrentMode = GameMode.Perform;
-        gamePage.ViewModel.GameParameters = parameters;
+            // Create and configure the game page
+            var gamePage = new GamePage(serviceProvider, videoService, logger, progressService);
+            gamePage.ViewModel.CurrentMode = GameMode.Perform;
+            gamePage.ViewModel.GameParameters = parameters;
 
-        await Navigation.PushAsync(gamePage);
+            // Navigate to the game page
+            await Navigation.PushAsync(gamePage);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error starting game: {ex.Message}");
+            await DisplayAlert("Error", "Failed to start game", "OK");
+        }
     }
 }

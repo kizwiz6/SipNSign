@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:viewmodels="clr-namespace:com.kizwiz.sipnsign.ViewModels"
+    xmlns:converters="clr-namespace:com.kizwiz.sipnsign.Converters"
     x:Class="com.kizwiz.sipnsign.Pages.GamePage"
     x:DataType="viewmodels:GameViewModel"
     Style="{StaticResource AppPageStyle}"
@@ -11,15 +12,19 @@
 
     <!-- Page Resources -->
     <ContentPage.Resources>
-        <Style x:Key="ScoreStyle" TargetType="Label">
-            <Setter Property="TextColor" Value="White"/>
-            <Setter Property="FontSize" Value="18"/>
-            <Setter Property="FontAttributes" Value="Bold"/>
-            <Setter Property="VerticalOptions" Value="Center"/>
-            <Setter Property="HorizontalOptions" Value="Center"/>
-            <Setter Property="Margin" Value="0"/>
-            <Setter Property="Padding" Value="0"/>
-        </Style>
+        <ResourceDictionary>
+            <converters:PlayerAnswerConverter x:Key="PlayerAnswerConverter"/>
+
+            <Style x:Key="ScoreStyle" TargetType="Label">
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="FontSize" Value="18"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="VerticalOptions" Value="Center"/>
+                <Setter Property="HorizontalOptions" Value="Center"/>
+                <Setter Property="Margin" Value="0"/>
+                <Setter Property="Padding" Value="0"/>
+            </Style>
+        </ResourceDictionary>
     </ContentPage.Resources>
 
     <Grid>
@@ -116,13 +121,42 @@
                         <Border.Background>
                             <SolidColorBrush Color="{Binding FeedbackBackgroundColor}" />
                         </Border.Background>
-                        <Label Text="{Binding FeedbackText}"
-                               TextColor="White"
-                               FontSize="24"
-                               FontAttributes="Bold"
-                               HorizontalOptions="Center"
-                               HorizontalTextAlignment="Center"
-                               Padding="20"/>
+                        <VerticalStackLayout Spacing="10" Padding="20">
+                            <Label Text="{Binding FeedbackText}"
+                                   TextColor="White"
+                                   FontSize="24"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   HorizontalTextAlignment="Center"/>
+
+                            <!-- Multiplayer Score Display -->
+                            <CollectionView ItemsSource="{Binding Players}"
+                                            IsVisible="{Binding IsMultiplayer}"
+                                            HeightRequest="150">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Padding="5" ColumnDefinitions="Auto,*,Auto">
+                                            <Label Text="⭐" 
+                                                   IsVisible="{Binding IsMainPlayer}"
+                                                   TextColor="Gold"
+                                                   FontSize="18"
+                                                   VerticalOptions="Center"/>
+                                            <Label Grid.Column="1"
+                                                   Text="{Binding Name}"
+                                                   TextColor="White"
+                                                   FontSize="16"
+                                                   VerticalOptions="Center"/>
+                                            <Label Grid.Column="2"
+                                                   Text="{Binding Score}"
+                                                   TextColor="White"
+                                                   FontSize="18"
+                                                   FontAttributes="Bold"
+                                                   VerticalOptions="Center"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
                     </Border>
                 </Grid>
 
@@ -160,79 +194,190 @@
         <Grid Grid.Row="1" IsVisible="{Binding IsPerformMode}">
             <ScrollView>
                 <VerticalStackLayout Padding="15" Spacing="8">
+                    <!-- Multiplayer Turn Indicator -->
+                    <Border IsVisible="{Binding IsMultiplayer}" 
+                            BackgroundColor="{DynamicResource Primary}"
+                            StrokeShape="RoundRectangle 10"
+                            Padding="10,5"
+                            Margin="0,0,0,10"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Start">
+                        <Label Text="{Binding CurrentPlayerTurnText}"
+                               FontSize="18"
+                               TextColor="White"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"/>
+                    </Border>
+
                     <Label Text="Can you sign this word?"
-                   FontSize="20"
-                   TextColor="White"
-                   HorizontalOptions="Center"/>
+                           FontSize="20"
+                           TextColor="White"
+                           HorizontalOptions="Center"/>
                     <Label Text="{Binding CurrentSign.CorrectAnswer}"
-                   FontSize="46"
-                   TextColor="White"
-                   HorizontalOptions="Center"
-                   FontAttributes="Bold"/>
+                           FontSize="46"
+                           TextColor="White"
+                           HorizontalOptions="Center"
+                           FontAttributes="Bold"/>
 
                     <!-- Reveal button -->
                     <Button Text="REVEAL SIGN"
-                    Command="{Binding RevealSignCommand}"
-                    Style="{StaticResource PrimaryButton}"
-                    IsVisible="{Binding IsSignHidden}"
-                    Margin="0,10,0,5"/>
+                            Command="{Binding RevealSignCommand}"
+                            Style="{StaticResource PrimaryButton}"
+                            IsVisible="{Binding IsSignHidden}"
+                            Margin="0,10,0,5"/>
 
                     <!-- Video and response buttons -->
                     <StackLayout IsVisible="{Binding IsSignRevealed}">
                         <Grid>
                             <!-- PerformVideo MediaElement -->
                             <Border Padding="1"
-                           Stroke="{DynamicResource Primary}"
-                           StrokeThickness="1"
-                           Background="Black"
-                           StrokeShape="RoundRectangle 10"
-                           Margin="0,5">
+                                   Stroke="{DynamicResource Primary}"
+                                   StrokeThickness="1"
+                                   Background="Black"
+                                   StrokeShape="RoundRectangle 10"
+                                   Margin="0,5">
                                 <toolkit:MediaElement 
-                            x:Name="PerformVideo"
-                            ShouldShowPlaybackControls="False"
-                            ShouldAutoPlay="True"
-                            ShouldLoopPlayback="True"
-                            HeightRequest="300"
-                            WidthRequest="380"
-                            HorizontalOptions="Center"
-                            VerticalOptions="Center"
-                            Aspect="AspectFill"
-                            MediaOpened="OnMediaOpened"
-                            MediaFailed="OnMediaFailed"
-                            MediaEnded="OnMediaEnded"
-                            Volume="1"
-                            IsVisible="{Binding IsSignRevealed}"/>
+                                    x:Name="PerformVideo"
+                                    ShouldShowPlaybackControls="False"
+                                    ShouldAutoPlay="True"
+                                    ShouldLoopPlayback="True"
+                                    HeightRequest="300"
+                                    WidthRequest="380"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"
+                                    Aspect="AspectFill"
+                                    MediaOpened="OnMediaOpened"
+                                    MediaFailed="OnMediaFailed"
+                                    MediaEnded="OnMediaEnded"
+                                    Volume="1"
+                                    IsVisible="{Binding IsSignRevealed}"/>
                             </Border>
                         </Grid>
 
                         <!-- Feedback Overlay -->
                         <Border IsVisible="{Binding IsFeedbackVisible}"
-                        StrokeShape="RoundRectangle 20"
-                        Margin="20,0"
-                        VerticalOptions="Center">
+                                StrokeShape="RoundRectangle 20"
+                                Margin="20,0"
+                                VerticalOptions="Center">
                             <Border.Background>
                                 <SolidColorBrush Color="{Binding FeedbackBackgroundColor}"/>
                             </Border.Background>
-                            <Label Text="{Binding FeedbackText}"
-                           TextColor="White"
-                           FontSize="24"
-                           FontAttributes="Bold"
-                           HorizontalOptions="Center"
-                           HorizontalTextAlignment="Center"
-                           Padding="20"/>
+                            <VerticalStackLayout Spacing="10" Padding="20">
+                                <Label Text="{Binding FeedbackText}"
+                                       TextColor="White"
+                                       FontSize="24"
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center"/>
+
+                                <!-- Multiplayer Score Display -->
+                                <CollectionView ItemsSource="{Binding Players}"
+                                                IsVisible="{Binding IsMultiplayer}"
+                                                HeightRequest="150">
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Padding="5" ColumnDefinitions="Auto,*,Auto">
+                                                <Label Text="⭐" 
+                                                       IsVisible="{Binding IsMainPlayer}"
+                                                       TextColor="Gold"
+                                                       FontSize="18"
+                                                       VerticalOptions="Center"/>
+                                                <Label Grid.Column="1"
+                                                       Text="{Binding Name}"
+                                                       TextColor="White"
+                                                       FontSize="16"
+                                                       VerticalOptions="Center"/>
+                                                <Label Grid.Column="2"
+                                                       Text="{Binding Score}"
+                                                       TextColor="White"
+                                                       FontSize="18"
+                                                       FontAttributes="Bold"
+                                                       VerticalOptions="Center"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+                            </VerticalStackLayout>
                         </Border>
 
                         <!-- Response Buttons -->
-                        <Button Text="I GOT IT RIGHT!"
-                        Command="{Binding CorrectPerformCommand}"
-                        Style="{StaticResource PrimaryButton}"
-                        BackgroundColor="ForestGreen"
-                        Margin="0,10,0,5"/>
-                        <Button Text="I NEED A SIP..."
-                        Command="{Binding IncorrectPerformCommand}"
-                        Style="{StaticResource PrimaryButton}"
-                        BackgroundColor="Crimson"
-                        Margin="0,0,0,5"/>
+                        <!-- Single Player Buttons -->
+                        <StackLayout IsVisible="{Binding IsMultiplayer, Converter={StaticResource InverseBoolConverter}}">
+                            <Button Text="I GOT IT RIGHT!"
+                                    Command="{Binding CorrectPerformCommand}"
+                                    Style="{StaticResource PrimaryButton}"
+                                    BackgroundColor="ForestGreen"
+                                    Margin="0,10,0,5"/>
+                            <Button Text="I NEED A SIP..."
+                                    Command="{Binding IncorrectPerformCommand}"
+                                    Style="{StaticResource PrimaryButton}"
+                                    BackgroundColor="Crimson"
+                                    Margin="0,0,0,5"/>
+                        </StackLayout>
+
+                        <!-- Multiplayer Player Selection and Response -->
+                        <StackLayout IsVisible="{Binding IsMultiplayer}" Spacing="10">
+                            <Label Text="Select who got it right:"
+                                   TextColor="White"
+                                   HorizontalOptions="Center"
+                                   FontSize="16"/>
+
+                            <CollectionView ItemsSource="{Binding Players}"
+                                            HeightRequest="200"
+                                            SelectionMode="None">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Padding="5" ColumnDefinitions="*, Auto, Auto" Margin="0,5">
+                                            <!-- Player Name -->
+                                            <StackLayout Grid.Column="0" Orientation="Horizontal">
+                                                <Label Text="{Binding Name}"
+                                                       TextColor="White"
+                                                       FontSize="20"
+                                                       FontAttributes="Bold"
+                                                       VerticalOptions="Center"/>
+
+                                                <!-- Status indicator - shows after an answer is recorded -->
+                                                <Label Text="{Binding AnswerStatus}"
+                                                       IsVisible="{Binding GotCurrentAnswerCorrect}"
+                                                       TextColor="ForestGreen"
+                                                       FontSize="16"
+                                                       Margin="10,0,0,0"
+                                                       VerticalOptions="Center"/>
+                                            </StackLayout>
+
+                                            <!-- Correct Button -->
+                                            <Button Grid.Column="1"
+                                                    Text="✓"
+                                                    BackgroundColor="ForestGreen"
+                                                    TextColor="White"
+                                                    FontSize="20"
+                                                    WidthRequest="50"
+                                                    HeightRequest="50"
+                                                    Margin="5,0" 
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:GameViewModel}}, Path=RecordPlayerAnswerCommand}"
+                                                    CommandParameter="{Binding ., Converter={StaticResource PlayerAnswerConverter}, ConverterParameter=true}"/>
+
+                                            <!-- Incorrect Button -->
+                                            <Button Grid.Column="2"
+                                                    Text="✗"
+                                                    BackgroundColor="Crimson"
+                                                    TextColor="White" 
+                                                    FontSize="20"
+                                                    WidthRequest="50"
+                                                    HeightRequest="50"
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:GameViewModel}}, Path=RecordPlayerAnswerCommand}"
+                                                    CommandParameter="{Binding ., Converter={StaticResource PlayerAnswerConverter}, ConverterParameter=false}"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+
+                            <Button Text="NEXT SIGN"
+                                    Command="{Binding NextSignCommand}"
+                                    Style="{StaticResource PrimaryButton}"
+                                    BackgroundColor="{DynamicResource Primary}"
+                                    Margin="0,10,0,5"/>
+                        </StackLayout>
                     </StackLayout>
                 </VerticalStackLayout>
             </ScrollView>
@@ -240,9 +385,9 @@
 
         <!-- Game Over Screen Overlay -->
         <Grid IsVisible="{Binding IsGameOver}" 
-      InputTransparent="False" 
-      ZIndex="99"
-      Grid.RowSpan="3">
+              InputTransparent="False" 
+              ZIndex="99"
+              Grid.RowSpan="3">
             <!-- Theme background gradient -->
             <Grid.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
@@ -253,54 +398,55 @@
 
             <!-- Game Over card -->
             <Border Margin="20"
-            BackgroundColor="{DynamicResource CardBackground}"
-            Opacity="0.95"
-            VerticalOptions="Center"
-            HorizontalOptions="Fill"
-            StrokeShape="RoundRectangle 20">
+                    BackgroundColor="{DynamicResource CardBackground}"
+                    Opacity="0.95"
+                    VerticalOptions="Center"
+                    HorizontalOptions="Fill"
+                    StrokeShape="RoundRectangle 20">
                 <VerticalStackLayout Spacing="20" Padding="20">
                     <Label Text="Game Over!"
-                   TextColor="{DynamicResource CardText}"
-                   FontSize="32"
-                   FontAttributes="Bold"
-                   HorizontalOptions="Center"/>
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="32"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"/>
 
                     <Label Text="{Binding GuessResults}"
-                   TextColor="{DynamicResource CardText}"
-                   FontSize="24"
-                   HorizontalOptions="Center"/>
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="24"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"/>
 
                     <!-- Leaderboard for Multiplayer -->
                     <VerticalStackLayout IsVisible="{Binding IsMultiplayer}" Spacing="15">
                         <Label Text="Final Scores"
-                       TextColor="{DynamicResource CardText}"
-                       FontSize="24"
-                       FontAttributes="Bold"
-                       HorizontalOptions="Center"/>
+                               TextColor="{DynamicResource CardText}"
+                               FontSize="24"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"/>
 
                         <CollectionView ItemsSource="{Binding Players}"
-                                HeightRequest="150">
+                                        HeightRequest="150">
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
                                     <Grid ColumnDefinitions="Auto,*,Auto" Padding="10">
                                         <Label Text="⭐" 
-                                       IsVisible="{Binding IsMainPlayer}"
-                                       TextColor="Gold"
-                                       FontSize="24"
-                                       VerticalOptions="Center"/>
+                                               IsVisible="{Binding IsMainPlayer}"
+                                               TextColor="Gold"
+                                               FontSize="24"
+                                               VerticalOptions="Center"/>
 
                                         <Label Grid.Column="1"
-                                       Text="{Binding Name}"
-                                       TextColor="{DynamicResource CardText}"
-                                       FontSize="20"
-                                       VerticalOptions="Center"/>
+                                               Text="{Binding Name}"
+                                               TextColor="{DynamicResource CardText}"
+                                               FontSize="20"
+                                               VerticalOptions="Center"/>
 
                                         <Label Grid.Column="2"
-                                       Text="{Binding Score}"
-                                       TextColor="{DynamicResource CardText}"
-                                       FontSize="24"
-                                       FontAttributes="Bold"
-                                       VerticalOptions="Center"/>
+                                               Text="{Binding Score}"
+                                               TextColor="{DynamicResource CardText}"
+                                               FontSize="24"
+                                               FontAttributes="Bold"
+                                               VerticalOptions="Center"/>
                                     </Grid>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
@@ -308,13 +454,13 @@
                     </VerticalStackLayout>
 
                     <Button Text="Play Again"
-                    Command="{Binding PlayAgainCommand}"
-                    Style="{StaticResource PrimaryButton}"/>
+                            Command="{Binding PlayAgainCommand}"
+                            Style="{StaticResource PrimaryButton}"/>
 
                     <Button Text="Adjust Questions in Settings"
-                    Command="{Binding GoToSettingsCommand}"
-                    Style="{StaticResource PrimaryButton}"
-                    FontSize="14"/>
+                            Command="{Binding GoToSettingsCommand}"
+                            Style="{StaticResource PrimaryButton}"
+                            FontSize="14"/>
                 </VerticalStackLayout>
             </Border>
         </Grid>

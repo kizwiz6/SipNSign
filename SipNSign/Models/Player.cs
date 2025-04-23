@@ -15,5 +15,7 @@ namespace com.kizwiz.sipnsign.Models
 
         [ObservableProperty]
         private bool _gotCurrentAnswerCorrect = false;
+
+        public string AnswerStatus => GotCurrentAnswerCorrect ? "Correct! ✓" : "Incorrect ✗";
     }
 }
