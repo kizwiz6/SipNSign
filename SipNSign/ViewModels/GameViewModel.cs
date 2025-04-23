@@ -126,6 +126,41 @@ namespace com.kizwiz.sipnsign.ViewModels
         public Color FeedbackErrorColor => _errorColor.WithAlpha(0.9f);
         public string ModeTitle => _currentMode == GameMode.Guess ? "Guess Mode" : "Perform Mode";
         public bool IsTimerEnabled => Preferences.Get(Constants.TIMER_DURATION_KEY, Constants.DEFAULT_TIMER_DURATION) > 0;
+        
+        // Property to determine if all players have answered in Multiplayer mode
+        public bool HasAllPlayersAnswered
+        {
+            get
+            {
+                if (!IsMultiplayer || Players == null || !Players.Any())
+                    return true;
+
+                // Check if all players have answered (either correctly or incorrectly)
+                foreach (var player in Players)
+                {
+                    // If the GotCurrentAnswerCorrect property has been explicitly set (to true or false),
+                    // then this player has answered
+                    bool hasAnswered = player.GotCurrentAnswerCorrect ||
+                                       (player.GotCurrentAnswerCorrect == false &&
+                                        player.GetType().GetProperty("GotCurrentAnswerCorrect").GetSetMethod().IsPublic);
+
+                    if (!hasAnswered)
+                        return false;
+                }
+
+                return true;
+            }
+        }
+        // Property to control scoreboard visibility in Multiplayer mode
+        public bool IsScoreboardVisible
+        {
+            get => _isScoreboardVisible;
+            set
+            {
+                _isScoreboardVisible = value;
+                OnPropertyChanged(nameof(IsScoreboardVisible));
+            }
+        }
 
         public GameMode CurrentMode
         {
@@ -430,6 +465,17 @@ namespace com.kizwiz.sipnsign.ViewModels
                 {
                     if (IsProcessingAnswer) return;
 
+                    // In multiplayer mode, check if all players have answered
+                    if (IsMultiplayer && !HasAllPlayersAnswered)
+                    {
+                        // Don't proceed if not all players have answered
+                        await Application.Current.MainPage.DisplayAlert(
+                            "Not all players have answered",
+                            "Make sure all players have recorded their answers before moving to the next sign.",
+                            "OK");
+                        return;
+                    }
+
                     try
                     {
                         IsProcessingAnswer = true;
@@ -439,11 +485,15 @@ namespace com.kizwiz.sipnsign.ViewModels
                         // Check if we have more signs
                         if (_availableIndices.Count > 0)
                         {
-                            // Reset any current answer status for all players
+                            // Reset all players' answer status for the next sign
                             foreach (var player in Players)
                             {
                                 player.GotCurrentAnswerCorrect = false;
                             }
+
+                            // Force UI update for players
+                            OnPropertyChanged(nameof(Players));
+                            OnPropertyChanged(nameof(HasAllPlayersAnswered));
 
                             // Load the next sign
                             LoadNextSign();
@@ -1470,19 +1520,56 @@ namespace com.kizwiz.sipnsign.ViewModels
                     _ = LogGameActivity(false);
                 }
 
-                // Provide temporary visual feedback
+                // Important: Notify UI that the property changed
+                OnPropertyChanged(nameof(Players));
+                OnPropertyChanged(nameof(HasAllPlayersAnswered));
+
+                // Show brief feedback
+                FeedbackText = $"{param.Player.Name} {(param.IsCorrect ? "got it right! ✓" : "got it wrong ✗")}";
+                FeedbackBackgroundColor = GetFeedbackColor(param.IsCorrect);
+                IsFeedbackVisible = true;
+
+                // Hide feedback after a short delay
                 MainThread.BeginInvokeOnMainThread(async () =>
                 {
-                    // Brief delay to allow the UI to reflect the answer status
-                    await Task.Delay(250);
-
-                    // Notify UI of property changes to update the display
-                    OnPropertyChanged(nameof(Players));
+                    await Task.Delay(1500);
+                    IsFeedbackVisible = false;
                 });
             }
             finally
             {
                 IsProcessingAnswer = false;
+            }
+        }
+
+        // Command to show/hide the scoreboard
+        public ICommand ShowScoreboardCommand
+        {
+            get
+            {
+                return _showScoreboardCommand ??= new Command(() =>
+                {
+                    // Toggle the scoreboard visibility
+                    IsScoreboardVisible = !IsScoreboardVisible;
+
+                    // Show a popup with player scores
+                    if (IsScoreboardVisible)
+                    {
+                        // Create scoreboard text
+                        var scoreboard = "Current Scores:\n\n";
+                        foreach (var player in Players.OrderByDescending(p => p.Score))
+                        {
+                            scoreboard += $"{player.Name}: {player.Score} points\n";
+                        }
+
+                        // Show the scoreboard as a popup
+                        MainThread.BeginInvokeOnMainThread(async () =>
+                        {
+                            await Application.Current.MainPage.DisplayAlert("Scoreboard", scoreboard, "Close");
+                            IsScoreboardVisible = false;
+                        });
+                    }
+                });
             }
         }
         #endregion
