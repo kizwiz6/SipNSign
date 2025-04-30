@@ -12,10 +12,34 @@ namespace com.kizwiz.sipnsign.Pages;
 public partial class PlayerSelectionPage : ContentPage
 {
     private PlayerSelectionViewModel _viewModel;
+    private bool _isInitialized = false;
 
     public PlayerSelectionPage()
     {
         InitializeComponent();
+        _viewModel = new PlayerSelectionViewModel();
+        BindingContext = _viewModel;
+    }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+
+        // Reset the view to show mode selection when returning to this page
+        if (_isInitialized)
+        {
+            ResetView();
+        }
+        _isInitialized = true;
+    }
+
+    private void ResetView()
+    {
+        // Show the mode selection and hide player configuration
+        ModeSelectionLayout.IsVisible = true;
+        PlayerConfigLayout.IsVisible = false;
+
+        // Reset any other state as needed
         _viewModel = new PlayerSelectionViewModel();
         BindingContext = _viewModel;
     }
@@ -86,7 +110,7 @@ public partial class PlayerSelectionPage : ContentPage
             gamePage.ViewModel.GameParameters = parameters;
             gamePage.ViewModel.CurrentMode = GameMode.Perform;
 
-            // Navigate to game page
+            // Navigate to game page using NavigateAsync to properly handle the back stack
             await Navigation.PushAsync(gamePage);
         }
         catch (Exception ex)
