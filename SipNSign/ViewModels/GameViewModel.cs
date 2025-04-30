@@ -1,4 +1,5 @@
-﻿using com.kizwiz.sipnsign.Enums;
+﻿using com.kizwiz.sipnsign.Converters;
+using com.kizwiz.sipnsign.Enums;
 using com.kizwiz.sipnsign.Models;
 using com.kizwiz.sipnsign.Pages;
 using com.kizwiz.sipnsign.Services;
@@ -47,6 +48,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private Color _feedbackBackgroundColor;
         private string _guessResults;
         private bool _isFeedbackVisible;
+        private bool _debugCommandsWorking = false;
         private bool _isScoreboardVisible = false;
         private int _finalScore;
         private Color _button1Color = Colors.Transparent;
@@ -138,27 +140,21 @@ namespace com.kizwiz.sipnsign.ViewModels
                 if (!IsMultiplayer || Players == null || !Players.Any())
                     return true;
 
-                // Check if all players have answered
+                int playerCount = 0;
+                int answeredCount = 0;
+
                 foreach (var player in Players)
                 {
-                    // Simply check the GotCurrentAnswerCorrect property - it will be true or false
-                    // if they've answered, but the default is false which means they haven't answered
-                    // We need to know if the answer has been set, not just what its value is
-                    var propInfo = player.GetType().GetProperty("GotCurrentAnswerCorrect");
-                    var defaultValue = false; // Default value for bool
-
-                    // If the value is still the default and the property has a setter (meaning it could be changed)
-                    // then this player hasn't answered yet
-                    if (player.GotCurrentAnswerCorrect == defaultValue &&
-                        !propInfo.GetCustomAttributes(typeof(ObservablePropertyAttribute), true).Any())
+                    playerCount++;
+                    if (player.GotCurrentAnswerCorrect)
                     {
-                        Debug.WriteLine($"Player {player.Name} has not answered yet");
-                        return false;
+                        answeredCount++;
                     }
                 }
 
-                Debug.WriteLine("All players have answered");
-                return true;
+                bool allAnswered = playerCount > 0 && answeredCount == playerCount;
+                Debug.WriteLine($"HasAllPlayersAnswered: {allAnswered} ({answeredCount}/{playerCount})");
+                return allAnswered;
             }
         }
         // Property to control scoreboard visibility in Multiplayer mode
@@ -526,48 +522,60 @@ namespace com.kizwiz.sipnsign.ViewModels
         {
             get
             {
-                return _recordPlayerAnswerCommand ??= new Command<PlayerAnswerParameter>(param =>
+                return _recordPlayerAnswerCommand ??= new Command<object>(param =>
                 {
-                    if (param?.Player == null) return;
+                    Debug.WriteLine($"RecordPlayerAnswerCommand called with parameter type: {param?.GetType().Name ?? "null"}");
 
-                    try
+                    // Extract player and correctness value
+                    Player player = null;
+                    bool isCorrect = false;
+
+                    if (param is PlayerAnswerParameter playerParam)
                     {
-                        // Record the player's answer
-                        param.Player.GotCurrentAnswerCorrect = param.IsCorrect;
+                        player = playerParam.Player;
+                        isCorrect = playerParam.IsCorrect;
+                        Debug.WriteLine($"Got PlayerAnswerParameter: Player={player?.Name}, IsCorrect={isCorrect}");
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Invalid parameter type - expected PlayerAnswerParameter");
+                        return;
+                    }
 
-                        // Log the player's action
-                        Debug.WriteLine($"Player {param.Player.Name} answered {(param.IsCorrect ? "correctly" : "incorrectly")}");
+                    if (player == null)
+                    {
+                        Debug.WriteLine("Player is null - can't record answer");
+                        return;
+                    }
 
-                        // Update the score if correct
-                        if (param.IsCorrect)
-                        {
-                            param.Player.Score++;
-                            Debug.WriteLine($"Updated {param.Player.Name}'s score to {param.Player.Score}");
+                    // Update player's answer status
+                    player.GotCurrentAnswerCorrect = isCorrect;
+                    Debug.WriteLine($"Set {player.Name}.GotCurrentAnswerCorrect = {isCorrect}");
 
-                            // If it's the main player, update progression stats
-                            if (param.Player.IsMainPlayer)
-                            {
-                                CurrentScore++;
-                                _ = LogGameActivity(true);
-                            }
-                        }
-                        else if (param.Player.IsMainPlayer)
-                        {
-                            // Log incorrect answers for the main player
-                            _ = LogGameActivity(false);
-                        }
+                    // Update score if correct
+                    if (isCorrect)
+                    {
+                        player.Score += 1;
+                        Debug.WriteLine($"Updated {player.Name} score to {player.Score}");
+                    }
 
-                        // Force UI update for the entire players collection
+                    // Update UI on main thread
+                    MainThread.BeginInvokeOnMainThread(() => {
+                        // Force UI refresh
                         OnPropertyChanged(nameof(Players));
                         OnPropertyChanged(nameof(HasAllPlayersAnswered));
 
-                        // Show feedback with updated scores
-                        ShowFeedback(param.IsCorrect);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"Error recording player answer: {ex.Message}");
-                    }
+                        // Show feedback
+                        FeedbackText = $"{player.Name} {(isCorrect ? "got it right! ✓" : "got it wrong ✗")}";
+                        FeedbackBackgroundColor = GetFeedbackColor(isCorrect);
+                        IsFeedbackVisible = true;
+
+                        // Auto-hide feedback after delay
+                        Device.StartTimer(TimeSpan.FromSeconds(2), () => {
+                            IsFeedbackVisible = false;
+                            return false; // Don't repeat
+                        });
+                    });
                 });
             }
         }
@@ -879,18 +887,31 @@ namespace com.kizwiz.sipnsign.ViewModels
         public void RevealSign()
         {
             _logger.Debug($"RevealSign called. CurrentSign is: {CurrentSign?.CorrectAnswer ?? "null"}");
-            IsSignHidden = false;
 
-            // In multiplayer, reset all players' answer status
-            if (IsMultiplayer)
-            {
-                foreach (var player in Players)
+            // Important: Force UI update before changing IsSignHidden
+            MainThread.BeginInvokeOnMainThread(() => {
+                // Log debugging information
+                Debug.WriteLine($"=== REVEALING SIGN FOR {Players.Count} PLAYERS ===");
+                foreach (var p in Players)
                 {
-                    player.GotCurrentAnswerCorrect = false;
-                }
-            }
+                    Debug.WriteLine($"Player: {p.Name}, IsMainPlayer: {p.IsMainPlayer}, Score: {p.Score}");
 
-            SignRevealRequested?.Invoke(this, EventArgs.Empty);
+                    // IMPORTANT: Reset player answer status
+                    p.GotCurrentAnswerCorrect = false;
+                }
+
+                // Force UI refresh
+                OnPropertyChanged(nameof(Players));
+                OnPropertyChanged(nameof(IsMultiplayer));
+                OnPropertyChanged(nameof(CurrentPlayerTurnText));
+
+                // Now change sign visibility
+                IsSignHidden = false;
+                OnPropertyChanged(nameof(IsSignRevealed));
+
+                // Request the sign to be revealed
+                SignRevealRequested?.Invoke(this, EventArgs.Empty);
+            });
         }
 
         private async Task HandleCorrectAnswer()
@@ -1282,6 +1303,17 @@ namespace com.kizwiz.sipnsign.ViewModels
             {
                 IsLoading = false;
             }
+
+            if (IsMultiplayer)
+            {
+                Debug.WriteLine("=== MULTIPLAYER STATE AFTER LOADING SIGN ===");
+                Debug.WriteLine($"Sign: {CurrentSign?.CorrectAnswer}, IsSignHidden: {IsSignHidden}");
+                Debug.WriteLine($"PlayerCount: {Players.Count}, IsMultiplayer: {IsMultiplayer}");
+                foreach (var player in Players)
+                {
+                    Debug.WriteLine($"Player: {player.Name}, Score: {player.Score}, HasAnswered: {player.GotCurrentAnswerCorrect}");
+                }
+            }
         }
 
         public async Task LoadVideoForSign(string videoPath)
@@ -1351,6 +1383,48 @@ namespace com.kizwiz.sipnsign.ViewModels
                     await window.Page.DisplayAlert("Error", "Unable to open settings", "OK");
                 }
             }
+        });
+
+
+        public ICommand PlayerCorrectCommand => new Command<Player>(player =>
+        {
+            _debugCommandsWorking = true;
+            Debug.WriteLine($"✅ CORRECT Command executed for player: {player?.Name ?? "null"}");
+
+            if (player == null) return;
+
+            // Update player and UI
+            player.GotCurrentAnswerCorrect = true;
+            player.Score++;
+
+            // Force UI update
+            FeedbackText = $"{player.Name} got it right! ✓";
+            FeedbackBackgroundColor = GetFeedbackColor(true);
+            IsFeedbackVisible = true;
+
+            // Notify property changes
+            OnPropertyChanged(nameof(Players));
+            OnPropertyChanged(nameof(HasAllPlayersAnswered));
+        });
+
+        public ICommand PlayerIncorrectCommand => new Command<Player>(player =>
+        {
+            _debugCommandsWorking = true;
+            Debug.WriteLine($"❌ INCORRECT Command executed for player: {player?.Name ?? "null"}");
+
+            if (player == null) return;
+
+            // Update player and UI
+            player.GotCurrentAnswerCorrect = true;
+
+            // Force UI update
+            FeedbackText = $"{player.Name} got it wrong ✗";
+            FeedbackBackgroundColor = GetFeedbackColor(false);
+            IsFeedbackVisible = true;
+
+            // Notify property changes
+            OnPropertyChanged(nameof(Players));
+            OnPropertyChanged(nameof(HasAllPlayersAnswered));
         });
 
         public void ResetGame()
@@ -1447,7 +1521,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         }
 
 
-        protected virtual void OnPropertyChanged(string propertyName)
+        public virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
@@ -1505,10 +1579,36 @@ namespace com.kizwiz.sipnsign.ViewModels
                 Debug.WriteLine($"Set CurrentPlayerTurnText to: {CurrentPlayerTurnText}");
             }
 
-            OnPropertyChanged(nameof(Players));
-            OnPropertyChanged(nameof(IsMultiplayer));
-            OnPropertyChanged(nameof(CurrentPlayerTurnText));
+            Debug.WriteLine("===== DEBUG PLAYER LIST =====");
+            Debug.WriteLine($"Players count: {Players.Count}");
+            foreach (var p in Players)
+            {
+                Debug.WriteLine($"Player: {p.Name}, IsMainPlayer: {p.IsMainPlayer}");
+            }
+
+            // Force UI refresh
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                // Force immediate refresh of player list
+                Players.Clear();
+                if (GameParameters?.Players != null)
+                {
+                    foreach (var p in GameParameters.Players)
+                    {
+                        Players.Add(p);
+                    }
+                }
+                else
+                {
+                    Players.Add(new Player { Name = "Debug Player", IsMainPlayer = true });
+                }
+
+                OnPropertyChanged(nameof(Players));
+                OnPropertyChanged(nameof(IsMultiplayer));
+                OnPropertyChanged(nameof(CurrentPlayerTurnText));
+            });
         }
+
 
         public void RecordPlayerAnswer(PlayerAnswerParameter param)
         {

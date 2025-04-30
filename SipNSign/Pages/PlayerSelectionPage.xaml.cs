@@ -50,6 +50,13 @@ public partial class PlayerSelectionPage : ContentPage
             return;
         }
 
+        // Debug logging to verify player data
+        Debug.WriteLine("=== STARTING GAME WITH PLAYERS ===");
+        foreach (var player in _viewModel.Players)
+        {
+            Debug.WriteLine($"Player: {player.Name}, IsMainPlayer: {player.IsMainPlayer}, Score: {player.Score}");
+        }
+
         var gameParameters = new GameParameters
         {
             IsMultiplayer = true,
@@ -63,21 +70,23 @@ public partial class PlayerSelectionPage : ContentPage
     {
         try
         {
-            // Log player information for debugging
+            // Log player information
             LogPlayersInfo(parameters);
 
-            // Get services from the application
+            // Get services
             var serviceProvider = Application.Current.Handler.MauiContext.Services.GetService<IServiceProvider>();
             var videoService = serviceProvider.GetRequiredService<IVideoService>();
             var logger = serviceProvider.GetRequiredService<ILoggingService>();
             var progressService = serviceProvider.GetRequiredService<IProgressService>();
 
-            // Create and configure the game page
+            // Create and configure game page
             var gamePage = new GamePage(serviceProvider, videoService, logger, progressService);
-            gamePage.ViewModel.CurrentMode = GameMode.Perform;
-            gamePage.ViewModel.GameParameters = parameters;
 
-            // Navigation to the game page
+            // Set parameters BEFORE setting mode
+            gamePage.ViewModel.GameParameters = parameters;
+            gamePage.ViewModel.CurrentMode = GameMode.Perform;
+
+            // Navigate to game page
             await Navigation.PushAsync(gamePage);
         }
         catch (Exception ex)
@@ -89,10 +98,10 @@ public partial class PlayerSelectionPage : ContentPage
 
     private void LogPlayersInfo(GameParameters parameters)
     {
-        Debug.WriteLine($"Starting game with {parameters.Players.Count} players:");
+        Debug.WriteLine($"=== Starting game with {parameters.Players.Count} players ===");
         foreach (var player in parameters.Players)
         {
-            Debug.WriteLine($"  - Player: {player.Name}, IsMainPlayer: {player.IsMainPlayer}");
+            Debug.WriteLine($"  - Player: {player.Name}, IsMainPlayer: {player.IsMainPlayer}, Score: {player.Score}");
         }
     }
 }

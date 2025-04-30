@@ -6,6 +6,8 @@ using CommunityToolkit.Maui.Core.Primitives;
 using System.ComponentModel;
 using System.Diagnostics;
 using CommunityToolkit.Mvvm.Messaging;
+using com.kizwiz.sipnsign.Converters;
+using com.kizwiz.sipnsign.Models;
 
 namespace com.kizwiz.sipnsign.Pages
 {
@@ -283,6 +285,11 @@ namespace com.kizwiz.sipnsign.Pages
                     _sharedVideo.Source = null;
                 }
             });
+
+            if (ViewModel.IsMultiplayer && ViewModel.IsPerformMode)
+            {
+                TestPlayerConverter();
+            }
         }
 
         protected override async void OnDisappearing()
@@ -441,6 +448,33 @@ namespace com.kizwiz.sipnsign.Pages
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error in Cleanup: {ex.Message}");
+            }
+        }
+
+        public void TestPlayerConverter()
+        {
+            Debug.WriteLine("=== TESTING PLAYER CONVERTER ===");
+            var converter = Resources["PlayerAnswerConverter"] as PlayerAnswerConverter;
+
+            if (converter == null)
+            {
+                Debug.WriteLine("ERROR: PlayerAnswerConverter not found in Resources");
+                return;
+            }
+
+            Debug.WriteLine("PlayerAnswerConverter found in Resources");
+
+            // Test with a dummy player
+            var player = new Player { Name = "Test Player" };
+            var result = converter.Convert(player, typeof(PlayerAnswerParameter), true, null);
+
+            if (result is PlayerAnswerParameter param)
+            {
+                Debug.WriteLine($"Converter works! Player: {param.Player.Name}, IsCorrect: {param.IsCorrect}");
+            }
+            else
+            {
+                Debug.WriteLine("ERROR: Converter did not return a PlayerAnswerParameter");
             }
         }
 

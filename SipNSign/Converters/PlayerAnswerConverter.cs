@@ -1,4 +1,5 @@
 ﻿using com.kizwiz.sipnsign.Models;
+using System.Diagnostics;
 using System.Globalization;
 
 namespace com.kizwiz.sipnsign.Converters
@@ -11,10 +12,35 @@ namespace com.kizwiz.sipnsign.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is Player player && parameter is bool isCorrect)
+            Debug.WriteLine($"PlayerAnswerConverter.Convert called with value={value?.GetType().Name ?? "null"}, parameter={parameter ?? "null"}");
+
+            if (value is Player player)
             {
-                return new PlayerAnswerParameter { Player = player, IsCorrect = isCorrect };
+                bool isCorrect = false;
+
+                // Handle string parameter from XAML
+                if (parameter is string strParam)
+                {
+                    if (bool.TryParse(strParam, out bool boolResult))
+                    {
+                        isCorrect = boolResult;
+                    }
+                    else if (strParam.Equals("true", StringComparison.OrdinalIgnoreCase))
+                    {
+                        isCorrect = true;
+                    }
+                }
+                else if (parameter is bool boolParam)
+                {
+                    isCorrect = boolParam;
+                }
+
+                var playerAnswer = new PlayerAnswerParameter { Player = player, IsCorrect = isCorrect };
+                Debug.WriteLine($"Created PlayerAnswerParameter: Player={player.Name}, IsCorrect={isCorrect}");
+                return playerAnswer;
             }
+
+            Debug.WriteLine($"Value is not a Player. Actual type: {value?.GetType().Name ?? "null"}");
             return null;
         }
 
