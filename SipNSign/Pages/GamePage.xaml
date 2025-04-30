@@ -187,194 +187,235 @@
 
         <!-- Perform Mode -->
         <Grid Grid.Row="1" IsVisible="{Binding IsPerformMode}">
-            <!-- Use Grid instead of ScrollView to prevent scrolling -->
-            <Grid>
+            <!-- Single Player Mode - No scrolling -->
+            <Grid IsVisible="{Binding IsMultiplayer, Converter={StaticResource InverseBoolConverter}}">
                 <VerticalStackLayout Padding="15" Spacing="8">
-                    <!-- Multiplayer Turn Indicator -->
-                    <Border IsVisible="{Binding IsMultiplayer}" 
-                            BackgroundColor="{DynamicResource Primary}"
-                            StrokeShape="RoundRectangle 10"
-                            Padding="10,5"
-                            Margin="0,0,0,10"
-                            HorizontalOptions="Center"
-                            VerticalOptions="Start">
-                        <Label Text="{Binding CurrentPlayerTurnText}"
-                               FontSize="18"
-                               TextColor="White"
-                               FontAttributes="Bold"
-                               HorizontalOptions="Center"/>
-                    </Border>
-
                     <Label Text="Can you sign this word?"
-                           FontSize="20"
-                           TextColor="White"
-                           Margin="0,-5,0,0"
-                           HorizontalOptions="Center"/>
+                   FontSize="20"
+                   TextColor="White"
+                   Margin="0,-5,0,0"
+                   HorizontalOptions="Center"/>
                     <Label Text="{Binding CurrentSign.CorrectAnswer}"
-                           FontSize="46"
-                           TextColor="White"
-                           Margin="0,-8,0,0"
-                           HorizontalOptions="Center"
-                           FontAttributes="Bold"/>
+                   FontSize="46"
+                   TextColor="White"
+                   Margin="0,-8,0,0"
+                   HorizontalOptions="Center"
+                   FontAttributes="Bold"/>
 
                     <!-- Reveal button -->
                     <Button Text="REVEAL SIGN"
-                            Command="{Binding RevealSignCommand}"
-                            Style="{StaticResource PrimaryButton}"
-                            IsVisible="{Binding IsSignHidden}"
-                            Margin="0,0,0,0"/>
+                    Command="{Binding RevealSignCommand}"
+                    Style="{StaticResource PrimaryButton}"
+                    IsVisible="{Binding IsSignHidden}"
+                    Margin="0,0,0,0"/>
 
                     <!-- Video and response buttons with feedback overlay in a grid -->
                     <Grid IsVisible="{Binding IsSignRevealed}"
-                          HeightRequest="340">
+                  HeightRequest="340">
                         <!-- Container for video -->
                         <Border Padding="1"
-                                Stroke="{DynamicResource Primary}"
-                                StrokeThickness="1"
-                                Background="Black"
-                                StrokeShape="RoundRectangle 10"
-                                Margin="0,0"
-                                HeightRequest="300">
+                        Stroke="{DynamicResource Primary}"
+                        StrokeThickness="1"
+                        Background="Black"
+                        StrokeShape="RoundRectangle 10"
+                        Margin="0,0"
+                        HeightRequest="300">
                             <toolkit:MediaElement 
-                                x:Name="PerformVideo"
-                                ShouldShowPlaybackControls="False"
-                                ShouldAutoPlay="True"
-                                ShouldLoopPlayback="True"
-                                HeightRequest="300"
-                                WidthRequest="380"
-                                HorizontalOptions="Center"
-                                VerticalOptions="Center"
-                                Aspect="AspectFill"
-                                MediaOpened="OnMediaOpened"
-                                MediaFailed="OnMediaFailed"
-                                MediaEnded="OnMediaEnded"
-                                Volume="1"
-                                IsVisible="{Binding IsSignRevealed}"/>
+                        x:Name="PerformVideo"
+                        ShouldShowPlaybackControls="False"
+                        ShouldAutoPlay="True"
+                        ShouldLoopPlayback="True"
+                        HeightRequest="300"
+                        WidthRequest="380"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        Aspect="AspectFill"
+                        MediaOpened="OnMediaOpened"
+                        MediaFailed="OnMediaFailed"
+                        MediaEnded="OnMediaEnded"
+                        Volume="1"
+                        IsVisible="{Binding IsSignRevealed}"/>
                         </Border>
 
-                        <!-- Feedback Overlay - Now positioned on top of video -->
+                        <!-- Feedback Overlay -->
                         <Border IsVisible="{Binding IsFeedbackVisible}"
-                                StrokeShape="RoundRectangle 20"
-                                Margin="20,40"
-                                VerticalOptions="Center"
-                                HorizontalOptions="Center"
-                                ZIndex="10">
+                        StrokeShape="RoundRectangle 20"
+                        Margin="20,40"
+                        VerticalOptions="Center"
+                        HorizontalOptions="Center"
+                        ZIndex="10">
                             <Border.Background>
                                 <SolidColorBrush Color="{Binding FeedbackBackgroundColor}"/>
                             </Border.Background>
                             <VerticalStackLayout Spacing="10" Padding="20">
                                 <Label Text="{Binding FeedbackText}"
-                                       TextColor="White"
-                                       FontSize="24"
-                                       FontAttributes="Bold"
-                                       HorizontalOptions="Center"
-                                       HorizontalTextAlignment="Center"/>
-
-                                <!-- Multiplayer Score Display -->
-                                <CollectionView ItemsSource="{Binding Players}"
-                                                IsVisible="{Binding IsMultiplayer}"
-                                                HeightRequest="150">
-                                    <CollectionView.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid Padding="5" ColumnDefinitions="Auto,*,Auto">
-                                                <Label Text="⭐" 
-                                                       IsVisible="{Binding IsMainPlayer}"
-                                                       TextColor="Gold"
-                                                       FontSize="18"
-                                                       VerticalOptions="Center"/>
-                                                <Label Grid.Column="1"
-                                                       Text="{Binding Name}"
-                                                       TextColor="White"
-                                                       FontSize="16"
-                                                       VerticalOptions="Center"/>
-                                                <Label Grid.Column="2"
-                                                       Text="{Binding Score}"
-                                                       TextColor="White"
-                                                       FontSize="18"
-                                                       FontAttributes="Bold"
-                                                       VerticalOptions="Center"/>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </CollectionView.ItemTemplate>
-                                </CollectionView>
+                               TextColor="White"
+                               FontSize="24"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"/>
                             </VerticalStackLayout>
                         </Border>
                     </Grid>
 
-                    <!-- Response Buttons - Moved outside the video grid -->
-                    <Grid Margin="0,0,0,0" IsVisible="{Binding IsSignRevealed}">
-                        <!-- Single Player Buttons -->
-                        <StackLayout IsVisible="{Binding IsMultiplayer, Converter={StaticResource InverseBoolConverter}}"
-                                    Spacing="8">
-                            <Button Text="I GOT IT RIGHT!"
-                                    Command="{Binding CorrectPerformCommand}"
-                                    Style="{StaticResource PrimaryButton}"
-                                    BackgroundColor="ForestGreen"
-                                    Margin="0,0,0,0"/>
-                            <Button Text="I NEED A SIP..."
-                                    Command="{Binding IncorrectPerformCommand}"
-                                    Style="{StaticResource PrimaryButton}"
-                                    BackgroundColor="Crimson"
-                                    Margin="0,0,0,0"/>
-                        </StackLayout>
-
-                        <!-- Multiplayer Player Selection and Response -->
-                        <StackLayout IsVisible="{Binding IsMultiplayer}" Spacing="10">
-                            <Label Text="Select who got it right:"
-                                   TextColor="White"
-                                   HorizontalOptions="Center"
-                                   FontSize="16"/>
-
-                            <!-- Players List - SIMPLIFIED -->
-                            <StackLayout BindableLayout.ItemsSource="{Binding Players}" Spacing="15">
-                                <BindableLayout.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid ColumnDefinitions="2*,*,*" Padding="10" Margin="0,5">
-                                            <!-- Player Name -->
-                                            <Label Grid.Column="0"
-                                                   Text="{Binding Name}"
-                                                   TextColor="White"
-                                                   FontSize="20"
-                                                   FontAttributes="Bold"
-                                                   VerticalOptions="Center"/>
-
-                                            <!-- Correct Button -->
-                                            <Button Grid.Column="1"
-                                                    Text="✓"
-                                                    BackgroundColor="ForestGreen"
-                                                    TextColor="White"
-                                                    FontSize="20"
-                                                    WidthRequest="50"
-                                                    HeightRequest="50"
-                                                    Margin="5,0"
-                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:GameViewModel}}, Path=PlayerCorrectCommand}"
-                                                    CommandParameter="{Binding .}"/>
-
-                                            <!-- Incorrect Button -->
-                                            <Button Grid.Column="2"
-                                                    Text="✗"
-                                                    BackgroundColor="Crimson"
-                                                    TextColor="White"
-                                                    FontSize="20"
-                                                    WidthRequest="50"
-                                                    HeightRequest="50"
-                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:GameViewModel}}, Path=PlayerIncorrectCommand}"
-                                                    CommandParameter="{Binding .}"/>
-                                        </Grid>
-                                    </DataTemplate>
-                                </BindableLayout.ItemTemplate>
-                            </StackLayout>
-
-                            <Button Text="NEXT SIGN"
-                                    Command="{Binding NextSignCommand}"
-                                    Style="{StaticResource PrimaryButton}"
-                                    BackgroundColor="{DynamicResource Primary}"
-                                    IsEnabled="{Binding HasAllPlayersAnswered}"
-                                    Margin="0,20,0,5"/>
-                        </StackLayout>
-                    </Grid>
+                    <!-- Response Buttons - Single Player -->
+                    <StackLayout IsVisible="{Binding IsSignRevealed}"
+                         Spacing="8">
+                        <Button Text="I GOT IT RIGHT!"
+                        Command="{Binding CorrectPerformCommand}"
+                        Style="{StaticResource PrimaryButton}"
+                        BackgroundColor="ForestGreen"
+                        Margin="0,0,0,0"/>
+                        <Button Text="I NEED A SIP..."
+                        Command="{Binding IncorrectPerformCommand}"
+                        Style="{StaticResource PrimaryButton}"
+                        BackgroundColor="Crimson"
+                        Margin="0,0,0,0"/>
+                    </StackLayout>
                 </VerticalStackLayout>
             </Grid>
+
+            <!-- Multiplayer Mode - Scrollable -->
+            <ScrollView IsVisible="{Binding IsMultiplayer}">
+                <VerticalStackLayout Padding="15" Spacing="8">
+                    <!-- Multiplayer Turn Indicator -->
+                    <Border BackgroundColor="{DynamicResource Primary}"
+                    StrokeShape="RoundRectangle 10"
+                    Padding="10,5"
+                    Margin="0,0,0,5"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Start">
+                        <Label Text="{Binding CurrentPlayerTurnText}"
+                       FontSize="18"
+                       TextColor="White"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"/>
+                    </Border>
+
+                    <Label Text="Can you sign this word?"
+                   FontSize="20"
+                   TextColor="White"
+                   Margin="0,-5,0,0"
+                   HorizontalOptions="Center"/>
+                    <Label Text="{Binding CurrentSign.CorrectAnswer}"
+                   FontSize="46"
+                   TextColor="White"
+                   Margin="0,-8,0,0"
+                   HorizontalOptions="Center"
+                   FontAttributes="Bold"/>
+
+                    <!-- Reveal button -->
+                    <Button Text="REVEAL SIGN"
+                    Command="{Binding RevealSignCommand}"
+                    Style="{StaticResource PrimaryButton}"
+                    IsVisible="{Binding IsSignHidden}"
+                    Margin="0,0,0,0"/>
+
+                    <!-- Video and response buttons with feedback overlay in a grid -->
+                    <Grid IsVisible="{Binding IsSignRevealed}"
+                  HeightRequest="340">
+                        <!-- Container for video -->
+                        <Border Padding="1"
+                        Stroke="{DynamicResource Primary}"
+                        StrokeThickness="1"
+                        Background="Black"
+                        StrokeShape="RoundRectangle 10"
+                        Margin="0,0"
+                        HeightRequest="300">
+                            <toolkit:MediaElement 
+                        x:Name="MultiplayerPerformVideo"
+                        ShouldShowPlaybackControls="False"
+                        ShouldAutoPlay="True"
+                        ShouldLoopPlayback="True"
+                        HeightRequest="300"
+                        WidthRequest="380"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        Aspect="AspectFill"
+                        MediaOpened="OnMediaOpened"
+                        MediaFailed="OnMediaFailed"
+                        MediaEnded="OnMediaEnded"
+                        Volume="1"
+                        IsVisible="{Binding IsSignRevealed}"/>
+                        </Border>
+
+                        <!-- Feedback Overlay -->
+                        <Border IsVisible="{Binding IsFeedbackVisible}"
+                        StrokeShape="RoundRectangle 20"
+                        Margin="20,40"
+                        VerticalOptions="Center"
+                        HorizontalOptions="Center"
+                        ZIndex="10">
+                            <Border.Background>
+                                <SolidColorBrush Color="{Binding FeedbackBackgroundColor}"/>
+                            </Border.Background>
+                            <VerticalStackLayout Spacing="10" Padding="20">
+                                <Label Text="{Binding FeedbackText}"
+                               TextColor="White"
+                               FontSize="24"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"/>
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+
+                    <!-- Multiplayer Player Selection and Response -->
+                    <StackLayout IsVisible="{Binding IsSignRevealed}" Spacing="10">
+                        <Label Text="Select who got it right:"
+                       TextColor="White"
+                       HorizontalOptions="Center"
+                       FontSize="16"/>
+
+                        <!-- Players List -->
+                        <StackLayout BindableLayout.ItemsSource="{Binding Players}" Spacing="15">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="2*,*,*" Padding="10" Margin="0,5">
+                                        <!-- Player Name -->
+                                        <Label Grid.Column="0"
+                                       Text="{Binding Name}"
+                                       TextColor="White"
+                                       FontSize="20"
+                                       FontAttributes="Bold"
+                                       VerticalOptions="Center"/>
+
+                                        <!-- Correct Button -->
+                                        <Button Grid.Column="1"
+                                        Text="✓"
+                                        BackgroundColor="ForestGreen"
+                                        TextColor="White"
+                                        FontSize="20"
+                                        WidthRequest="50"
+                                        HeightRequest="50"
+                                        Margin="5,0"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:GameViewModel}}, Path=PlayerCorrectCommand}"
+                                        CommandParameter="{Binding .}"/>
+
+                                        <!-- Incorrect Button -->
+                                        <Button Grid.Column="2"
+                                        Text="✗"
+                                        BackgroundColor="Crimson"
+                                        TextColor="White"
+                                        FontSize="20"
+                                        WidthRequest="50"
+                                        HeightRequest="50"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:GameViewModel}}, Path=PlayerIncorrectCommand}"
+                                        CommandParameter="{Binding .}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </StackLayout>
+
+                        <Button Text="NEXT SIGN"
+                        Command="{Binding NextSignCommand}"
+                        Style="{StaticResource PrimaryButton}"
+                        BackgroundColor="{DynamicResource Primary}"
+                        IsEnabled="{Binding HasAllPlayersAnswered}"
+                        Margin="0,20,0,5"/>
+                    </StackLayout>
+                </VerticalStackLayout>
+            </ScrollView>
         </Grid>
 
         <!-- Game Over Screen Overlay -->

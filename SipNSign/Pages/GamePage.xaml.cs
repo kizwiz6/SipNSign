@@ -23,6 +23,8 @@ namespace com.kizwiz.sipnsign.Pages
         private bool _isDisposed;
         private readonly SemaphoreSlim _cleanupLock = new(1, 1);
         private MediaElement? _sharedVideo;
+        private MediaElement? _performVideo;
+        private MediaElement? _multiplayerPerformVideo;
         private IDispatcherTimer? _timer;
         #endregion
 
@@ -124,18 +126,45 @@ namespace com.kizwiz.sipnsign.Pages
                 }
 
                 // Additional handling for Perform Mode
-                if (_viewModel.IsPerformMode && PerformVideo != null)
+                if (_viewModel.IsPerformMode)
                 {
                     Debug.WriteLine("Setting source for Perform Mode video");
+
+                    // Find both perform video elements
+                    if (_performVideo == null)
+                    {
+                        _performVideo = this.FindByName<MediaElement>("PerformVideo");
+                    }
+
+                    if (_multiplayerPerformVideo == null)
+                    {
+                        _multiplayerPerformVideo = this.FindByName<MediaElement>("MultiplayerPerformVideo");
+                    }
+
+                    Debug.WriteLine($"PerformVideo found: {_performVideo != null}");
+                    Debug.WriteLine($"MultiplayerPerformVideo found: {_multiplayerPerformVideo != null}");
+
                     await MainThread.InvokeOnMainThreadAsync(() =>
                     {
                         try
                         {
-                            PerformVideo.IsVisible = true;
-                            PerformVideo.Source = source;
-                            PerformVideo.ShouldAutoPlay = false; // Don't auto play in Perform Mode
-                            Debug.WriteLine($"Perform Mode video source set: {source}");
-                            Debug.WriteLine($"Perform Mode video visibility: {PerformVideo.IsVisible}");
+                            // Set source for single player video
+                            if (_performVideo != null)
+                            {
+                                _performVideo.IsVisible = true;
+                                _performVideo.Source = source;
+                                _performVideo.ShouldAutoPlay = false; // Don't auto play in Perform Mode
+                                Debug.WriteLine($"Single player video source set: {source}");
+                            }
+
+                            // Set source for multiplayer video
+                            if (_multiplayerPerformVideo != null)
+                            {
+                                _multiplayerPerformVideo.IsVisible = true;
+                                _multiplayerPerformVideo.Source = source;
+                                _multiplayerPerformVideo.ShouldAutoPlay = false; // Don't auto play in Perform Mode
+                                Debug.WriteLine($"Multiplayer video source set: {source}");
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -247,20 +276,39 @@ namespace com.kizwiz.sipnsign.Pages
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
                     Debug.WriteLine("OnSignRevealRequested: Starting");
-                    var performVideo = this.FindByName<MediaElement>("PerformVideo");
-                    if (performVideo != null)
+
+                    // Check which mode we're in (single or multiplayer)
+                    bool isMultiplayer = _viewModel?.IsMultiplayer ?? false;
+
+                    // Get the appropriate video element
+                    MediaElement? videoToPlay = null;
+
+                    if (isMultiplayer)
                     {
-                        Debug.WriteLine($"PerformVideo found, Current visibility: {performVideo.IsVisible}");
-                        Debug.WriteLine($"Current source: {performVideo.Source}");
-                        performVideo.IsVisible = true;
-                        Debug.WriteLine($"New visibility: {performVideo.IsVisible}");
-                        performVideo.SeekTo(TimeSpan.Zero);
-                        performVideo.Play();
+                        // Use multiplayer video
+                        videoToPlay = this.FindByName<MediaElement>("MultiplayerPerformVideo");
+                        Debug.WriteLine("Using MultiplayerPerformVideo");
+                    }
+                    else
+                    {
+                        // Use single player video
+                        videoToPlay = this.FindByName<MediaElement>("PerformVideo");
+                        Debug.WriteLine("Using PerformVideo");
+                    }
+
+                    if (videoToPlay != null)
+                    {
+                        Debug.WriteLine($"Video element found, Current visibility: {videoToPlay.IsVisible}");
+                        Debug.WriteLine($"Current source: {videoToPlay.Source}");
+                        videoToPlay.IsVisible = true;
+                        Debug.WriteLine($"New visibility: {videoToPlay.IsVisible}");
+                        videoToPlay.SeekTo(TimeSpan.Zero);
+                        videoToPlay.Play();
                         Debug.WriteLine("Play command sent");
                     }
                     else
                     {
-                        Debug.WriteLine("PerformVideo element not found");
+                        Debug.WriteLine("Video element not found");
                     }
                 });
             }
@@ -316,6 +364,13 @@ namespace com.kizwiz.sipnsign.Pages
                         PerformVideo.Stop();
                         PerformVideo.Source = null;
                         PerformVideo.Handler?.DisconnectHandler();
+                    }
+
+                    if (_multiplayerPerformVideo != null)
+                    {
+                        _multiplayerPerformVideo.Stop();
+                        _multiplayerPerformVideo.Source = null;
+                        _multiplayerPerformVideo.Handler?.DisconnectHandler();
                     }
                 });
 
@@ -373,6 +428,13 @@ namespace com.kizwiz.sipnsign.Pages
                         PerformVideo.Source = null;
                         PerformVideo.Handler?.DisconnectHandler();
                     }
+
+                    if (_multiplayerPerformVideo != null)
+                    {
+                        _multiplayerPerformVideo.Stop();
+                        _multiplayerPerformVideo.Source = null;
+                        _multiplayerPerformVideo.Handler?.DisconnectHandler();
+                    }
                 });
             }
             catch (Exception ex)
@@ -383,6 +445,7 @@ namespace com.kizwiz.sipnsign.Pages
             {
                 _sharedVideo = null;
                 PerformVideo = null;
+                _multiplayerPerformVideo = null;
                 _videoLoadLock.Release();
             }
         }
@@ -401,9 +464,10 @@ namespace com.kizwiz.sipnsign.Pages
                     _timer = null;
                 }
 
-                // Create a local reference to prevent null checks
+                // Create local references to prevent null checks
                 var sharedVideoRef = SharedVideo;
                 var performVideoRef = PerformVideo;
+                var multiplayerVideoRef = _multiplayerPerformVideo;
 
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
@@ -436,6 +500,21 @@ namespace com.kizwiz.sipnsign.Pages
                             Debug.WriteLine($"Error cleaning up PerformVideo: {ex.Message}");
                         }
                     }
+
+                    if (multiplayerVideoRef != null)
+                    {
+                        try
+                        {
+                            // Try to safely stop and clean up the MediaElement
+                            multiplayerVideoRef.Stop();
+                            multiplayerVideoRef.Source = null;
+                            multiplayerVideoRef.Handler?.DisconnectHandler();
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Error cleaning up MultiplayerPerformVideo: {ex.Message}");
+                        }
+                    }
                 });
 
                 // Wait a moment for cleanup to complete
@@ -444,6 +523,7 @@ namespace com.kizwiz.sipnsign.Pages
                 // Now it's safe to null the references
                 SharedVideo = null;
                 PerformVideo = null;
+                _multiplayerPerformVideo = null;
             }
             catch (Exception ex)
             {
