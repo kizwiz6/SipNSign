@@ -1587,26 +1587,9 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
 
             // Force UI refresh
-            Device.BeginInvokeOnMainThread(() =>
-            {
-                // Force immediate refresh of player list
-                Players.Clear();
-                if (GameParameters?.Players != null)
-                {
-                    foreach (var p in GameParameters.Players)
-                    {
-                        Players.Add(p);
-                    }
-                }
-                else
-                {
-                    Players.Add(new Player { Name = "Debug Player", IsMainPlayer = true });
-                }
-
-                OnPropertyChanged(nameof(Players));
-                OnPropertyChanged(nameof(IsMultiplayer));
-                OnPropertyChanged(nameof(CurrentPlayerTurnText));
-            });
+            OnPropertyChanged(nameof(Players));
+            OnPropertyChanged(nameof(IsMultiplayer));
+            OnPropertyChanged(nameof(CurrentPlayerTurnText));
         }
 
 
