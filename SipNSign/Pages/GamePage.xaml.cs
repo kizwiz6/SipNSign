@@ -1,4 +1,4 @@
-using com.kizwiz.sipnsign.Enums;
+﻿using com.kizwiz.sipnsign.Enums;
 using com.kizwiz.sipnsign.Services;
 using com.kizwiz.sipnsign.ViewModels;
 using CommunityToolkit.Maui.Views;
@@ -621,5 +621,104 @@ namespace com.kizwiz.sipnsign.Pages
         }
 
         public record QuestionCountChangedMessage(int QuestionCount);
+
+        /// <summary>
+        /// Handles clicking the correct (✓) button for a player
+        /// </summary>
+        private void OnPlayerCorrectClicked(object sender, EventArgs e)
+        {
+            try
+            {
+                if (sender is Button button && !string.IsNullOrEmpty(button.ClassId))
+                {
+                    string playerName = button.ClassId;
+                    Debug.WriteLine($"OnPlayerCorrectClicked: Player name = {playerName}");
+
+                    // Find the player by name
+                    var player = _viewModel.Players.FirstOrDefault(p => p.Name == playerName);
+                    if (player != null)
+                    {
+                        Debug.WriteLine($"Found player: {player.Name}, updating status to correct");
+
+                        // Update player state
+                        player.GotCurrentAnswerCorrect = true;
+                        player.Score++;
+
+                        // Show feedback
+                        _viewModel.FeedbackText = $"{player.Name} got it right! ✓";
+                        _viewModel.FeedbackBackgroundColor = _viewModel.GetFeedbackColor(true);
+                        _viewModel.IsFeedbackVisible = true;
+
+                        // Force UI refresh
+                        _viewModel.OnPropertyChanged(nameof(_viewModel.Players));
+                        _viewModel.OnPropertyChanged(nameof(_viewModel.HasAllPlayersAnswered));
+
+                        Debug.WriteLine($"Player {player.Name} updated: GotCurrentAnswerCorrect={player.GotCurrentAnswerCorrect}, Score={player.Score}");
+                        Debug.WriteLine($"HasAllPlayersAnswered: {_viewModel.HasAllPlayersAnswered}");
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"Player not found with name: {playerName}");
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("Button sender is null or ClassId is empty");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in OnPlayerCorrectClicked: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Handles clicking the incorrect (✗) button for a player
+        /// </summary>
+        private void OnPlayerIncorrectClicked(object sender, EventArgs e)
+        {
+            try
+            {
+                if (sender is Button button && !string.IsNullOrEmpty(button.ClassId))
+                {
+                    string playerName = button.ClassId;
+                    Debug.WriteLine($"OnPlayerIncorrectClicked: Player name = {playerName}");
+
+                    // Find the player by name
+                    var player = _viewModel.Players.FirstOrDefault(p => p.Name == playerName);
+                    if (player != null)
+                    {
+                        Debug.WriteLine($"Found player: {player.Name}, updating status to incorrect");
+
+                        // Update player state (mark as answered but don't increment score)
+                        player.GotCurrentAnswerCorrect = true;
+
+                        // Show feedback
+                        _viewModel.FeedbackText = $"{player.Name} got it wrong ✗";
+                        _viewModel.FeedbackBackgroundColor = _viewModel.GetFeedbackColor(false);
+                        _viewModel.IsFeedbackVisible = true;
+
+                        // Force UI refresh
+                        _viewModel.OnPropertyChanged(nameof(_viewModel.Players));
+                        _viewModel.OnPropertyChanged(nameof(_viewModel.HasAllPlayersAnswered));
+
+                        Debug.WriteLine($"Player {player.Name} updated: GotCurrentAnswerCorrect={player.GotCurrentAnswerCorrect}, Score={player.Score}");
+                        Debug.WriteLine($"HasAllPlayersAnswered: {_viewModel.HasAllPlayersAnswered}");
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"Player not found with name: {playerName}");
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("Button sender is null or ClassId is empty");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in OnPlayerIncorrectClicked: {ex.Message}");
+            }
+        }
     }
 }

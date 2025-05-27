@@ -381,7 +381,7 @@
                                        FontAttributes="Bold"
                                        VerticalOptions="Center"/>
 
-                                        <!-- Correct Button -->
+                                        <!-- Correct Button - Using direct event handler instead of command -->
                                         <Button Grid.Column="1"
                                         Text="✓"
                                         BackgroundColor="ForestGreen"
@@ -390,10 +390,10 @@
                                         WidthRequest="50"
                                         HeightRequest="50"
                                         Margin="5,0"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:GameViewModel}}, Path=PlayerCorrectCommand}"
-                                        CommandParameter="{Binding .}"/>
+                                        Clicked="OnPlayerCorrectClicked"
+                                        ClassId="{Binding Name}"/>
 
-                                        <!-- Incorrect Button -->
+                                        <!-- Incorrect Button - Using direct event handler instead of command -->
                                         <Button Grid.Column="2"
                                         Text="✗"
                                         BackgroundColor="Crimson"
@@ -401,8 +401,8 @@
                                         FontSize="20"
                                         WidthRequest="50"
                                         HeightRequest="50"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:GameViewModel}}, Path=PlayerIncorrectCommand}"
-                                        CommandParameter="{Binding .}"/>
+                                        Clicked="OnPlayerIncorrectClicked"
+                                        ClassId="{Binding Name}"/>
                                     </Grid>
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>

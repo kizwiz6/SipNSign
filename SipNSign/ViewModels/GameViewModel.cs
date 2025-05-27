@@ -157,6 +157,25 @@ namespace com.kizwiz.sipnsign.ViewModels
                 return allAnswered;
             }
         }
+
+        // Helper method to directly update a player and force UI refresh
+        private void UpdatePlayerStatus(Player player, bool isCorrect)
+        {
+            if (player == null) return;
+
+            // Update the player properties
+            player.GotCurrentAnswerCorrect = true; // Mark as answered
+
+            if (isCorrect)
+            {
+                player.Score++;
+            }
+
+            // Force UI refresh
+            OnPropertyChanged(nameof(Players));
+            OnPropertyChanged(nameof(HasAllPlayersAnswered));
+        }
+
         // Property to control scoreboard visibility in Multiplayer mode
         public bool IsScoreboardVisible
         {
@@ -1388,43 +1407,66 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         public ICommand PlayerCorrectCommand => new Command<Player>(player =>
         {
-            _debugCommandsWorking = true;
-            Debug.WriteLine($"✅ CORRECT Command executed for player: {player?.Name ?? "null"}");
+            Debug.WriteLine($"✅ PlayerCorrectCommand executed for player: {player?.Name ?? "null"}, IsMultiplayer: {IsMultiplayer}");
 
             if (player == null) return;
 
-            // Update player and UI
-            player.GotCurrentAnswerCorrect = true;
-            player.Score++;
+            try
+            {
+                // Update player status (sets GotCurrentAnswerCorrect=true and increments Score)
+                UpdatePlayerStatus(player, true);
+                Debug.WriteLine($"Updated player {player.Name}: GotCurrentAnswerCorrect={player.GotCurrentAnswerCorrect}, Score={player.Score}");
 
-            // Force UI update
-            FeedbackText = $"{player.Name} got it right! ✓";
-            FeedbackBackgroundColor = GetFeedbackColor(true);
-            IsFeedbackVisible = true;
+                // Force UI update
+                FeedbackText = $"{player.Name} got it right! ✓";
+                FeedbackBackgroundColor = GetFeedbackColor(true);
+                IsFeedbackVisible = true;
 
-            // Notify property changes
-            OnPropertyChanged(nameof(Players));
-            OnPropertyChanged(nameof(HasAllPlayersAnswered));
+                Debug.WriteLine($"HasAllPlayersAnswered: {HasAllPlayersAnswered}");
+                foreach (var p in Players)
+                {
+                    Debug.WriteLine($"Player {p.Name}: Answered={p.GotCurrentAnswerCorrect}, Score={p.Score}");
+                }
+
+                // One more property change notification for good measure
+                OnPropertyChanged(nameof(Players));
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in PlayerCorrectCommand: {ex.Message}");
+            }
         });
 
         public ICommand PlayerIncorrectCommand => new Command<Player>(player =>
         {
-            _debugCommandsWorking = true;
-            Debug.WriteLine($"❌ INCORRECT Command executed for player: {player?.Name ?? "null"}");
+            Debug.WriteLine($"❌ PlayerIncorrectCommand executed for player: {player?.Name ?? "null"}, IsMultiplayer: {IsMultiplayer}");
 
             if (player == null) return;
 
-            // Update player and UI
-            player.GotCurrentAnswerCorrect = true;
+            try
+            {
+                // Update player status (sets GotCurrentAnswerCorrect=true but does not increment Score)
+                UpdatePlayerStatus(player, false);
+                Debug.WriteLine($"Updated player {player.Name}: GotCurrentAnswerCorrect={player.GotCurrentAnswerCorrect}, Score={player.Score}");
 
-            // Force UI update
-            FeedbackText = $"{player.Name} got it wrong ✗";
-            FeedbackBackgroundColor = GetFeedbackColor(false);
-            IsFeedbackVisible = true;
+                // Force UI update
+                FeedbackText = $"{player.Name} got it wrong ✗";
+                FeedbackBackgroundColor = GetFeedbackColor(false);
+                IsFeedbackVisible = true;
 
-            // Notify property changes
-            OnPropertyChanged(nameof(Players));
-            OnPropertyChanged(nameof(HasAllPlayersAnswered));
+                Debug.WriteLine($"HasAllPlayersAnswered: {HasAllPlayersAnswered}");
+                foreach (var p in Players)
+                {
+                    Debug.WriteLine($"Player {p.Name}: Answered={p.GotCurrentAnswerCorrect}, Score={p.Score}");
+                }
+
+                // One more property change notification for good measure
+                OnPropertyChanged(nameof(Players));
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in PlayerIncorrectCommand: {ex.Message}");
+            }
         });
 
         public void ResetGame()
