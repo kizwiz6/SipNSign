@@ -493,10 +493,13 @@ namespace com.kizwiz.sipnsign.ViewModels
                     // In multiplayer mode, check if all players have answered
                     if (IsMultiplayer && !HasAllPlayersAnswered)
                     {
-                        // Don't proceed if not all players have answered
+                        // Count how many players haven't answered yet
+                        var unansweredPlayers = Players.Where(p => !p.GotCurrentAnswerCorrect).ToList();
+                        var playerNames = string.Join(", ", unansweredPlayers.Select(p => p.Name));
+
                         await Application.Current.MainPage.DisplayAlert(
-                            "Not all players have answered",
-                            "Make sure all players have recorded their answers before moving to the next sign.",
+                            "Waiting for Players",
+                            $"Still waiting for: {playerNames}\n\nMake sure all players have recorded their answers before moving to the next sign.",
                             "OK");
                         return;
                     }
@@ -505,30 +508,35 @@ namespace com.kizwiz.sipnsign.ViewModels
                     {
                         IsProcessingAnswer = true;
                         IsFeedbackVisible = false;
-                        IsSignHidden = true;
+
+                        // In Perform Mode, hide the sign before loading next
+                        if (IsPerformMode)
+                        {
+                            IsSignHidden = true;
+                        }
+
+                        Debug.WriteLine("NextSignCommand: All players answered, proceeding to next sign");
 
                         // Check if we have more signs
                         if (_availableIndices.Count > 0)
                         {
-                            // Reset all players' answer status for the next sign
-                            foreach (var player in Players)
-                            {
-                                // Use property setting instead of direct field access
-                                player.GotCurrentAnswerCorrect = false;
-                            }
-
-                            // Force UI update for players
-                            OnPropertyChanged(nameof(Players));
-                            OnPropertyChanged(nameof(HasAllPlayersAnswered));
-
-                            // Load the next sign
+                            // Load the next sign (this will reset player states)
                             LoadNextSign();
+
+                            Debug.WriteLine($"NextSignCommand: Loaded next sign. Remaining signs: {_availableIndices.Count}");
                         }
                         else
                         {
                             // End the game if no more signs
+                            Debug.WriteLine("NextSignCommand: No more signs, ending game");
                             EndGame();
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error in NextSignCommand: {ex.Message}");
+                        await Application.Current.MainPage.DisplayAlert("Error",
+                            "There was an error loading the next sign. Please try again.", "OK");
                     }
                     finally
                     {
@@ -1282,6 +1290,24 @@ namespace com.kizwiz.sipnsign.ViewModels
                 // Reset button colors before loading new sign
                 ResetButtonColors();
 
+                // MULTIPLAYER: Reset all player states for the new sign
+                if (IsMultiplayer)
+                {
+                    Debug.WriteLine("=== RESETTING PLAYER STATES FOR NEW SIGN ===");
+                    foreach (var player in Players)
+                    {
+                        // Reset answer status for new sign
+                        player.GotCurrentAnswerCorrect = false;
+                        Debug.WriteLine($"Reset player {player.Name}: GotCurrentAnswerCorrect = false");
+                    }
+
+                    // Force UI refresh for multiplayer state
+                    OnPropertyChanged(nameof(Players));
+                    OnPropertyChanged(nameof(HasAllPlayersAnswered));
+
+                    Debug.WriteLine($"After reset - HasAllPlayersAnswered: {HasAllPlayersAnswered}");
+                }
+
                 // Check if we've reached the question limit
                 if (_availableIndices.Count == 0)
                 {
@@ -1301,17 +1327,29 @@ namespace com.kizwiz.sipnsign.ViewModels
                 // Remove the index before setting CurrentSign to prevent reuse
                 _availableIndices.RemoveAt(randomIndex);
 
-                // Add this line to debug Perform Mode state
-                if (IsPerformMode)
-                {
-                    Debug.WriteLine($"LoadNextSign: In Perform Mode. IsSignHidden: {IsSignHidden}, Word to show: {CurrentSign?.CorrectAnswer}");
-                }
-
+                // Set the new sign (this will trigger video loading via property changed)
                 CurrentSign = _signs[selectedSignIndex];
 
+                // PERFORM MODE: Ensure sign is hidden when loading new sign
+                if (IsPerformMode)
+                {
+                    IsSignHidden = true;
+                    Debug.WriteLine($"LoadNextSign: In Perform Mode. IsSignHidden set to: {IsSignHidden}");
+                    Debug.WriteLine($"Word to reveal: {CurrentSign?.CorrectAnswer}");
+                }
+
+                // GUESS MODE: Start timer if enabled
                 if (IsGuessMode && IsTimerEnabled)
                 {
                     StartTimer();
+                }
+
+                // MULTIPLAYER: Update turn text
+                if (IsMultiplayer)
+                {
+                    var mainPlayer = Players.FirstOrDefault(p => p.IsMainPlayer);
+                    CurrentPlayerTurnText = mainPlayer != null ? $"Everyone can answer!" : "Player's Turn";
+                    OnPropertyChanged(nameof(CurrentPlayerTurnText));
                 }
             }
             catch (Exception ex)
@@ -1323,11 +1361,13 @@ namespace com.kizwiz.sipnsign.ViewModels
                 IsLoading = false;
             }
 
+            // Debug logging for multiplayer state
             if (IsMultiplayer)
             {
                 Debug.WriteLine("=== MULTIPLAYER STATE AFTER LOADING SIGN ===");
                 Debug.WriteLine($"Sign: {CurrentSign?.CorrectAnswer}, IsSignHidden: {IsSignHidden}");
                 Debug.WriteLine($"PlayerCount: {Players.Count}, IsMultiplayer: {IsMultiplayer}");
+                Debug.WriteLine($"HasAllPlayersAnswered: {HasAllPlayersAnswered}");
                 foreach (var player in Players)
                 {
                     Debug.WriteLine($"Player: {player.Name}, Score: {player.Score}, HasAnswered: {player.GotCurrentAnswerCorrect}");

@@ -623,7 +623,7 @@ namespace com.kizwiz.sipnsign.Pages
         public record QuestionCountChangedMessage(int QuestionCount);
 
         /// <summary>
-        /// Handles clicking the correct (✓) button for a player
+        /// Handles clicking the correct (check mark) button for a player
         /// </summary>
         private void OnPlayerCorrectClicked(object sender, EventArgs e)
         {
@@ -640,12 +640,26 @@ namespace com.kizwiz.sipnsign.Pages
                     {
                         Debug.WriteLine($"Found player: {player.Name}, updating status to correct");
 
-                        // Update player state
+                        // Check if player already answered correctly to prevent score spam
+                        bool wasAlreadyCorrect = player.GotCurrentAnswerCorrect &&
+                                               _viewModel.FeedbackText.Contains($"{player.Name} got it right!");
+
+                        // Update player state - always mark as answered
                         player.GotCurrentAnswerCorrect = true;
-                        player.Score++;
+
+                        // Only increment score if this is the first correct answer for this sign
+                        if (!wasAlreadyCorrect)
+                        {
+                            player.Score++;
+                            Debug.WriteLine($"Incremented score for {player.Name} to {player.Score}");
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"Player {player.Name} already answered correctly - score unchanged");
+                        }
 
                         // Show feedback
-                        _viewModel.FeedbackText = $"{player.Name} got it right! ✓";
+                        _viewModel.FeedbackText = $"{player.Name} got it right!";
                         _viewModel.FeedbackBackgroundColor = _viewModel.GetFeedbackColor(true);
                         _viewModel.IsFeedbackVisible = true;
 
@@ -655,6 +669,12 @@ namespace com.kizwiz.sipnsign.Pages
 
                         Debug.WriteLine($"Player {player.Name} updated: GotCurrentAnswerCorrect={player.GotCurrentAnswerCorrect}, Score={player.Score}");
                         Debug.WriteLine($"HasAllPlayersAnswered: {_viewModel.HasAllPlayersAnswered}");
+
+                        // Auto-hide feedback after 2 seconds
+                        Device.StartTimer(TimeSpan.FromSeconds(2), () => {
+                            _viewModel.IsFeedbackVisible = false;
+                            return false; // Don't repeat
+                        });
                     }
                     else
                     {
@@ -673,7 +693,7 @@ namespace com.kizwiz.sipnsign.Pages
         }
 
         /// <summary>
-        /// Handles clicking the incorrect (✗) button for a player
+        /// Handles clicking the incorrect (X mark) button for a player
         /// </summary>
         private void OnPlayerIncorrectClicked(object sender, EventArgs e)
         {
@@ -690,11 +710,21 @@ namespace com.kizwiz.sipnsign.Pages
                     {
                         Debug.WriteLine($"Found player: {player.Name}, updating status to incorrect");
 
-                        // Update player state (mark as answered but don't increment score)
+                        // Check if player was previously marked correct and remove point if so
+                        bool wasCorrect = player.GotCurrentAnswerCorrect &&
+                                         _viewModel.FeedbackText.Contains($"{player.Name} got it right!");
+
+                        if (wasCorrect && player.Score > 0)
+                        {
+                            player.Score--;
+                            Debug.WriteLine($"Removed point from {player.Name}, new score: {player.Score}");
+                        }
+
+                        // Update player state (mark as answered but incorrect)
                         player.GotCurrentAnswerCorrect = true;
 
                         // Show feedback
-                        _viewModel.FeedbackText = $"{player.Name} got it wrong ✗";
+                        _viewModel.FeedbackText = $"{player.Name} got it wrong!";
                         _viewModel.FeedbackBackgroundColor = _viewModel.GetFeedbackColor(false);
                         _viewModel.IsFeedbackVisible = true;
 
@@ -704,6 +734,12 @@ namespace com.kizwiz.sipnsign.Pages
 
                         Debug.WriteLine($"Player {player.Name} updated: GotCurrentAnswerCorrect={player.GotCurrentAnswerCorrect}, Score={player.Score}");
                         Debug.WriteLine($"HasAllPlayersAnswered: {_viewModel.HasAllPlayersAnswered}");
+
+                        // Auto-hide feedback after 2 seconds
+                        Device.StartTimer(TimeSpan.FromSeconds(2), () => {
+                            _viewModel.IsFeedbackVisible = false;
+                            return false; // Don't repeat
+                        });
                     }
                     else
                     {
