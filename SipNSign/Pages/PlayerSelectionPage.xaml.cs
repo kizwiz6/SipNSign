@@ -68,6 +68,14 @@ public partial class PlayerSelectionPage : ContentPage
 
     private async void OnStartGameClicked(object sender, EventArgs e)
     {
+        // Validate player names first
+        var validationResult = ValidatePlayerNames();
+        if (!validationResult.IsValid)
+        {
+            await DisplayAlert("Invalid Names", validationResult.ErrorMessage, "OK");
+            return;
+        }
+
         if (_viewModel.Players.Count < 2)
         {
             await DisplayAlert("Not enough players", "Please add at least one additional player", "OK");
@@ -88,6 +96,69 @@ public partial class PlayerSelectionPage : ContentPage
         };
 
         await StartGame(gameParameters);
+    }
+
+    private (bool IsValid, string ErrorMessage) ValidatePlayerNames()
+    {
+        // Check main player name
+        var mainPlayerName = _viewModel.MainPlayerName?.Trim();
+        if (string.IsNullOrWhiteSpace(mainPlayerName))
+        {
+            return (false, "Main player name cannot be empty.");
+        }
+
+        if (mainPlayerName.Length > 15)
+        {
+            return (false, "Main player name must be 15 characters or less.");
+        }
+
+        if (!IsValidPlayerName(mainPlayerName))
+        {
+            return (false, "Main player name can only contain letters, numbers, spaces, hyphens, and underscores.");
+        }
+
+        // Check additional player names
+        var playerNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        playerNames.Add(mainPlayerName);
+
+        foreach (var player in _viewModel.AdditionalPlayers)
+        {
+            var playerName = player.Name?.Trim();
+
+            if (string.IsNullOrWhiteSpace(playerName))
+            {
+                return (false, "All player names must be filled in. Remove empty players or add valid names.");
+            }
+
+            if (playerName.Length > 15)
+            {
+                return (false, $"Player name '{playerName}' is too long. Names must be 15 characters or less.");
+            }
+
+            if (!IsValidPlayerName(playerName))
+            {
+                return (false, $"Player name '{playerName}' contains invalid characters. Only letters, numbers, spaces, hyphens, and underscores are allowed.");
+            }
+
+            if (playerNames.Contains(playerName))
+            {
+                return (false, $"Duplicate player name '{playerName}'. All player names must be unique.");
+            }
+
+            playerNames.Add(playerName);
+        }
+
+        return (true, string.Empty);
+    }
+
+    // Helper method to validate individual player names
+    private bool IsValidPlayerName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return false;
+
+        // Allow letters, numbers, spaces, hyphens, and underscores
+        return name.All(c => char.IsLetterOrDigit(c) || c == ' ' || c == '-' || c == '_');
     }
 
     private async Task StartGame(GameParameters parameters)

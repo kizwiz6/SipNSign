@@ -11,9 +11,11 @@ namespace com.kizwiz.sipnsign.Converters
         {
             if (value is bool boolValue)
             {
-                return boolValue ? 1.0 : 0.5;
+                // If HasAnswered is true, make it semi-transparent (0.5)
+                // If HasAnswered is false, make it fully opaque (1.0)
+                return boolValue ? 0.5 : 1.0;
             }
-            return 0.5;
+            return 1.0; // Default to fully opaque
         }
 
         public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

@@ -285,20 +285,6 @@
             <!-- Multiplayer Mode - Scrollable -->
             <ScrollView IsVisible="{Binding IsMultiplayer}">
                 <VerticalStackLayout Padding="15" Spacing="8">
-                    <!-- Multiplayer Turn Indicator -->
-                    <Border BackgroundColor="{DynamicResource Primary}"
-                    StrokeShape="RoundRectangle 10"
-                    Padding="10,5"
-                    Margin="0,0,0,5"
-                    HorizontalOptions="Center"
-                    VerticalOptions="Start">
-                        <Label Text="{Binding CurrentPlayerTurnText}"
-                       FontSize="18"
-                       TextColor="White"
-                       FontAttributes="Bold"
-                       HorizontalOptions="Center"/>
-                    </Border>
-
                     <Label Text="Who can sign this word?"
                    FontSize="20"
                    TextColor="White"
@@ -369,70 +355,69 @@
 
                     <!-- Multiplayer Player Selection and Response -->
                     <StackLayout IsVisible="{Binding IsSignRevealed}" Spacing="10">
-                        <Label Text="Mark each player's result:"
-                       TextColor="White"
-                       HorizontalOptions="Center"
-                       FontSize="16"/>
+                        <Label Text="{Binding PlayerResultsText}"
+           TextColor="White"
+           HorizontalOptions="Center"
+           FontSize="16"/>
 
                         <!-- Players List -->
                         <StackLayout BindableLayout.ItemsSource="{Binding Players}" Spacing="10" Margin="0,5">
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="models:Player">
                                     <Border BackgroundColor="{DynamicResource CardBackground}"
-                                            StrokeShape="RoundRectangle 10"
-                                            Padding="5"
-                                            Opacity="0.9">
+                        StrokeShape="RoundRectangle 10"
+                        Padding="5"
+                        Opacity="0.9">
                                         <Grid ColumnDefinitions="2*,*,*" Padding="5">
-                                            <!-- Player Name with visual indicator -->
+                                            <!-- Player Name with status indicator -->
                                             <StackLayout Grid.Column="0" Orientation="Horizontal" VerticalOptions="Center">
-                                                <Ellipse Fill="{Binding GotCurrentAnswerCorrect, Converter={StaticResource BoolToColorConverter}}"
-                                                         WidthRequest="12"
-                                                         HeightRequest="12"
-                                                         Margin="0,0,8,0"
-                                                         VerticalOptions="Center"/>
+                                                <Ellipse Fill="{Binding IndicatorColor}"
+                                     WidthRequest="12"
+                                     HeightRequest="12"
+                                     Margin="0,0,8,0"
+                                     VerticalOptions="Center"/>
                                                 <Label Text="{Binding Name}"
-                                                       TextColor="White"
-                                                       FontSize="18"
-                                                       FontAttributes="Bold"
-                                                       VerticalOptions="Center"/>
+                                   TextColor="White"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   VerticalOptions="Center"/>
                                             </StackLayout>
 
-                                            <!-- Correct Button -->
+                                            <!-- Correct Button - Always enabled, allows changing answers -->
                                             <Button Grid.Column="1"
-                                                    Text="✓"
-                                                    BackgroundColor="ForestGreen"
-                                                    TextColor="White"
-                                                    FontSize="18"
-                                                    WidthRequest="45"
-                                                    HeightRequest="45"
-                                                    Margin="3,0"
-                                                    Clicked="OnPlayerCorrectClicked"
-                                                    ClassId="{Binding Name}"/>
+                                Text="✓"
+                                BackgroundColor="ForestGreen"
+                                TextColor="White"
+                                FontSize="18"
+                                WidthRequest="45"
+                                HeightRequest="45"
+                                Margin="3,0"
+                                Clicked="OnPlayerCorrectClicked"
+                                ClassId="{Binding Name}"/>
 
-                                            <!-- Incorrect Button -->
+                                            <!-- Incorrect Button - Always enabled, allows changing answers -->
                                             <Button Grid.Column="2"
-                                                    Text="✗"
-                                                    BackgroundColor="Crimson"
-                                                    TextColor="White"
-                                                    FontSize="18"
-                                                    WidthRequest="45"
-                                                    HeightRequest="45"
-                                                    Clicked="OnPlayerIncorrectClicked"
-                                                    ClassId="{Binding Name}"/>
+                                Text="✗"
+                                BackgroundColor="Crimson"
+                                TextColor="White"
+                                FontSize="18"
+                                WidthRequest="45"
+                                HeightRequest="45"
+                                Clicked="OnPlayerIncorrectClicked"
+                                ClassId="{Binding Name}"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>
                         </StackLayout>
 
-                        <!-- Next Sign Button with better visual state -->
+                        <!-- Next Sign Button - Full opacity when enabled -->
                         <Button Text="NEXT SIGN"
-                                Command="{Binding NextSignCommand}"
-                                Style="{StaticResource PrimaryButton}"
-                                BackgroundColor="{Binding HasAllPlayersAnswered, Converter={StaticResource BoolToButtonColorConverter}}"
-                                IsEnabled="{Binding HasAllPlayersAnswered}"
-                                Opacity="{Binding HasAllPlayersAnswered, Converter={StaticResource BoolToOpacityConverter}}"
-                                Margin="0,15,0,5"/>
+            Command="{Binding NextSignCommand}"
+            Style="{StaticResource PrimaryButton}"
+            BackgroundColor="{Binding HasAllPlayersAnswered, Converter={StaticResource BoolToButtonColorConverter}}"
+            IsEnabled="{Binding HasAllPlayersAnswered}"
+            Margin="0,15,0,5"/>
                     </StackLayout>
                 </VerticalStackLayout>
             </ScrollView>

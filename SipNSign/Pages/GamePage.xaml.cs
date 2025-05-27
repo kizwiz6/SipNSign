@@ -638,25 +638,10 @@ namespace com.kizwiz.sipnsign.Pages
                     var player = _viewModel.Players.FirstOrDefault(p => p.Name == playerName);
                     if (player != null)
                     {
-                        Debug.WriteLine($"Found player: {player.Name}, updating status to correct");
+                        Debug.WriteLine($"Found player: {player.Name}, recording correct answer");
 
-                        // Check if player already answered correctly to prevent score spam
-                        bool wasAlreadyCorrect = player.GotCurrentAnswerCorrect &&
-                                               _viewModel.FeedbackText.Contains($"{player.Name} got it right!");
-
-                        // Update player state - always mark as answered
-                        player.GotCurrentAnswerCorrect = true;
-
-                        // Only increment score if this is the first correct answer for this sign
-                        if (!wasAlreadyCorrect)
-                        {
-                            player.Score++;
-                            Debug.WriteLine($"Incremented score for {player.Name} to {player.Score}");
-                        }
-                        else
-                        {
-                            Debug.WriteLine($"Player {player.Name} already answered correctly - score unchanged");
-                        }
+                        // Use the new RecordAnswer method (allows changing answers)
+                        player.RecordAnswer(true);
 
                         // Show feedback
                         _viewModel.FeedbackText = $"{player.Name} got it right!";
@@ -667,7 +652,7 @@ namespace com.kizwiz.sipnsign.Pages
                         _viewModel.OnPropertyChanged(nameof(_viewModel.Players));
                         _viewModel.OnPropertyChanged(nameof(_viewModel.HasAllPlayersAnswered));
 
-                        Debug.WriteLine($"Player {player.Name} updated: GotCurrentAnswerCorrect={player.GotCurrentAnswerCorrect}, Score={player.Score}");
+                        Debug.WriteLine($"Player {player.Name} updated: HasAnswered={player.HasAnswered}, GotCurrentAnswerCorrect={player.GotCurrentAnswerCorrect}, Score={player.Score}");
                         Debug.WriteLine($"HasAllPlayersAnswered: {_viewModel.HasAllPlayersAnswered}");
 
                         // Auto-hide feedback after 2 seconds
@@ -708,20 +693,10 @@ namespace com.kizwiz.sipnsign.Pages
                     var player = _viewModel.Players.FirstOrDefault(p => p.Name == playerName);
                     if (player != null)
                     {
-                        Debug.WriteLine($"Found player: {player.Name}, updating status to incorrect");
+                        Debug.WriteLine($"Found player: {player.Name}, recording incorrect answer");
 
-                        // Check if player was previously marked correct and remove point if so
-                        bool wasCorrect = player.GotCurrentAnswerCorrect &&
-                                         _viewModel.FeedbackText.Contains($"{player.Name} got it right!");
-
-                        if (wasCorrect && player.Score > 0)
-                        {
-                            player.Score--;
-                            Debug.WriteLine($"Removed point from {player.Name}, new score: {player.Score}");
-                        }
-
-                        // Update player state (mark as answered but incorrect)
-                        player.GotCurrentAnswerCorrect = true;
+                        // Use the new RecordAnswer method (allows changing answers)
+                        player.RecordAnswer(false);
 
                         // Show feedback
                         _viewModel.FeedbackText = $"{player.Name} got it wrong!";
@@ -732,7 +707,7 @@ namespace com.kizwiz.sipnsign.Pages
                         _viewModel.OnPropertyChanged(nameof(_viewModel.Players));
                         _viewModel.OnPropertyChanged(nameof(_viewModel.HasAllPlayersAnswered));
 
-                        Debug.WriteLine($"Player {player.Name} updated: GotCurrentAnswerCorrect={player.GotCurrentAnswerCorrect}, Score={player.Score}");
+                        Debug.WriteLine($"Player {player.Name} updated: HasAnswered={player.HasAnswered}, GotCurrentAnswerCorrect={player.GotCurrentAnswerCorrect}, Score={player.Score}");
                         Debug.WriteLine($"HasAllPlayersAnswered: {_viewModel.HasAllPlayersAnswered}");
 
                         // Auto-hide feedback after 2 seconds

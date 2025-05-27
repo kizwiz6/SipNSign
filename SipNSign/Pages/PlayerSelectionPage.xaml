@@ -34,14 +34,15 @@
             <Border Padding="10" 
                     BackgroundColor="{DynamicResource CardBackground}"
                     StrokeShape="RoundRectangle 10">
-                <Grid ColumnDefinitions="Auto,*">
-                    <Label Text="⭐" 
-                           FontSize="24"
-                           VerticalOptions="Center"/>
-                    <Entry Grid.Column="1" 
-                           Text="{Binding MainPlayerName}" 
-                           Placeholder="Your Name (Main Player)"
-                           TextColor="{DynamicResource CardText}"/>
+            <Grid ColumnDefinitions="Auto,*">
+                <Label Text="⭐" 
+                       FontSize="24"
+                       VerticalOptions="Center"/>
+                <Entry Grid.Column="1" 
+                       Text="{Binding MainPlayerName}" 
+                       Placeholder="Your Name (Main Player)"
+                       TextColor="{DynamicResource CardText}"
+                       MaxLength="15"/>
                 </Grid>
             </Border>
 
@@ -66,7 +67,8 @@
                                     StrokeShape="RoundRectangle 10">
                                 <Entry Text="{Binding Name}" 
                                        Placeholder="Player Name"
-                                       TextColor="{DynamicResource CardText}"/>
+                                       TextColor="{DynamicResource CardText}"
+                                       MaxLength="15"/>
                             </Border>
                         </SwipeView>
                     </DataTemplate>
