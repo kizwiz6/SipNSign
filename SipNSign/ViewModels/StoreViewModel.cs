@@ -180,7 +180,7 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private async Task UpdateButtonStates()
         {
-            foreach (var packId in new[] { "animals", "geography", "food_drink", "emotions" })
+            foreach (var packId in new[] { "animals", "geography", "food_drink", "emotions", "sports_hobbies" })
             {
                 bool isPurchased = await _iapService.IsProductPurchasedAsync(packId);
                 var priceText = isPurchased ? "OWNED" : FormatPrice(packId);
