@@ -1,4 +1,4 @@
-using com.kizwiz.sipnsign.Enums;
+﻿using com.kizwiz.sipnsign.Enums;
 using com.kizwiz.sipnsign.Services;
 using com.kizwiz.sipnsign.ViewModels;
 using CommunityToolkit.Maui.Views;
@@ -6,6 +6,8 @@ using CommunityToolkit.Maui.Core.Primitives;
 using System.ComponentModel;
 using System.Diagnostics;
 using CommunityToolkit.Mvvm.Messaging;
+using com.kizwiz.sipnsign.Converters;
+using com.kizwiz.sipnsign.Models;
 
 namespace com.kizwiz.sipnsign.Pages
 {
@@ -20,13 +22,18 @@ namespace com.kizwiz.sipnsign.Pages
         private readonly SemaphoreSlim _videoLoadLock = new SemaphoreSlim(1, 1);
         private bool _isDisposed;
         private readonly SemaphoreSlim _cleanupLock = new(1, 1);
-        private MediaElement? _sharedVideo;
         private IDispatcherTimer? _timer;
         #endregion
 
         #region Properties
         public GameViewModel ViewModel => _viewModel;
         private bool IsGuessMode => _viewModel.CurrentMode == GameMode.Guess;
+
+        // Add properties for the MediaElements with distinct names to avoid conflicts
+        // with the XAML-generated fields
+        private MediaElement? _sharedVideoElement;
+        private MediaElement? _performVideoElement;
+        private MediaElement? _multiplayerPerformVideoElement;
         #endregion
 
         #region Constructor
@@ -51,10 +58,19 @@ namespace com.kizwiz.sipnsign.Pages
                 BindingContext = _viewModel;
                 ConnectToViewModel();
 
-                _sharedVideo = this.FindByName<MediaElement>("SharedVideo") ??
-                    throw new InvalidOperationException("SharedVideo element not found");
+                // Initialize MediaElement references
+                _sharedVideoElement = this.FindByName<MediaElement>("SharedVideo");
+                _performVideoElement = this.FindByName<MediaElement>("PerformVideo");
+                _multiplayerPerformVideoElement = this.FindByName<MediaElement>("MultiplayerPerformVideo");
 
-                _sharedVideo.PropertyChanged += OnSharedVideoPropertyChanged;
+                if (_sharedVideoElement != null)
+                {
+                    _sharedVideoElement.PropertyChanged += OnSharedVideoPropertyChanged;
+                }
+                else
+                {
+                    Debug.WriteLine("WARNING: SharedVideo element not found!");
+                }
             }
             catch (Exception ex)
             {
@@ -79,13 +95,13 @@ namespace com.kizwiz.sipnsign.Pages
                 var videoFileName = Path.GetFileName(_viewModel.CurrentSign.VideoPath);
                 Debug.WriteLine($"Attempting to load video: {videoFileName}");
 
-                if (_sharedVideo == null && !_isDisposed)
+                if (_sharedVideoElement == null && !_isDisposed)
                 {
                     Debug.WriteLine("Shared video is null, recreating...");
-                    _sharedVideo = this.FindByName<MediaElement>("SharedVideo");
-                    if (_sharedVideo != null)
+                    _sharedVideoElement = this.FindByName<MediaElement>("SharedVideo");
+                    if (_sharedVideoElement != null)
                     {
-                        _sharedVideo.PropertyChanged += OnSharedVideoPropertyChanged;
+                        _sharedVideoElement.PropertyChanged += OnSharedVideoPropertyChanged;
                     }
                 }
 
@@ -97,14 +113,14 @@ namespace com.kizwiz.sipnsign.Pages
                 {
                     try
                     {
-                        if (_sharedVideo != null && !_isDisposed)
+                        if (_sharedVideoElement != null && !_isDisposed)
                         {
-                            _sharedVideo.Stop();
-                            _sharedVideo.Source = null;
-                            _sharedVideo.Source = source;
-                            _sharedVideo.IsVisible = true;
-                            _sharedVideo.ShouldAutoPlay = true;
-                            _sharedVideo.Play();
+                            _sharedVideoElement.Stop();
+                            _sharedVideoElement.Source = null;
+                            _sharedVideoElement.Source = source;
+                            _sharedVideoElement.IsVisible = true;
+                            _sharedVideoElement.ShouldAutoPlay = true;
+                            _sharedVideoElement.Play();
                         }
                     }
                     catch (Exception ex)
@@ -122,18 +138,45 @@ namespace com.kizwiz.sipnsign.Pages
                 }
 
                 // Additional handling for Perform Mode
-                if (_viewModel.IsPerformMode && PerformVideo != null)
+                if (_viewModel.IsPerformMode)
                 {
                     Debug.WriteLine("Setting source for Perform Mode video");
+
+                    // Find both perform video elements if needed
+                    if (_performVideoElement == null)
+                    {
+                        _performVideoElement = this.FindByName<MediaElement>("PerformVideo");
+                    }
+
+                    if (_multiplayerPerformVideoElement == null)
+                    {
+                        _multiplayerPerformVideoElement = this.FindByName<MediaElement>("MultiplayerPerformVideo");
+                    }
+
+                    Debug.WriteLine($"PerformVideo found: {_performVideoElement != null}");
+                    Debug.WriteLine($"MultiplayerPerformVideo found: {_multiplayerPerformVideoElement != null}");
+
                     await MainThread.InvokeOnMainThreadAsync(() =>
                     {
                         try
                         {
-                            PerformVideo.IsVisible = true;
-                            PerformVideo.Source = source;
-                            PerformVideo.ShouldAutoPlay = false; // Don't auto play in Perform Mode
-                            Debug.WriteLine($"Perform Mode video source set: {source}");
-                            Debug.WriteLine($"Perform Mode video visibility: {PerformVideo.IsVisible}");
+                            // Set source for single player video
+                            if (_performVideoElement != null)
+                            {
+                                _performVideoElement.IsVisible = true;
+                                _performVideoElement.Source = source;
+                                _performVideoElement.ShouldAutoPlay = false; // Don't auto play in Perform Mode
+                                Debug.WriteLine($"Single player video source set: {source}");
+                            }
+
+                            // Set source for multiplayer video
+                            if (_multiplayerPerformVideoElement != null)
+                            {
+                                _multiplayerPerformVideoElement.IsVisible = true;
+                                _multiplayerPerformVideoElement.Source = source;
+                                _multiplayerPerformVideoElement.ShouldAutoPlay = false; // Don't auto play in Perform Mode
+                                Debug.WriteLine($"Multiplayer video source set: {source}");
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -164,13 +207,13 @@ namespace com.kizwiz.sipnsign.Pages
             {
                 try
                 {
-                    if (_sharedVideo != null)
+                    if (_sharedVideoElement != null)
                     {
-                        _sharedVideo.Stop();
-                        _sharedVideo.Source = null;
-                        _sharedVideo.Source = source;
-                        _sharedVideo.IsVisible = true;
-                        _sharedVideo.SeekTo(TimeSpan.Zero);
+                        _sharedVideoElement.Stop();
+                        _sharedVideoElement.Source = null;
+                        _sharedVideoElement.Source = source;
+                        _sharedVideoElement.IsVisible = true;
+                        _sharedVideoElement.SeekTo(TimeSpan.Zero);
                     }
                 }
                 catch (Exception ex)
@@ -245,20 +288,39 @@ namespace com.kizwiz.sipnsign.Pages
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
                     Debug.WriteLine("OnSignRevealRequested: Starting");
-                    var performVideo = this.FindByName<MediaElement>("PerformVideo");
-                    if (performVideo != null)
+
+                    // Check which mode we're in (single or multiplayer)
+                    bool isMultiplayer = _viewModel?.IsMultiplayer ?? false;
+
+                    // Get the appropriate video element
+                    MediaElement? videoToPlay = null;
+
+                    if (isMultiplayer)
                     {
-                        Debug.WriteLine($"PerformVideo found, Current visibility: {performVideo.IsVisible}");
-                        Debug.WriteLine($"Current source: {performVideo.Source}");
-                        performVideo.IsVisible = true;
-                        Debug.WriteLine($"New visibility: {performVideo.IsVisible}");
-                        performVideo.SeekTo(TimeSpan.Zero);
-                        performVideo.Play();
+                        // Use multiplayer video
+                        videoToPlay = _multiplayerPerformVideoElement ?? this.FindByName<MediaElement>("MultiplayerPerformVideo");
+                        Debug.WriteLine("Using MultiplayerPerformVideo");
+                    }
+                    else
+                    {
+                        // Use single player video
+                        videoToPlay = _performVideoElement ?? this.FindByName<MediaElement>("PerformVideo");
+                        Debug.WriteLine("Using PerformVideo");
+                    }
+
+                    if (videoToPlay != null)
+                    {
+                        Debug.WriteLine($"Video element found, Current visibility: {videoToPlay.IsVisible}");
+                        Debug.WriteLine($"Current source: {videoToPlay.Source}");
+                        videoToPlay.IsVisible = true;
+                        Debug.WriteLine($"New visibility: {videoToPlay.IsVisible}");
+                        videoToPlay.SeekTo(TimeSpan.Zero);
+                        videoToPlay.Play();
                         Debug.WriteLine("Play command sent");
                     }
                     else
                     {
-                        Debug.WriteLine("PerformVideo element not found");
+                        Debug.WriteLine("Video element not found");
                     }
                 });
             }
@@ -277,12 +339,17 @@ namespace com.kizwiz.sipnsign.Pages
 
             MainThread.BeginInvokeOnMainThread(() =>
             {
-                if (_sharedVideo != null)
+                if (_sharedVideoElement != null)
                 {
-                    _sharedVideo.Stop();
-                    _sharedVideo.Source = null;
+                    _sharedVideoElement.Stop();
+                    _sharedVideoElement.Source = null;
                 }
             });
+
+            if (ViewModel.IsMultiplayer && ViewModel.IsPerformMode)
+            {
+                TestPlayerConverter();
+            }
         }
 
         protected override async void OnDisappearing()
@@ -297,18 +364,25 @@ namespace com.kizwiz.sipnsign.Pages
                 // Then proceed with existing code if needed
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
-                    if (SharedVideo != null)
+                    if (_sharedVideoElement != null)
                     {
-                        SharedVideo.Stop();
-                        SharedVideo.Source = null;
-                        SharedVideo.Handler?.DisconnectHandler();
+                        _sharedVideoElement.Stop();
+                        _sharedVideoElement.Source = null;
+                        _sharedVideoElement.Handler?.DisconnectHandler();
                     }
 
-                    if (PerformVideo != null)
+                    if (_performVideoElement != null)
                     {
-                        PerformVideo.Stop();
-                        PerformVideo.Source = null;
-                        PerformVideo.Handler?.DisconnectHandler();
+                        _performVideoElement.Stop();
+                        _performVideoElement.Source = null;
+                        _performVideoElement.Handler?.DisconnectHandler();
+                    }
+
+                    if (_multiplayerPerformVideoElement != null)
+                    {
+                        _multiplayerPerformVideoElement.Stop();
+                        _multiplayerPerformVideoElement.Source = null;
+                        _multiplayerPerformVideoElement.Handler?.DisconnectHandler();
                     }
                 });
 
@@ -352,19 +426,26 @@ namespace com.kizwiz.sipnsign.Pages
 
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
-                    if (_sharedVideo != null)
+                    if (_sharedVideoElement != null)
                     {
-                        _sharedVideo.Stop();
-                        _sharedVideo.Source = null;
-                        _sharedVideo.PropertyChanged -= OnSharedVideoPropertyChanged;
-                        _sharedVideo.Handler?.DisconnectHandler();
+                        _sharedVideoElement.Stop();
+                        _sharedVideoElement.Source = null;
+                        _sharedVideoElement.PropertyChanged -= OnSharedVideoPropertyChanged;
+                        _sharedVideoElement.Handler?.DisconnectHandler();
                     }
 
-                    if (PerformVideo != null)
+                    if (_performVideoElement != null)
                     {
-                        PerformVideo.Stop();
-                        PerformVideo.Source = null;
-                        PerformVideo.Handler?.DisconnectHandler();
+                        _performVideoElement.Stop();
+                        _performVideoElement.Source = null;
+                        _performVideoElement.Handler?.DisconnectHandler();
+                    }
+
+                    if (_multiplayerPerformVideoElement != null)
+                    {
+                        _multiplayerPerformVideoElement.Stop();
+                        _multiplayerPerformVideoElement.Source = null;
+                        _multiplayerPerformVideoElement.Handler?.DisconnectHandler();
                     }
                 });
             }
@@ -374,8 +455,9 @@ namespace com.kizwiz.sipnsign.Pages
             }
             finally
             {
-                _sharedVideo = null;
-                PerformVideo = null;
+                _sharedVideoElement = null;
+                _performVideoElement = null;
+                _multiplayerPerformVideoElement = null;
                 _videoLoadLock.Release();
             }
         }
@@ -394,40 +476,42 @@ namespace com.kizwiz.sipnsign.Pages
                     _timer = null;
                 }
 
-                // Create a local reference to prevent null checks
-                var sharedVideoRef = SharedVideo;
-                var performVideoRef = PerformVideo;
+                // Create local references to prevent null checks
+                var sharedVideoRef = _sharedVideoElement;
+                var performVideoRef = _performVideoElement;
+                var multiplayerVideoRef = _multiplayerPerformVideoElement;
 
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
-                    if (sharedVideoRef != null)
+                    try
                     {
-                        try
+                        // Clean up shared video
+                        if (sharedVideoRef != null)
                         {
-                            // Try to safely stop and clean up the MediaElement
                             sharedVideoRef.Stop();
                             sharedVideoRef.Source = null;
                             sharedVideoRef.Handler?.DisconnectHandler();
                         }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine($"Error cleaning up SharedVideo: {ex.Message}");
-                        }
-                    }
 
-                    if (performVideoRef != null)
-                    {
-                        try
+                        // Clean up perform video
+                        if (performVideoRef != null)
                         {
-                            // Try to safely stop and clean up the MediaElement
                             performVideoRef.Stop();
                             performVideoRef.Source = null;
                             performVideoRef.Handler?.DisconnectHandler();
                         }
-                        catch (Exception ex)
+
+                        // Clean up multiplayer video
+                        if (multiplayerVideoRef != null)
                         {
-                            Debug.WriteLine($"Error cleaning up PerformVideo: {ex.Message}");
+                            multiplayerVideoRef.Stop();
+                            multiplayerVideoRef.Source = null;
+                            multiplayerVideoRef.Handler?.DisconnectHandler();
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error cleaning up videos: {ex.Message}");
                     }
                 });
 
@@ -435,8 +519,9 @@ namespace com.kizwiz.sipnsign.Pages
                 await Task.Delay(50);
 
                 // Now it's safe to null the references
-                SharedVideo = null;
-                PerformVideo = null;
+                _sharedVideoElement = null;
+                _performVideoElement = null;
+                _multiplayerPerformVideoElement = null;
             }
             catch (Exception ex)
             {
@@ -444,17 +529,44 @@ namespace com.kizwiz.sipnsign.Pages
             }
         }
 
+        public void TestPlayerConverter()
+        {
+            Debug.WriteLine("=== TESTING PLAYER CONVERTER ===");
+            var converter = Resources["PlayerAnswerConverter"] as PlayerAnswerConverter;
+
+            if (converter == null)
+            {
+                Debug.WriteLine("ERROR: PlayerAnswerConverter not found in Resources");
+                return;
+            }
+
+            Debug.WriteLine("PlayerAnswerConverter found in Resources");
+
+            // Test with a dummy player
+            var player = new Player { Name = "Test Player" };
+            var result = converter.Convert(player, typeof(PlayerAnswerParameter), true, null);
+
+            if (result is PlayerAnswerParameter param)
+            {
+                Debug.WriteLine($"Converter works! Player: {param.Player.Name}, IsCorrect: {param.IsCorrect}");
+            }
+            else
+            {
+                Debug.WriteLine("ERROR: Converter did not return a PlayerAnswerParameter");
+            }
+        }
+
 
         private void StopVideo()
         {
-            if (_isDisposed || _sharedVideo == null) return;
+            if (_isDisposed || _sharedVideoElement == null) return;
 
             try
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    _sharedVideo.Stop();
-                    _sharedVideo.Source = null;
+                    _sharedVideoElement.Stop();
+                    _sharedVideoElement.Source = null;
                 });
             }
             catch (Exception ex)
@@ -509,5 +621,115 @@ namespace com.kizwiz.sipnsign.Pages
         }
 
         public record QuestionCountChangedMessage(int QuestionCount);
+
+        /// <summary>
+        /// Handles clicking the correct (check mark) button for a player
+        /// </summary>
+        private void OnPlayerCorrectClicked(object sender, EventArgs e)
+        {
+            try
+            {
+                if (sender is Button button && !string.IsNullOrEmpty(button.ClassId))
+                {
+                    string playerName = button.ClassId;
+                    Debug.WriteLine($"OnPlayerCorrectClicked: Player name = {playerName}");
+
+                    // Find the player by name
+                    var player = _viewModel.Players.FirstOrDefault(p => p.Name == playerName);
+                    if (player != null)
+                    {
+                        Debug.WriteLine($"Found player: {player.Name}, recording correct answer");
+
+                        // Use the new RecordAnswer method (allows changing answers)
+                        player.RecordAnswer(true);
+
+                        // Show feedback
+                        _viewModel.FeedbackText = $"{player.Name} got it right!";
+                        _viewModel.FeedbackBackgroundColor = _viewModel.GetFeedbackColor(true);
+                        _viewModel.IsFeedbackVisible = true;
+
+                        // Force UI refresh
+                        _viewModel.OnPropertyChanged(nameof(_viewModel.Players));
+                        _viewModel.OnPropertyChanged(nameof(_viewModel.HasAllPlayersAnswered));
+
+                        Debug.WriteLine($"Player {player.Name} updated: HasAnswered={player.HasAnswered}, GotCurrentAnswerCorrect={player.GotCurrentAnswerCorrect}, Score={player.Score}");
+                        Debug.WriteLine($"HasAllPlayersAnswered: {_viewModel.HasAllPlayersAnswered}");
+
+                        // Auto-hide feedback after 2 seconds
+                        Device.StartTimer(TimeSpan.FromSeconds(2), () => {
+                            _viewModel.IsFeedbackVisible = false;
+                            return false; // Don't repeat
+                        });
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"Player not found with name: {playerName}");
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("Button sender is null or ClassId is empty");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in OnPlayerCorrectClicked: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Handles clicking the incorrect (X mark) button for a player
+        /// </summary>
+        private void OnPlayerIncorrectClicked(object sender, EventArgs e)
+        {
+            try
+            {
+                if (sender is Button button && !string.IsNullOrEmpty(button.ClassId))
+                {
+                    string playerName = button.ClassId;
+                    Debug.WriteLine($"OnPlayerIncorrectClicked: Player name = {playerName}");
+
+                    // Find the player by name
+                    var player = _viewModel.Players.FirstOrDefault(p => p.Name == playerName);
+                    if (player != null)
+                    {
+                        Debug.WriteLine($"Found player: {player.Name}, recording incorrect answer");
+
+                        // Use the new RecordAnswer method (allows changing answers)
+                        player.RecordAnswer(false);
+
+                        // Show feedback
+                        _viewModel.FeedbackText = $"{player.Name} got it wrong!";
+                        _viewModel.FeedbackBackgroundColor = _viewModel.GetFeedbackColor(false);
+                        _viewModel.IsFeedbackVisible = true;
+
+                        // Force UI refresh
+                        _viewModel.OnPropertyChanged(nameof(_viewModel.Players));
+                        _viewModel.OnPropertyChanged(nameof(_viewModel.HasAllPlayersAnswered));
+
+                        Debug.WriteLine($"Player {player.Name} updated: HasAnswered={player.HasAnswered}, GotCurrentAnswerCorrect={player.GotCurrentAnswerCorrect}, Score={player.Score}");
+                        Debug.WriteLine($"HasAllPlayersAnswered: {_viewModel.HasAllPlayersAnswered}");
+
+                        // Auto-hide feedback after 2 seconds
+                        Device.StartTimer(TimeSpan.FromSeconds(2), () => {
+                            _viewModel.IsFeedbackVisible = false;
+                            return false; // Don't repeat
+                        });
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"Player not found with name: {playerName}");
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("Button sender is null or ClassId is empty");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in OnPlayerIncorrectClicked: {ex.Message}");
+            }
+        }
     }
 }

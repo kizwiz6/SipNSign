@@ -209,13 +209,9 @@ namespace com.kizwiz.sipnsign.Pages
             try
             {
                 _isNavigating = true;
-                var videoService = _videoService ?? _serviceProvider.GetRequiredService<IVideoService>();
-                var loggingService = _logger ?? _serviceProvider.GetRequiredService<ILoggingService>();
-                var progressService = _progressService ?? _serviceProvider.GetRequiredService<IProgressService>();
-
-                var gamePage = new GamePage(_serviceProvider, videoService, loggingService, progressService);
-                gamePage.ViewModel.CurrentMode = GameMode.Perform;
-                await Navigation.PushAsync(gamePage);
+                // Launch the player selection page instead of going directly to game
+                var playerSelectionPage = new PlayerSelectionPage();
+                await Navigation.PushAsync(playerSelectionPage);
             }
             catch (Exception ex)
             {
