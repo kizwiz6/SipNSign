@@ -1,4 +1,4 @@
-﻿using com.kizwiz.sipnsign.Enums;
+using com.kizwiz.sipnsign.Enums;
 using com.kizwiz.sipnsign.Services;
 using com.kizwiz.sipnsign.ViewModels;
 using CommunityToolkit.Maui.Views;
@@ -248,7 +248,7 @@ namespace com.kizwiz.sipnsign.Pages
         }
 
         /// <summary>
-        /// Handles video open event and starts playback
+        /// Handles video open event and starts playback with audio disabled
         /// </summary>
         private void OnMediaOpened(object sender, EventArgs e)
         {
@@ -258,6 +258,12 @@ namespace com.kizwiz.sipnsign.Pages
                 var mediaElement = sender as MediaElement;
                 if (mediaElement != null)
                 {
+                    // Ensure audio is completely disabled
+                    mediaElement.Volume = 0;
+                    mediaElement.ShouldMute = true;
+
+                    Debug.WriteLine($"Audio disabled for MediaElement: Volume={mediaElement.Volume}, Muted={mediaElement.ShouldMute}");
+
                     mediaElement.Play();
                 }
             });
@@ -609,6 +615,37 @@ namespace com.kizwiz.sipnsign.Pages
             }
         }
         #endregion
+
+        private void DisableAudioOnAllVideos()
+        {
+            try
+            {
+                if (_sharedVideoElement != null)
+                {
+                    _sharedVideoElement.Volume = 0;
+                    _sharedVideoElement.ShouldMute = true;
+                    Debug.WriteLine("Audio disabled on SharedVideo");
+                }
+
+                if (_performVideoElement != null)
+                {
+                    _performVideoElement.Volume = 0;
+                    _performVideoElement.ShouldMute = true;
+                    Debug.WriteLine("Audio disabled on PerformVideo");
+                }
+
+                if (_multiplayerPerformVideoElement != null)
+                {
+                    _multiplayerPerformVideoElement.Volume = 0;
+                    _multiplayerPerformVideoElement.ShouldMute = true;
+                    Debug.WriteLine("Audio disabled on MultiplayerPerformVideo");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error disabling audio: {ex.Message}");
+            }
+        }
 
         private void OnQuestionsCountChanged(object sender, ValueChangedEventArgs e)
         {
