@@ -137,7 +137,8 @@
                             MediaOpened="OnMediaOpened"
                             MediaFailed="OnMediaFailed"
                             MediaEnded="OnMediaEnded"
-                            Volume="1"
+                            Volume="0"
+                            ShouldMute="True"
                             IsVisible="True"/>
                     </Border>
 
@@ -156,8 +157,6 @@
                                    FontAttributes="Bold"
                                    HorizontalOptions="Center"
                                    HorizontalTextAlignment="Center"/>
-
-
                         </VerticalStackLayout>
                     </Border>
                 </Grid>
@@ -240,7 +239,8 @@
                         MediaOpened="OnMediaOpened"
                         MediaFailed="OnMediaFailed"
                         MediaEnded="OnMediaEnded"
-                        Volume="1"
+                        Volume="0"
+                        ShouldMute="True"
                         IsVisible="{Binding IsSignRevealed}"/>
                         </Border>
 
@@ -328,7 +328,8 @@
                         MediaOpened="OnMediaOpened"
                         MediaFailed="OnMediaFailed"
                         MediaEnded="OnMediaEnded"
-                        Volume="1"
+                        Volume="0"
+                        ShouldMute="True"
                         IsVisible="{Binding IsSignRevealed}"/>
                         </Border>
 
@@ -356,55 +357,55 @@
                     <!-- Multiplayer Player Selection and Response -->
                     <StackLayout IsVisible="{Binding IsSignRevealed}" Spacing="10">
                         <Label Text="{Binding PlayerResultsText}"
-           TextColor="White"
-           HorizontalOptions="Center"
-           FontSize="16"/>
+                               TextColor="White"
+                               HorizontalOptions="Center"
+                               FontSize="16"/>
 
                         <!-- Players List -->
                         <StackLayout BindableLayout.ItemsSource="{Binding Players}" Spacing="10" Margin="0,5">
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="models:Player">
                                     <Border BackgroundColor="{DynamicResource CardBackground}"
-                        StrokeShape="RoundRectangle 10"
-                        Padding="5"
-                        Opacity="0.9">
+                                            StrokeShape="RoundRectangle 10"
+                                            Padding="5"
+                                            Opacity="0.9">
                                         <Grid ColumnDefinitions="2*,*,*" Padding="5">
                                             <!-- Player Name with status indicator -->
                                             <StackLayout Grid.Column="0" Orientation="Horizontal" VerticalOptions="Center">
                                                 <Ellipse Fill="{Binding IndicatorColor}"
-                                     WidthRequest="12"
-                                     HeightRequest="12"
-                                     Margin="0,0,8,0"
-                                     VerticalOptions="Center"/>
+                                                         WidthRequest="12"
+                                                         HeightRequest="12"
+                                                         Margin="0,0,8,0"
+                                                         VerticalOptions="Center"/>
                                                 <Label Text="{Binding Name}"
-                                   TextColor="White"
-                                   FontSize="18"
-                                   FontAttributes="Bold"
-                                   VerticalOptions="Center"/>
+                                                       TextColor="White"
+                                                       FontSize="18"
+                                                       FontAttributes="Bold"
+                                                       VerticalOptions="Center"/>
                                             </StackLayout>
 
                                             <!-- Correct Button - Always enabled, allows changing answers -->
                                             <Button Grid.Column="1"
-                                Text="✓"
-                                BackgroundColor="ForestGreen"
-                                TextColor="White"
-                                FontSize="18"
-                                WidthRequest="45"
-                                HeightRequest="45"
-                                Margin="3,0"
-                                Clicked="OnPlayerCorrectClicked"
-                                ClassId="{Binding Name}"/>
+                                                    Text="✓"
+                                                    BackgroundColor="ForestGreen"
+                                                    TextColor="White"
+                                                    FontSize="18"
+                                                    WidthRequest="45"
+                                                    HeightRequest="45"
+                                                    Margin="3,0"
+                                                    Clicked="OnPlayerCorrectClicked"
+                                                    ClassId="{Binding Name}"/>
 
                                             <!-- Incorrect Button - Always enabled, allows changing answers -->
                                             <Button Grid.Column="2"
-                                Text="✗"
-                                BackgroundColor="Crimson"
-                                TextColor="White"
-                                FontSize="18"
-                                WidthRequest="45"
-                                HeightRequest="45"
-                                Clicked="OnPlayerIncorrectClicked"
-                                ClassId="{Binding Name}"/>
+                                                    Text="✗"
+                                                    BackgroundColor="Crimson"
+                                                    TextColor="White"
+                                                    FontSize="18"
+                                                    WidthRequest="45"
+                                                    HeightRequest="45"
+                                                    Clicked="OnPlayerIncorrectClicked"
+                                                    ClassId="{Binding Name}"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
@@ -413,11 +414,11 @@
 
                         <!-- Next Sign Button - Full opacity when enabled -->
                         <Button Text="NEXT SIGN"
-            Command="{Binding NextSignCommand}"
-            Style="{StaticResource PrimaryButton}"
-            BackgroundColor="{Binding HasAllPlayersAnswered, Converter={StaticResource BoolToButtonColorConverter}}"
-            IsEnabled="{Binding HasAllPlayersAnswered}"
-            Margin="0,15,0,5"/>
+                                Command="{Binding NextSignCommand}"
+                                Style="{StaticResource PrimaryButton}"
+                                BackgroundColor="{Binding HasAllPlayersAnswered, Converter={StaticResource BoolToButtonColorConverter}}"
+                                IsEnabled="{Binding HasAllPlayersAnswered}"
+                                Margin="0,15,0,5"/>
                     </StackLayout>
                 </VerticalStackLayout>
             </ScrollView>
@@ -463,7 +464,6 @@
                                FontSize="24"
                                FontAttributes="Bold"
                                HorizontalOptions="Center"/>
-
 
                         <CollectionView ItemsSource="{Binding Players}"
                                         HeightRequest="150">
