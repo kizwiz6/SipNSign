@@ -52,6 +52,10 @@ namespace com.kizwiz.sipnsign.Services
 
         public async Task LogActivityAsync(ActivityLog activity)
         {
+            // Validate activity before adding it
+            if (string.IsNullOrWhiteSpace(activity.Description))
+                return; // Skip adding activities without descriptions
+
             _currentProgress.Activities.Insert(0, activity);
 
             // Keep only last 100 activities
@@ -152,9 +156,9 @@ namespace com.kizwiz.sipnsign.Services
                         }
                         break;
 
-                    
+
                     // REMVOED AS PERFORM MODE DOES NOT HAVE SESSIONS
-                        //case "PARTY_STARTER" when !achievement.IsUnlocked:
+                    //case "PARTY_STARTER" when !achievement.IsUnlocked:
                     //    // Count completed Perform mode sessions
                     //    var performSessions = _currentProgress.Activities
                     //        .Count(a => a.Type == ActivityType.Practice &&
@@ -167,14 +171,26 @@ namespace com.kizwiz.sipnsign.Services
                     //    break;
 
                     case "SOCIAL_BUTTERFLY" when !achievement.IsUnlocked:
-                        // Triggered from ShareAchievements() in AchievementDetailsViewModel
+                        // Check if there's any sharing activity in the log
+                        var hasShared = _currentProgress.Activities
+                            .Any(a => a.Type == ActivityType.Achievement &&
+                                 (a.Description.Contains("Shared an achievement") ||
+                                  a.Description.Contains("Social Butterfly")));
+
+                        if (hasShared)
+                        {
+                            await UnlockAchievement(achievement);
+                            achievement.ProgressCurrent = achievement.ProgressRequired;
+                        }
                         break;
 
                     case "SPEED_MASTER" when !achievement.IsUnlocked:
                         // Only unlock if completed a full 100-question session with average time under 3 seconds
-                        var hasFastSession = _currentProgress.Activities
+                        var hasFastSession = _currentProgress.Activities?
                             .Any(a => a.Type == ActivityType.Practice &&
-                                     a.Description.Contains("Completed 100-question Guess Mode session with average time under 3 seconds"));
+                                     a.Description != null && // Add null check here
+                                     a.Description.Contains("Completed 100-question Guess Mode session with average time under 3 seconds"))
+                            ?? false; // Add fallback if Activities is null
 
                         if (hasFastSession)
                         {
@@ -494,6 +510,18 @@ namespace com.kizwiz.sipnsign.Services
 
                         // Update practice time (increment by 30 seconds per attempt)
                         _currentProgress.TotalPracticeTime = _currentProgress.TotalPracticeTime.Add(TimeSpan.FromSeconds(30));
+
+                        // Increment SignsLearned counter when answering correctly
+                        _currentProgress.SignsLearned++;
+
+                        // Update Guess/Perform mode specific counters
+                        if (!string.IsNullOrEmpty(activity.Description))
+                        {
+                            if (activity.Description.Contains("Guess Mode", StringComparison.OrdinalIgnoreCase))
+                                _currentProgress.GuessModeSigns++;
+                            else if (activity.Description.Contains("Perform Mode", StringComparison.OrdinalIgnoreCase))
+                                _currentProgress.PerformModeSigns++;
+                        }
                     }
                     break;
             }

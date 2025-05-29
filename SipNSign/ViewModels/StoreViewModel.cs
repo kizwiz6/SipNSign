@@ -30,6 +30,9 @@ namespace com.kizwiz.sipnsign.ViewModels
         private bool _isEmotionsPackPurchasable = true;
 
         [ObservableProperty]
+        private bool _isSportsHobbiesPackPurchasable = true;
+
+        [ObservableProperty]
         private string _animalPackButtonText;
 
         [ObservableProperty]
@@ -41,6 +44,9 @@ namespace com.kizwiz.sipnsign.ViewModels
         [ObservableProperty]
         private string _emotionsPackButtonText;
 
+        [ObservableProperty]
+        private string _sportsHobbiesPackButtonText;
+
         private readonly Dictionary<string, Dictionary<string, decimal>> _regionalPrices = new()
         {
             {
@@ -49,7 +55,8 @@ namespace com.kizwiz.sipnsign.ViewModels
                     { "animals", 0.99m },
                     { "geography", 0.99m },
                     { "food_drink", 0.99m },
-                    { "emotions", 0.99m }
+                    { "emotions", 0.99m },
+                    { "sports_hobbies", 0.99m }
                 }
             },
             {
@@ -58,7 +65,8 @@ namespace com.kizwiz.sipnsign.ViewModels
                     { "animals", 0.99m },
                     { "geography", 0.99m },
                     { "food_drink", 0.99m },
-                    { "emotions", 0.99m }
+                    { "emotions", 0.99m },
+                    { "sports_hobbies", 0.99m }
                 }
             },
             {
@@ -67,7 +75,8 @@ namespace com.kizwiz.sipnsign.ViewModels
                     { "animals", 0.89m },
                     { "geography", 0.89m },
                     { "food_drink", 0.89m },
-                    { "emotions", 0.89m }
+                    { "emotions", 0.89m },
+                    { "sports_hobbies", 0.99m }
                 }
             },
             {
@@ -76,7 +85,8 @@ namespace com.kizwiz.sipnsign.ViewModels
                     { "animals", 120m },
                     { "geography", 120m },
                     { "food_drink", 120m },
-                    { "emotions", 120m }
+                    { "emotions", 120m },
+                    { "sports_hobbies", 0.99m }
                 }
             },
             {
@@ -85,7 +95,8 @@ namespace com.kizwiz.sipnsign.ViewModels
                     { "animals", 1.49m },
                     { "geography", 1.49m },
                     { "food_drink", 1.49m },
-                    { "emotions", 1.49m }
+                    { "emotions", 1.49m },
+                    { "sports_hobbies", 0.99m }
                 }
             }
         };
@@ -169,7 +180,7 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private async Task UpdateButtonStates()
         {
-            foreach (var packId in new[] { "animals", "geography", "food_drink", "emotions" })
+            foreach (var packId in new[] { "animals", "geography", "food_drink", "emotions", "sports_hobbies" })
             {
                 bool isPurchased = await _iapService.IsProductPurchasedAsync(packId);
                 var priceText = isPurchased ? "OWNED" : FormatPrice(packId);
@@ -192,6 +203,10 @@ namespace com.kizwiz.sipnsign.ViewModels
                         EmotionsPackButtonText = priceText;
                         IsEmotionsPackPurchasable = !isPurchased;
                         break;
+                    case "sports_hobbies":
+                        SportsHobbiesPackButtonText = priceText;
+                        IsSportsHobbiesPackPurchasable = !isPurchased;
+                        break;
                 }
             }
         }
@@ -203,7 +218,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                 _purchasedPacks.Clear();
                 _purchasedPacks["starter"] = true;  // Starter pack always available
 
-                foreach (var packId in new[] { "animals", "geography", "food_drink", "emotions" })
+                foreach (var packId in new[] { "animals", "geography", "food_drink", "emotions", "sports_hobbies" })
                 {
                     bool isPurchased = await _iapService.IsProductPurchasedAsync(packId);
                     _purchasedPacks[packId] = isPurchased;
@@ -281,6 +296,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             "geography" => "Geography",
             "food_drink" => "Food & Drink",
             "emotions" => "Emotions",
+            "sports_hobbies" => "Sports & Hobbies",
             _ => "Unknown"
         };
     }

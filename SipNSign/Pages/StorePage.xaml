@@ -20,7 +20,7 @@
                                FontAttributes="Bold"
                                Margin="0,0,0,5"/>
 
-                        <Label Text="Basic signs including numbers, colors, and everyday items"
+                        <Label Text="Basic signs including numbers, colours, and everyday items"
                                TextColor="{DynamicResource CardText}"
                                FontSize="14"/>
                     </VerticalStackLayout>
@@ -29,7 +29,7 @@
                             IsEnabled="False"
                             Style="{StaticResource SecondaryButton}"
                             HeightRequest="40"
-                            WidthRequest="100"
+                            WidthRequest="110"
                             Grid.Column="1"
                             VerticalOptions="Center"/>
                 </Grid>
@@ -48,7 +48,7 @@
                                FontAttributes="Bold"
                                Margin="0,0,0,5"/>
 
-                        <Label Text="Signs for pets, farm animals, and wildlife"
+                        <Label Text="Signs for all different species of animals - including wildlife!"
                                TextColor="{DynamicResource CardText}"
                                FontSize="14"/>
                     </VerticalStackLayout>
@@ -59,7 +59,7 @@
                             IsEnabled="{Binding IsAnimalPackPurchasable}"
                             Style="{StaticResource PrimaryButton}"
                             HeightRequest="40"
-                            WidthRequest="100"
+                            WidthRequest="110" 
                             Grid.Column="1"
                             VerticalOptions="Center"/>
                 </Grid>
@@ -89,7 +89,7 @@
                             IsEnabled="{Binding IsGeographyPackPurchasable}"
                             Style="{StaticResource PrimaryButton}"
                             HeightRequest="40"
-                            WidthRequest="100"
+                            WidthRequest="110"
                             Grid.Column="1"
                             VerticalOptions="Center"/>
                 </Grid>
@@ -119,7 +119,7 @@
                             IsEnabled="{Binding IsFoodPackPurchasable}"
                             Style="{StaticResource PrimaryButton}"
                             HeightRequest="40"
-                            WidthRequest="100"
+                            WidthRequest="110"
                             Grid.Column="1"
                             VerticalOptions="Center"/>
                 </Grid>
@@ -149,7 +149,37 @@
                             IsEnabled="{Binding IsEmotionsPackPurchasable}"
                             Style="{StaticResource PrimaryButton}"
                             HeightRequest="40"
-                            WidthRequest="100"
+                            WidthRequest="110"
+                            Grid.Column="1"
+                            VerticalOptions="Center"/>
+                </Grid>
+            </Border>
+
+            <!-- Sports & Hobbies Pack -->
+            <Border BackgroundColor="{DynamicResource CardBackground}"
+                    Opacity="0.95"
+                    Padding="15" 
+                    StrokeShape="RoundRectangle 10">
+                <Grid ColumnDefinitions="*,Auto" RowSpacing="5">
+                    <VerticalStackLayout Grid.Column="0">
+                        <Label Text="Sports &amp; Hobbies Pack" 
+                               TextColor="{DynamicResource CardText}"
+                               FontSize="24" 
+                               FontAttributes="Bold"
+                               Margin="0,0,0,5"/>
+
+                        <Label Text="Learn signs for sports, games, and leisure activities!"
+                               TextColor="{DynamicResource CardText}"
+                               FontSize="14"/>
+                    </VerticalStackLayout>
+
+                    <Button Text="{Binding SportsHobbiesPackButtonText}" 
+                            Command="{Binding PurchasePackCommand}"
+                            CommandParameter="sports_hobbies"
+                            IsEnabled="{Binding IsSportsHobbiesPackPurchasable}"
+                            Style="{StaticResource PrimaryButton}"
+                            HeightRequest="40"
+                            WidthRequest="110"
                             Grid.Column="1"
                             VerticalOptions="Center"/>
                 </Grid>
