@@ -258,13 +258,32 @@ namespace com.kizwiz.sipnsign.Pages
                 var mediaElement = sender as MediaElement;
                 if (mediaElement != null)
                 {
-                    // Ensure audio is completely disabled
-                    mediaElement.Volume = 0;
-                    mediaElement.ShouldMute = true;
+                    try
+                    {
+                        // Log detailed media information
+                        Debug.WriteLine($"=== MEDIA DETAILS ===");
+                        Debug.WriteLine($"Source: {mediaElement.Source}");
+                        Debug.WriteLine($"Duration: {mediaElement.Duration}");
+                        Debug.WriteLine($"Current State: {mediaElement.CurrentState}");
+                        Debug.WriteLine($"Volume: {mediaElement.Volume}");
+                        Debug.WriteLine($"Aspect: {mediaElement.Aspect}");
+                        Debug.WriteLine($"Width Request: {mediaElement.WidthRequest}");
+                        Debug.WriteLine($"Height Request: {mediaElement.HeightRequest}");
 
-                    Debug.WriteLine($"Audio disabled for MediaElement: Volume={mediaElement.Volume}, Muted={mediaElement.ShouldMute}");
+                        // Ensure audio is completely disabled
+                        mediaElement.Volume = 0;
+                        mediaElement.ShouldMute = true;
 
-                    mediaElement.Play();
+                        Debug.WriteLine($"Audio disabled for MediaElement: Volume={mediaElement.Volume}, Muted={mediaElement.ShouldMute}");
+
+                        mediaElement.Play();
+                        Debug.WriteLine($"Play command sent, Current State: {mediaElement.CurrentState}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"ERROR in OnMediaOpened: {ex.Message}");
+                        Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                    }
                 }
             });
         }
@@ -273,10 +292,40 @@ namespace com.kizwiz.sipnsign.Pages
         private void OnMediaFailed(object sender, EventArgs e)
         {
             var mediaElement = sender as MediaElement;
-            Debug.WriteLine($"Media failed to load: {mediaElement?.Source}");
+            Debug.WriteLine($"=== MEDIA FAILED ===");
+            Debug.WriteLine($"Source: {mediaElement?.Source}");
+
             if (mediaElement?.Source is UriMediaSource uriSource)
             {
-                Debug.WriteLine($"URI was: {uriSource.Uri}");
+                Debug.WriteLine($"URI: {uriSource.Uri}");
+
+                // Check if file exists and get file info
+                try
+                {
+                    var uri = uriSource.Uri.ToString();
+                    if (uri.StartsWith("android.resource://"))
+                    {
+                        Debug.WriteLine("Android resource - checking resource ID");
+                    }
+                    else if (uri.StartsWith("file://"))
+                    {
+                        var filePath = uri.Replace("file://", "");
+                        if (File.Exists(filePath))
+                        {
+                            var fileInfo = new FileInfo(filePath);
+                            Debug.WriteLine($"File size: {fileInfo.Length} bytes ({fileInfo.Length / 1024.0:F2} KB)");
+                            Debug.WriteLine($"File extension: {fileInfo.Extension}");
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"File does not exist: {filePath}");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error checking file info: {ex.Message}");
+                }
             }
         }
 

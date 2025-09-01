@@ -123,15 +123,16 @@
                             StrokeThickness="1"
                             Background="Black"
                             StrokeShape="RoundRectangle 15"
-                            HeightRequest="300">
+                            HeightRequest="400">
+                        <!-- Increased from 300 to 400 -->
                         <toolkit:MediaElement 
                             x:Name="SharedVideo"
                             ShouldShowPlaybackControls="False"
                             ShouldAutoPlay="True"
                             ShouldLoopPlayback="True"
-                            Aspect="AspectFill"
-                            HeightRequest="300"
-                            WidthRequest="380"
+                            Aspect="AspectFit"
+                            HeightRequest="400"  
+                            WidthRequest="320"
                             HorizontalOptions="Center"
                             VerticalOptions="Center"
                             MediaOpened="OnMediaOpened"
@@ -220,28 +221,30 @@
                   HeightRequest="340">
                         <!-- Container for video -->
                         <Border Padding="1"
-                        Stroke="{DynamicResource Primary}"
-                        StrokeThickness="1"
-                        Background="Black"
-                        StrokeShape="RoundRectangle 10"
-                        Margin="0,0"
-                        HeightRequest="300">
+        Stroke="{DynamicResource Primary}"
+        StrokeThickness="1"
+        Background="Black"
+        StrokeShape="RoundRectangle 10"
+        Margin="0,0"
+        HeightRequest="400">
+                            <!-- Increased from 300 -->
                             <toolkit:MediaElement 
-                        x:Name="PerformVideo"
-                        ShouldShowPlaybackControls="False"
-                        ShouldAutoPlay="True"
-                        ShouldLoopPlayback="True"
-                        HeightRequest="300"
-                        WidthRequest="380"
-                        HorizontalOptions="Center"
-                        VerticalOptions="Center"
-                        Aspect="AspectFill"
-                        MediaOpened="OnMediaOpened"
-                        MediaFailed="OnMediaFailed"
-                        MediaEnded="OnMediaEnded"
-                        Volume="0"
-                        ShouldMute="True"
-                        IsVisible="{Binding IsSignRevealed}"/>
+        x:Name="PerformVideo"
+        ShouldShowPlaybackControls="False"
+        ShouldAutoPlay="True"
+        ShouldLoopPlayback="True"
+        HeightRequest="400"   
+                                WidthRequest="320"
+                                
+                                HorizontalOptions="Center"
+        VerticalOptions="Center"
+        Aspect="AspectFit"
+        MediaOpened="OnMediaOpened"
+        MediaFailed="OnMediaFailed"
+        MediaEnded="OnMediaEnded"
+        Volume="0"
+        ShouldMute="True"
+        IsVisible="{Binding IsSignRevealed}"/>
                         </Border>
 
                         <!-- Feedback Overlay -->
@@ -309,28 +312,29 @@
                   HeightRequest="340">
                         <!-- Container for video -->
                         <Border Padding="1"
-                        Stroke="{DynamicResource Primary}"
-                        StrokeThickness="1"
-                        Background="Black"
-                        StrokeShape="RoundRectangle 10"
-                        Margin="0,0"
-                        HeightRequest="300">
+        Stroke="{DynamicResource Primary}"
+        StrokeThickness="1"
+        Background="Black"
+        StrokeShape="RoundRectangle 10"
+        Margin="0,0"
+        HeightRequest="400">
+                            <!-- Increased from 300 -->
                             <toolkit:MediaElement 
-                        x:Name="MultiplayerPerformVideo"
-                        ShouldShowPlaybackControls="False"
-                        ShouldAutoPlay="True"
-                        ShouldLoopPlayback="True"
-                        HeightRequest="300"
-                        WidthRequest="380"
-                        HorizontalOptions="Center"
-                        VerticalOptions="Center"
-                        Aspect="AspectFill"
-                        MediaOpened="OnMediaOpened"
-                        MediaFailed="OnMediaFailed"
-                        MediaEnded="OnMediaEnded"
-                        Volume="0"
-                        ShouldMute="True"
-                        IsVisible="{Binding IsSignRevealed}"/>
+        x:Name="MultiplayerPerformVideo"
+        ShouldShowPlaybackControls="False"
+        ShouldAutoPlay="True"
+        ShouldLoopPlayback="True"
+        HeightRequest="400"   
+        WidthRequest="320"
+        HorizontalOptions="Center"
+        VerticalOptions="Center"
+        Aspect="AspectFit"
+        MediaOpened="OnMediaOpened"
+        MediaFailed="OnMediaFailed"
+        MediaEnded="OnMediaEnded"
+        Volume="0"
+        ShouldMute="True"
+        IsVisible="{Binding IsSignRevealed}"/>
                         </Border>
 
                         <!-- Feedback Overlay with visual indicator -->
