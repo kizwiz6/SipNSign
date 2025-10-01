@@ -327,12 +327,32 @@ namespace com.kizwiz.sipnsign.Pages
         {
             try
             {
-                // Now safely initialize MediaElement references
-                InitializeMediaElements();
+                // Only initialize MediaElements for current mode
+                if (ViewModel.IsGuessMode)
+                {
+                    _sharedVideoElement = FindMediaElement("SharedVideo");
+                }
+                else if (ViewModel.IsPerformMode)
+                {
+                    if (ViewModel.IsMultiplayer)
+                    {
+                        _multiplayerPerformVideoElement = FindMediaElement("MultiplayerPerformVideo");
+                    }
+                    else
+                    {
+                        _performVideoElement = FindMediaElement("PerformVideo");
+                    }
+                }
+
+                // Set up event handlers
+                if (_sharedVideoElement != null)
+                {
+                    _sharedVideoElement.PropertyChanged += OnSharedVideoPropertyChanged;
+                }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error initializing media elements: {ex.Message}");
+                Debug.WriteLine($"Error in OnPageLoaded: {ex.Message}");
             }
         }
 
