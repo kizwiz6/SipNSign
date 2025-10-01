@@ -40,6 +40,7 @@ namespace com.kizwiz.sipnsign.Pages
         /// <summary>
         /// Initializes game page with required services and video handling
         /// </summary>
+
         public GamePage(IServiceProvider serviceProvider, IVideoService videoService, ILoggingService logger, IProgressService progressService)
         {
             try
@@ -58,19 +59,7 @@ namespace com.kizwiz.sipnsign.Pages
                 BindingContext = _viewModel;
                 ConnectToViewModel();
 
-                // Initialize MediaElement references
-                _sharedVideoElement = this.FindByName<MediaElement>("SharedVideo");
-                _performVideoElement = this.FindByName<MediaElement>("PerformVideo");
-                _multiplayerPerformVideoElement = this.FindByName<MediaElement>("MultiplayerPerformVideo");
-
-                if (_sharedVideoElement != null)
-                {
-                    _sharedVideoElement.PropertyChanged += OnSharedVideoPropertyChanged;
-                }
-                else
-                {
-                    Debug.WriteLine("WARNING: SharedVideo element not found!");
-                }
+                this.Loaded += OnPageLoaded;
             }
             catch (Exception ex)
             {
@@ -334,6 +323,66 @@ namespace com.kizwiz.sipnsign.Pages
             Debug.WriteLine($"Media playback ended: {(sender as MediaElement)?.Source}");
         }
 
+        private void OnPageLoaded(object sender, EventArgs e)
+        {
+            try
+            {
+                // Now safely initialize MediaElement references
+                InitializeMediaElements();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error initializing media elements: {ex.Message}");
+            }
+        }
+
+        private void InitializeMediaElements()
+        {
+            try
+            {
+                // Use safer element finding with null checks
+                _sharedVideoElement = FindMediaElement("SharedVideo");
+                _performVideoElement = FindMediaElement("PerformVideo");
+                _multiplayerPerformVideoElement = FindMediaElement("MultiplayerPerformVideo");
+
+                // Set up event handlers only for successfully found elements
+                if (_sharedVideoElement != null)
+                {
+                    _sharedVideoElement.PropertyChanged += OnSharedVideoPropertyChanged;
+                    Debug.WriteLine("SharedVideo element initialized successfully");
+                }
+                else
+                {
+                    Debug.WriteLine("WARNING: SharedVideo element not found!");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in InitializeMediaElements: {ex.Message}");
+            }
+        }
+
+        private MediaElement? FindMediaElement(string name)
+        {
+            try
+            {
+                // More robust element finding
+                var element = this.FindByName(name);
+                if (element is MediaElement mediaElement)
+                {
+                    return mediaElement;
+                }
+
+                Debug.WriteLine($"Element '{name}' found but is not a MediaElement (type: {element?.GetType().Name ?? "null"})");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error finding MediaElement '{name}': {ex.Message}");
+                return null;
+            }
+        }
+
         private void OnSignRevealRequested(object? sender, EventArgs e)
         {
             if (_isDisposed) return;
@@ -391,6 +440,12 @@ namespace com.kizwiz.sipnsign.Pages
         {
             base.OnAppearing();
             _isDisposed = false;
+
+            // Ensure MediaElements are initialized if they weren't during constructor
+            if (_sharedVideoElement == null || _performVideoElement == null || _multiplayerPerformVideoElement == null)
+            {
+                InitializeMediaElements();
+            }
 
             MainThread.BeginInvokeOnMainThread(() =>
             {
