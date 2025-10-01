@@ -288,19 +288,21 @@
             </Grid>
 
             <!-- Multiplayer Mode - Scrollable -->
-            <ScrollView IsVisible="{Binding IsMultiplayer}">
+            <ScrollView x:Name="MultiplayerScrollView"
+            IsVisible="{Binding IsMultiplayer}"
+            VerticalScrollBarVisibility="Always">
                 <VerticalStackLayout Padding="15" Spacing="15">
                     <Label Text="Who can sign this word?"
-                   FontSize="20"
-                   TextColor="White"
-                   Margin="0,-5,0,0"
-                   HorizontalOptions="Center"/>
+               FontSize="20"
+               TextColor="White"
+               Margin="0,-5,0,0"
+               HorizontalOptions="Center"/>
                     <Label Text="{Binding CurrentSign.CorrectAnswer}"
-                   FontSize="46"
-                   TextColor="White"
-                   Margin="0,-5,0,15"
-                   HorizontalOptions="Center"
-                   FontAttributes="Bold"/>
+               FontSize="46"
+               TextColor="White"
+               Margin="0,-5,0,15"
+               HorizontalOptions="Center"
+               FontAttributes="Bold"/>
 
                     <!-- Reveal button -->
                     <Button Text="REVEAL SIGN"

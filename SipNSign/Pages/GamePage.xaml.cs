@@ -461,11 +461,10 @@ namespace com.kizwiz.sipnsign.Pages
             base.OnAppearing();
             _isDisposed = false;
 
-            // Ensure MediaElements are initialized if they weren't during constructor
-            if (_sharedVideoElement == null || _performVideoElement == null || _multiplayerPerformVideoElement == null)
-            {
-                InitializeMediaElements();
-            }
+            // Disable overscroll on Android to prevent video blank bug
+#if ANDROID
+            DisableScrollViewOverscroll();
+#endif
 
             MainThread.BeginInvokeOnMainThread(() =>
             {
@@ -481,6 +480,65 @@ namespace com.kizwiz.sipnsign.Pages
                 TestPlayerConverter();
             }
         }
+
+#if ANDROID
+        /// <summary>
+        /// Disables overscroll effect on Android ScrollView to prevent video blanking bug
+        /// </summary>
+        private void DisableScrollViewOverscroll()
+        {
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                try
+                {
+                    var scrollView = this.FindByName<ScrollView>("MultiplayerScrollView");
+                    if (scrollView == null)
+                    {
+                        Debug.WriteLine("MultiplayerScrollView not found");
+                        return;
+                    }
+
+                    // Wait for handler to be initialized with retry logic
+                    int retries = 0;
+                    while (scrollView.Handler?.PlatformView == null && retries < 10)
+                    {
+                        await Task.Delay(50);
+                        retries++;
+                    }
+
+                    if (scrollView.Handler?.PlatformView is Android.Views.View androidView)
+                    {
+                        Debug.WriteLine("Found MultiplayerScrollView platform view");
+
+                        // Disable overscroll mode on the view itself
+                        androidView.OverScrollMode = Android.Views.OverScrollMode.Never;
+                        Debug.WriteLine("Set OverScrollMode.Never on view");
+
+                        // Find and disable on the native ScrollView parent
+                        var parent = androidView.Parent;
+                        while (parent != null)
+                        {
+                            if (parent is Android.Widget.ScrollView androidScrollView)
+                            {
+                                androidScrollView.OverScrollMode = Android.Views.OverScrollMode.Never;
+                                Debug.WriteLine("Set OverScrollMode.Never on Android.Widget.ScrollView");
+                                break;
+                            }
+                            parent = parent.Parent;
+                        }
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"MultiplayerScrollView platform view not ready after {retries} retries");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error disabling overscroll: {ex.Message}");
+                }
+            });
+        }
+#endif
 
         protected override async void OnDisappearing()
         {
