@@ -1523,21 +1523,34 @@ namespace com.kizwiz.sipnsign.ViewModels
                 _signs = new SignRepository().GetSigns();
             }
 
-            int questionLimit = Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
-            Debug.WriteLine($"Setting up game with {questionLimit} questions");
-
+            // Determine question limit based on mode
+            int questionLimit;
             if (IsGuessMode)
             {
+                // Guess Mode uses the Guess Mode preferences
+                questionLimit = Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
+                Debug.WriteLine($"Guess Mode: Setting up game with {questionLimit} questions");
+
+                // For Guess Mode, randomize and limit questions
                 _availableIndices = Enumerable.Range(0, _signs.Count)
                                           .OrderBy(x => Guid.NewGuid())
                                           .Take(questionLimit)
                                           .ToList();
             }
-            else
+            else // Perform Mode
             {
-                _availableIndices = Enumerable.Range(0, _signs.Count).ToList();
+                // Perform Mode uses QuestionsCount from GameParameters
+                questionLimit = GameParameters?.QuestionsCount ?? Constants.DEFAULT_PERFORM_QUESTIONS;
+                Debug.WriteLine($"Perform Mode: Setting up game with {questionLimit} questions from GameParameters");
+
+                // For Perform Mode, randomize and limit questions
+                _availableIndices = Enumerable.Range(0, _signs.Count)
+                                          .OrderBy(x => Guid.NewGuid())
+                                          .Take(questionLimit)
+                                          .ToList();
             }
 
+            Debug.WriteLine($"Available indices count: {_availableIndices.Count}");
             LoadNextSign();
         }
 
@@ -1563,7 +1576,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                     IsGameActive = false;
                     IsGameOver = true;
 
-                    // Set different results text for multiplayer
+                    // Set different results text for multiplayer vs single player
                     if (IsMultiplayer)
                     {
                         var winner = Players.OrderByDescending(p => p.Score).First();
@@ -1571,7 +1584,17 @@ namespace com.kizwiz.sipnsign.ViewModels
                     }
                     else
                     {
-                        int totalQuestions = Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
+                        // Get the correct total questions based on mode
+                        int totalQuestions;
+                        if (IsGuessMode)
+                        {
+                            totalQuestions = Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
+                        }
+                        else // Perform Mode
+                        {
+                            totalQuestions = GameParameters?.QuestionsCount ?? Constants.DEFAULT_PERFORM_QUESTIONS;
+                        }
+
                         GuessResults = $"Final Score: {CurrentScore}/{totalQuestions}";
                     }
 

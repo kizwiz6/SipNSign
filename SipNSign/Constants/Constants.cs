@@ -27,10 +27,17 @@
         #endregion
 
         #region Game Settings
+        // Guess Mode Settings
         public const string GUESS_MODE_QUESTIONS_KEY = "GuessQuestions";
         public const int MIN_QUESTIONS = 10;
         public const int MAX_QUESTIONS = 100;
         public const int DEFAULT_QUESTIONS = 20;
+
+        // Perform Mode Settings
+        public const string PERFORM_MODE_QUESTIONS_KEY = "PerformQuestions";
+        public const int MIN_PERFORM_QUESTIONS = 5;
+        public const int MAX_PERFORM_QUESTIONS = 50;
+        public const int DEFAULT_PERFORM_QUESTIONS = 10;
         #endregion
     }
 }
