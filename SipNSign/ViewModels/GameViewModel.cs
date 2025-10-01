@@ -1,11 +1,8 @@
-﻿using com.kizwiz.sipnsign.Converters;
-using com.kizwiz.sipnsign.Enums;
+﻿using com.kizwiz.sipnsign.Enums;
 using com.kizwiz.sipnsign.Models;
 using com.kizwiz.sipnsign.Pages;
 using com.kizwiz.sipnsign.Services;
 using CommunityToolkit.Maui.Views;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -64,6 +61,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private ICommand _incorrectPerformCommand;
         private ICommand _correctPerformCommand;
         private ICommand _nextSignCommand;
+        private ICommand _confirmResultsCommand;
         private ICommand _recordPlayerAnswerCommand;
         private ICommand _showScoreboardCommand;
         private string _currentPlayerTurnText = string.Empty;
@@ -1662,6 +1660,122 @@ namespace com.kizwiz.sipnsign.ViewModels
             OnPropertyChanged(nameof(CurrentPlayerTurnText));
         }
 
+        private async Task ShowResultsConfirmation()
+        {
+            var correctPlayers = Players.Where(p => p.HasAnswered && p.GotCurrentAnswerCorrect).ToList();
+            var incorrectPlayers = Players.Where(p => p.HasAnswered && !p.GotCurrentAnswerCorrect).ToList();
+            var allCorrect = Players.All(p => p.GotCurrentAnswerCorrect);
+
+            bool isSoberMode = Preferences.Get(Constants.SOBER_MODE_KEY, false);
+
+            string title;
+            string message;
+
+            if (allCorrect)
+            {
+                // Everyone got it right - celebrate!
+                title = "Perfect Round!";
+                message = "Everyone signed correctly! Keep up the great work!";
+            }
+            else
+            {
+                title = "Round Complete";
+
+                if (correctPlayers.Any())
+                {
+                    var correctNames = string.Join(", ", correctPlayers.Select(p => p.Name));
+                    message = $"Great job: {correctNames}!\n\n";
+                }
+                else
+                {
+                    message = "";
+                }
+
+                if (incorrectPlayers.Any())
+                {
+                    var incorrectNames = string.Join(", ", incorrectPlayers.Select(p => p.Name));
+
+                    if (isSoberMode)
+                    {
+                        message += $"Keep practicing: {incorrectNames}";
+                    }
+                    else
+                    {
+                        // Simple acknowledgment without explicit drinking instruction
+                        message += $"Time for a sip: {incorrectNames}";
+                    }
+                }
+            }
+
+            await Application.Current.MainPage.DisplayAlert(title, message.Trim(), "Next Sign");
+        }
+
+        public ICommand ConfirmResultsCommand
+        {
+            get
+            {
+                return _confirmResultsCommand ??= new Command(async () =>
+                {
+                    if (IsProcessingAnswer) return;
+
+                    Debug.WriteLine("ConfirmResultsCommand executed"); // Add logging
+
+                    // Check if all players have answered
+                    if (IsMultiplayer && !HasAllPlayersAnswered)
+                    {
+                        var unansweredPlayers = Players.Where(p => !p.HasAnswered).ToList();
+                        var playerNames = string.Join(", ", unansweredPlayers.Select(p => p.Name));
+
+                        await Application.Current.MainPage.DisplayAlert(
+                            "Waiting for Players",
+                            $"Still waiting for: {playerNames}\n\nMake sure all players have recorded their answers.",
+                            "OK");
+                        return;
+                    }
+
+                    try
+                    {
+                        IsProcessingAnswer = true;
+                        Debug.WriteLine("Showing results confirmation");
+
+                        // Show results confirmation
+                        await ShowResultsConfirmation();
+
+                        SignsPlayed++;
+                        Debug.WriteLine($"Signs played incremented to: {SignsPlayed}");
+
+                        if (IsPerformMode)
+                        {
+                            IsSignHidden = true;
+                        }
+
+                        // Check if we have more signs
+                        if (_availableIndices.Count > 0)
+                        {
+                            Debug.WriteLine("Loading next sign");
+                            LoadNextSign();
+                        }
+                        else
+                        {
+                            Debug.WriteLine("No more signs, ending game");
+                            EndGame();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error in ConfirmResultsCommand: {ex.Message}");
+                        Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                        await Application.Current.MainPage.DisplayAlert("Error",
+                            "There was an error loading the next sign. Please try again.", "OK");
+                    }
+                    finally
+                    {
+                        IsProcessingAnswer = false;
+                        Debug.WriteLine("ConfirmResultsCommand completed");
+                    }
+                });
+            }
+        }
 
         public void RecordPlayerAnswer(PlayerAnswerParameter param)
         {

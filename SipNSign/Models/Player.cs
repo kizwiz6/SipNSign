@@ -11,7 +11,6 @@ namespace com.kizwiz.sipnsign.Models
         [ObservableProperty]
         private bool _isMainPlayer = false;
 
-        // Enhanced to ensure it raises property changed events
         private int _score = 0;
         public int Score
         {
@@ -22,12 +21,11 @@ namespace com.kizwiz.sipnsign.Models
                 {
                     Debug.WriteLine($"Player {Name}: Score changed from {_score} to {value}");
                     _score = value;
-                    OnPropertyChanged(nameof(Score)); // Explicit notification
+                    OnPropertyChanged(nameof(Score));
                 }
             }
         }
 
-        // Track if player has answered (regardless of correctness)
         private bool _hasAnswered = false;
         public bool HasAnswered
         {
@@ -43,7 +41,6 @@ namespace com.kizwiz.sipnsign.Models
             }
         }
 
-        // Enhanced to ensure it raises property changed events
         private bool _gotCurrentAnswerCorrect = false;
         public bool GotCurrentAnswerCorrect
         {
@@ -65,38 +62,76 @@ namespace com.kizwiz.sipnsign.Models
             (GotCurrentAnswerCorrect ? "Correct! ✓" : "Incorrect ✗") :
             "Not answered";
 
-        // Color for the indicator circle
         public Color IndicatorColor
         {
             get
             {
                 if (!HasAnswered)
-                    return Colors.Gray; // Not answered yet
+                    return Colors.Gray;
 
-                // Use theme-aware colors that work across different themes
                 return GotCurrentAnswerCorrect ?
-                    Color.FromArgb("#22C55E") : // Green-500 (good contrast on most backgrounds)
-                    Color.FromArgb("#EF4444");   // Red-500 (good contrast on most backgrounds)
+                    Color.FromArgb("#22C55E") :
+                    Color.FromArgb("#EF4444");
             }
         }
 
-        // Helper method to record an answer
+        /// <summary>
+        /// Records or updates an answer, handling score adjustments for answer changes
+        /// </summary>
         public void RecordAnswer(bool isCorrect)
         {
+            // If player already answered, we need to adjust score based on change
+            if (HasAnswered)
+            {
+                // If they had it correct before and now incorrect, subtract
+                if (GotCurrentAnswerCorrect && !isCorrect)
+                {
+                    Score--;
+                    Debug.WriteLine($"Player {Name}: Changed answer from correct to incorrect, score decreased");
+                }
+                // If they had it incorrect before and now correct, add
+                else if (!GotCurrentAnswerCorrect && isCorrect)
+                {
+                    Score++;
+                    Debug.WriteLine($"Player {Name}: Changed answer from incorrect to correct, score increased");
+                }
+                // If same answer (correct->correct or incorrect->incorrect), no change
+                else
+                {
+                    Debug.WriteLine($"Player {Name}: Same answer selected, no score change");
+                }
+            }
+            else
+            {
+                // First time answering - only add score if correct
+                if (isCorrect)
+                {
+                    Score++;
+                    Debug.WriteLine($"Player {Name}: First answer is correct, score increased");
+                }
+                else
+                {
+                    Debug.WriteLine($"Player {Name}: First answer is incorrect, no score change");
+                }
+            }
+
+            // Update the answer state
             HasAnswered = true;
             GotCurrentAnswerCorrect = isCorrect;
-
-            if (isCorrect)
-            {
-                Score++;
-            }
         }
 
-        // Helper method to reset for new sign
+        /// <summary>
+        /// Resets player state for a new sign
+        /// </summary>
         public void ResetForNewSign()
         {
             HasAnswered = false;
             GotCurrentAnswerCorrect = false;
+
+            OnPropertyChanged(nameof(AnswerStatus));
+            OnPropertyChanged(nameof(IndicatorColor));
+
+            Debug.WriteLine($"Player {Name}: Reset for new sign");
         }
     }
 }
