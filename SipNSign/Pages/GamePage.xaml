@@ -420,9 +420,8 @@
                             </BindableLayout.ItemTemplate>
                         </StackLayout>
 
-                        <!-- Next Sign Button - Full opacity when enabled -->
-                        <Button Text="NEXT SIGN"
-                                Command="{Binding NextSignCommand}"
+                        <Button Text="CONFIRM RESULTS"
+                                Command="{Binding ConfirmResultsCommand}"
                                 Style="{StaticResource PrimaryButton}"
                                 BackgroundColor="{Binding HasAllPlayersAnswered, Converter={StaticResource BoolToButtonColorConverter}}"
                                 IsEnabled="{Binding HasAllPlayersAnswered}"
