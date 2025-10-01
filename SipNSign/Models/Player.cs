@@ -118,6 +118,12 @@ namespace com.kizwiz.sipnsign.Models
             // Update the answer state
             HasAnswered = true;
             GotCurrentAnswerCorrect = isCorrect;
+
+            // Explicitly trigger indicator update
+            OnPropertyChanged(nameof(HasAnswered));
+            OnPropertyChanged(nameof(GotCurrentAnswerCorrect));
+            OnPropertyChanged(nameof(IndicatorColor));
+            OnPropertyChanged(nameof(AnswerStatus));
         }
 
         /// <summary>
