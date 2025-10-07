@@ -958,13 +958,11 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private async void HandleCorrectPerform()
         {
-            if (IsProcessingAnswer) return;  // Prevent multiple clicks
+            if (IsProcessingAnswer) return;
 
             try
             {
                 IsProcessingAnswer = true;
-
-                // Log transparency setting for debugging
                 Debug.WriteLine($"HandleCorrectPerform - Current transparency setting: {Preferences.Get(Constants.TRANSPARENT_FEEDBACK_KEY, false)}");
 
                 IsSignHidden = true;
@@ -983,14 +981,12 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private async void HandleIncorrectPerform()
         {
-            if (IsProcessingAnswer) return;  // Prevent multiple clicks
+            if (IsProcessingAnswer) return;
 
             try
             {
                 IsProcessingAnswer = true;
-
-                // Log transparency setting for debugging
-                Debug.WriteLine($"HandleCorrectPerform - Current transparency setting: {Preferences.Get(Constants.TRANSPARENT_FEEDBACK_KEY, false)}");
+                Debug.WriteLine($"HandleIncorrectPerform - Current transparency setting: {Preferences.Get(Constants.TRANSPARENT_FEEDBACK_KEY, false)}");
 
                 IsSignHidden = true;
                 _timer?.Stop();
@@ -1011,7 +1007,6 @@ namespace com.kizwiz.sipnsign.ViewModels
         /// <summary>
         /// Shows feedback to user and handles transition to next sign
         /// </summary>
-        /// <param name="isCorrect">Whether the previous answer was correct</param>
         private async Task ShowFeedbackAndContinue(bool isCorrect)
         {
             Debug.WriteLine("Starting ShowFeedbackAndContinue");
@@ -1036,16 +1031,12 @@ namespace com.kizwiz.sipnsign.ViewModels
 
                 ResetButtonColors();
 
-                // In multiplayer mode for Perform Mode, wait for all players to have their turn
                 if (IsMultiplayer && IsPerformMode)
                 {
-                    // Let the NextSign button handle loading the next sign
-                    // We'll just reset the UI for the next player's answer
                     return;
                 }
                 else
                 {
-                    // Single player mode - proceed as normal
                     if (_availableIndices.Count > 0)
                     {
                         Debug.WriteLine("Loading next sign");
@@ -1063,7 +1054,6 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private void UpdateButtonColor(string answer, bool isCorrect)
         {
-            // First, find the correct answer button
             int correctAnswerIndex = -1;
             for (int i = 0; i < 4; i++)
             {
@@ -1074,7 +1064,6 @@ namespace com.kizwiz.sipnsign.ViewModels
                 }
             }
 
-            // Find which button was clicked
             int selectedAnswerIndex = -1;
             for (int i = 0; i < 4; i++)
             {
@@ -1085,7 +1074,6 @@ namespace com.kizwiz.sipnsign.ViewModels
                 }
             }
 
-            // Set colors for all buttons
             Button1Color = GetButtonColor(0, selectedAnswerIndex, correctAnswerIndex, isCorrect);
             Button2Color = GetButtonColor(1, selectedAnswerIndex, correctAnswerIndex, isCorrect);
             Button3Color = GetButtonColor(2, selectedAnswerIndex, correctAnswerIndex, isCorrect);
@@ -1109,52 +1097,40 @@ namespace com.kizwiz.sipnsign.ViewModels
             else
             {
                 Debug.WriteLine("Using fallback ButtonBaseColor");
-                Debug.WriteLine($"ButtonBaseColor value: {ButtonBaseColor}");
                 Button1Color = ButtonBaseColor;
                 Button2Color = ButtonBaseColor;
                 Button3Color = ButtonBaseColor;
                 Button4Color = ButtonBaseColor;
             }
-
-            Debug.WriteLine($"Final Button1Color: {Button1Color}");
         }
 
-        /// <summary>
-        /// Initializes and starts a timer with a specific duration.
-        /// The timer ticks every second, and the remaining time is updated accordingly.
-        /// If the timer duration is set to 0 (disabled), the timer will not start.
-        /// </summary>
         private void StartTimer()
         {
             try
             {
-                // Check if _timer is null and needs to be created
                 if (_timer == null)
                 {
                     Debug.WriteLine("Creating new timer");
-
-                    // Check if Application.Current and Dispatcher are non-null
                     var dispatcher = Application.Current?.Dispatcher;
                     if (dispatcher == null)
                     {
                         Debug.WriteLine("Dispatcher is null. Cannot create timer.");
-                        return; // If Dispatcher is null, don't try to create the timer
+                        return;
                     }
 
                     _timer = dispatcher.CreateTimer();
                     if (_timer == null)
                     {
                         Debug.WriteLine("Failed to create timer.");
-                        return; // Exit if timer creation fails
+                        return;
                     }
 
                     _timer.Interval = TimeSpan.FromSeconds(1);
                     _timer.Tick += Timer_Tick;
                 }
 
-                // Get the timer duration from preferences
                 int duration = Preferences.Get(Constants.TIMER_DURATION_KEY, Constants.DEFAULT_TIMER_DURATION);
-                if (duration > 0)  // Start the timer if duration is not zero (disabled)
+                if (duration > 0)
                 {
                     RemainingTime = duration;
                     _timer?.Start();
@@ -1162,21 +1138,16 @@ namespace com.kizwiz.sipnsign.ViewModels
                 }
                 else
                 {
-                    RemainingTime = 0; // Hide the timer if duration is 0
+                    RemainingTime = 0;
                     Debug.WriteLine("Timer disabled.");
                 }
             }
             catch (Exception ex)
             {
-                // Handle exceptions gracefully and log them
                 Debug.WriteLine($"Error in StartTimer: {ex.Message}");
-                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
             }
         }
 
-        /// <summary>
-        /// Updates the practice time for tracking achievements
-        /// </summary>
         private async Task UpdatePracticeTime()
         {
             if (_userProgress == null) return;
@@ -1189,10 +1160,6 @@ namespace com.kizwiz.sipnsign.ViewModels
             CurrentMode = mode;
         }
 
-        /// <summary>
-        /// Logs game activity and updates progress when signs are completed
-        /// </summary>
-        /// <param name="isCorrect">Whether the sign was correctly identified/performed</param>
         private async Task LogGameActivity(bool isCorrect, double? answerTime = null)
         {
             if (_userProgress == null)
@@ -1200,20 +1167,17 @@ namespace com.kizwiz.sipnsign.ViewModels
                 _userProgress = await _progressService.GetUserProgressAsync();
             }
 
-            // Update total attempts and correct attempts
             _userProgress.TotalAttempts++;
             if (isCorrect)
             {
                 _userProgress.CorrectAttempts++;
 
-                // Count correct answers for Guess/Perform modes
                 if (IsGuessMode)
                     _userProgress.GuessModeSigns++;
                 else
                     _userProgress.PerformModeSigns++;
             }
 
-            // Log speed-related activity if applicable
             if (isCorrect && answerTime.HasValue && answerTime.Value < 5.0)
             {
                 await _progressService.LogActivityAsync(new ActivityLog
@@ -1225,12 +1189,9 @@ namespace com.kizwiz.sipnsign.ViewModels
                 });
             }
 
-            // Calculate and update accuracy
             _userProgress.Accuracy = (double)_userProgress.CorrectAttempts / _userProgress.TotalAttempts;
-
             await _progressService.SaveProgressAsync(_userProgress);
 
-            // Log the activity
             await _progressService.LogActivityAsync(new ActivityLog
             {
                 Id = Guid.NewGuid().ToString(),
@@ -1243,7 +1204,6 @@ namespace com.kizwiz.sipnsign.ViewModels
                 Score = isCorrect ? "+1" : "N/A"
             });
 
-            // Check for perfect session
             if (isCorrect)
             {
                 _correctInARow++;
@@ -1257,7 +1217,6 @@ namespace com.kizwiz.sipnsign.ViewModels
                 _correctInARow = 0;
             }
 
-            // At the end of a session (when all questions are answered)
             if (_availableIndices.Count == 0 && TotalQuestions == 100 && _averageAnswerTime < 3.0)
             {
                 await _progressService.LogActivityAsync(new ActivityLog
@@ -1270,12 +1229,101 @@ namespace com.kizwiz.sipnsign.ViewModels
                 });
             }
         }
+
+        // NEW: Log multiplayer game completion with achievements
+        private async void LogMultiplayerGameCompletion()
+        {
+            try
+            {
+                var mainPlayer = Players.FirstOrDefault(p => p.IsMainPlayer);
+                if (mainPlayer == null) return;
+
+                var sortedPlayers = Players.OrderByDescending(p => p.Score).ToList();
+                var winner = sortedPlayers.First();
+                bool mainPlayerWon = mainPlayer == winner;
+                int playerCount = Players.Count;
+
+                await _progressService.LogActivityAsync(new ActivityLog
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Type = ActivityType.Practice,
+                    Description = $"Multiplayer game completed with {playerCount} players",
+                    IconName = "multiplayer_icon",
+                    Timestamp = DateTime.Now,
+                    Score = $"{mainPlayer.Score}/{SignsPlayed}"
+                });
+
+                if (mainPlayer.Score == SignsPlayed)
+                {
+                    await _progressService.LogActivityAsync(new ActivityLog
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Type = ActivityType.Practice,
+                        Description = "Perfect multiplayer game - got all signs correct!",
+                        IconName = "perfect_multi_icon",
+                        Timestamp = DateTime.Now
+                    });
+                }
+
+                if (playerCount >= 5)
+                {
+                    await _progressService.LogActivityAsync(new ActivityLog
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Type = ActivityType.Practice,
+                        Description = $"Hosted a large party with {playerCount} players!",
+                        IconName = "party_icon",
+                        Timestamp = DateTime.Now
+                    });
+                }
+
+                if (mainPlayerWon)
+                {
+                    var secondPlace = sortedPlayers.Count > 1 ? sortedPlayers[1] : null;
+                    int margin = secondPlace != null ? (winner.Score - secondPlace.Score) : winner.Score;
+
+                    string winDescription = margin == 1
+                        ? "Won multiplayer game by 1 point - what a nail biter!"
+                        : $"Won multiplayer game with {winner.Score} points";
+
+                    await _progressService.LogActivityAsync(new ActivityLog
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Type = ActivityType.Practice,
+                        Description = winDescription,
+                        IconName = margin == 1 ? "close_call_icon" : "champion_icon",
+                        Timestamp = DateTime.Now
+                    });
+                }
+
+                await _progressService.UpdateAchievementsAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error logging multiplayer completion: {ex.Message}");
+            }
+        }
+
+        // NEW: Check for perfect round achievement
+        public async void CheckForPerfectRound()
+        {
+            if (!IsMultiplayer || !Players.All(p => p.HasAnswered && p.GotCurrentAnswerCorrect))
+                return;
+
+            await _progressService.LogActivityAsync(new ActivityLog
+            {
+                Id = Guid.NewGuid().ToString(),
+                Type = ActivityType.Practice,
+                Description = "All players got the sign correct - team harmony!",
+                IconName = "harmony_icon",
+                Timestamp = DateTime.Now
+            });
+        }
         #endregion
 
         #region Public Methods
         public void LoadNextSign()
         {
-            // Don't load next sign if game is over
             if (!IsGameActive || IsGameOver)
             {
                 return;
@@ -1286,28 +1334,21 @@ namespace com.kizwiz.sipnsign.ViewModels
 
             try
             {
-                // Reset button colors before loading new sign
                 ResetButtonColors();
 
-                // MULTIPLAYER: Reset all player states for the new sign
                 if (IsMultiplayer)
                 {
                     Debug.WriteLine("=== RESETTING PLAYER STATES FOR NEW SIGN ===");
                     foreach (var player in Players)
                     {
-                        // Use the new reset method
                         player.ResetForNewSign();
-                        Debug.WriteLine($"Reset player {player.Name}: HasAnswered = false, GotCurrentAnswerCorrect = false");
+                        Debug.WriteLine($"Reset player {player.Name}: HasAnswered = false");
                     }
 
-                    // Force UI refresh for multiplayer state
                     OnPropertyChanged(nameof(Players));
                     OnPropertyChanged(nameof(HasAllPlayersAnswered));
-
-                    Debug.WriteLine($"After reset - HasAllPlayersAnswered: {HasAllPlayersAnswered}");
                 }
 
-                // Check if we've reached the question limit
                 if (_availableIndices.Count == 0)
                 {
                     Debug.WriteLine("No more signs available, ending game");
@@ -1320,30 +1361,18 @@ namespace com.kizwiz.sipnsign.ViewModels
                 int randomIndex = random.Next(_availableIndices.Count);
                 int selectedSignIndex = _availableIndices[randomIndex];
 
-                _logger.Debug($"LoadNextSign: Loading sign at index {selectedSignIndex}");
-                _logger.Debug($"LoadNextSign: Sign word is: {_signs[selectedSignIndex].CorrectAnswer}");
-
-                // Remove the index before setting CurrentSign to prevent reuse
                 _availableIndices.RemoveAt(randomIndex);
-
-                // Set the new sign (this will trigger video loading via property changed)
                 CurrentSign = _signs[selectedSignIndex];
 
-                // PERFORM MODE: Ensure sign is hidden when loading new sign
                 if (IsPerformMode)
                 {
                     IsSignHidden = true;
-                    Debug.WriteLine($"LoadNextSign: In Perform Mode. IsSignHidden set to: {IsSignHidden}");
-                    Debug.WriteLine($"Word to reveal: {CurrentSign?.CorrectAnswer}");
                 }
 
-                // GUESS MODE: Start timer if enabled
                 if (IsGuessMode && IsTimerEnabled)
                 {
                     StartTimer();
                 }
-
-                // Note: Removed CurrentPlayerTurnText updates as requested
             }
             catch (Exception ex)
             {
@@ -1352,19 +1381,6 @@ namespace com.kizwiz.sipnsign.ViewModels
             finally
             {
                 IsLoading = false;
-            }
-
-            // Debug logging for multiplayer state
-            if (IsMultiplayer)
-            {
-                Debug.WriteLine("=== MULTIPLAYER STATE AFTER LOADING SIGN ===");
-                Debug.WriteLine($"Sign: {CurrentSign?.CorrectAnswer}, IsSignHidden: {IsSignHidden}");
-                Debug.WriteLine($"PlayerCount: {Players.Count}, IsMultiplayer: {IsMultiplayer}");
-                Debug.WriteLine($"HasAllPlayersAnswered: {HasAllPlayersAnswered}");
-                foreach (var player in Players)
-                {
-                    Debug.WriteLine($"Player: {player.Name}, Score: {player.Score}, HasAnswered: {player.GotCurrentAnswerCorrect}");
-                }
             }
         }
 
@@ -1407,6 +1423,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         }
 
         public required MediaSource CurrentVideoSource { get; set; }
+
         public ICommand GoToSettingsCommand => new Command(async () =>
         {
             try
@@ -1417,18 +1434,13 @@ namespace com.kizwiz.sipnsign.ViewModels
                     return;
                 }
 
-                Debug.WriteLine("Creating settings page");
                 var themeService = _serviceProvider.GetRequiredService<IThemeService>();
                 var settingsPage = new SettingsPage(themeService, _serviceProvider);
-                Debug.WriteLine("Pushing settings page");
                 await Shell.Current.Navigation.PushAsync(settingsPage);
-                Debug.WriteLine("Navigation completed");
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Navigation error: {ex.Message}");
-                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
-
                 var window = Application.Current?.Windows.FirstOrDefault();
                 if (window != null)
                 {
@@ -1437,27 +1449,17 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         });
 
-
         public ICommand PlayerCorrectCommand => new Command<Player>(player =>
         {
-            Debug.WriteLine($"✅ PlayerCorrectCommand executed for player: {player?.Name ?? "null"}");
-
             if (player == null) return;
 
             try
             {
-                // Record the correct answer
                 player.RecordAnswer(true);
-                Debug.WriteLine($"Updated player {player.Name}: HasAnswered={player.HasAnswered}, GotCurrentAnswerCorrect={player.GotCurrentAnswerCorrect}, Score={player.Score}");
-
-                // Show feedback
                 FeedbackText = $"{player.Name} got it right! ✓";
                 FeedbackBackgroundColor = GetFeedbackColor(true);
                 IsFeedbackVisible = true;
 
-                Debug.WriteLine($"HasAllPlayersAnswered: {HasAllPlayersAnswered}");
-
-                // Force UI refresh
                 OnPropertyChanged(nameof(Players));
                 OnPropertyChanged(nameof(HasAllPlayersAnswered));
             }
@@ -1469,24 +1471,15 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         public ICommand PlayerIncorrectCommand => new Command<Player>(player =>
         {
-            Debug.WriteLine($"❌ PlayerIncorrectCommand executed for player: {player?.Name ?? "null"}");
-
             if (player == null) return;
 
             try
             {
-                // Record the incorrect answer (doesn't increment score)
                 player.RecordAnswer(false);
-                Debug.WriteLine($"Updated player {player.Name}: HasAnswered={player.HasAnswered}, GotCurrentAnswerCorrect={player.GotCurrentAnswerCorrect}, Score={player.Score}");
-
-                // Show feedback
                 FeedbackText = $"{player.Name} got it wrong ✗";
                 FeedbackBackgroundColor = GetFeedbackColor(false);
                 IsFeedbackVisible = true;
 
-                Debug.WriteLine($"HasAllPlayersAnswered: {HasAllPlayersAnswered}");
-
-                // Force UI refresh
                 OnPropertyChanged(nameof(Players));
                 OnPropertyChanged(nameof(HasAllPlayersAnswered));
             }
@@ -1502,10 +1495,9 @@ namespace com.kizwiz.sipnsign.ViewModels
             IsGameActive = true;
             IsGameOver = false;
             CurrentScore = 0;
-            SignsPlayed = 0; // Reset signs played counter
+            SignsPlayed = 0;
             ResetButtonColors();
 
-            // Reset player scores for multiplayer
             if (IsMultiplayer)
             {
                 foreach (var player in Players)
@@ -1513,37 +1505,26 @@ namespace com.kizwiz.sipnsign.ViewModels
                     player.Score = 0;
                     player.ResetForNewSign();
                 }
-
                 OnPropertyChanged(nameof(Players));
             }
 
             if (_signs == null || !_signs.Any())
             {
-                Debug.WriteLine("Warning: Signs list is empty or null");
                 _signs = new SignRepository().GetSigns();
             }
 
-            // Determine question limit based on mode
             int questionLimit;
             if (IsGuessMode)
             {
-                // Guess Mode uses the Guess Mode preferences
                 questionLimit = Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
-                Debug.WriteLine($"Guess Mode: Setting up game with {questionLimit} questions");
-
-                // For Guess Mode, randomize and limit questions
                 _availableIndices = Enumerable.Range(0, _signs.Count)
                                           .OrderBy(x => Guid.NewGuid())
                                           .Take(questionLimit)
                                           .ToList();
             }
-            else // Perform Mode
+            else
             {
-                // Perform Mode uses QuestionsCount from GameParameters
                 questionLimit = GameParameters?.QuestionsCount ?? Constants.DEFAULT_PERFORM_QUESTIONS;
-                Debug.WriteLine($"Perform Mode: Setting up game with {questionLimit} questions from GameParameters");
-
-                // For Perform Mode, randomize and limit questions
                 _availableIndices = Enumerable.Range(0, _signs.Count)
                                           .OrderBy(x => Guid.NewGuid())
                                           .Take(questionLimit)
@@ -1554,29 +1535,25 @@ namespace com.kizwiz.sipnsign.ViewModels
             LoadNextSign();
         }
 
-        /// <summary>
-        /// Ends the current game, stops the timer, and displays the user's results.
-        /// </summary>
-        /// <remarks>
-        /// This method stops the timer, marks the game as over, and calculates the number of correct guesses
-        /// based on the total number of questions. The results are displayed in a user-friendly format.
-        /// </remarks>
+        // UPDATED: EndGame with multiplayer logging
         public void EndGame()
         {
             try
             {
                 Debug.WriteLine("EndGame started");
-
-                // Stop the timer
                 _timer?.Stop();
 
-                // Update UI state
+                // Log multiplayer-specific activities
+                if (IsMultiplayer)
+                {
+                    LogMultiplayerGameCompletion();
+                }
+
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
                     IsGameActive = false;
                     IsGameOver = true;
 
-                    // Set different results text for multiplayer vs single player
                     if (IsMultiplayer)
                     {
                         var winner = Players.OrderByDescending(p => p.Score).First();
@@ -1584,13 +1561,12 @@ namespace com.kizwiz.sipnsign.ViewModels
                     }
                     else
                     {
-                        // Get the correct total questions based on mode
                         int totalQuestions;
                         if (IsGuessMode)
                         {
                             totalQuestions = Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
                         }
-                        else // Perform Mode
+                        else
                         {
                             totalQuestions = GameParameters?.QuestionsCount ?? Constants.DEFAULT_PERFORM_QUESTIONS;
                         }
@@ -1598,9 +1574,6 @@ namespace com.kizwiz.sipnsign.ViewModels
                         GuessResults = $"Final Score: {CurrentScore}/{totalQuestions}";
                     }
 
-                    Debug.WriteLine("EndGame completed");
-
-                    // Force UI update
                     OnPropertyChanged(nameof(IsGameOver));
                     OnPropertyChanged(nameof(GuessResults));
                 });
@@ -1610,7 +1583,6 @@ namespace com.kizwiz.sipnsign.ViewModels
                 Debug.WriteLine($"Error ending game: {ex.Message}");
             }
         }
-
 
         public virtual void OnPropertyChanged(string propertyName)
         {
@@ -1640,44 +1612,28 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
 
-        // Initialize players from game parameters
         private void InitializePlayers()
         {
             Players.Clear();
-            Debug.WriteLine($"Initializing players. IsMultiplayer: {GameParameters?.IsMultiplayer}");
 
-            // Add players from game parameters
             if (GameParameters?.Players != null)
             {
                 foreach (var player in GameParameters.Players)
                 {
                     Players.Add(player);
-                    Debug.WriteLine($"Added player: {player.Name}, IsMainPlayer: {player.IsMainPlayer}");
                 }
             }
             else
             {
-                // Default to single player if no parameters
                 Players.Add(new Player { Name = "You", IsMainPlayer = true });
-                Debug.WriteLine("Added default player 'You'");
             }
 
-            // Update player turn text
             if (IsMultiplayer)
             {
                 var mainPlayer = Players.FirstOrDefault(p => p.IsMainPlayer);
                 CurrentPlayerTurnText = mainPlayer != null ? $"{mainPlayer.Name}'s Turn" : "Player 1's Turn";
-                Debug.WriteLine($"Set CurrentPlayerTurnText to: {CurrentPlayerTurnText}");
             }
 
-            Debug.WriteLine("===== DEBUG PLAYER LIST =====");
-            Debug.WriteLine($"Players count: {Players.Count}");
-            foreach (var p in Players)
-            {
-                Debug.WriteLine($"Player: {p.Name}, IsMainPlayer: {p.IsMainPlayer}");
-            }
-
-            // Force UI refresh
             OnPropertyChanged(nameof(Players));
             OnPropertyChanged(nameof(IsMultiplayer));
             OnPropertyChanged(nameof(CurrentPlayerTurnText));
@@ -1696,7 +1652,6 @@ namespace com.kizwiz.sipnsign.ViewModels
 
             if (allCorrect)
             {
-                // Everyone got it right - celebrate!
                 title = "Perfect Round!";
                 message = "Everyone signed correctly! Keep up the great work!";
             }
@@ -1717,16 +1672,9 @@ namespace com.kizwiz.sipnsign.ViewModels
                 if (incorrectPlayers.Any())
                 {
                     var incorrectNames = string.Join(", ", incorrectPlayers.Select(p => p.Name));
-
-                    if (isSoberMode)
-                    {
-                        message += $"Keep practicing: {incorrectNames}";
-                    }
-                    else
-                    {
-                        // Simple acknowledgment without explicit drinking instruction
-                        message += $"Time for a sip: {incorrectNames}";
-                    }
+                    message += isSoberMode
+                        ? $"Keep practicing: {incorrectNames}"
+                        : $"Time for a sip: {incorrectNames}";
                 }
             }
 
@@ -1741,9 +1689,6 @@ namespace com.kizwiz.sipnsign.ViewModels
                 {
                     if (IsProcessingAnswer) return;
 
-                    Debug.WriteLine("ConfirmResultsCommand executed");
-
-                    // Check if all players have answered
                     if (IsMultiplayer && !HasAllPlayersAnswered)
                     {
                         var unansweredPlayers = Players.Where(p => !p.HasAnswered).ToList();
@@ -1759,57 +1704,49 @@ namespace com.kizwiz.sipnsign.ViewModels
                     try
                     {
                         IsProcessingAnswer = true;
-                        Debug.WriteLine("Showing results confirmation");
 
-                        // Log activity for the main player BEFORE showing confirmation
                         var mainPlayer = Players.FirstOrDefault(p => p.IsMainPlayer);
                         if (mainPlayer != null && mainPlayer.HasAnswered)
                         {
                             bool isCorrect = mainPlayer.GotCurrentAnswerCorrect;
-                            Debug.WriteLine($"Logging activity for main player {mainPlayer.Name}: IsCorrect={isCorrect}");
                             await LogGameActivity(isCorrect);
 
-                            // Also update CurrentScore if correct
                             if (isCorrect)
                             {
                                 CurrentScore++;
                             }
                         }
 
-                        // Show results confirmation
+                        // Check for perfect round achievement
+                        CheckForPerfectRound();
+
                         await ShowResultsConfirmation();
 
                         SignsPlayed++;
-                        Debug.WriteLine($"Signs played incremented to: {SignsPlayed}");
 
                         if (IsPerformMode)
                         {
                             IsSignHidden = true;
                         }
 
-                        // Check if we have more signs
                         if (_availableIndices.Count > 0)
                         {
-                            Debug.WriteLine("Loading next sign");
                             LoadNextSign();
                         }
                         else
                         {
-                            Debug.WriteLine("No more signs, ending game");
                             EndGame();
                         }
                     }
                     catch (Exception ex)
                     {
                         Debug.WriteLine($"Error in ConfirmResultsCommand: {ex.Message}");
-                        Debug.WriteLine($"Stack trace: {ex.StackTrace}");
                         await Application.Current.MainPage.DisplayAlert("Error",
                             "There was an error loading the next sign. Please try again.", "OK");
                     }
                     finally
                     {
                         IsProcessingAnswer = false;
-                        Debug.WriteLine("ConfirmResultsCommand completed");
                     }
                 });
             }
@@ -1817,24 +1754,17 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         public void RecordPlayerAnswer(PlayerAnswerParameter param)
         {
-            if (param?.Player == null) return;
-            if (IsProcessingAnswer) return;
+            if (param?.Player == null || IsProcessingAnswer) return;
 
             try
             {
                 IsProcessingAnswer = true;
-
-                Debug.WriteLine($"Recording answer for player: {param.Player.Name}, IsCorrect: {param.IsCorrect}");
-
-                // Record the player's answer
                 param.Player.GotCurrentAnswerCorrect = param.IsCorrect;
 
-                // Update the player's score if correct
                 if (param.IsCorrect)
                 {
                     param.Player.Score++;
 
-                    // If it's the main player, update progression stats
                     if (param.Player.IsMainPlayer)
                     {
                         CurrentScore++;
@@ -1843,20 +1773,16 @@ namespace com.kizwiz.sipnsign.ViewModels
                 }
                 else if (param.Player.IsMainPlayer)
                 {
-                    // Log incorrect answers for the main player
                     _ = LogGameActivity(false);
                 }
 
-                // Important: Notify UI that the property changed
                 OnPropertyChanged(nameof(Players));
                 OnPropertyChanged(nameof(HasAllPlayersAnswered));
 
-                // Show brief feedback
                 FeedbackText = $"{param.Player.Name} {(param.IsCorrect ? "got it right! ✓" : "got it wrong ✗")}";
                 FeedbackBackgroundColor = GetFeedbackColor(param.IsCorrect);
                 IsFeedbackVisible = true;
 
-                // Hide feedback after a short delay
                 MainThread.BeginInvokeOnMainThread(async () =>
                 {
                     await Task.Delay(1500);
@@ -1869,21 +1795,18 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
 
-        // Command to show/hide the scoreboard
         public ICommand ShowScoreboardCommand
         {
             get
             {
                 return _showScoreboardCommand ??= new Command(() =>
                 {
-                    // Create scoreboard text with signs played
                     var scoreboard = $"Signs Played: {SignsPlayed}\n\nCurrent Scores:\n\n";
                     foreach (var player in Players.OrderByDescending(p => p.Score))
                     {
                         scoreboard += $"{player.Name}: {player.Score} points\n";
                     }
 
-                    // Show the scoreboard as a popup
                     MainThread.BeginInvokeOnMainThread(async () =>
                     {
                         await Application.Current.MainPage.DisplayAlert("Scoreboard", scoreboard, "Close");
