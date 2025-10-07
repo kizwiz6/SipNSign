@@ -1741,7 +1741,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                 {
                     if (IsProcessingAnswer) return;
 
-                    Debug.WriteLine("ConfirmResultsCommand executed"); // Add logging
+                    Debug.WriteLine("ConfirmResultsCommand executed");
 
                     // Check if all players have answered
                     if (IsMultiplayer && !HasAllPlayersAnswered)
@@ -1760,6 +1760,21 @@ namespace com.kizwiz.sipnsign.ViewModels
                     {
                         IsProcessingAnswer = true;
                         Debug.WriteLine("Showing results confirmation");
+
+                        // Log activity for the main player BEFORE showing confirmation
+                        var mainPlayer = Players.FirstOrDefault(p => p.IsMainPlayer);
+                        if (mainPlayer != null && mainPlayer.HasAnswered)
+                        {
+                            bool isCorrect = mainPlayer.GotCurrentAnswerCorrect;
+                            Debug.WriteLine($"Logging activity for main player {mainPlayer.Name}: IsCorrect={isCorrect}");
+                            await LogGameActivity(isCorrect);
+
+                            // Also update CurrentScore if correct
+                            if (isCorrect)
+                            {
+                                CurrentScore++;
+                            }
+                        }
 
                         // Show results confirmation
                         await ShowResultsConfirmation();
