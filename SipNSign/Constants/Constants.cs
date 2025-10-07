@@ -38,6 +38,10 @@
         public const int MIN_PERFORM_QUESTIONS = 5;
         public const int MAX_PERFORM_QUESTIONS = 50;
         public const int DEFAULT_PERFORM_QUESTIONS = 10;
+
+        // Player Settings
+        public const string DEFAULT_PLAYER_NAME_KEY = "DefaultPlayerName";
+        public const string DEFAULT_PLAYER_NAME = "You";
         #endregion
     }
 }

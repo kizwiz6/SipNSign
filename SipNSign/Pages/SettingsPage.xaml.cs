@@ -64,6 +64,10 @@ namespace com.kizwiz.sipnsign.Pages
             QuestionsSlider.Value = savedQuestions;
             QuestionsValueLabel.Text = $"{savedQuestions} questions";
 
+            // Load default player name
+            string savedPlayerName = Preferences.Get(Constants.DEFAULT_PLAYER_NAME_KEY, Constants.DEFAULT_PLAYER_NAME);
+            DefaultPlayerNameEntry.Text = savedPlayerName;
+
             // Load timer settings
             int savedDuration = _preferences.Get(Constants.TIMER_DURATION_KEY, Constants.DEFAULT_TIMER_DURATION);
             TimerSlider.Value = savedDuration;
@@ -85,6 +89,17 @@ namespace com.kizwiz.sipnsign.Pages
         private void OnSoberModeToggled(object sender, ToggledEventArgs e)
         {
             Preferences.Set(Constants.SOBER_MODE_KEY, e.Value);
+        }
+
+        private void OnDefaultPlayerNameChanged(object sender, TextChangedEventArgs e)
+        {
+            // Save the player name, or use default if empty
+            string playerName = string.IsNullOrWhiteSpace(e.NewTextValue)
+                ? Constants.DEFAULT_PLAYER_NAME
+                : e.NewTextValue.Trim();
+
+            Preferences.Set(Constants.DEFAULT_PLAYER_NAME_KEY, playerName);
+            Debug.WriteLine($"Default player name changed to: {playerName}");
         }
 
         private async void OnSaveClicked(object sender, EventArgs e)

@@ -10,7 +10,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         private const int MAX_PLAYERS = 10;
 
         [ObservableProperty]
-        private string _mainPlayerName = "You";
+        private string _mainPlayerName = Preferences.Get(Constants.DEFAULT_PLAYER_NAME_KEY, Constants.DEFAULT_PLAYER_NAME);
 
         [ObservableProperty]
         private ObservableCollection<Player> _additionalPlayers = new();
