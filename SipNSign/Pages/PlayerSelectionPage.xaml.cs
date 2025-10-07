@@ -97,7 +97,10 @@ public partial class PlayerSelectionPage : ContentPage
             return;
         }
 
-        if (_viewModel.Players.Count < 2)
+        // Get all players using the new method
+        var allPlayers = _viewModel.GetAllPlayers();
+
+        if (allPlayers.Count < 2)
         {
             await DisplayAlert("Not enough players", "Please add at least one additional player", "OK");
             return;
@@ -108,7 +111,7 @@ public partial class PlayerSelectionPage : ContentPage
 
         // Debug logging to verify player data
         Debug.WriteLine("=== STARTING GAME WITH PLAYERS ===");
-        foreach (var player in _viewModel.Players)
+        foreach (var player in allPlayers)
         {
             Debug.WriteLine($"Player: {player.Name}, IsMainPlayer: {player.IsMainPlayer}, Score: {player.Score}");
         }
@@ -117,7 +120,7 @@ public partial class PlayerSelectionPage : ContentPage
         var gameParameters = new GameParameters
         {
             IsMultiplayer = true,
-            Players = _viewModel.Players.ToList(),
+            Players = allPlayers,
             QuestionsCount = questionsCount
         };
 

@@ -21,9 +21,19 @@ namespace com.kizwiz.sipnsign.ViewModels
         // Property to show remaining player slots
         public string PlayerCountText => $"{AdditionalPlayers.Count + 1}/{MAX_PLAYERS} Players";
 
-        public ObservableCollection<Player> Players => new ObservableCollection<Player>(
-            new[] { new Player { Name = MainPlayerName, IsMainPlayer = true } }
-            .Concat(AdditionalPlayers));
+        // FIX: Create a method to build the complete player list instead of a property
+        public List<Player> GetAllPlayers()
+        {
+            var allPlayers = new List<Player>
+            {
+                new Player { Name = MainPlayerName, IsMainPlayer = true }
+            };
+
+            // Add all additional players with their current names
+            allPlayers.AddRange(AdditionalPlayers);
+
+            return allPlayers;
+        }
 
         [RelayCommand(CanExecute = nameof(CanAddMorePlayers))]
         private void AddPlayer()
@@ -56,15 +66,14 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
 
-        // Update Players when properties change
+        // Update when properties change
         partial void OnMainPlayerNameChanged(string value)
         {
-            OnPropertyChanged(nameof(Players));
+            OnPropertyChanged(nameof(PlayerCountText));
         }
 
         partial void OnAdditionalPlayersChanged(ObservableCollection<Player> value)
         {
-            OnPropertyChanged(nameof(Players));
             OnPropertyChanged(nameof(CanAddMorePlayers));
             OnPropertyChanged(nameof(PlayerCountText));
             AddPlayerCommand.NotifyCanExecuteChanged();

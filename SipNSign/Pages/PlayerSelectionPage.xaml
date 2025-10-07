@@ -47,7 +47,7 @@
                                FontSize="24"
                                VerticalOptions="Center"/>
                         <Entry Grid.Column="1" 
-                               Text="{Binding MainPlayerName}" 
+                               Text="{Binding MainPlayerName, Mode=TwoWay}" 
                                Placeholder="Your Name (Main Player)"
                                TextColor="{DynamicResource CardText}"
                                MaxLength="15"/>
@@ -73,7 +73,7 @@
                                         Margin="0,5"
                                         BackgroundColor="{DynamicResource CardBackground}"
                                         StrokeShape="RoundRectangle 10">
-                                    <Entry Text="{Binding Name}" 
+                                    <Entry Text="{Binding Name, Mode=TwoWay}" 
                                            Placeholder="Player Name"
                                            TextColor="{DynamicResource CardText}"
                                            MaxLength="15"/>
