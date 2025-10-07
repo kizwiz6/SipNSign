@@ -5,7 +5,7 @@
              x:Class="com.kizwiz.sipnsign.Pages.PlayerSelectionPage"
              x:DataType="viewmodels:PlayerSelectionViewModel"
              Style="{StaticResource AppPageStyle}"
-             Title="Player Selection">
+             Title="Player Configuration">
 
     <Grid Padding="20">
         <VerticalStackLayout x:Name="ModeSelectionLayout" Spacing="20">
@@ -26,11 +26,6 @@
         <ScrollView x:Name="PlayerConfigLayout" 
                     IsVisible="False">
             <VerticalStackLayout Spacing="15">
-                <Label Text="Player Configuration" 
-                       FontSize="24" 
-                       TextColor="White"
-                       HorizontalOptions="Center"/>
-
                 <!-- Player count indicator -->
                 <Label Text="{Binding PlayerCountText}"
                        FontSize="16"
