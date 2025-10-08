@@ -271,19 +271,17 @@
 
                     <!-- Response Buttons - Single Player -->
                     <StackLayout IsVisible="{Binding IsSignRevealed}"
-                         Spacing="12"
-                         Margin="0,15,0,0">
+             Spacing="12"
+             Margin="0,15,0,0">
                         <Button Text="I GOT IT RIGHT!"
-                        Command="{Binding CorrectPerformCommand}"
-                        Style="{StaticResource PrimaryButton}"
-                        BackgroundColor="ForestGreen"
-                        Margin="0,0,0,5"/>
+            Command="{Binding CorrectPerformCommand}"
+            Style="{StaticResource PrimaryButton}"
+            Margin="0,0,0,5"/>
                         <Button Text="I NEED A SIP..."
-                        Command="{Binding IncorrectPerformCommand}"
-                        Style="{StaticResource PrimaryButton}"
-                        BackgroundColor="Crimson"
-                        Margin="0,0,0,0"/>
-                    </StackLayout>
+            Command="{Binding IncorrectPerformCommand}"
+            Style="{StaticResource PrimaryButton}"
+            Margin="0,0,0,0"/>
+                        </StackLayout>
                 </VerticalStackLayout>
             </Grid>
 
