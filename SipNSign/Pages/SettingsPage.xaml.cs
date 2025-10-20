@@ -57,7 +57,7 @@ namespace com.kizwiz.sipnsign.Pages
         /// <summary>
         /// Loads saved settings from preferences
         /// </summary>
-        private void LoadSavedSettings()
+        private async void LoadSavedSettings()
         {
             // Load questions count
             int savedQuestions = _preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
@@ -82,8 +82,55 @@ namespace com.kizwiz.sipnsign.Pages
 
             // Load delay settings
             DelaySlider.Value = _preferences.Get(Constants.INCORRECT_DELAY_KEY, Constants.DEFAULT_DELAY) / 1000.0;
+
+            // Check if premium themes are unlocked
+            bool hasPremiumThemes = await HasPremiumThemes();
+
+            if (!hasPremiumThemes)
+            {
+                // Lock to Blue theme only if premium themes not purchased
+                ThemePicker.SelectedItem = "Blue";
+                ThemePicker.IsEnabled = false;
+
+                // Show the info label
+                if (this.FindByName<Label>("ThemesInfoLabel") is Label infoLabel)
+                {
+                    infoLabel.IsVisible = true;
+                }
+            }
+            else
+            {
+                ThemePicker.IsEnabled = true;
+
+                // Hide the info label
+                if (this.FindByName<Label>("ThemesInfoLabel") is Label infoLabel)
+                {
+                    infoLabel.IsVisible = false;
+                }
+            }
         }
         #endregion
+
+        /// <summary>
+        /// Checks if the user has purchased the premium themes pack
+        /// </summary>
+        private async Task<bool> HasPremiumThemes()
+        {
+            try
+            {
+                var iapService = _serviceProvider?.GetService<IIAPService>();
+                if (iapService != null)
+                {
+                    return await iapService.IsProductPurchasedAsync("premium_themes");
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error checking premium themes: {ex.Message}");
+                return false;
+            }
+        }
 
         // Event handler for the toggle switch
         private void OnSoberModeToggled(object sender, ToggledEventArgs e)
@@ -267,6 +314,19 @@ namespace com.kizwiz.sipnsign.Pages
             if (ThemePicker?.SelectedItem is string selectedTheme &&
                 Enum.TryParse<CustomAppTheme>(selectedTheme, out var theme))
             {
+                // Check if trying to select a premium theme
+                if (theme != CustomAppTheme.Blue && !await HasPremiumThemes())
+                {
+                    await DisplayAlert("Premium Feature",
+                        "Premium themes are locked. Purchase the Premium Themes Pack in the Store to unlock all themes!",
+                        "OK");
+
+                    // Reset to Blue theme
+                    ThemePicker.SelectedItem = "Blue";
+                    _themeService.SetTheme(CustomAppTheme.Blue);
+                    return;
+                }
+
                 _themeService.SetTheme(theme);
 
                 // Give UI time to update

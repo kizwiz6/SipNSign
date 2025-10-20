@@ -33,6 +33,9 @@ namespace com.kizwiz.sipnsign.ViewModels
         private bool _isSportsHobbiesPackPurchasable = true;
 
         [ObservableProperty]
+        private bool _isThemesPackPurchasable = true;
+
+        [ObservableProperty]
         private string _animalPackButtonText;
 
         [ObservableProperty]
@@ -47,6 +50,9 @@ namespace com.kizwiz.sipnsign.ViewModels
         [ObservableProperty]
         private string _sportsHobbiesPackButtonText;
 
+        [ObservableProperty]
+        private string _themesPackButtonText;
+
         private readonly Dictionary<string, Dictionary<string, decimal>> _regionalPrices = new()
         {
             {
@@ -56,7 +62,8 @@ namespace com.kizwiz.sipnsign.ViewModels
                     { "geography", 0.99m },
                     { "food_drink", 0.99m },
                     { "emotions", 0.99m },
-                    { "sports_hobbies", 0.99m }
+                    { "sports_hobbies", 0.99m },
+                    { "premium_themes", 0.99m }
                 }
             },
             {
@@ -66,7 +73,8 @@ namespace com.kizwiz.sipnsign.ViewModels
                     { "geography", 0.99m },
                     { "food_drink", 0.99m },
                     { "emotions", 0.99m },
-                    { "sports_hobbies", 0.99m }
+                    { "sports_hobbies", 0.99m },
+                    { "premium_themes", 0.99m }
                 }
             },
             {
@@ -76,7 +84,8 @@ namespace com.kizwiz.sipnsign.ViewModels
                     { "geography", 0.89m },
                     { "food_drink", 0.89m },
                     { "emotions", 0.89m },
-                    { "sports_hobbies", 0.99m }
+                    { "sports_hobbies", 0.99m },
+                    { "premium_themes", 0.89m }
                 }
             },
             {
@@ -86,7 +95,8 @@ namespace com.kizwiz.sipnsign.ViewModels
                     { "geography", 120m },
                     { "food_drink", 120m },
                     { "emotions", 120m },
-                    { "sports_hobbies", 0.99m }
+                    { "sports_hobbies", 0.99m },
+                    { "premium_themes", 120m }
                 }
             },
             {
@@ -96,7 +106,8 @@ namespace com.kizwiz.sipnsign.ViewModels
                     { "geography", 1.49m },
                     { "food_drink", 1.49m },
                     { "emotions", 1.49m },
-                    { "sports_hobbies", 0.99m }
+                    { "sports_hobbies", 0.99m },
+                    { "premium_themes", 1.49m }
                 }
             }
         };
@@ -144,7 +155,7 @@ namespace com.kizwiz.sipnsign.ViewModels
                 {
                     "US" => new CultureInfo("en-US"),
                     "GB" => new CultureInfo("en-GB"),
-                    "EU" => new CultureInfo("es-ES"), // Using Spanish as example, could be any EU country
+                    "EU" => new CultureInfo("es-ES"),
                     "JP" => new CultureInfo("ja-JP"),
                     "AU" => new CultureInfo("en-AU"),
                     _ => CultureInfo.CurrentCulture
@@ -161,26 +172,23 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private string GetCurrentRegion()
         {
-            // Get the device's current region
             var regionInfo = RegionInfo.CurrentRegion;
 
-            // Map the region to our supported regions
             return regionInfo.TwoLetterISORegionName switch
             {
                 "US" => "US",
                 "GB" => "GB",
-                // EU countries
                 "DE" or "FR" or "IT" or "ES" or "NL" or "BE" or "PT" or "IE" or "AT" or "FI"
                     or "GR" or "SK" or "SI" or "LV" or "LT" or "EE" or "CY" or "MT" => "EU",
                 "JP" => "JP",
                 "AU" => "AU",
-                _ => "GB"  // Default to GB pricing if region not specifically handled
+                _ => "GB"
             };
         }
 
         private async Task UpdateButtonStates()
         {
-            foreach (var packId in new[] { "animals", "geography", "food_drink", "emotions", "sports_hobbies" })
+            foreach (var packId in new[] { "animals", "geography", "food_drink", "emotions", "sports_hobbies", "premium_themes" })
             {
                 bool isPurchased = await _iapService.IsProductPurchasedAsync(packId);
                 var priceText = isPurchased ? "OWNED" : FormatPrice(packId);
@@ -207,6 +215,10 @@ namespace com.kizwiz.sipnsign.ViewModels
                         SportsHobbiesPackButtonText = priceText;
                         IsSportsHobbiesPackPurchasable = !isPurchased;
                         break;
+                    case "premium_themes":
+                        ThemesPackButtonText = priceText;
+                        IsThemesPackPurchasable = !isPurchased;
+                        break;
                 }
             }
         }
@@ -216,9 +228,9 @@ namespace com.kizwiz.sipnsign.ViewModels
             try
             {
                 _purchasedPacks.Clear();
-                _purchasedPacks["starter"] = true;  // Starter pack always available
+                _purchasedPacks["starter"] = true;
 
-                foreach (var packId in new[] { "animals", "geography", "food_drink", "emotions", "sports_hobbies" })
+                foreach (var packId in new[] { "animals", "geography", "food_drink", "emotions", "sports_hobbies", "premium_themes" })
                 {
                     bool isPurchased = await _iapService.IsProductPurchasedAsync(packId);
                     _purchasedPacks[packId] = isPurchased;
@@ -297,6 +309,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             "food_drink" => "Food & Drink",
             "emotions" => "Emotions",
             "sports_hobbies" => "Sports & Hobbies",
+            "premium_themes" => "Premium Themes",
             _ => "Unknown"
         };
     }

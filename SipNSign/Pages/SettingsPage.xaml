@@ -162,18 +162,19 @@
 
             <!-- Theme Settings -->
             <Border Stroke="Gray" 
-                Padding="15" 
-                StrokeShape="RoundRectangle 10"
-                BackgroundColor="{DynamicResource CardBackground}"
-                Opacity="0.95">
+    Padding="15" 
+    StrokeShape="RoundRectangle 10"
+    BackgroundColor="{DynamicResource CardBackground}"
+    Opacity="0.95">
                 <VerticalStackLayout Spacing="15">
                     <Label Text="App Theme" 
-                       TextColor="{DynamicResource CardText}"
-                       FontSize="20" 
-                       FontAttributes="Bold"/>
+           TextColor="{DynamicResource CardText}"
+           FontSize="20" 
+           FontAttributes="Bold"/>
+
                     <Picker x:Name="ThemePicker"
-                        TextColor="{DynamicResource CardText}"
-                        SelectedIndexChanged="OnThemeSelected">
+            TextColor="{DynamicResource CardText}"
+            SelectedIndexChanged="OnThemeSelected">
                         <Picker.ItemsSource>
                             <x:Array Type="{x:Type x:String}">
                                 <x:String>Blue</x:String>
@@ -188,6 +189,15 @@
                             </x:Array>
                         </Picker.ItemsSource>
                     </Picker>
+
+                    <!-- Premium Themes Info Label -->
+                    <Label x:Name="ThemesInfoLabel"
+           Text="🔒 Purchase Premium Themes Pack in the Store to unlock all themes"
+           TextColor="Orange"
+           FontSize="12"
+           HorizontalOptions="Center"
+           IsVisible="False"
+           Margin="0,5,0,0"/>
                 </VerticalStackLayout>
             </Border>
 
