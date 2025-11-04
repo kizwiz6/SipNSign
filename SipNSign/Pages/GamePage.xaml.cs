@@ -656,7 +656,7 @@ namespace com.kizwiz.sipnsign.Pages
 
             try
             {
-                _isDisposed = true; // Mark as disposed immediately to prevent concurrent access
+                _isDisposed = true;
 
                 if (_timer != null)
                 {
@@ -664,7 +664,6 @@ namespace com.kizwiz.sipnsign.Pages
                     _timer = null;
                 }
 
-                // Create local references to prevent null checks
                 var sharedVideoRef = _sharedVideoElement;
                 var performVideoRef = _performVideoElement;
                 var multiplayerVideoRef = _multiplayerPerformVideoElement;
@@ -673,7 +672,6 @@ namespace com.kizwiz.sipnsign.Pages
                 {
                     try
                     {
-                        // Clean up shared video
                         if (sharedVideoRef != null)
                         {
                             sharedVideoRef.Stop();
@@ -681,7 +679,6 @@ namespace com.kizwiz.sipnsign.Pages
                             sharedVideoRef.Handler?.DisconnectHandler();
                         }
 
-                        // Clean up perform video
                         if (performVideoRef != null)
                         {
                             performVideoRef.Stop();
@@ -689,7 +686,6 @@ namespace com.kizwiz.sipnsign.Pages
                             performVideoRef.Handler?.DisconnectHandler();
                         }
 
-                        // Clean up multiplayer video
                         if (multiplayerVideoRef != null)
                         {
                             multiplayerVideoRef.Stop();
@@ -703,13 +699,14 @@ namespace com.kizwiz.sipnsign.Pages
                     }
                 });
 
-                // Wait a moment for cleanup to complete
                 await Task.Delay(50);
 
-                // Now it's safe to null the references
                 _sharedVideoElement = null;
                 _performVideoElement = null;
                 _multiplayerPerformVideoElement = null;
+
+                // Force garbage collection to free memory
+                ForceGarbageCollection();
             }
             catch (Exception ex)
             {
@@ -741,6 +738,25 @@ namespace com.kizwiz.sipnsign.Pages
             else
             {
                 Debug.WriteLine("ERROR: Converter did not return a PlayerAnswerParameter");
+            }
+        }
+
+        /// <summary>
+        /// Forces garbage collection to help prevent memory-related crashes
+        /// </summary>
+        private void ForceGarbageCollection()
+        {
+            try
+            {
+                Debug.WriteLine("Forcing garbage collection...");
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+                Debug.WriteLine("Garbage collection completed");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error during garbage collection: {ex.Message}");
             }
         }
 
