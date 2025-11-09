@@ -545,38 +545,18 @@ namespace com.kizwiz.sipnsign.Pages
             try
             {
                 _isDisposed = true;
+                Debug.WriteLine("GamePage OnDisappearing - starting cleanup");
 
-                // Call Cleanup explicitly first
+                // Call our comprehensive cleanup
                 Cleanup();
 
-                // Then proceed with existing code if needed
-                await MainThread.InvokeOnMainThreadAsync(() =>
-                {
-                    if (_sharedVideoElement != null)
-                    {
-                        _sharedVideoElement.Stop();
-                        _sharedVideoElement.Source = null;
-                        _sharedVideoElement.Handler?.DisconnectHandler();
-                    }
-
-                    if (_performVideoElement != null)
-                    {
-                        _performVideoElement.Stop();
-                        _performVideoElement.Source = null;
-                        _performVideoElement.Handler?.DisconnectHandler();
-                    }
-
-                    if (_multiplayerPerformVideoElement != null)
-                    {
-                        _multiplayerPerformVideoElement.Stop();
-                        _multiplayerPerformVideoElement.Source = null;
-                        _multiplayerPerformVideoElement.Handler?.DisconnectHandler();
-                    }
-                });
-
+                // Give a moment for cleanup to complete
                 await Task.Delay(100);
 
+                // Call ViewModel cleanup if available
                 ViewModel?.Cleanup();
+
+                Debug.WriteLine("GamePage OnDisappearing - cleanup complete");
             }
             catch (Exception ex)
             {
@@ -657,60 +637,87 @@ namespace com.kizwiz.sipnsign.Pages
             try
             {
                 _isDisposed = true;
+                Debug.WriteLine("Starting Cleanup");
 
+                // Stop timer first
                 if (_timer != null)
                 {
-                    _timer.Stop();
-                    _timer = null;
+                    try
+                    {
+                        _timer.Stop();
+                        _timer = null;
+                        Debug.WriteLine("Timer stopped");
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error stopping timer: {ex.Message}");
+                    }
                 }
 
-                var sharedVideoRef = _sharedVideoElement;
-                var performVideoRef = _performVideoElement;
-                var multiplayerVideoRef = _multiplayerPerformVideoElement;
-
+                // Stop all videos on main thread
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
                     try
                     {
-                        if (sharedVideoRef != null)
-                        {
-                            sharedVideoRef.Stop();
-                            sharedVideoRef.Source = null;
-                            sharedVideoRef.Handler?.DisconnectHandler();
-                        }
+                        SafeStopMediaElement(_sharedVideoElement, "SharedVideo");
+                        SafeStopMediaElement(_performVideoElement, "PerformVideo");
+                        SafeStopMediaElement(_multiplayerPerformVideoElement, "MultiplayerPerformVideo");
 
-                        if (performVideoRef != null)
-                        {
-                            performVideoRef.Stop();
-                            performVideoRef.Source = null;
-                            performVideoRef.Handler?.DisconnectHandler();
-                        }
-
-                        if (multiplayerVideoRef != null)
-                        {
-                            multiplayerVideoRef.Stop();
-                            multiplayerVideoRef.Source = null;
-                            multiplayerVideoRef.Handler?.DisconnectHandler();
-                        }
+                        Debug.WriteLine("All videos stopped");
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"Error cleaning up videos: {ex.Message}");
+                        Debug.WriteLine($"Error in video cleanup: {ex.Message}");
                     }
                 });
 
+                // Small delay to ensure cleanup completes
                 await Task.Delay(50);
 
+                // Null out references
                 _sharedVideoElement = null;
                 _performVideoElement = null;
                 _multiplayerPerformVideoElement = null;
 
-                // Force garbage collection to free memory
-                ForceGarbageCollection();
+                Debug.WriteLine("Cleanup completed successfully");
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error in Cleanup: {ex.Message}");
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+            }
+        }
+
+        // <summary>
+        /// Safely stops a MediaElement with null checks and exception handling
+        /// </summary>
+        private void SafeStopMediaElement(MediaElement? element, string elementName)
+        {
+            if (element == null)
+            {
+                Debug.WriteLine($"{elementName} is null, skipping stop");
+                return;
+            }
+
+            try
+            {
+                // Only try to stop if handler is still connected
+                if (element.Handler != null)
+                {
+                    element.Stop();
+                    Debug.WriteLine($"{elementName} stopped successfully");
+                }
+
+                // Clear the source
+                element.Source = null;
+
+                // Disconnect handler
+                element.Handler?.DisconnectHandler();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error stopping {elementName}: {ex.Message}");
+                // Don't rethrow - want cleanup to continue
             }
         }
 

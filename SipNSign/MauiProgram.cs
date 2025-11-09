@@ -68,8 +68,6 @@ public static class MauiProgram
 
                 Debug.WriteLine("Core services registered");
 
-
-
                 builder.Services.AddSingleton<App>();
                 builder.Services.AddSingleton<AppShell>();
                 Debug.WriteLine("App and Shell registered");
@@ -87,7 +85,9 @@ public static class MauiProgram
                 builder.Services.AddTransient<AchievementDetailsViewModel>();
                 Debug.WriteLine("Pages registered");
 
-                return builder.Build();
+                var app = builder.Build();
+                Debug.WriteLine("App built successfully");
+                return app;
             }
             catch (Exception ex)
             {
@@ -95,10 +95,6 @@ public static class MauiProgram
                 Debug.WriteLine($"Stack trace: {ex.StackTrace}");
                 throw;
             }
-
-            var app = builder.Build();
-            Debug.WriteLine("App built successfully");
-            return app;
         }
         catch (Exception ex)
         {
