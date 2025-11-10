@@ -688,7 +688,7 @@ namespace com.kizwiz.sipnsign.Pages
             }
         }
 
-        // <summary>
+        /// <summary>
         /// Safely stops a MediaElement with null checks and exception handling
         /// </summary>
         private void SafeStopMediaElement(MediaElement? element, string elementName)
@@ -717,7 +717,7 @@ namespace com.kizwiz.sipnsign.Pages
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error stopping {elementName}: {ex.Message}");
-                // Don't rethrow - want cleanup to continue
+                // Don't rethrow - we want cleanup to continue
             }
         }
 
