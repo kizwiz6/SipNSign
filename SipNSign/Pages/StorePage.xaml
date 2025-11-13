@@ -185,6 +185,36 @@
                 </Grid>
             </Border>
 
+            <!-- Premium Themes Pack -->
+            <Border BackgroundColor="{DynamicResource CardBackground}"
+        Opacity="0.95"
+        Padding="15" 
+        StrokeShape="RoundRectangle 10">
+                <Grid ColumnDefinitions="*,Auto" RowSpacing="5">
+                    <VerticalStackLayout Grid.Column="0">
+                        <Label Text="Premium Themes Pack" 
+                   TextColor="{DynamicResource CardText}"
+                   FontSize="24" 
+                   FontAttributes="Bold"
+                   Margin="0,0,0,5"/>
+
+                        <Label Text="Unlock 8 additional app themes including Dark, Sunset, Forest, Ocean, Neon, and more!"
+                   TextColor="{DynamicResource CardText}"
+                   FontSize="14"/>
+                    </VerticalStackLayout>
+
+                    <Button Text="{Binding ThemesPackButtonText}" 
+                Command="{Binding PurchasePackCommand}"
+                CommandParameter="premium_themes"
+                IsEnabled="{Binding IsThemesPackPurchasable}"
+                Style="{StaticResource PrimaryButton}"
+                HeightRequest="40"
+                WidthRequest="110"
+                Grid.Column="1"
+                VerticalOptions="Center"/>
+                </Grid>
+            </Border>
+
             <!-- Restore Purchases -->
             <Border BackgroundColor="{DynamicResource CardBackground}"
                     Opacity="0.95"

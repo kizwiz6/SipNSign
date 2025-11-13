@@ -327,12 +327,32 @@ namespace com.kizwiz.sipnsign.Pages
         {
             try
             {
-                // Now safely initialize MediaElement references
-                InitializeMediaElements();
+                // Only initialize MediaElements for current mode
+                if (ViewModel.IsGuessMode)
+                {
+                    _sharedVideoElement = FindMediaElement("SharedVideo");
+                }
+                else if (ViewModel.IsPerformMode)
+                {
+                    if (ViewModel.IsMultiplayer)
+                    {
+                        _multiplayerPerformVideoElement = FindMediaElement("MultiplayerPerformVideo");
+                    }
+                    else
+                    {
+                        _performVideoElement = FindMediaElement("PerformVideo");
+                    }
+                }
+
+                // Set up event handlers
+                if (_sharedVideoElement != null)
+                {
+                    _sharedVideoElement.PropertyChanged += OnSharedVideoPropertyChanged;
+                }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error initializing media elements: {ex.Message}");
+                Debug.WriteLine($"Error in OnPageLoaded: {ex.Message}");
             }
         }
 
@@ -441,11 +461,10 @@ namespace com.kizwiz.sipnsign.Pages
             base.OnAppearing();
             _isDisposed = false;
 
-            // Ensure MediaElements are initialized if they weren't during constructor
-            if (_sharedVideoElement == null || _performVideoElement == null || _multiplayerPerformVideoElement == null)
-            {
-                InitializeMediaElements();
-            }
+            // Disable overscroll on Android to prevent video blank bug
+#if ANDROID
+            DisableScrollViewOverscroll();
+#endif
 
             MainThread.BeginInvokeOnMainThread(() =>
             {
@@ -461,6 +480,65 @@ namespace com.kizwiz.sipnsign.Pages
                 TestPlayerConverter();
             }
         }
+
+#if ANDROID
+        /// <summary>
+        /// Disables overscroll effect on Android ScrollView to prevent video blanking bug
+        /// </summary>
+        private void DisableScrollViewOverscroll()
+        {
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                try
+                {
+                    var scrollView = this.FindByName<ScrollView>("MultiplayerScrollView");
+                    if (scrollView == null)
+                    {
+                        Debug.WriteLine("MultiplayerScrollView not found");
+                        return;
+                    }
+
+                    // Wait for handler to be initialized with retry logic
+                    int retries = 0;
+                    while (scrollView.Handler?.PlatformView == null && retries < 10)
+                    {
+                        await Task.Delay(50);
+                        retries++;
+                    }
+
+                    if (scrollView.Handler?.PlatformView is Android.Views.View androidView)
+                    {
+                        Debug.WriteLine("Found MultiplayerScrollView platform view");
+
+                        // Disable overscroll mode on the view itself
+                        androidView.OverScrollMode = Android.Views.OverScrollMode.Never;
+                        Debug.WriteLine("Set OverScrollMode.Never on view");
+
+                        // Find and disable on the native ScrollView parent
+                        var parent = androidView.Parent;
+                        while (parent != null)
+                        {
+                            if (parent is Android.Widget.ScrollView androidScrollView)
+                            {
+                                androidScrollView.OverScrollMode = Android.Views.OverScrollMode.Never;
+                                Debug.WriteLine("Set OverScrollMode.Never on Android.Widget.ScrollView");
+                                break;
+                            }
+                            parent = parent.Parent;
+                        }
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"MultiplayerScrollView platform view not ready after {retries} retries");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error disabling overscroll: {ex.Message}");
+                }
+            });
+        }
+#endif
 
         protected override async void OnDisappearing()
         {
@@ -578,7 +656,7 @@ namespace com.kizwiz.sipnsign.Pages
 
             try
             {
-                _isDisposed = true; // Mark as disposed immediately to prevent concurrent access
+                _isDisposed = true;
 
                 if (_timer != null)
                 {
@@ -586,7 +664,6 @@ namespace com.kizwiz.sipnsign.Pages
                     _timer = null;
                 }
 
-                // Create local references to prevent null checks
                 var sharedVideoRef = _sharedVideoElement;
                 var performVideoRef = _performVideoElement;
                 var multiplayerVideoRef = _multiplayerPerformVideoElement;
@@ -595,7 +672,6 @@ namespace com.kizwiz.sipnsign.Pages
                 {
                     try
                     {
-                        // Clean up shared video
                         if (sharedVideoRef != null)
                         {
                             sharedVideoRef.Stop();
@@ -603,7 +679,6 @@ namespace com.kizwiz.sipnsign.Pages
                             sharedVideoRef.Handler?.DisconnectHandler();
                         }
 
-                        // Clean up perform video
                         if (performVideoRef != null)
                         {
                             performVideoRef.Stop();
@@ -611,7 +686,6 @@ namespace com.kizwiz.sipnsign.Pages
                             performVideoRef.Handler?.DisconnectHandler();
                         }
 
-                        // Clean up multiplayer video
                         if (multiplayerVideoRef != null)
                         {
                             multiplayerVideoRef.Stop();
@@ -625,13 +699,14 @@ namespace com.kizwiz.sipnsign.Pages
                     }
                 });
 
-                // Wait a moment for cleanup to complete
                 await Task.Delay(50);
 
-                // Now it's safe to null the references
                 _sharedVideoElement = null;
                 _performVideoElement = null;
                 _multiplayerPerformVideoElement = null;
+
+                // Force garbage collection to free memory
+                ForceGarbageCollection();
             }
             catch (Exception ex)
             {
@@ -663,6 +738,25 @@ namespace com.kizwiz.sipnsign.Pages
             else
             {
                 Debug.WriteLine("ERROR: Converter did not return a PlayerAnswerParameter");
+            }
+        }
+
+        /// <summary>
+        /// Forces garbage collection to help prevent memory-related crashes
+        /// </summary>
+        private void ForceGarbageCollection()
+        {
+            try
+            {
+                Debug.WriteLine("Forcing garbage collection...");
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+                Debug.WriteLine("Garbage collection completed");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error during garbage collection: {ex.Message}");
             }
         }
 

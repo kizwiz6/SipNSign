@@ -1,29 +1,44 @@
-﻿<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.kizwiz.sipnsign">
+﻿<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.kizwiz.sipnsign">
+
 	<application
-		android:allowBackup="true"
-		android:icon="@mipmap/ic_launcher"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-		android:label="SipNSign"
-		android:theme="@style/Maui.SplashTheme"
-		android:enableOnBackInvokedCallback="true"
-		android:debuggable="true">
+        android:requestLegacyExternalStorage="true"
+        android:label="SipNSign"
+        android:theme="@style/Maui.SplashTheme"
+        android:enableOnBackInvokedCallback="true"
+        android:debuggable="true"
+        android:largeHeap="true"
+        android:hardwareAccelerated="true">
+
 		<activity
-			android:name="crc64a4d5182b43e632ff.MainActivity"
-			android:exported="true"
-			android:theme="@style/Maui.SplashTheme"
-			android:configChanges="density|orientation|smallestScreenSize|screenLayout|screenSize|uiMode"
-			android:hardwareAccelerated="true"
-			android:launchMode="singleTop">
+            android:name="crc64a4d5182b43e632ff.MainActivity"
+            android:exported="true"
+            android:theme="@style/Maui.SplashTheme"
+            android:configChanges="density|orientation|smallestScreenSize|screenLayout|screenSize|uiMode"
+            android:hardwareAccelerated="true"
+            android:launchMode="singleTop">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
+
+		<!-- 👇 Add this inside <application>, after your <activity> -->
+		<service
+            android:name="CommunityToolkit.Maui.Media.Services.MediaControlsService"
+            android:enabled="false"
+            android:exported="false" />
+
 	</application>
+
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 	<uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
 	<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
 </manifest>
