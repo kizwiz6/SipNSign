@@ -15,7 +15,8 @@
                 { "geography", 0.99m },
                 { "food_drink", 0.99m },
                 { "emotions", 0.99m },
-                { "sports_hobbies", 0.99m }
+                { "sports_hobbies", 0.99m },
+                { "premium_themes", 0.99m }  // ← ADDED THIS LINE
             };
         }
 
@@ -40,6 +41,17 @@
             try
             {
                 _logger.Debug($"Starting purchase for product: {productId}");
+
+                // Check if product exists in our catalog
+                if (!_productPrices.ContainsKey(productId))
+                {
+                    _logger.Error($"Unknown product ID: {productId}");
+                    await Application.Current.MainPage.DisplayAlert(
+                        "Error",
+                        "Product not found",
+                        "OK");
+                    return false;
+                }
 
                 // Here you would implement actual payment processing
                 bool purchaseConfirmed = await Application.Current.MainPage.DisplayAlert(

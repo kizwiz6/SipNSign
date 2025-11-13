@@ -29,6 +29,33 @@
                 </VerticalStackLayout>
             </Border>
 
+            <!-- Player Settings -->
+            <Border Stroke="Gray" 
+                Padding="15" 
+                StrokeShape="RoundRectangle 10"
+                BackgroundColor="{DynamicResource CardBackground}"
+                Opacity="0.95">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Player Settings" 
+                       TextColor="{DynamicResource CardText}"
+                       FontSize="20" 
+                       FontAttributes="Bold"/>
+
+                    <Label Text="Default Player Name"
+                       TextColor="{DynamicResource CardText}"
+                       FontAttributes="Bold"/>
+                    <Entry x:Name="DefaultPlayerNameEntry"
+                       Placeholder="Your name (e.g., Alex)"
+                       TextColor="{DynamicResource CardText}"
+                       MaxLength="15"
+                       TextChanged="OnDefaultPlayerNameChanged"/>
+                    <Label Text="This name will be used in multiplayer games"
+                       TextColor="{DynamicResource CardText}"
+                       FontSize="14"
+                       Opacity="0.8"/>
+                </VerticalStackLayout>
+            </Border>
+
             <!-- Guess Mode Settings -->
             <Border Stroke="Gray" 
                 Padding="15" 
@@ -135,18 +162,19 @@
 
             <!-- Theme Settings -->
             <Border Stroke="Gray" 
-                Padding="15" 
-                StrokeShape="RoundRectangle 10"
-                BackgroundColor="{DynamicResource CardBackground}"
-                Opacity="0.95">
+    Padding="15" 
+    StrokeShape="RoundRectangle 10"
+    BackgroundColor="{DynamicResource CardBackground}"
+    Opacity="0.95">
                 <VerticalStackLayout Spacing="15">
                     <Label Text="App Theme" 
-                       TextColor="{DynamicResource CardText}"
-                       FontSize="20" 
-                       FontAttributes="Bold"/>
+           TextColor="{DynamicResource CardText}"
+           FontSize="20" 
+           FontAttributes="Bold"/>
+
                     <Picker x:Name="ThemePicker"
-                        TextColor="{DynamicResource CardText}"
-                        SelectedIndexChanged="OnThemeSelected">
+            TextColor="{DynamicResource CardText}"
+            SelectedIndexChanged="OnThemeSelected">
                         <Picker.ItemsSource>
                             <x:Array Type="{x:Type x:String}">
                                 <x:String>Blue</x:String>
@@ -161,6 +189,15 @@
                             </x:Array>
                         </Picker.ItemsSource>
                     </Picker>
+
+                    <!-- Premium Themes Info Label -->
+                    <Label x:Name="ThemesInfoLabel"
+           Text="🔒 Purchase Premium Themes Pack in the Store to unlock all themes"
+           TextColor="Orange"
+           FontSize="12"
+           HorizontalOptions="Center"
+           IsVisible="False"
+           Margin="0,5,0,0"/>
                 </VerticalStackLayout>
             </Border>
 

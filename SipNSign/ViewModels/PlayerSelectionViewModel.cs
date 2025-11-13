@@ -7,20 +7,49 @@ namespace com.kizwiz.sipnsign.ViewModels
 {
     public partial class PlayerSelectionViewModel : ObservableObject
     {
+        private const int MAX_PLAYERS = 10;
+
         [ObservableProperty]
-        private string _mainPlayerName = "You";
+        private string _mainPlayerName = Preferences.Get(Constants.DEFAULT_PLAYER_NAME_KEY, Constants.DEFAULT_PLAYER_NAME);
 
         [ObservableProperty]
         private ObservableCollection<Player> _additionalPlayers = new();
 
-        public ObservableCollection<Player> Players => new ObservableCollection<Player>(
-            new[] { new Player { Name = MainPlayerName, IsMainPlayer = true } }
-            .Concat(AdditionalPlayers));
+        // Property to check if we can add more players
+        public bool CanAddMorePlayers => (AdditionalPlayers.Count + 1) < MAX_PLAYERS;
 
-        [RelayCommand]
+        // Property to show remaining player slots
+        public string PlayerCountText => $"{AdditionalPlayers.Count + 1}/{MAX_PLAYERS} Players";
+
+        // FIX: Create a method to build the complete player list instead of a property
+        public List<Player> GetAllPlayers()
+        {
+            var allPlayers = new List<Player>
+            {
+                new Player { Name = MainPlayerName, IsMainPlayer = true }
+            };
+
+            // Add all additional players with their current names
+            allPlayers.AddRange(AdditionalPlayers);
+
+            return allPlayers;
+        }
+
+        [RelayCommand(CanExecute = nameof(CanAddMorePlayers))]
         private void AddPlayer()
         {
+            if (!CanAddMorePlayers)
+            {
+                // This shouldn't happen due to CanExecute, but defensive check
+                return;
+            }
+
             AdditionalPlayers.Add(new Player { Name = $"Player {AdditionalPlayers.Count + 2}" });
+
+            // Update command state
+            AddPlayerCommand.NotifyCanExecuteChanged();
+            OnPropertyChanged(nameof(CanAddMorePlayers));
+            OnPropertyChanged(nameof(PlayerCountText));
         }
 
         [RelayCommand]
@@ -29,11 +58,25 @@ namespace com.kizwiz.sipnsign.ViewModels
             if (!player.IsMainPlayer)
             {
                 AdditionalPlayers.Remove(player);
+
+                // Update command state after removal
+                AddPlayerCommand.NotifyCanExecuteChanged();
+                OnPropertyChanged(nameof(CanAddMorePlayers));
+                OnPropertyChanged(nameof(PlayerCountText));
             }
         }
 
-        // Update Players when properties change
-        partial void OnMainPlayerNameChanged(string value) => OnPropertyChanged(nameof(Players));
-        partial void OnAdditionalPlayersChanged(ObservableCollection<Player> value) => OnPropertyChanged(nameof(Players));
+        // Update when properties change
+        partial void OnMainPlayerNameChanged(string value)
+        {
+            OnPropertyChanged(nameof(PlayerCountText));
+        }
+
+        partial void OnAdditionalPlayersChanged(ObservableCollection<Player> value)
+        {
+            OnPropertyChanged(nameof(CanAddMorePlayers));
+            OnPropertyChanged(nameof(PlayerCountText));
+            AddPlayerCommand.NotifyCanExecuteChanged();
+        }
     }
 }

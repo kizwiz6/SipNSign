@@ -202,6 +202,135 @@ namespace com.kizwiz.sipnsign.Services
                         await UnlockAchievement(achievement);
                         achievement.ProgressCurrent = 1;
                         break;
+
+                    case "PARTY_HOST" when !achievement.IsUnlocked:
+                        var largeGamePlayed = _currentProgress.Activities
+                            .Any(a => a.Type == ActivityType.Practice &&
+                                     a.Description.Contains("Multiplayer game completed with") &&
+                                     ExtractPlayerCount(a.Description) >= 5);
+                        if (largeGamePlayed)
+                        {
+                            await UnlockAchievement(achievement);
+                            achievement.ProgressCurrent = 1;
+                        }
+                        break;
+
+                    case "MULTIPLAYER_FIRST" when !achievement.IsUnlocked:
+                        var firstMultiGame = _currentProgress.Activities
+                            .Any(a => a.Type == ActivityType.Practice &&
+                                     a.Description.Contains("Multiplayer game completed"));
+                        if (firstMultiGame)
+                        {
+                            await UnlockAchievement(achievement);
+                            achievement.ProgressCurrent = 1;
+                        }
+                        break;
+
+                    case "MULTIPLAYER_10" when !achievement.IsUnlocked:
+                        var multiGames10 = _currentProgress.Activities
+                            .Count(a => a.Type == ActivityType.Practice &&
+                                       a.Description.Contains("Multiplayer game completed"));
+                        achievement.ProgressCurrent = multiGames10;
+                        if (multiGames10 >= 10)
+                        {
+                            await UnlockAchievement(achievement);
+                        }
+                        break;
+
+                    case "MULTIPLAYER_50" when !achievement.IsUnlocked:
+                        var multiGames50 = _currentProgress.Activities
+                            .Count(a => a.Type == ActivityType.Practice &&
+                                       a.Description.Contains("Multiplayer game completed"));
+                        achievement.ProgressCurrent = multiGames50;
+                        if (multiGames50 >= 50)
+                        {
+                            await UnlockAchievement(achievement);
+                        }
+                        break;
+
+                    case "CHAMPION_WIN" when !achievement.IsUnlocked:
+                        var recentWins = _currentProgress.Activities
+                            .Where(a => a.Type == ActivityType.Practice &&
+                                       a.Description.Contains("Won multiplayer game"))
+                            .OrderByDescending(a => a.Timestamp)
+                            .Take(3)
+                            .ToList();
+
+                        if (recentWins.Count == 3)
+                        {
+                            // Check if they're consecutive (no losses between them)
+                            var gamesAfterFirstWin = _currentProgress.Activities
+                                .Where(a => a.Type == ActivityType.Practice &&
+                                           a.Description.Contains("Multiplayer game completed") &&
+                                           a.Timestamp >= recentWins[2].Timestamp &&
+                                           a.Timestamp <= recentWins[0].Timestamp)
+                                .Count();
+
+                            if (gamesAfterFirstWin == 3) // Only 3 games = 3 wins in a row
+                            {
+                                await UnlockAchievement(achievement);
+                                achievement.ProgressCurrent = 3;
+                            }
+                        }
+                        break;
+
+                    case "CLOSE_CALL" when !achievement.IsUnlocked:
+                        var closeWin = _currentProgress.Activities
+                            .Any(a => a.Type == ActivityType.Practice &&
+                                     a.Description.Contains("Won multiplayer game by 1 point"));
+                        if (closeWin)
+                        {
+                            await UnlockAchievement(achievement);
+                            achievement.ProgressCurrent = 1;
+                        }
+                        break;
+
+                    case "PERFECT_ROUND_ALL" when !achievement.IsUnlocked:
+                        var perfectRound = _currentProgress.Activities
+                            .Any(a => a.Type == ActivityType.Practice &&
+                                     a.Description.Contains("All players got the sign correct"));
+                        if (perfectRound)
+                        {
+                            await UnlockAchievement(achievement);
+                            achievement.ProgressCurrent = 1;
+                        }
+                        break;
+
+                    case "COMEBACK_KING" when !achievement.IsUnlocked:
+                        var comeback = _currentProgress.Activities
+                            .Any(a => a.Type == ActivityType.Practice &&
+                                     a.Description.Contains("comeback victory"));
+                        if (comeback)
+                        {
+                            await UnlockAchievement(achievement);
+                            achievement.ProgressCurrent = 1;
+                        }
+                        break;
+
+                    case "PERFECT_MULTIPLAYER" when !achievement.IsUnlocked:
+                        var perfectGame = _currentProgress.Activities
+                            .Any(a => a.Type == ActivityType.Practice &&
+                                     a.Description.Contains("Perfect multiplayer game"));
+                        if (perfectGame)
+                        {
+                            await UnlockAchievement(achievement);
+                            achievement.ProgressCurrent = 1;
+                        }
+                        break;
+
+                    case "PARTY_ANIMAL" when !achievement.IsUnlocked:
+                        var groupSizes = _currentProgress.Activities
+                            .Where(a => a.Type == ActivityType.Practice &&
+                                       a.Description.Contains("Multiplayer game completed with"))
+                            .Select(a => ExtractPlayerCount(a.Description))
+                            .Distinct()
+                            .Count();
+                        achievement.ProgressCurrent = groupSizes;
+                        if (groupSizes >= 10)
+                        {
+                            await UnlockAchievement(achievement);
+                        }
+                        break;
                 }
             }
         }
@@ -396,8 +525,100 @@ namespace com.kizwiz.sipnsign.Services
                     Description = "Completed a 100 Guess Mode session with average time under 3 seconds",
                     IconName = "speed_master_icon",
                     ProgressRequired = 1
+                },
+                new Achievement
+                {
+                    Id = "PARTY_HOST",
+                    Title = "Party Host",
+                    Description = "Complete a multiplayer game with 5+ players",
+                    IconName = "party_icon",
+                    ProgressRequired = 1
+                },
+                new Achievement
+                {
+                    Id = "MULTIPLAYER_FIRST",
+                    Title = "Social Learner",
+                    Description = "Complete your first multiplayer game",
+                    IconName = "multiplayer_icon",
+                    ProgressRequired = 1
+                },
+                new Achievement
+                {
+                    Id = "MULTIPLAYER_10",
+                    Title = "Party Regular",
+                    Description = "Complete 10 multiplayer games",
+                    IconName = "multiplayer_10_icon",
+                    ProgressRequired = 10
+                },
+                new Achievement
+                {
+                    Id = "MULTIPLAYER_50",
+                    Title = "Social Butterfly Pro",
+                    Description = "Complete 50 multiplayer games",
+                    IconName = "multiplayer_50_icon",
+                    ProgressRequired = 50
+                },
+                new Achievement
+                {
+                    Id = "CHAMPION_WIN",
+                    Title = "Undefeated",
+                    Description = "Win 3 multiplayer games in a row",
+                    IconName = "champion_icon",
+                    ProgressRequired = 3
+                },
+                new Achievement
+                {
+                    Id = "CLOSE_CALL",
+                    Title = "Nail Biter",
+                    Description = "Win a multiplayer game by exactly 1 point",
+                    IconName = "close_call_icon",
+                    ProgressRequired = 1
+                },
+                new Achievement
+                {
+                    Id = "PERFECT_ROUND_ALL",
+                    Title = "Team Harmony",
+                    Description = "All players get the same sign correct",
+                    IconName = "harmony_icon",
+                    ProgressRequired = 1
+                },
+                new Achievement
+                {
+                    Id = "COMEBACK_KING",
+                    Title = "Comeback King",
+                    Description = "Win a multiplayer game after being in last place",
+                    IconName = "comeback_icon",
+                    ProgressRequired = 1
+                },
+                new Achievement
+                {
+                    Id = "PERFECT_MULTIPLAYER",
+                    Title = "Multiplayer Master",
+                    Description = "Get all signs correct in a multiplayer game",
+                    IconName = "perfect_multi_icon",
+                    ProgressRequired = 1
+                },
+                new Achievement
+                {
+                    Id = "PARTY_ANIMAL",
+                    Title = "Party Animal",
+                    Description = "Play multiplayer games with 10 different group sizes",
+                    IconName = "party_animal_icon",
+                    ProgressRequired = 10
                 }
             };
+        }
+
+        // Helper method to extract player count from activity descriptions
+        private int ExtractPlayerCount(string description)
+        {
+            // Extract number from descriptions like "Multiplayer game completed with 5 players"
+            var match = System.Text.RegularExpressions.Regex.Match(description, @"with (\d+) player");
+            if (match.Success && int.TryParse(match.Groups[1].Value, out int count))
+            {
+                return count;
+            }
+            return 0;
         }
 
         private Task<UserProgress> LoadProgress()
@@ -577,7 +798,17 @@ namespace com.kizwiz.sipnsign.Services
                     "SOCIAL_BUTTERFLY" => "social_icon",
                     "RAPID_FIRE" => "speed_icon",
                     "SPEED_MASTER" => "speed_master_icon",
-                    _ => "achievement_icon" // Default case (underscore, not asterisk)
+                    "PARTY_HOST" => "party_icon",
+                    "MULTIPLAYER_FIRST" => "multiplayer_icon",
+                    "MULTIPLAYER_10" => "multiplayer_10_icon",
+                    "MULTIPLAYER_50" => "multiplayer_50_icon",
+                    "CHAMPION_WIN" => "champion_icon",
+                    "CLOSE_CALL" => "close_call_icon",
+                    "PERFECT_ROUND_ALL" => "harmony_icon",
+                    "COMEBACK_KING" => "comeback_icon",
+                    "PERFECT_MULTIPLAYER" => "perfect_multi_icon",
+                    "PARTY_ANIMAL" => "party_animal_icon",
+                    _ => "achievement_icon" // Default case (underscore, not asterisk),
                 };
 
                 await LogActivityAsync(new ActivityLog

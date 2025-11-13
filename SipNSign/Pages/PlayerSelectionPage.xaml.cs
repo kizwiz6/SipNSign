@@ -19,6 +19,9 @@ public partial class PlayerSelectionPage : ContentPage
         InitializeComponent();
         _viewModel = new PlayerSelectionViewModel();
         BindingContext = _viewModel;
+
+        // Load saved questions count
+        LoadSavedSettings();
     }
 
     protected override void OnAppearing()
@@ -33,6 +36,17 @@ public partial class PlayerSelectionPage : ContentPage
         _isInitialized = true;
     }
 
+    /// <summary>
+    /// Loads saved settings from preferences
+    /// </summary>
+    private void LoadSavedSettings()
+    {
+        // Load perform mode questions count
+        int savedQuestions = Preferences.Get(Constants.PERFORM_MODE_QUESTIONS_KEY, Constants.DEFAULT_PERFORM_QUESTIONS);
+        PerformQuestionsSlider.Value = savedQuestions;
+        PerformQuestionsValueLabel.Text = $"{savedQuestions} questions";
+    }
+
     private void ResetView()
     {
         // Show the mode selection and hide player configuration
@@ -42,6 +56,9 @@ public partial class PlayerSelectionPage : ContentPage
         // Reset any other state as needed
         _viewModel = new PlayerSelectionViewModel();
         BindingContext = _viewModel;
+
+        // Reload settings
+        LoadSavedSettings();
     }
 
     private async void OnSinglePlayerClicked(object sender, EventArgs e)
@@ -49,11 +66,15 @@ public partial class PlayerSelectionPage : ContentPage
         // Set ModeSelectionLayout to invisible to prevent UI overlap
         ModeSelectionLayout.IsVisible = false;
 
+        // Get questions count from preferences (use perform mode settings for single player perform mode too)
+        int questionsCount = Preferences.Get(Constants.PERFORM_MODE_QUESTIONS_KEY, Constants.DEFAULT_PERFORM_QUESTIONS);
+
         // Start game with just the main player
         var gameParameters = new GameParameters
         {
             IsMultiplayer = false,
-            Players = new List<Player> { new Player { Name = "You", IsMainPlayer = true } }
+            Players = new List<Player> { new Player { Name = "You", IsMainPlayer = true } },
+            QuestionsCount = questionsCount
         };
 
         await StartGame(gameParameters);
@@ -76,26 +97,45 @@ public partial class PlayerSelectionPage : ContentPage
             return;
         }
 
-        if (_viewModel.Players.Count < 2)
+        // Get all players using the new method
+        var allPlayers = _viewModel.GetAllPlayers();
+
+        if (allPlayers.Count < 2)
         {
             await DisplayAlert("Not enough players", "Please add at least one additional player", "OK");
             return;
         }
 
+        // Get questions count from slider
+        int questionsCount = (int)PerformQuestionsSlider.Value;
+
         // Debug logging to verify player data
         Debug.WriteLine("=== STARTING GAME WITH PLAYERS ===");
-        foreach (var player in _viewModel.Players)
+        foreach (var player in allPlayers)
         {
             Debug.WriteLine($"Player: {player.Name}, IsMainPlayer: {player.IsMainPlayer}, Score: {player.Score}");
         }
+        Debug.WriteLine($"Questions Count: {questionsCount}");
 
         var gameParameters = new GameParameters
         {
             IsMultiplayer = true,
-            Players = _viewModel.Players.ToList()
+            Players = allPlayers,
+            QuestionsCount = questionsCount
         };
 
         await StartGame(gameParameters);
+    }
+
+    /// <summary>
+    /// Handles changes to the perform mode questions count slider
+    /// </summary>
+    private void OnPerformQuestionsCountChanged(object sender, ValueChangedEventArgs e)
+    {
+        int questions = (int)e.NewValue;
+        Preferences.Set(Constants.PERFORM_MODE_QUESTIONS_KEY, questions);
+        PerformQuestionsValueLabel.Text = $"{questions} questions";
+        Debug.WriteLine($"Perform mode questions count changed to: {questions}");
     }
 
     private (bool IsValid, string ErrorMessage) ValidatePlayerNames()
@@ -194,6 +234,7 @@ public partial class PlayerSelectionPage : ContentPage
     private void LogPlayersInfo(GameParameters parameters)
     {
         Debug.WriteLine($"=== Starting game with {parameters.Players.Count} players ===");
+        Debug.WriteLine($"Questions Count: {parameters.QuestionsCount}");
         foreach (var player in parameters.Players)
         {
             Debug.WriteLine($"  - Player: {player.Name}, IsMainPlayer: {player.IsMainPlayer}, Score: {player.Score}");

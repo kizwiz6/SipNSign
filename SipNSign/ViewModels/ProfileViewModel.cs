@@ -161,7 +161,7 @@ namespace com.kizwiz.sipnsign.ViewModels
             // Update RecentActivities
             RecentActivities.Clear();
             foreach (var activity in _userProgress.Activities
-                .Where(a => !string.IsNullOrEmpty(a.Description)) // Filter out empty descriptions
+                .Where(a => !string.IsNullOrEmpty(a.Description))
                 .OrderByDescending(a => a.Timestamp)
                 .Take(10))
             {
@@ -180,23 +180,24 @@ namespace com.kizwiz.sipnsign.ViewModels
                 RecentActivities.Add(new ActivityItem
                 {
                     Icon = activity.IconName ?? icon,
-                    Description = activity.Description ?? "Activity recorded", // Provide fallback
+                    Description = activity.Description ?? "Activity recorded",
                     TimeAgo = FormatTimeAgo(activity.Timestamp),
-                    Score = score ?? "" // Provide fallback for score
+                    Score = score ?? ""
                 });
             }
 
             OnPropertyChanged(nameof(AchievementsHeaderText));
 
-            // Update Achievements
+            // Update Achievements - WITH MULTIPLAYER ICONS
             Achievements.Clear();
             foreach (var achievement in _userProgress.Achievements.OrderBy(a => a.IsUnlocked))
             {
                 var progress = (double)achievement.ProgressCurrent / achievement.ProgressRequired;
 
-                // Choose icon based on unlock status
+                // Choose icon based on unlock status - UPDATED WITH MULTIPLAYER ACHIEVEMENTS
                 var icon = achievement.IsUnlocked ? achievement.Id switch
                 {
+                    // Original achievements
                     "FIRST_SIGN" => "first_sign_icon",
                     "STREAK_7" => "streak_weekly_icon",
                     "STREAK_30" => "streak_monthly_icon",
@@ -212,6 +213,19 @@ namespace com.kizwiz.sipnsign.ViewModels
                     "SOCIAL_BUTTERFLY" => "social_icon",
                     "RAPID_FIRE" => "speed_icon",
                     "SPEED_MASTER" => "speed_master_icon",
+
+                    // NEW: Multiplayer achievements
+                    "PARTY_HOST" => "party_icon",
+                    "MULTIPLAYER_FIRST" => "multiplayer_icon",
+                    "MULTIPLAYER_10" => "multiplayer_10_icon",
+                    "MULTIPLAYER_50" => "multiplayer_50_icon",
+                    "CHAMPION_WIN" => "champion_icon",
+                    "CLOSE_CALL" => "close_call_icon",
+                    "PERFECT_ROUND_ALL" => "harmony_icon",
+                    "COMEBACK_KING" => "comeback_icon",
+                    "PERFECT_MULTIPLAYER" => "perfect_multi_icon",
+                    "PARTY_ANIMAL" => "party_animal_icon",
+
                     _ => "achievement_icon"
                 } : "locked_icon";
 

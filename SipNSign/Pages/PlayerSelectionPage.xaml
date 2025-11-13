@@ -2,12 +2,16 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:com.kizwiz.sipnsign.ViewModels"
+             xmlns:models="clr-namespace:com.kizwiz.sipnsign.Models"
              x:Class="com.kizwiz.sipnsign.Pages.PlayerSelectionPage"
+             x:DataType="viewmodels:PlayerSelectionViewModel"
              Style="{StaticResource AppPageStyle}"
-             Title="Player Selection">
+             Title="Player Configuration">
 
-    <Grid Padding="20">
-        <VerticalStackLayout x:Name="ModeSelectionLayout" Spacing="20">
+    <Grid>
+        <VerticalStackLayout x:Name="ModeSelectionLayout" 
+                             Spacing="20" 
+                             Padding="20">
             <Label Text="Choose Game Mode" 
                    FontSize="28" 
                    TextColor="White"
@@ -24,64 +28,113 @@
 
         <VerticalStackLayout x:Name="PlayerConfigLayout" 
                              IsVisible="False" 
-                             Spacing="15">
-            <Label Text="Player Configuration" 
-                   FontSize="24" 
+                             Spacing="12"
+                             Padding="15">
+            <!-- Player count indicator - FIXED position at top -->
+            <Label Text="{Binding PlayerCountText}"
+                   FontSize="16"
                    TextColor="White"
-                   HorizontalOptions="Center"/>
+                   HorizontalOptions="Center"
+                   Margin="0,0,0,5"/>
 
-            <!-- Main player (always present) -->
+            <!-- Main player (always present) - FIXED -->
             <Border Padding="10" 
                     BackgroundColor="{DynamicResource CardBackground}"
                     StrokeShape="RoundRectangle 10">
-            <Grid ColumnDefinitions="Auto,*">
-                <Label Text="⭐" 
-                       FontSize="24"
-                       VerticalOptions="Center"/>
-                <Entry Grid.Column="1" 
-                       Text="{Binding MainPlayerName}" 
-                       Placeholder="Your Name (Main Player)"
-                       TextColor="{DynamicResource CardText}"
-                       MaxLength="15"/>
+                <Grid ColumnDefinitions="Auto,*">
+                    <Label Text="⭐" 
+                           FontSize="24"
+                           VerticalOptions="Center"/>
+                    <Entry Grid.Column="1" 
+                           Text="{Binding MainPlayerName, Mode=TwoWay}" 
+                           Placeholder="Your Name (Main Player)"
+                           TextColor="{DynamicResource CardText}"
+                           MaxLength="15"/>
                 </Grid>
             </Border>
 
-            <!-- Additional players list -->
-            <CollectionView ItemsSource="{Binding AdditionalPlayers}"
-                            HeightRequest="200">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <SwipeView>
-                            <SwipeView.RightItems>
-                                <SwipeItems>
-                                    <SwipeItem Text="Delete"
-                                               BackgroundColor="Red"
-                                               Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:PlayerSelectionViewModel}}, Path=RemovePlayerCommand}"
-                                               CommandParameter="{Binding .}"/>
-                                </SwipeItems>
-                            </SwipeView.RightItems>
+            <!-- Additional players list - SCROLLABLE ONLY -->
+            <ScrollView HeightRequest="180"
+                        VerticalScrollBarVisibility="Always">
+                <StackLayout BindableLayout.ItemsSource="{Binding AdditionalPlayers}" 
+                             Spacing="8">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:Player">
+                            <SwipeView>
+                                <SwipeView.RightItems>
+                                    <SwipeItems>
+                                        <SwipeItem Text="Delete"
+                                                   BackgroundColor="Red"
+                                                   Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:PlayerSelectionViewModel}}, Path=RemovePlayerCommand}"
+                                                   CommandParameter="{Binding .}"/>
+                                    </SwipeItems>
+                                </SwipeView.RightItems>
 
-                            <Border Padding="10" 
-                                    Margin="0,5"
-                                    BackgroundColor="{DynamicResource CardBackground}"
-                                    StrokeShape="RoundRectangle 10">
-                                <Entry Text="{Binding Name}" 
-                                       Placeholder="Player Name"
-                                       TextColor="{DynamicResource CardText}"
-                                       MaxLength="15"/>
-                            </Border>
-                        </SwipeView>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+                                <Border Padding="10" 
+                                        Margin="0,5"
+                                        BackgroundColor="{DynamicResource CardBackground}"
+                                        StrokeShape="RoundRectangle 10">
+                                    <Entry Text="{Binding Name, Mode=TwoWay}" 
+                                           Placeholder="Player Name"
+                                           TextColor="{DynamicResource CardText}"
+                                           MaxLength="15"/>
+                                </Border>
+                            </SwipeView>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </StackLayout>
+            </ScrollView>
 
+            <!-- Add Player button - FIXED -->
             <Button Text="Add Player"
                     Command="{Binding AddPlayerCommand}"
                     Style="{StaticResource SecondaryButton}"/>
 
+            <!-- Maximum players warning - FIXED -->
+            <Label Text="⚠️ Maximum 10 players reached"
+                   TextColor="Orange"
+                   FontSize="14"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   IsVisible="{Binding CanAddMorePlayers, Converter={StaticResource InverseBoolConverter}}"
+                   Margin="0,5,0,0"/>
+
+            <!-- Questions Count Setting - FIXED -->
+            <Border Stroke="Gray" 
+                    Padding="12" 
+                    StrokeShape="RoundRectangle 10"
+                    BackgroundColor="{DynamicResource CardBackground}"
+                    Opacity="0.95"
+                    Margin="0,5,0,0">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Number of Questions"
+                           TextColor="{DynamicResource CardText}"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           FontSize="16"/>
+                    <Label x:Name="PerformQuestionsValueLabel"
+                           Text="10 questions"
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="16"
+                           HorizontalOptions="Center"/>
+                    <Slider x:Name="PerformQuestionsSlider"
+                            Minimum="5"
+                            Maximum="50"
+                            Value="10"
+                            ValueChanged="OnPerformQuestionsCountChanged"/>
+                    <Label Text="Choose how many signs to perform"
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="11"
+                           HorizontalOptions="Center"
+                           Opacity="0.8"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Start Game button - FIXED -->
             <Button Text="Start Game"
                     Style="{StaticResource PrimaryButton}"
-                    Clicked="OnStartGameClicked"/>
+                    Clicked="OnStartGameClicked"
+                    Margin="0,5,0,10"/>
         </VerticalStackLayout>
     </Grid>
 </ContentPage>
