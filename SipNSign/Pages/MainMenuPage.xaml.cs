@@ -13,7 +13,6 @@ namespace com.kizwiz.sipnsign.Pages
         private readonly IThemeService _themeService;
         private bool _isNavigating = false;
 
-
         /// <summary>
         /// Initializes a new instance of the <see cref="MainMenuPage"/> class.
         /// This constructor sets up the required services via dependency injection and initializes the page.
@@ -66,47 +65,63 @@ namespace com.kizwiz.sipnsign.Pages
 
         /// <summary>
         /// Handles the Guess Game button click event. 
-        /// Initialises services and navigates to the Guess Game page.
+        /// Navigates to PlayerSelectionPage with Guess mode selected.
         /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The event arguments.</param>
         private async void OnGuessGameClicked(object sender, EventArgs e)
         {
             if (_isNavigating) return;
-            var logger = _serviceProvider?.GetService<ILoggingService>();
 
             try
             {
                 _isNavigating = true;
-                logger?.Debug("Starting Guess Mode initialization");
+                _logger?.Debug("Guess Mode button clicked");
 
-                var videoService = _videoService ?? _serviceProvider?.GetRequiredService<IVideoService>();
-                var loggingService = _logger ?? _serviceProvider?.GetRequiredService<ILoggingService>();
-                var progressService = _progressService ?? _serviceProvider?.GetRequiredService<IProgressService>();
+                // Set the selected mode for PlayerSelectionPage
+                Preferences.Set("selected_game_mode", "Guess");
 
-                logger?.Debug("Calling InitializeVideos");
-                await videoService.InitializeVideos();
-                logger?.Debug("InitializeVideos completed");
+                // Navigate to PlayerSelectionPage
+                var playerSelectionPage = new PlayerSelectionPage();
+                await Navigation.PushAsync(playerSelectionPage);
 
-                logger?.Debug("Creating GamePage");
-                var gamePage = new GamePage(_serviceProvider, videoService, loggingService, progressService);
-                gamePage.ViewModel.CurrentMode = GameMode.Guess;
-
-                if (Navigation == null)
-                {
-                    logger?.Error("Navigation is null");
-                    await DisplayAlert("Error", "Navigation is not initialized.", "OK");
-                    return;
-                }
-
-                await Navigation.PushAsync(gamePage);
-                logger?.Debug("Navigation completed");
+                _logger?.Debug("Navigation to PlayerSelectionPage (Guess) completed");
             }
             catch (Exception ex)
             {
-                logger?.Error($"Critical error: {ex.Message}");
-                logger?.Error($"Stack trace: {ex.StackTrace}");
-                await DisplayAlert("Error", "Unable to start game. Please restart the application.", "OK");
+                _logger?.Error($"Error navigating to Guess mode: {ex.Message}");
+                await DisplayAlert("Error", "Failed to start Guess mode", "OK");
+            }
+            finally
+            {
+                _isNavigating = false;
+            }
+        }
+
+        /// <summary>
+        /// Handles the Perform Game button click event.
+        /// Navigates to PlayerSelectionPage with Perform mode selected.
+        /// </summary>
+        private async void OnPerformGameClicked(object sender, EventArgs e)
+        {
+            if (_isNavigating) return;
+
+            try
+            {
+                _isNavigating = true;
+                _logger?.Debug("Perform Mode button clicked");
+
+                // Set the selected mode for PlayerSelectionPage
+                Preferences.Set("selected_game_mode", "Perform");
+
+                // Navigate to PlayerSelectionPage
+                var playerSelectionPage = new PlayerSelectionPage();
+                await Navigation.PushAsync(playerSelectionPage);
+
+                _logger?.Debug("Navigation to PlayerSelectionPage (Perform) completed");
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"Error navigating to Perform mode: {ex.Message}");
+                await DisplayAlert("Error", "Failed to start Perform mode", "OK");
             }
             finally
             {
@@ -201,33 +216,9 @@ namespace com.kizwiz.sipnsign.Pages
             });
         }
 
-        private async void OnPerformGameClicked(object sender, EventArgs e)
-        {
-            if (_isNavigating) return;
-            var logger = _serviceProvider?.GetService<ILoggingService>();
-
-            try
-            {
-                _isNavigating = true;
-                // Launch the player selection page instead of going directly to game
-                var playerSelectionPage = new PlayerSelectionPage();
-                await Navigation.PushAsync(playerSelectionPage);
-            }
-            catch (Exception ex)
-            {
-                logger?.Error($"Error starting Perform Mode: {ex.Message}");
-                await DisplayAlert("Error", "Unable to start Perform Mode.", "OK");
-            }
-            finally
-            {
-                _isNavigating = false;
-            }
-        }
-
         private async void OnViewScoresClicked(object sender, EventArgs e)
         {
             if (_isNavigating) return;
-            var logger = _serviceProvider?.GetService<ILoggingService>();
 
             try
             {
@@ -240,7 +231,7 @@ namespace com.kizwiz.sipnsign.Pages
             }
             catch (Exception ex)
             {
-                logger?.Error($"Error viewing scores: {ex.Message}");
+                _logger?.Error($"Error viewing scores: {ex.Message}");
                 await DisplayAlert("Error", "Unable to load progress data", "OK");
             }
             finally
@@ -252,18 +243,17 @@ namespace com.kizwiz.sipnsign.Pages
         private async void OnSettingsClicked(object sender, EventArgs e)
         {
             if (_isNavigating) return;
-            var logger = _serviceProvider?.GetService<ILoggingService>();
 
             try
             {
                 _isNavigating = true;
                 var themeService = _serviceProvider.GetRequiredService<IThemeService>();
-                var settingsPage = new SettingsPage(themeService, _serviceProvider); // Update this line
+                var settingsPage = new SettingsPage(themeService, _serviceProvider);
                 await Navigation.PushAsync(settingsPage);
             }
             catch (Exception ex)
             {
-                logger?.Error($"Settings error: {ex.Message}");
+                _logger?.Error($"Settings error: {ex.Message}");
                 await DisplayAlert("Error", "Unable to open settings", "OK");
             }
             finally
@@ -275,7 +265,6 @@ namespace com.kizwiz.sipnsign.Pages
         private async void OnStoreClicked(object sender, EventArgs e)
         {
             if (_isNavigating) return;
-            var logger = _serviceProvider?.GetService<ILoggingService>();
 
             try
             {
@@ -285,7 +274,7 @@ namespace com.kizwiz.sipnsign.Pages
             }
             catch (Exception ex)
             {
-                logger?.Error($"Store error: {ex.Message}");
+                _logger?.Error($"Store error: {ex.Message}");
                 await DisplayAlert("Error", "Unable to open store", "OK");
             }
             finally
