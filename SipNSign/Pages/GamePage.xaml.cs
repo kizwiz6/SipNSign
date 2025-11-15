@@ -23,10 +23,11 @@ namespace com.kizwiz.sipnsign.Pages
         private bool _isDisposed;
         private readonly SemaphoreSlim _cleanupLock = new(1, 1);
         private IDispatcherTimer? _timer;
+        private MediaElement? _multiplayerGuessVideoElement;
         #endregion
 
         #region Properties
-        public GameViewModel ViewModel => _viewModel;
+        public GameViewModel ViewModel => (GameViewModel)BindingContext;
         private bool IsGuessMode => _viewModel.CurrentMode == GameMode.Guess;
 
         // Add properties for the MediaElements with distinct names to avoid conflicts
@@ -48,6 +49,7 @@ namespace com.kizwiz.sipnsign.Pages
                 InitializeComponent();
 
                 _videoService = videoService ?? throw new ArgumentNullException(nameof(videoService));
+                BindingContext = _viewModel;
                 _viewModel = new GameViewModel(serviceProvider, videoService, logger, progressService)
                 {
                     AnswerCommand = new Command<string>(HandleAnswer),
@@ -60,6 +62,13 @@ namespace com.kizwiz.sipnsign.Pages
                 ConnectToViewModel();
 
                 this.Loaded += OnPageLoaded;
+
+                this.Loaded += (s, e) => {
+                    Debug.WriteLine($"=== GamePage Loaded ===");
+                    Debug.WriteLine($"IsGuessMode: {_viewModel.IsGuessMode}");
+                    Debug.WriteLine($"IsMultiplayer: {_viewModel.IsMultiplayer}");
+                    Debug.WriteLine($"Players count: {_viewModel.Players.Count}");
+                };
             }
             catch (Exception ex)
             {
@@ -82,102 +91,78 @@ namespace com.kizwiz.sipnsign.Pages
                 await _videoLoadLock.WaitAsync();
 
                 var videoFileName = Path.GetFileName(_viewModel.CurrentSign.VideoPath);
-                Debug.WriteLine($"Attempting to load video: {videoFileName}");
+                Debug.WriteLine($"=== LoadVideoForCurrentSign: {videoFileName} ===");
+                Debug.WriteLine($"Mode: {_viewModel.CurrentMode}, Multiplayer: {_viewModel.IsMultiplayer}");
 
-                if (_sharedVideoElement == null && !_isDisposed)
-                {
-                    Debug.WriteLine("Shared video is null, recreating...");
-                    _sharedVideoElement = this.FindByName<MediaElement>("SharedVideo");
-                    if (_sharedVideoElement != null)
-                    {
-                        _sharedVideoElement.PropertyChanged += OnSharedVideoPropertyChanged;
-                    }
-                }
-
-                // Get the video path/URI from the VideoService
+                // Get the video URI
                 var videoPath = await _videoService.GetVideoPath(videoFileName);
                 var source = MediaSource.FromUri(videoPath);
+                Debug.WriteLine($"Video source created: {videoPath}");
 
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
                     try
                     {
-                        if (_sharedVideoElement != null && !_isDisposed)
+                        MediaElement? targetElement = null;
+                        string elementName = "";
+
+                        // Determine which element to use
+                        if (_viewModel.IsGuessMode && _viewModel.IsMultiplayer)
                         {
-                            _sharedVideoElement.Stop();
-                            _sharedVideoElement.Source = null;
-                            _sharedVideoElement.Source = source;
-                            _sharedVideoElement.IsVisible = true;
-                            _sharedVideoElement.ShouldAutoPlay = true;
-                            _sharedVideoElement.Play();
+                            targetElement = _multiplayerGuessVideoElement;
+                            elementName = "MultiplayerGuessVideo";
+                        }
+                        else if (_viewModel.IsGuessMode && !_viewModel.IsMultiplayer)
+                        {
+                            targetElement = _sharedVideoElement;
+                            elementName = "SharedVideo";
+                        }
+                        else if (_viewModel.IsPerformMode && _viewModel.IsMultiplayer)
+                        {
+                            targetElement = _multiplayerPerformVideoElement;
+                            elementName = "MultiplayerPerformVideo";
+                        }
+                        else if (_viewModel.IsPerformMode && !_viewModel.IsMultiplayer)
+                        {
+                            targetElement = _performVideoElement;
+                            elementName = "PerformVideo";
+                        }
+
+                        Debug.WriteLine($"Target element: {elementName}, Exists: {targetElement != null}");
+
+                        if (targetElement != null && !_isDisposed)
+                        {
+                            // Stop any existing playback
+                            try { targetElement.Stop(); } catch { }
+
+                            // Set new source
+                            targetElement.Source = source;
+                            targetElement.IsVisible = true;
+
+                            // Auto-play for Guess mode, manual for Perform mode
+                            targetElement.ShouldAutoPlay = _viewModel.IsGuessMode;
+
+                            if (_viewModel.IsGuessMode)
+                            {
+                                targetElement.Play();
+                            }
+
+                            Debug.WriteLine($"Video loaded on {elementName}");
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"ERROR: Target element is null or disposed!");
                         }
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"Error setting video source: {ex.Message}");
+                        Debug.WriteLine($"ERROR setting video source: {ex.Message}");
                     }
                 });
-
-                // Handle Guess Mode
-                var window = Application.Current?.Windows.FirstOrDefault();
-                var gamePage = window?.Page?.Navigation?.NavigationStack.LastOrDefault() as GamePage;
-                if (gamePage != null)
-                {
-                    gamePage.SetVideoSource(source);
-                }
-
-                // Additional handling for Perform Mode
-                if (_viewModel.IsPerformMode)
-                {
-                    Debug.WriteLine("Setting source for Perform Mode video");
-
-                    // Find both perform video elements if needed
-                    if (_performVideoElement == null)
-                    {
-                        _performVideoElement = this.FindByName<MediaElement>("PerformVideo");
-                    }
-
-                    if (_multiplayerPerformVideoElement == null)
-                    {
-                        _multiplayerPerformVideoElement = this.FindByName<MediaElement>("MultiplayerPerformVideo");
-                    }
-
-                    Debug.WriteLine($"PerformVideo found: {_performVideoElement != null}");
-                    Debug.WriteLine($"MultiplayerPerformVideo found: {_multiplayerPerformVideoElement != null}");
-
-                    await MainThread.InvokeOnMainThreadAsync(() =>
-                    {
-                        try
-                        {
-                            // Set source for single player video
-                            if (_performVideoElement != null)
-                            {
-                                _performVideoElement.IsVisible = true;
-                                _performVideoElement.Source = source;
-                                _performVideoElement.ShouldAutoPlay = false; // Don't auto play in Perform Mode
-                                Debug.WriteLine($"Single player video source set: {source}");
-                            }
-
-                            // Set source for multiplayer video
-                            if (_multiplayerPerformVideoElement != null)
-                            {
-                                _multiplayerPerformVideoElement.IsVisible = true;
-                                _multiplayerPerformVideoElement.Source = source;
-                                _multiplayerPerformVideoElement.ShouldAutoPlay = false; // Don't auto play in Perform Mode
-                                Debug.WriteLine($"Multiplayer video source set: {source}");
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine($"Error setting Perform Mode video: {ex.Message}");
-                        }
-                    });
-                }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error loading video: {ex.Message}");
-                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                Debug.WriteLine($"ERROR in LoadVideoForCurrentSign: {ex.Message}");
             }
             finally
             {
@@ -276,6 +261,32 @@ namespace com.kizwiz.sipnsign.Pages
                 }
             });
         }
+
+        private async void OnConfirmGuessClicked(object sender, EventArgs e)
+        {
+            if (BindingContext is not ViewModels.GameViewModel vm)
+                return;
+
+            // If multiplayer and not everyone answered, show a popup with the missing players
+            if (vm.IsMultiplayer && !vm.HasAllPlayersAnswered)
+            {
+                var unanswered = vm.Players
+                                  .Where(p => !p.HasAnswered)
+                                  .Select(p => p.Name)
+                                  .ToList();
+
+                string names = unanswered.Any() ? string.Join(", ", unanswered) : "No one";
+                string plural = unanswered.Count > 1 ? "are" : "is";
+                await DisplayAlert("Waiting for Players", $"{names} {plural} still to answer.", "OK");
+                return;
+            }
+
+            // All answered -> execute the Confirm command via ViewModel
+            if (vm.ConfirmGuessAnswersCommand?.CanExecute(null) ?? false)
+            {
+                vm.ConfirmGuessAnswersCommand.Execute(null);
+            }
+        }
         #endregion
 
         private void OnMediaFailed(object sender, EventArgs e)
@@ -330,7 +341,16 @@ namespace com.kizwiz.sipnsign.Pages
                 // Only initialize MediaElements for current mode
                 if (ViewModel.IsGuessMode)
                 {
-                    _sharedVideoElement = FindMediaElement("SharedVideo");
+                    if (ViewModel.IsMultiplayer)
+                    {
+                        _multiplayerGuessVideoElement = FindMediaElement("MultiplayerGuessVideo");
+                        Debug.WriteLine($"MultiplayerGuessVideo element found: {_multiplayerGuessVideoElement != null}");
+                    }
+                    else
+                    {
+                        _sharedVideoElement = FindMediaElement("SharedVideo");
+                        Debug.WriteLine($"SharedVideo element found: {_sharedVideoElement != null}");
+                    }
                 }
                 else if (ViewModel.IsPerformMode)
                 {
@@ -599,11 +619,102 @@ namespace com.kizwiz.sipnsign.Pages
                 {
                     if (e.PropertyName == nameof(GameViewModel.CurrentSign))
                     {
-                        Debug.WriteLine("CurrentSign changed, loading video...");
-                        await LoadVideoForCurrentSign();
+                        Debug.WriteLine($"CurrentSign changed to: {_viewModel.CurrentSign?.CorrectAnswer}");
+
+                        // Initialize elements if not done yet
+                        if (_viewModel.IsGuessMode && _viewModel.IsMultiplayer && _multiplayerGuessVideoElement == null)
+                        {
+                            Debug.WriteLine("MultiplayerGuessVideo is null, initializing...");
+                            InitializeVideoElementsForCurrentMode();
+                        }
+                        else if (_viewModel.IsGuessMode && !_viewModel.IsMultiplayer && _sharedVideoElement == null)
+                        {
+                            Debug.WriteLine("SharedVideo is null, initializing...");
+                            InitializeVideoElementsForCurrentMode();
+                        }
+                        else
+                        {
+                            await LoadVideoForCurrentSign();
+                        }
+                    }
+
+                    if (e.PropertyName == nameof(GameViewModel.IsMultiplayer))
+                    {
+                        Debug.WriteLine($"IsMultiplayer changed to: {_viewModel.IsMultiplayer}");
+                        // Reinitialize to find the right video element
+                        InitializeVideoElementsForCurrentMode();
                     }
                 };
             }
+        }
+
+        private async void InitializeVideoElementsForCurrentMode()
+        {
+            await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                try
+                {
+                    Debug.WriteLine($"=== InitializeVideoElementsForCurrentMode ===");
+                    Debug.WriteLine($"IsGuessMode: {_viewModel.IsGuessMode}");
+                    Debug.WriteLine($"IsMultiplayer: {_viewModel.IsMultiplayer}");
+
+                    // Clear all previous elements
+                    _sharedVideoElement = null;
+                    _performVideoElement = null;
+                    _multiplayerPerformVideoElement = null;
+                    _multiplayerGuessVideoElement = null;
+
+                    // CRITICAL: Wait for UI to update with IsMultiplayer binding
+                    await Task.Delay(200);
+
+                    // Find and set the correct element for current mode
+                    if (_viewModel.IsGuessMode)
+                    {
+                        if (_viewModel.IsMultiplayer)
+                        {
+                            _multiplayerGuessVideoElement = this.FindByName<MediaElement>("MultiplayerGuessVideo");
+                            Debug.WriteLine($"Initialized MultiplayerGuessVideo: {_multiplayerGuessVideoElement != null}");
+
+                            if (_multiplayerGuessVideoElement == null)
+                            {
+                                // Try again after another delay
+                                await Task.Delay(300);
+                                _multiplayerGuessVideoElement = this.FindByName<MediaElement>("MultiplayerGuessVideo");
+                                Debug.WriteLine($"Retry MultiplayerGuessVideo: {_multiplayerGuessVideoElement != null}");
+                            }
+                        }
+                        else
+                        {
+                            _sharedVideoElement = this.FindByName<MediaElement>("SharedVideo");
+                            Debug.WriteLine($"Initialized SharedVideo: {_sharedVideoElement != null}");
+                        }
+                    }
+                    else if (_viewModel.IsPerformMode)
+                    {
+                        if (_viewModel.IsMultiplayer)
+                        {
+                            _multiplayerPerformVideoElement = this.FindByName<MediaElement>("MultiplayerPerformVideo");
+                            Debug.WriteLine($"Initialized MultiplayerPerformVideo: {_multiplayerPerformVideoElement != null}");
+                        }
+                        else
+                        {
+                            _performVideoElement = this.FindByName<MediaElement>("PerformVideo");
+                            Debug.WriteLine($"Initialized PerformVideo: {_performVideoElement != null}");
+                        }
+                    }
+
+                    // If we have a current sign and found the element, load the video
+                    if (_viewModel.CurrentSign != null)
+                    {
+                        Debug.WriteLine("Element found and CurrentSign exists, loading video...");
+                        await LoadVideoForCurrentSign();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error initializing video elements: {ex.Message}");
+                }
+            });
         }
 
         private async Task CleanupMediaElements()
@@ -656,6 +767,7 @@ namespace com.kizwiz.sipnsign.Pages
 
             try
             {
+                Debug.WriteLine("Cleanup: Starting");
                 _isDisposed = true;
 
                 if (_timer != null)
@@ -664,49 +776,31 @@ namespace com.kizwiz.sipnsign.Pages
                     _timer = null;
                 }
 
-                var sharedVideoRef = _sharedVideoElement;
-                var performVideoRef = _performVideoElement;
-                var multiplayerVideoRef = _multiplayerPerformVideoElement;
-
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
                     try
                     {
-                        if (sharedVideoRef != null)
-                        {
-                            sharedVideoRef.Stop();
-                            sharedVideoRef.Source = null;
-                            sharedVideoRef.Handler?.DisconnectHandler();
-                        }
-
-                        if (performVideoRef != null)
-                        {
-                            performVideoRef.Stop();
-                            performVideoRef.Source = null;
-                            performVideoRef.Handler?.DisconnectHandler();
-                        }
-
-                        if (multiplayerVideoRef != null)
-                        {
-                            multiplayerVideoRef.Stop();
-                            multiplayerVideoRef.Source = null;
-                            multiplayerVideoRef.Handler?.DisconnectHandler();
-                        }
+                        _sharedVideoElement?.Handler?.DisconnectHandler();
+                        _performVideoElement?.Handler?.DisconnectHandler();
+                        _multiplayerPerformVideoElement?.Handler?.DisconnectHandler();
+                        _multiplayerGuessVideoElement?.Handler?.DisconnectHandler(); // ADD THIS
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"Error cleaning up videos: {ex.Message}");
+                        Debug.WriteLine($"Error disconnecting handlers: {ex.Message}");
                     }
                 });
-
-                await Task.Delay(50);
 
                 _sharedVideoElement = null;
                 _performVideoElement = null;
                 _multiplayerPerformVideoElement = null;
+                _multiplayerGuessVideoElement = null; // ADD THIS
 
-                // Force garbage collection to free memory
-                ForceGarbageCollection();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+
+                Debug.WriteLine("Cleanup: Complete");
             }
             catch (Exception ex)
             {
@@ -964,6 +1058,121 @@ namespace com.kizwiz.sipnsign.Pages
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error in OnPlayerIncorrectClicked: {ex.Message}");
+            }
+        }
+
+        private void OnPlayerAnswerClicked(object sender, EventArgs e)
+        {
+            var button = (Button)sender;
+            var player = button.CommandParameter as Player;
+            var answer = int.Parse(button.Text);
+
+            if (player != null)
+            {
+                player.SelectedAnswer = answer;
+                // Update UI to reflect selected answer, if needed
+                _viewModel.OnPropertyChanged(nameof(_viewModel.HasAllPlayersAnswered));
+            }
+        }
+
+        private async void OnConfirmAnswersClicked(object sender, EventArgs e)
+        {
+            if(ViewModel.IsMultiplayer && !ViewModel.HasAllPlayersAnswered)
+            {
+                var unansweredPlayers = ViewModel.Players.Where(p => p.SelectedAnswer == 0).ToList();
+                var playerNames = string.Join(", ", unansweredPlayers.Select(p => p.Name));
+
+                await Application.Current.MainPage.DisplayAlert(
+                    "Waiting for Players",
+                    $"Still waiting for: {playerNames}\n\nMake sure all players have selected their answers (1-4).",
+                    "OK");
+                return;
+            }
+
+            bool allPlayersCorrect = true;
+
+            foreach (var player in ViewModel.Players)
+            {
+                var isCorrect = player.SelectedAnswer == ViewModel.CurrentAnswer;
+                player.Score += isCorrect ? 1 : 0;
+
+                if (!isCorrect)
+                {
+                    allPlayersCorrect = false;
+                }
+            }
+
+            // Show feedback and move to next question
+            ViewModel.ShowFeedbackAndContinue(allPlayersCorrect);
+        }
+
+        /// <summary>
+        /// Handles when a player selects an answer (1-4) in multiplayer Guess mode
+        /// </summary>
+        private void OnPlayerGuessAnswerClicked(object sender, EventArgs e)
+        {
+            try
+            {
+                if (sender is Button button &&
+                    !string.IsNullOrEmpty(button.ClassId) &&
+                    button.CommandParameter is string answerNumberStr &&
+                    int.TryParse(answerNumberStr, out int answerNumber))
+                {
+                    string playerName = button.ClassId;
+                    Debug.WriteLine($"OnPlayerGuessAnswerClicked: Player={playerName}, Answer={answerNumber}");
+
+                    // Find the player by name
+                    var player = _viewModel.Players.FirstOrDefault(p => p.Name == playerName);
+                    if (player != null)
+                    {
+                        // Get the answer text for this number (answerNumber is 1-4, array index is 0-3)
+                        int answerIndex = answerNumber - 1;
+                        if (answerIndex >= 0 && answerIndex < _viewModel.CurrentSign.Choices.Count)
+                        {
+                            string answerText = _viewModel.CurrentSign.Choices[answerIndex];
+                            bool isCorrect = answerText == _viewModel.CurrentSign.CorrectAnswer;
+
+                            Debug.WriteLine($"Player {player.Name}: Selected '{answerText}' - {(isCorrect ? "Correct" : "Incorrect")}");
+
+                            // Record the answer with the number and text
+                            player.RecordGuessAnswer(answerNumber, answerText, isCorrect);
+
+                            // Show feedback
+                            _viewModel.FeedbackText = $"{player.Name} selected {answerNumber}: {answerText}";
+                            _viewModel.FeedbackBackgroundColor = _viewModel.GetFeedbackColor(isCorrect);
+                            _viewModel.IsFeedbackVisible = true;
+
+                            // Force UI refresh
+                            _viewModel.OnPropertyChanged(nameof(_viewModel.Players));
+                            _viewModel.OnPropertyChanged(nameof(_viewModel.HasAllPlayersAnswered));
+
+                            Debug.WriteLine($"Player {player.Name} updated: HasAnswered={player.HasAnswered}, Score={player.Score}");
+                            Debug.WriteLine($"HasAllPlayersAnswered: {_viewModel.HasAllPlayersAnswered}");
+
+                            // Auto-hide feedback after 2 seconds
+                            Device.StartTimer(TimeSpan.FromSeconds(2), () => {
+                                _viewModel.IsFeedbackVisible = false;
+                                return false; // Don't repeat
+                            });
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"Invalid answer index: {answerIndex}");
+                        }
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"Player not found with name: {playerName}");
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("Invalid button sender or parameters");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in OnPlayerGuessAnswerClicked: {ex.Message}");
             }
         }
     }

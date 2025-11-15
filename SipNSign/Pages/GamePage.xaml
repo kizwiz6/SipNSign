@@ -9,7 +9,7 @@
     x:Class="com.kizwiz.sipnsign.Pages.GamePage"
     x:DataType="viewmodels:GameViewModel"
     Style="{StaticResource AppPageStyle}"
-    Title="{Binding CurrentMode, StringFormat='{0} Mode'}">
+    Title="{Binding ModeTitle}">
 
     <!-- Page Resources -->
     <ContentPage.Resources>
@@ -31,6 +31,41 @@
                 <Setter Property="Margin" Value="0"/>
                 <Setter Property="Padding" Value="0"/>
             </Style>
+
+            <!-- Answer button styles (smaller / shorter buttons) -->
+            <Style x:Key="AnswerButton" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{DynamicResource Primary}" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="FontSize" Value="15" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Padding" Value="6" />
+                <Setter Property="Margin" Value="4" />
+                <!-- make buttons shorter by limiting width; horizontal centering keeps layout tidy -->
+                <Setter Property="WidthRequest" Value="140" />
+                <Setter Property="HorizontalOptions" Value="Fill" />
+                <Style.Triggers>
+                    <Trigger TargetType="Button" Property="IsPressed" Value="True">
+                        <Setter Property="BackgroundColor" Value="{DynamicResource PrimaryDark}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <Style x:Key="PlayerAnswerButton" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{DynamicResource Primary}" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Padding" Value="6" />
+                <Setter Property="Margin" Value="2" />
+                <Setter Property="WidthRequest" Value="40" />
+                <Setter Property="HeightRequest" Value="40" />
+                <Style.Triggers>
+                    <Trigger TargetType="Button" Property="IsPressed" Value="True">
+                        <Setter Property="BackgroundColor" Value="{DynamicResource PrimaryDark}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
         </ResourceDictionary>
     </ContentPage.Resources>
 
@@ -115,81 +150,192 @@
 
         <!-- Guess Mode -->
         <Grid Grid.Row="1" IsVisible="{Binding IsGuessMode}">
-            <VerticalStackLayout Padding="20" Spacing="15">
-                <!-- Video container with feedback overlay -->
-                <Grid>
-                    <Border Padding="0"
-                            Stroke="{DynamicResource Primary}"
-                            StrokeThickness="1"
-                            Background="Black"
-                            StrokeShape="RoundRectangle 15"
-                            HeightRequest="400">
-                        <!-- Increased from 300 to 400 -->
-                        <toolkit:MediaElement 
-                            x:Name="SharedVideo"
-                            ShouldShowPlaybackControls="False"
-                            ShouldAutoPlay="True"
-                            ShouldLoopPlayback="True"
-                            Aspect="AspectFit"
-                            HeightRequest="400"  
-                            WidthRequest="320"
-                            HorizontalOptions="Center"
-                            VerticalOptions="Center"
-                            MediaOpened="OnMediaOpened"
-                            MediaFailed="OnMediaFailed"
-                            MediaEnded="OnMediaEnded"
-                            Volume="0"
-                            ShouldMute="True"
-                            IsVisible="True"/>
-                    </Border>
+            <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="12" RowSpacing="8">
+                <!-- Row 0: Video container -->
+                <Border Grid.Row="0"
+                Padding="0"
+                Stroke="{DynamicResource Primary}"
+                StrokeThickness="1"
+                Background="Black"
+                StrokeShape="RoundRectangle 15"
+                HeightRequest="360">
+                    <Border.Triggers>
+                        <!-- Reduce frame height when in multiplayer -->
+                        <DataTrigger TargetType="Border" Binding="{Binding IsMultiplayer}" Value="True">
+                            <Setter Property="HeightRequest" Value="300" />
+                        </DataTrigger>
+                    </Border.Triggers>
 
-                    <!-- Feedback Overlay -->
-                    <Border IsVisible="{Binding IsFeedbackVisible}"
-                            StrokeShape="RoundRectangle 20"
-                            Margin="20,0"
-                            VerticalOptions="Center">
-                        <Border.Background>
-                            <SolidColorBrush Color="{Binding FeedbackBackgroundColor}" />
-                        </Border.Background>
-                        <VerticalStackLayout Spacing="10" Padding="20">
-                            <Label Text="{Binding FeedbackText}"
-                                   TextColor="White"
-                                   FontSize="24"
-                                   FontAttributes="Bold"
-                                   HorizontalOptions="Center"
-                                   HorizontalTextAlignment="Center"/>
-                        </VerticalStackLayout>
-                    </Border>
+                    <Grid>
+                        <!-- Single-player video -->
+                        <toolkit:MediaElement
+            x:Name="SharedVideo"
+            Source="{Binding CurrentVideoSource}"
+            ShouldShowPlaybackControls="False"
+            ShouldAutoPlay="True"
+            ShouldLoopPlayback="True"
+            Aspect="AspectFit"
+            HeightRequest="320"
+            WidthRequest="320"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            MediaOpened="OnMediaOpened"
+            MediaFailed="OnMediaFailed"
+            MediaEnded="OnMediaEnded"
+            Volume="0"
+            ShouldMute="True"
+            IsVisible="{Binding IsMultiplayer, Converter={StaticResource InverseBoolConverter}}"/>
+
+                        <!-- Multiplayer video reduced visually by outer Border Trigger -->
+                        <toolkit:MediaElement
+            x:Name="MultiplayerGuessVideo"
+            Source="{Binding CurrentVideoSource}"
+            ShouldShowPlaybackControls="False"
+            ShouldAutoPlay="True"
+            ShouldLoopPlayback="True"
+            Aspect="AspectFit"
+            HeightRequest="260"
+            WidthRequest="320"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            MediaOpened="OnMediaOpened"
+            MediaFailed="OnMediaFailed"
+            MediaEnded="OnMediaEnded"
+            Volume="0"
+            ShouldMute="True"
+            IsVisible="{Binding IsMultiplayer}"/>
+                    </Grid>
+                </Border>
+
+                <!-- Row 1: Single-player answers (2 per row) - slightly less vertical gap -->
+                <Grid Grid.Row="1"
+      IsVisible="{Binding IsMultiplayer, Converter={StaticResource InverseBoolConverter}}"
+      ColumnDefinitions="*,*"
+      RowDefinitions="Auto,Auto"
+      ColumnSpacing="8"
+      RowSpacing="6"
+      Margin="0,6,0,0">
+                    <Button Grid.Row="0" Grid.Column="0"
+                    Style="{StaticResource AnswerButton}"
+                    Text="{Binding CurrentSign.Choices[0]}"
+                    Command="{Binding AnswerCommand}"
+                    CommandParameter="{Binding CurrentSign.Choices[0]}"
+                    BackgroundColor="{Binding Button1Color}"
+                    HorizontalOptions="Fill"/>
+                    <Button Grid.Row="0" Grid.Column="1"
+                    Style="{StaticResource AnswerButton}"
+                    Text="{Binding CurrentSign.Choices[1]}"
+                    Command="{Binding AnswerCommand}"
+                    CommandParameter="{Binding CurrentSign.Choices[1]}"
+                    BackgroundColor="{Binding Button2Color}"
+                    HorizontalOptions="Fill"/>
+                    <Button Grid.Row="1" Grid.Column="0"
+                    Style="{StaticResource AnswerButton}"
+                    Text="{Binding CurrentSign.Choices[2]}"
+                    Command="{Binding AnswerCommand}"
+                    CommandParameter="{Binding CurrentSign.Choices[2]}"
+                    BackgroundColor="{Binding Button3Color}"
+                    HorizontalOptions="Fill"/>
+                    <Button Grid.Row="1" Grid.Column="1"
+                    Style="{StaticResource AnswerButton}"
+                    Text="{Binding CurrentSign.Choices[3]}"
+                    Command="{Binding AnswerCommand}"
+                    CommandParameter="{Binding CurrentSign.Choices[3]}"
+                    BackgroundColor="{Binding Button4Color}"
+                    HorizontalOptions="Fill"/>
                 </Grid>
 
-                <!-- Buttons -->
-                <Grid Grid.Row="2" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" RowSpacing="10" ColumnSpacing="8">
-                    <Button Grid.Column="0" Grid.Row="0"
-                            Style="{StaticResource PrimaryButton}"
-                            Text="{Binding CurrentSign.Choices[0]}"
-                            Command="{Binding AnswerCommand}"
-                            CommandParameter="{Binding CurrentSign.Choices[0]}"
-                            BackgroundColor="{Binding Button1Color}"/>
-                    <Button Grid.Column="1" Grid.Row="0"
-                            Style="{StaticResource PrimaryButton}"
-                            Text="{Binding CurrentSign.Choices[1]}"
-                            Command="{Binding AnswerCommand}"
-                            CommandParameter="{Binding CurrentSign.Choices[1]}"
-                            BackgroundColor="{Binding Button2Color}"/>
-                    <Button Grid.Column="0" Grid.Row="1"
-                            Style="{StaticResource PrimaryButton}"
-                            Text="{Binding CurrentSign.Choices[2]}"
-                            Command="{Binding AnswerCommand}"
-                            CommandParameter="{Binding CurrentSign.Choices[2]}"
-                            BackgroundColor="{Binding Button3Color}"/>
-                    <Button Grid.Column="1" Grid.Row="1"
-                            Style="{StaticResource PrimaryButton}"
-                            Text="{Binding CurrentSign.Choices[3]}"
-                            Command="{Binding AnswerCommand}"
-                            CommandParameter="{Binding CurrentSign.Choices[3]}"
-                            BackgroundColor="{Binding Button4Color}"/>
+                <!-- Row 2: Multiplayer area -->
+                <Grid Grid.Row="2" IsVisible="{Binding IsMultiplayer}" RowDefinitions="Auto,*,Auto" VerticalOptions="FillAndExpand">
+                    <!-- Legend -->
+                    <Grid Grid.Row="0" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" RowSpacing="8" ColumnSpacing="8" Margin="0,0,0,6">
+                        <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource AnswerButton}" IsEnabled="False" Text="{Binding CurrentSign.Choices[0], StringFormat='1. {0}'}"/>
+                        <Button Grid.Row="0" Grid.Column="1" Style="{StaticResource AnswerButton}" IsEnabled="False" Text="{Binding CurrentSign.Choices[1], StringFormat='2. {0}'}"/>
+                        <Button Grid.Row="1" Grid.Column="0" Style="{StaticResource AnswerButton}" IsEnabled="False" Text="{Binding CurrentSign.Choices[2], StringFormat='3. {0}'}"/>
+                        <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource AnswerButton}" IsEnabled="False" Text="{Binding CurrentSign.Choices[3], StringFormat='4. {0}'}"/>
+                    </Grid>
+
+                    <!-- Players list: CollectionView in star row; reduce bottom margin -->
+                    <CollectionView Grid.Row="1"
+                           ItemsSource="{Binding Players}"
+                           ItemsLayout="VerticalList"
+                           SelectionMode="None"
+                           VerticalOptions="FillAndExpand"
+                           Margin="0,0,0,4">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Player">
+                                <Grid Padding="10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <Label Text="{Binding Name}" FontSize="18" VerticalOptions="Center" TextColor="White"/>
+
+                                    <StackLayout Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalOptions="Center">
+                                        <Button Text="1" Clicked="OnPlayerGuessAnswerClicked" ClassId="{Binding Name}" CommandParameter="1" Style="{StaticResource PlayerAnswerButton}">
+                                            <Button.Triggers>
+                                                <DataTrigger TargetType="Button" Binding="{Binding SelectedAnswer}" Value="1">
+                                                    <Setter Property="BackgroundColor" Value="{DynamicResource PrimaryDark}" />
+                                                </DataTrigger>
+                                            </Button.Triggers>
+                                        </Button>
+
+                                        <Button Text="2" Clicked="OnPlayerGuessAnswerClicked" ClassId="{Binding Name}" CommandParameter="2" Style="{StaticResource PlayerAnswerButton}">
+                                            <Button.Triggers>
+                                                <DataTrigger TargetType="Button" Binding="{Binding SelectedAnswer}" Value="2">
+                                                    <Setter Property="BackgroundColor" Value="{DynamicResource PrimaryDark}" />
+                                                </DataTrigger>
+                                            </Button.Triggers>
+                                        </Button>
+
+                                        <Button Text="3" Clicked="OnPlayerGuessAnswerClicked" ClassId="{Binding Name}" CommandParameter="3" Style="{StaticResource PlayerAnswerButton}">
+                                            <Button.Triggers>
+                                                <DataTrigger TargetType="Button" Binding="{Binding SelectedAnswer}" Value="3">
+                                                    <Setter Property="BackgroundColor" Value="{DynamicResource PrimaryDark}" />
+                                                </DataTrigger>
+                                            </Button.Triggers>
+                                        </Button>
+
+                                        <Button Text="4" Clicked="OnPlayerGuessAnswerClicked" ClassId="{Binding Name}" CommandParameter="4" Style="{StaticResource PlayerAnswerButton}">
+                                            <Button.Triggers>
+                                                <DataTrigger TargetType="Button" Binding="{Binding SelectedAnswer}" Value="4">
+                                                    <Setter Property="BackgroundColor" Value="{DynamicResource PrimaryDark}" />
+                                                </DataTrigger>
+                                            </Button.Triggers>
+                                        </Button>
+                                    </StackLayout>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <!-- Confirm button: use the new code-behind Clicked handler so we always get the "who's missing" popup. -->
+                    <Button Grid.Row="2"
+                            Text="Confirm Answers"
+                            Command="{Binding ConfirmGuessAnswersCommand}"
+                            Clicked="OnConfirmGuessClicked"
+                            IsEnabled="{Binding HasAllPlayersAnswered}"
+                            TextColor="White"
+                            Padding="10"
+                            CornerRadius="10"
+                            Style="{StaticResource PrimaryButton}">
+                        <Button.Triggers>
+                            <!-- Enabled state: visible, primary color -->
+                            <DataTrigger TargetType="Button" Binding="{Binding HasAllPlayersAnswered}" Value="True">
+                                <Setter Property="BackgroundColor" Value="{DynamicResource Primary}" />
+                                <Setter Property="Opacity" Value="1.0" />
+                            </DataTrigger>
+
+                            <!-- Disabled state: greyed and semi-transparent -->
+                            <DataTrigger TargetType="Button" Binding="{Binding HasAllPlayersAnswered}" Value="False">
+                                <Setter Property="BackgroundColor" Value="{DynamicResource Gray300}" />
+                                <Setter Property="Opacity" Value="0.6" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
                 </Grid>
-            </VerticalStackLayout>
+            </Grid>
         </Grid>
 
         <!-- Perform Mode -->
@@ -222,30 +368,30 @@
                           Margin="0,10,0,15">
                         <!-- Container for video -->
                         <Border Padding="1"
-        Stroke="{DynamicResource Primary}"
-        StrokeThickness="1"
-        Background="Black"
-        StrokeShape="RoundRectangle 10"
-        Margin="0,0"
-        HeightRequest="400">
+                                Stroke="{DynamicResource Primary}"
+                                StrokeThickness="1"
+                                Background="Black"
+                                StrokeShape="RoundRectangle 10"
+                                Margin="0,0"
+                                HeightRequest="400">
                             <!-- Increased from 300 -->
                             <toolkit:MediaElement 
-        x:Name="PerformVideo"
-        ShouldShowPlaybackControls="False"
-        ShouldAutoPlay="True"
-        ShouldLoopPlayback="True"
-        HeightRequest="400"   
+                                x:Name="PerformVideo"
+                                ShouldShowPlaybackControls="False"
+                                ShouldAutoPlay="True"
+                                ShouldLoopPlayback="True"
+                                HeightRequest="400"   
                                 WidthRequest="320"
                                 
                                 HorizontalOptions="Center"
-        VerticalOptions="Center"
-        Aspect="AspectFit"
-        MediaOpened="OnMediaOpened"
-        MediaFailed="OnMediaFailed"
-        MediaEnded="OnMediaEnded"
-        Volume="0"
-        ShouldMute="True"
-        IsVisible="{Binding IsSignRevealed}"/>
+                                VerticalOptions="Center"
+                                Aspect="AspectFit"
+                                MediaOpened="OnMediaOpened"
+                                MediaFailed="OnMediaFailed"
+                                MediaEnded="OnMediaEnded"
+                                Volume="0"
+                                ShouldMute="True"
+                                IsVisible="{Binding IsSignRevealed}"/>
                         </Border>
 
                         <!-- Feedback Overlay -->
@@ -281,7 +427,7 @@
             Command="{Binding IncorrectPerformCommand}"
             Style="{StaticResource PrimaryButton}"
             Margin="0,0,0,0"/>
-                        </StackLayout>
+                    </StackLayout>
                 </VerticalStackLayout>
             </Grid>
 

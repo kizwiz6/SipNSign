@@ -11,6 +11,52 @@ namespace com.kizwiz.sipnsign.Models
         [ObservableProperty]
         private bool _isMainPlayer = false;
 
+        // Make SelectedAnswer observable so UI triggers update for DataTriggers
+        private int _selectedAnswer = 0;
+        public int SelectedAnswer
+        {
+            get => _selectedAnswer;
+            set
+            {
+                if (_selectedAnswer != value)
+                {
+                    _selectedAnswer = value;
+                    OnPropertyChanged(nameof(SelectedAnswer));
+                }
+            }
+        }
+
+        // NEW: For Guess mode - store which answer they selected (1-4)
+        private int? _selectedAnswerNumber = null;
+        public int? SelectedAnswerNumber
+        {
+            get => _selectedAnswerNumber;
+            set
+            {
+                if (_selectedAnswerNumber != value)
+                {
+                    _selectedAnswerNumber = value;
+                    OnPropertyChanged(nameof(SelectedAnswerNumber));
+                    OnPropertyChanged(nameof(AnswerDisplayText));
+                }
+            }
+        }
+
+        // NEW: For Guess mode - what their selected answer text was
+        private string? _selectedAnswerText = null;
+        public string? SelectedAnswerText
+        {
+            get => _selectedAnswerText;
+            set
+            {
+                if (_selectedAnswerText != value)
+                {
+                    _selectedAnswerText = value;
+                    OnPropertyChanged(nameof(SelectedAnswerText));
+                }
+            }
+        }
+
         private int _score = 0;
         public int Score
         {
@@ -37,6 +83,8 @@ namespace com.kizwiz.sipnsign.Models
                     Debug.WriteLine($"Player {Name}: HasAnswered changed from {_hasAnswered} to {value}");
                     _hasAnswered = value;
                     OnPropertyChanged(nameof(HasAnswered));
+                    OnPropertyChanged(nameof(AnswerStatus));
+                    OnPropertyChanged(nameof(IndicatorColor));
                 }
             }
         }
@@ -58,6 +106,23 @@ namespace com.kizwiz.sipnsign.Models
             }
         }
 
+        // NEW: Display text showing their answer choice (for Guess mode)
+        public string AnswerDisplayText
+        {
+            get
+            {
+                if (!HasAnswered)
+                    return "Waiting...";
+
+                if (SelectedAnswerNumber.HasValue)
+                {
+                    return $"Selected: {SelectedAnswerNumber}";
+                }
+
+                return GotCurrentAnswerCorrect ? "Correct! ✓" : "Incorrect ✗";
+            }
+        }
+
         public string AnswerStatus => HasAnswered ?
             (GotCurrentAnswerCorrect ? "Correct! ✓" : "Incorrect ✗") :
             "Not answered";
@@ -76,7 +141,29 @@ namespace com.kizwiz.sipnsign.Models
         }
 
         /// <summary>
+        /// Records a guess mode answer with the answer number (1-4) and text
+        /// NOTE: Do NOT change Score here — scoring happens only on Confirm.
+        /// This allows players to change their selection before confirming.
+        /// </summary>
+        public void RecordGuessAnswer(int answerNumber, string answerText, bool isCorrect)
+        {
+            SelectedAnswerNumber = answerNumber;
+            SelectedAnswerText = answerText;
+
+            // Keep SelectedAnswer in sync for XAML triggers (observable update above)
+            SelectedAnswer = answerNumber;
+
+            HasAnswered = true;
+            GotCurrentAnswerCorrect = isCorrect;
+
+            // DON'T update Score here - scoring must be applied when the round is confirmed
+            OnPropertyChanged(nameof(AnswerDisplayText));
+            Debug.WriteLine($"Player {Name}: Selected answer {answerNumber} ({answerText}) - {(isCorrect ? "Correct" : "Incorrect")}");
+        }
+
+        /// <summary>
         /// Records or updates an answer, handling score adjustments for answer changes
+        /// (Used for score-confirmation UI actions that explicitly adjust scores.)
         /// </summary>
         public void RecordAnswer(bool isCorrect)
         {
@@ -124,6 +211,7 @@ namespace com.kizwiz.sipnsign.Models
             OnPropertyChanged(nameof(GotCurrentAnswerCorrect));
             OnPropertyChanged(nameof(IndicatorColor));
             OnPropertyChanged(nameof(AnswerStatus));
+            OnPropertyChanged(nameof(AnswerDisplayText));
         }
 
         /// <summary>
@@ -133,9 +221,13 @@ namespace com.kizwiz.sipnsign.Models
         {
             HasAnswered = false;
             GotCurrentAnswerCorrect = false;
+            SelectedAnswerNumber = null;
+            SelectedAnswerText = null;
+            SelectedAnswer = 0;
 
             OnPropertyChanged(nameof(AnswerStatus));
             OnPropertyChanged(nameof(IndicatorColor));
+            OnPropertyChanged(nameof(AnswerDisplayText));
 
             Debug.WriteLine($"Player {Name}: Reset for new sign");
         }
