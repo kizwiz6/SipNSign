@@ -6,13 +6,11 @@ using System.Diagnostics;
 
 namespace com.kizwiz.sipnsign.Pages;
 
-/// <summary>
-/// Page for selecting single player or multiplayer modes and configuring players
-/// </summary>
 public partial class PlayerSelectionPage : ContentPage
 {
     private PlayerSelectionViewModel _viewModel;
     private bool _isInitialized = false;
+    private GameMode _selectedMode; // Store which mode was selected from MainMenu
 
     public PlayerSelectionPage()
     {
@@ -20,7 +18,12 @@ public partial class PlayerSelectionPage : ContentPage
         _viewModel = new PlayerSelectionViewModel();
         BindingContext = _viewModel;
 
-        // Load saved questions count
+        // Get the mode that was selected on MainMenuPage
+        string modeStr = Preferences.Get("selected_game_mode", "Perform");
+        _selectedMode = modeStr == "Guess" ? GameMode.Guess : GameMode.Perform;
+
+        Debug.WriteLine($"PlayerSelectionPage initialized with mode: {_selectedMode}");
+
         LoadSavedSettings();
     }
 
@@ -28,7 +31,6 @@ public partial class PlayerSelectionPage : ContentPage
     {
         base.OnAppearing();
 
-        // Reset the view to show mode selection when returning to this page
         if (_isInitialized)
         {
             ResetView();
@@ -36,40 +38,38 @@ public partial class PlayerSelectionPage : ContentPage
         _isInitialized = true;
     }
 
-    /// <summary>
-    /// Loads saved settings from preferences
-    /// </summary>
     private void LoadSavedSettings()
     {
-        // Load perform mode questions count
-        int savedQuestions = Preferences.Get(Constants.PERFORM_MODE_QUESTIONS_KEY, Constants.DEFAULT_PERFORM_QUESTIONS);
+        // Load questions count based on the selected mode
+        int savedQuestions = _selectedMode == GameMode.Guess
+            ? Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS)
+            : Preferences.Get(Constants.PERFORM_MODE_QUESTIONS_KEY, Constants.DEFAULT_PERFORM_QUESTIONS);
+
         PerformQuestionsSlider.Value = savedQuestions;
         PerformQuestionsValueLabel.Text = $"{savedQuestions} questions";
     }
 
     private void ResetView()
     {
-        // Show the mode selection and hide player configuration
         ModeSelectionLayout.IsVisible = true;
         PlayerConfigLayout.IsVisible = false;
 
-        // Reset any other state as needed
         _viewModel = new PlayerSelectionViewModel();
         BindingContext = _viewModel;
 
-        // Reload settings
         LoadSavedSettings();
     }
 
+    // FIXED: No more popup, just use the mode from MainMenu
     private async void OnSinglePlayerClicked(object sender, EventArgs e)
     {
-        // Set ModeSelectionLayout to invisible to prevent UI overlap
         ModeSelectionLayout.IsVisible = false;
 
-        // Get questions count from preferences (use perform mode settings for single player perform mode too)
-        int questionsCount = Preferences.Get(Constants.PERFORM_MODE_QUESTIONS_KEY, Constants.DEFAULT_PERFORM_QUESTIONS);
+        // Use the mode that was selected on MainMenuPage (no popup)
+        int questionsCount = _selectedMode == GameMode.Guess
+            ? Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS)
+            : Preferences.Get(Constants.PERFORM_MODE_QUESTIONS_KEY, Constants.DEFAULT_PERFORM_QUESTIONS);
 
-        // Start game with just the main player
         var gameParameters = new GameParameters
         {
             IsMultiplayer = false,
@@ -77,19 +77,19 @@ public partial class PlayerSelectionPage : ContentPage
             QuestionsCount = questionsCount
         };
 
-        await StartGame(gameParameters);
+        await StartGame(gameParameters, _selectedMode);
     }
 
+    // FIXED: No more popup, just show player config
     private void OnMultiplayerClicked(object sender, EventArgs e)
     {
-        // Hide mode selection and show player configuration
+        // Just show player configuration - mode is already set (no popup)
         ModeSelectionLayout.IsVisible = false;
         PlayerConfigLayout.IsVisible = true;
     }
 
     private async void OnStartGameClicked(object sender, EventArgs e)
     {
-        // Validate player names first
         var validationResult = ValidatePlayerNames();
         if (!validationResult.IsValid)
         {
@@ -97,7 +97,6 @@ public partial class PlayerSelectionPage : ContentPage
             return;
         }
 
-        // Get all players using the new method
         var allPlayers = _viewModel.GetAllPlayers();
 
         if (allPlayers.Count < 2)
@@ -106,14 +105,12 @@ public partial class PlayerSelectionPage : ContentPage
             return;
         }
 
-        // Get questions count from slider
         int questionsCount = (int)PerformQuestionsSlider.Value;
 
-        // Debug logging to verify player data
-        Debug.WriteLine("=== STARTING GAME WITH PLAYERS ===");
+        Debug.WriteLine($"=== STARTING MULTIPLAYER {_selectedMode} WITH PLAYERS ===");
         foreach (var player in allPlayers)
         {
-            Debug.WriteLine($"Player: {player.Name}, IsMainPlayer: {player.IsMainPlayer}, Score: {player.Score}");
+            Debug.WriteLine($"Player: '{player.Name}', IsMainPlayer: {player.IsMainPlayer}, Score: {player.Score}");
         }
         Debug.WriteLine($"Questions Count: {questionsCount}");
 
@@ -124,23 +121,29 @@ public partial class PlayerSelectionPage : ContentPage
             QuestionsCount = questionsCount
         };
 
-        await StartGame(gameParameters);
+        await StartGame(gameParameters, _selectedMode);
     }
 
-    /// <summary>
-    /// Handles changes to the perform mode questions count slider
-    /// </summary>
     private void OnPerformQuestionsCountChanged(object sender, ValueChangedEventArgs e)
     {
         int questions = (int)e.NewValue;
-        Preferences.Set(Constants.PERFORM_MODE_QUESTIONS_KEY, questions);
+
+        // Save to the appropriate preference based on mode
+        if (_selectedMode == GameMode.Guess)
+        {
+            Preferences.Set(Constants.GUESS_MODE_QUESTIONS_KEY, questions);
+        }
+        else
+        {
+            Preferences.Set(Constants.PERFORM_MODE_QUESTIONS_KEY, questions);
+        }
+
         PerformQuestionsValueLabel.Text = $"{questions} questions";
-        Debug.WriteLine($"Perform mode questions count changed to: {questions}");
+        Debug.WriteLine($"{_selectedMode} mode questions count changed to: {questions}");
     }
 
     private (bool IsValid, string ErrorMessage) ValidatePlayerNames()
     {
-        // Check main player name
         var mainPlayerName = _viewModel.MainPlayerName?.Trim();
         if (string.IsNullOrWhiteSpace(mainPlayerName))
         {
@@ -157,7 +160,6 @@ public partial class PlayerSelectionPage : ContentPage
             return (false, "Main player name can only contain letters, numbers, spaces, hyphens, and underscores.");
         }
 
-        // Check additional player names
         var playerNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         playerNames.Add(mainPlayerName);
 
@@ -191,37 +193,33 @@ public partial class PlayerSelectionPage : ContentPage
         return (true, string.Empty);
     }
 
-    // Helper method to validate individual player names
     private bool IsValidPlayerName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
             return false;
 
-        // Allow letters, numbers, spaces, hyphens, and underscores
         return name.All(c => char.IsLetterOrDigit(c) || c == ' ' || c == '-' || c == '_');
     }
 
-    private async Task StartGame(GameParameters parameters)
+    private async Task StartGame(GameParameters parameters, GameMode mode)
     {
         try
         {
-            // Log player information
             LogPlayersInfo(parameters);
 
-            // Get services
             var serviceProvider = Application.Current.Handler.MauiContext.Services.GetService<IServiceProvider>();
             var videoService = serviceProvider.GetRequiredService<IVideoService>();
             var logger = serviceProvider.GetRequiredService<ILoggingService>();
             var progressService = serviceProvider.GetRequiredService<IProgressService>();
 
-            // Create and configure game page
             var gamePage = new GamePage(serviceProvider, videoService, logger, progressService);
 
-            // Set parameters BEFORE setting mode
+            // CRITICAL: Set these in the right order
             gamePage.ViewModel.GameParameters = parameters;
-            gamePage.ViewModel.CurrentMode = GameMode.Perform;
+            gamePage.ViewModel.CurrentMode = mode;
 
-            // Navigate to game page using NavigateAsync to properly handle the back stack
+            Debug.WriteLine($"Starting game: Mode={mode}, IsMultiplayer={parameters.IsMultiplayer}, Players={parameters.Players.Count}");
+
             await Navigation.PushAsync(gamePage);
         }
         catch (Exception ex)

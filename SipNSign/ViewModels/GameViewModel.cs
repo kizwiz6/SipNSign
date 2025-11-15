@@ -64,10 +64,24 @@ namespace com.kizwiz.sipnsign.ViewModels
         private ICommand _confirmResultsCommand;
         private ICommand _recordPlayerAnswerCommand;
         private ICommand _showScoreboardCommand;
+        private ICommand _confirmGuessAnswersCommand;
         private string _currentPlayerTurnText = string.Empty;
         private int GetTotalQuestions() => Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
         public int TotalQuestions => GetTotalQuestions();
         private int _signsPlayed = 0;
+        private int currentAnswer;
+        public int CurrentAnswer
+        {
+            get => currentAnswer;
+            set
+            {
+                if (currentAnswer != value)
+                {
+                    currentAnswer = value;
+                    OnPropertyChanged(nameof(CurrentAnswer));
+                }
+            }
+        }
         #endregion
 
         /// <summary>
@@ -135,13 +149,108 @@ namespace com.kizwiz.sipnsign.ViewModels
                 return _guessPrimaryColor;  // Fallback to blue only if theme color not found
             }
         }
+
+        public ICommand ConfirmGuessAnswersCommand
+        {
+            get
+            {
+                return _confirmGuessAnswersCommand ??= new Command(async () =>
+                {
+                    if (IsProcessingAnswer) return;
+
+                    Debug.WriteLine("ConfirmGuessAnswersCommand executed");
+
+                    // In multiplayer ensure everyone answered before proceeding
+                    if (IsMultiplayer && !HasAllPlayersAnswered)
+                    {
+                        var unansweredPlayers = Players.Where(p => !p.HasAnswered).ToList();
+                        var playerNames = string.Join(", ", unansweredPlayers.Select(p => p.Name));
+
+                        await Application.Current.MainPage.DisplayAlert(
+                            "Waiting for Players",
+                            $"Still waiting for: {playerNames}\n\nMake sure all players have selected their answers (1-4).",
+                            "OK");
+                        return;
+                    }
+
+                    try
+                    {
+                        IsProcessingAnswer = true;
+
+                        // Award scores for all players based on their selected answers (only on confirm)
+                        foreach (var player in Players)
+                        {
+                            if (player.HasAnswered && player.GotCurrentAnswerCorrect)
+                            {
+                                player.Score += 1;
+                            }
+                        }
+
+                        // Keep main player's CurrentScore in sync
+                        var main = Players.FirstOrDefault(p => p.IsMainPlayer);
+                        if (main != null)
+                        {
+                            CurrentScore = main.Score;
+                            // Log only main player's activity as before
+                            if (main.HasAnswered)
+                            {
+                                await LogGameActivity(main.GotCurrentAnswerCorrect);
+                            }
+                        }
+
+                        // Show results (this already displays overlays/alerts)
+                        await ShowGuessResults();
+
+                        // Check for achievements / perfect round
+                        CheckForPerfectRound();
+
+                        SignsPlayed++;
+
+                        // Small pause so UI can update briefly (shorter than before)
+                        await Task.Delay(300);
+
+                        // Continue to next sign (or end)
+                        if (_availableIndices.Count > 0)
+                        {
+                            LoadNextSign();
+                        }
+                        else
+                        {
+                            EndGame();
+                        }
+
+                        // Force UI update for Players and HasAllPlayersAnswered (now changed)
+                        OnPropertyChanged(nameof(Players));
+                        OnPropertyChanged(nameof(HasAllPlayersAnswered));
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error in ConfirmGuessAnswersCommand: {ex.Message}");
+                        await Application.Current.MainPage.DisplayAlert("Error",
+                            "There was an error processing answers. Please try again.", "OK");
+                    }
+                    finally
+                    {
+                        IsProcessingAnswer = false;
+                    }
+                });
+            }
+        }
         /// <summary>
         /// Event triggered when a sign reveal is requested.
         /// </summary>
         public event EventHandler? SignRevealRequested;
         public Color FeedbackSuccessColor => _successColor.WithAlpha(0.9f);
         public Color FeedbackErrorColor => _errorColor.WithAlpha(0.9f);
-        public string ModeTitle => _currentMode == GameMode.Guess ? "Guess Mode" : "Perform Mode";
+        public string ModeTitle
+        {
+            get
+            {
+                if (_currentMode == GameMode.Guess)
+                    return IsMultiplayer ? "Guess Mode - Multiplayer" : "Guess Mode - Singular";
+                return IsMultiplayer ? "Perform Mode - Multiplayer" : "Perform Mode - Singular";
+            }
+        }
         public bool IsTimerEnabled => Preferences.Get(Constants.TIMER_DURATION_KEY, Constants.DEFAULT_TIMER_DURATION) > 0;
 
         // Property to determine if all players have answered in Multiplayer mode
@@ -152,9 +261,18 @@ namespace com.kizwiz.sipnsign.ViewModels
                 if (!IsMultiplayer || Players == null || !Players.Any())
                     return true;
 
-                bool allAnswered = Players.All(p => p.HasAnswered);
-                Debug.WriteLine($"HasAllPlayersAnswered: {allAnswered} ({Players.Count(p => p.HasAnswered)}/{Players.Count})");
-                return allAnswered;
+                // In Perform mode players mark HasAnswered (via ✓/✗) — check that.
+                if (IsPerformMode)
+                {
+                    bool allAnswered = Players.All(p => p.HasAnswered);
+                    Debug.WriteLine($"HasAllPlayersAnswered (Perform): {allAnswered} ({Players.Count(p => p.HasAnswered)}/{Players.Count})");
+                    return allAnswered;
+                }
+
+                // In Guess mode players choose a numbered answer (SelectedAnswer != 0)
+                bool allAnsweredGuess = Players.All(p => p.SelectedAnswer != 0);
+                Debug.WriteLine($"HasAllPlayersAnswered (Guess): {allAnsweredGuess} ({Players.Count(p => p.SelectedAnswer != 0)}/{Players.Count})");
+                return allAnsweredGuess;
             }
         }
 
@@ -202,6 +320,8 @@ namespace com.kizwiz.sipnsign.ViewModels
                     OnPropertyChanged(nameof(CurrentMode));
                     OnPropertyChanged(nameof(IsGuessMode));
                     OnPropertyChanged(nameof(IsPerformMode));
+                    OnPropertyChanged(nameof(ModeTitle));
+                    OnPropertyChanged(nameof(HasAllPlayersAnswered)); // ensure button state refreshes when mode changes
                 }
             }
         }
@@ -1007,7 +1127,7 @@ namespace com.kizwiz.sipnsign.ViewModels
         /// <summary>
         /// Shows feedback to user and handles transition to next sign
         /// </summary>
-        private async Task ShowFeedbackAndContinue(bool isCorrect)
+        public async Task ShowFeedbackAndContinue(bool isCorrect)
         {
             Debug.WriteLine("Starting ShowFeedbackAndContinue");
             if (IsGameOver)
@@ -1614,6 +1734,12 @@ namespace com.kizwiz.sipnsign.ViewModels
 
         private void InitializePlayers()
         {
+            // Unsubscribe from previous players to avoid duplicates/leaks
+            foreach (var existing in Players.ToList())
+            {
+                UnsubscribeFromPlayer(existing);
+            }
+
             Players.Clear();
 
             if (GameParameters?.Players != null)
@@ -1621,11 +1747,14 @@ namespace com.kizwiz.sipnsign.ViewModels
                 foreach (var player in GameParameters.Players)
                 {
                     Players.Add(player);
+                    SubscribeToPlayer(player);
                 }
             }
             else
             {
-                Players.Add(new Player { Name = "You", IsMainPlayer = true });
+                var you = new Player { Name = "You", IsMainPlayer = true };
+                Players.Add(you);
+                SubscribeToPlayer(you);
             }
 
             if (IsMultiplayer)
@@ -1634,9 +1763,12 @@ namespace com.kizwiz.sipnsign.ViewModels
                 CurrentPlayerTurnText = mainPlayer != null ? $"{mainPlayer.Name}'s Turn" : "Player 1's Turn";
             }
 
+            // Ensure UI knows to update
             OnPropertyChanged(nameof(Players));
             OnPropertyChanged(nameof(IsMultiplayer));
             OnPropertyChanged(nameof(CurrentPlayerTurnText));
+            OnPropertyChanged(nameof(ModeTitle));
+            OnPropertyChanged(nameof(HasAllPlayersAnswered));
         }
 
         private async Task ShowResultsConfirmation()
@@ -1679,6 +1811,82 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
 
             await Application.Current.MainPage.DisplayAlert(title, message.Trim(), "Next Sign");
+        }
+
+        private async Task ShowGuessResults()
+        {
+            var correctPlayers = Players.Where(p => p.HasAnswered && p.GotCurrentAnswerCorrect).ToList();
+            var incorrectPlayers = Players.Where(p => p.HasAnswered && !p.GotCurrentAnswerCorrect).ToList();
+            var allCorrect = Players.All(p => p.GotCurrentAnswerCorrect);
+
+            bool isSoberMode = Preferences.Get(Constants.SOBER_MODE_KEY, false);
+
+            string title;
+            string message;
+
+            if (allCorrect)
+            {
+                title = "Perfect Round!";
+                message = $"Everyone got it right!\n\nThe answer was: {CurrentSign?.CorrectAnswer}";
+            }
+            else
+            {
+                title = $"Correct Answer: {CurrentSign?.CorrectAnswer}";
+                message = "";
+
+                if (correctPlayers.Any())
+                {
+                    // Show only player names for correct players (remove "(selected ...)")
+                    var correctNames = string.Join(", ", correctPlayers.Select(p => p.Name));
+                    message = $"✓ Correct: {correctNames}\n\n";
+                }
+
+                if (incorrectPlayers.Any())
+                {
+                    var incorrectDetails = string.Join(", ", incorrectPlayers.Select(p =>
+                        $"{p.Name} picked {p.SelectedAnswerNumber}"));
+
+                    message += isSoberMode
+                        ? $"✗ Incorrect: {incorrectDetails}"
+                        : $"✗ Take a sip: {incorrectDetails}";
+                }
+            }
+
+            // Show color-coded feedback overlay first
+            FeedbackText = title + "\n\n" + CurrentSign?.CorrectAnswer;
+            FeedbackBackgroundColor = allCorrect ?
+                Color.FromArgb("#28a745") :
+                Color.FromArgb("#007BFF");
+            IsFeedbackVisible = true;
+
+            // Then show detailed alert
+            await Application.Current.MainPage.DisplayAlert(title, message.Trim(), "Next Sign");
+
+            IsFeedbackVisible = false;
+        }
+
+        private void SubscribeToPlayer(Player player)
+        {
+            if (player == null) return;
+            player.PropertyChanged += OnPlayerPropertyChanged;
+        }
+
+        private void UnsubscribeFromPlayer(Player player)
+        {
+            if (player == null) return;
+            player.PropertyChanged -= OnPlayerPropertyChanged;
+        }
+
+        private void OnPlayerPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            // When a player's selection/answer state changes, notify that HasAllPlayersAnswered (and Players) changed
+            if (e.PropertyName == nameof(Player.SelectedAnswer) ||
+                e.PropertyName == nameof(Player.HasAnswered) ||
+                e.PropertyName == nameof(Player.SelectedAnswerNumber))
+            {
+                OnPropertyChanged(nameof(HasAllPlayersAnswered));
+                OnPropertyChanged(nameof(Players));
+            }
         }
 
         public ICommand ConfirmResultsCommand
