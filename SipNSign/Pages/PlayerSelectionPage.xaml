@@ -6,7 +6,7 @@
              x:Class="com.kizwiz.sipnsign.Pages.PlayerSelectionPage"
              x:DataType="viewmodels:PlayerSelectionViewModel"
              Style="{StaticResource AppPageStyle}"
-             Title="Player Configuration">
+             Title="Choose Game Mode">
 
     <Grid>
         <VerticalStackLayout x:Name="ModeSelectionLayout" 
