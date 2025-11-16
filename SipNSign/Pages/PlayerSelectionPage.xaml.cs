@@ -36,6 +36,9 @@ public partial class PlayerSelectionPage : ContentPage
             ResetView();
         }
         _isInitialized = true;
+
+        // Ensure title matches the current UI state
+        this.Title = "Choose Game Mode";
     }
 
     private void LoadSavedSettings()
@@ -58,6 +61,8 @@ public partial class PlayerSelectionPage : ContentPage
         BindingContext = _viewModel;
 
         LoadSavedSettings();
+
+        this.Title = "Choose Game Mode";
     }
 
     // FIXED: No more popup, just use the mode from MainMenu
@@ -80,12 +85,15 @@ public partial class PlayerSelectionPage : ContentPage
         await StartGame(gameParameters, _selectedMode);
     }
 
-    // FIXED: No more popup, just show player config
     private void OnMultiplayerClicked(object sender, EventArgs e)
     {
         // Just show player configuration - mode is already set (no popup)
         ModeSelectionLayout.IsVisible = false;
         PlayerConfigLayout.IsVisible = true;
+
+        // Update page title to indicate multiplayer setup and which mode
+        string modeName = _selectedMode == GameMode.Guess ? "Guess Mode" : "Perform Mode";
+        this.Title = $"Multiplayer — {modeName}";
     }
 
     private async void OnStartGameClicked(object sender, EventArgs e)

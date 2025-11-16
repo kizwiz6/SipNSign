@@ -1228,6 +1228,14 @@ namespace com.kizwiz.sipnsign.ViewModels
         {
             try
             {
+                // If multiplayer, don't start the per-player timer (timer intended for single-player)
+                if (IsMultiplayer)
+                {
+                    RemainingTime = 0;
+                    Debug.WriteLine("Multiplayer session: skipping per-player timer.");
+                    return;
+                }
+
                 if (_timer == null)
                 {
                     Debug.WriteLine("Creating new timer");
