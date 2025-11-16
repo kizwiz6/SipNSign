@@ -96,12 +96,13 @@
                         Maximum="15"
                         Value="10"
                         ValueChanged="OnTimerDurationChanged"/>
-                    <HorizontalStackLayout HorizontalOptions="Center">
+                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
                         <CheckBox x:Name="DisableTimerCheckbox" 
-                             CheckedChanged="OnDisableTimerChanged"/>
-                        <Label Text="Disable Timer"
-                           TextColor="{DynamicResource CardText}"
-                           VerticalOptions="Center"/>
+                            CheckedChanged="OnDisableTimerChanged"/>
+                        <Label Text="Disable Timer (single-player only)"
+                               TextColor="{DynamicResource CardText}"
+                               VerticalOptions="Center"
+                               FontSize="14"/>
                     </HorizontalStackLayout>
                 </VerticalStackLayout>
             </Border>
