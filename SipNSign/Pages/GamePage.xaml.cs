@@ -972,6 +972,13 @@ namespace com.kizwiz.sipnsign.Pages
                         // Use the new RecordAnswer method (allows changing answers)
                         player.RecordAnswer(true);
 
+                        // Notify the ViewModel that the player's answer state has changed
+                        ViewModel.RecordPlayerAnswer(new PlayerAnswerParameter
+                        {
+                            Player = player,
+                            IsCorrect = true
+                        });
+
                         // Show feedback
                         _viewModel.FeedbackText = $"{player.Name} got it right!";
                         _viewModel.FeedbackBackgroundColor = _viewModel.GetFeedbackColor(true);
@@ -1026,6 +1033,12 @@ namespace com.kizwiz.sipnsign.Pages
 
                         // Use the new RecordAnswer method (allows changing answers)
                         player.RecordAnswer(false);
+
+                        ViewModel.RecordPlayerAnswer(new PlayerAnswerParameter
+                        {
+                            Player = player,
+                            IsCorrect = false
+                        });
 
                         // Show feedback
                         _viewModel.FeedbackText = $"{player.Name} got it wrong!";
