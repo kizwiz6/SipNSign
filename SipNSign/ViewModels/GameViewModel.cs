@@ -703,9 +703,15 @@ namespace com.kizwiz.sipnsign.ViewModels
                     {
                         player.Score += 1;
                         Debug.WriteLine($"Updated {player.Name} score to {player.Score}");
+
+                        // Keep main player's CurrentScore in sync
+                        if (player.IsMainPlayer)
+                        {
+                            CurrentScore = player.Score;
+                        }
                     }
 
-                    // Update UI on main thread
+                    // Update UI on main thread (no logging here — Confirm command will log)
                     MainThread.BeginInvokeOnMainThread(() => {
                         // Force UI refresh
                         OnPropertyChanged(nameof(Players));
@@ -1982,15 +1988,13 @@ namespace com.kizwiz.sipnsign.ViewModels
 
                     if (param.Player.IsMainPlayer)
                     {
-                        CurrentScore++;
-                        _ = LogGameActivity(true);
+                        // Keep main player's CurrentScore in sync;
+                        // do NOT call LogGameActivity here — logging happens on Confirm
+                        CurrentScore = param.Player.Score;
                     }
                 }
-                else if (param.Player.IsMainPlayer)
-                {
-                    _ = LogGameActivity(false);
-                }
 
+                // Force UI to reflect change; logging removed
                 OnPropertyChanged(nameof(Players));
                 OnPropertyChanged(nameof(HasAllPlayersAnswered));
 
