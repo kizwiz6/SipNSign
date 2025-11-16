@@ -1843,12 +1843,11 @@ namespace com.kizwiz.sipnsign.ViewModels
 
                 if (incorrectPlayers.Any())
                 {
-                    var incorrectDetails = string.Join(", ", incorrectPlayers.Select(p =>
-                        $"{p.Name} picked {p.SelectedAnswerNumber}"));
+                    var incorrectNames = string.Join(", ", incorrectPlayers.Select(p => p.Name));
 
                     message += isSoberMode
-                        ? $"✗ Incorrect: {incorrectDetails}"
-                        : $"✗ Take a sip: {incorrectDetails}";
+                            ? $"✗ Incorrect: {incorrectNames}"
+                            : $"✗ Take a sip: {incorrectNames}";
                 }
             }
 
