@@ -1,6 +1,9 @@
 ﻿using com.kizwiz.sipnsign.Enums;
 using com.kizwiz.sipnsign.Pages;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Graphics;
 using System.Diagnostics;
+using System.Linq;
 
 namespace com.kizwiz.sipnsign.Services
 {
@@ -13,7 +16,7 @@ namespace com.kizwiz.sipnsign.Services
         public event EventHandler? ThemeChanged;
 
         private readonly Dictionary<CustomAppTheme, Dictionary<string, object>> _themeCache
-       = new Dictionary<CustomAppTheme, Dictionary<string, object>>();
+           = new Dictionary<CustomAppTheme, Dictionary<string, object>>();
 
         /// <summary>
         /// Theme color definitions with complementary button/text colors
@@ -249,37 +252,30 @@ namespace com.kizwiz.sipnsign.Services
                     resources[resource.Key] = resource.Value;
                 }
 
-                // Update Shell background
+                // Also update the Shell color resource keys so XAML/DynamicResource bindings pick them up
+                resources["ShellBackgroundColor"] = themeColors.ShellBackground;
+                resources["ShellForegroundColor"] = themeColors.ShellForeground;
+                // Use the same foreground color for the title by default (separate key in case you want different)
+                resources["ShellTitleColor"] = themeColors.ShellForeground;
+
+                // Update the native Shell background directly (works reliably)
                 if (Shell.Current != null)
                 {
-                    Shell.Current.BackgroundColor = themeColors.ShellBackground;
+                    Shell.Current.SetValue(Shell.BackgroundColorProperty, themeColors.ShellBackground);
+                    // Force layout/update so platform toolbars refresh where possible
+                    Shell.Current.ForceLayout();
                 }
 
-                // Update UI
-                if (Application.Current?.MainPage is Shell shell)
+                // If MainPage is a Shell, force a layout to refresh titles/toolbars
+                var mainPage = Application.Current?.Windows?.FirstOrDefault()?.Page;
+                if (mainPage is Shell shell)
                 {
                     shell.ForceLayout();
-
-                    var mainPage = shell.Navigation?.NavigationStack
-                        .FirstOrDefault(page => page is MainMenuPage) as MainMenuPage;
-
-                    if (mainPage != null)
-                    {
-                        // Immediate refresh
-                        mainPage.ForceRefresh();
-
-                        // Delayed refreshes to ensure update
-                        mainPage.Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(50), () => mainPage.ForceRefresh());
-                        mainPage.Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(100), () => mainPage.ForceRefresh());
-                    }
-
-                    shell.BackgroundColor = themeColors.ShellBackground;
                 }
 
                 ThemeChanged?.Invoke(this, EventArgs.Empty);
             });
         }
-
 
         /// <summary>
         /// Gets the current theme from preferences or returns default
@@ -288,6 +284,51 @@ namespace com.kizwiz.sipnsign.Services
         {
             var themeName = Preferences.Get(THEME_KEY, CustomAppTheme.Blue.ToString());
             return Enum.Parse<CustomAppTheme>(themeName);
+        }
+
+        public void RefreshShellColors()
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                try
+                {
+                    if (Application.Current?.Resources == null || Shell.Current == null)
+                        return;
+
+                    var resources = Application.Current.Resources;
+
+                    // Read the resource keys (fall back to current Shell background)
+                    var bg = resources.TryGetValue("ShellBackgroundColor", out var b) && b is Color cb
+                        ? cb
+                        : (Color)Shell.Current.GetValue(Shell.BackgroundColorProperty);
+
+                    var fg = resources.TryGetValue("ShellForegroundColor", out var f) && f is Color cf
+                        ? cf
+                        : Colors.White;
+
+                    var title = resources.TryGetValue("ShellTitleColor", out var t) && t is Color ct
+                        ? ct
+                        : fg;
+
+                    // Ensure resources contain the keys so XAML DynamicResource bindings use the new colors
+                    resources["ShellBackgroundColor"] = bg;
+                    resources["ShellForegroundColor"] = fg;
+                    resources["ShellTitleColor"] = title;
+
+                    // Update Shell background directly and force layout. We avoid writing to
+                    // non-existent instance properties (ForegroundColor/TitleColor) to prevent compile errors.
+                    Shell.Current.SetValue(Shell.BackgroundColorProperty, bg);
+                    Shell.Current.ForceLayout();
+
+                    // On some platforms the native toolbar title/foreground may not update immediately.
+                    // Recreating the Shell is heavy; try forcing a layout first. If you still see issues
+                    // on a specific platform (Android/iOS), we can add a small platform-specific native tweak.
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"RefreshShellColors error: {ex}");
+                }
+            });
         }
     }
 
