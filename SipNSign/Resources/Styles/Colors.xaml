@@ -120,6 +120,16 @@
         </Setter>
     </Style>
 
+    <!-- Shell / navigation bar colors (match app theme) -->
+    <Color x:Key="ShellBackgroundColor">#1a237e</Color>
+    <!-- same as AppBackground1 -->
+    <Color x:Key="ShellForegroundColor">White</Color>
+    <!-- text/icons on the bar -->
+    <Color x:Key="ShellTitleColor">White</Color>
+    <!-- page title text -->
+    <Color x:Key="ShellDisabledColor">#C8C8C8</Color>
+    <Color x:Key="ShellUnselectedColor">#ACACAC</Color>
+
     <!-- Solid Color Brushes -->
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>
     <SolidColorBrush x:Key="PrimaryDarkBrush" Color="{StaticResource PrimaryDark}"/>

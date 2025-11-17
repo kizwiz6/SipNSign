@@ -1323,16 +1323,21 @@ namespace com.kizwiz.sipnsign.ViewModels
                 });
             }
 
-            _userProgress.Accuracy = (double)_userProgress.CorrectAttempts / _userProgress.TotalAttempts;
+            _userProgress.Accuracy = _userProgress.TotalAttempts > 0
+                ? (double)_userProgress.CorrectAttempts / _userProgress.TotalAttempts
+                : 0.0;
+
+            // Save progress using the correct field name
             await _progressService.SaveProgressAsync(_userProgress);
 
+            // Write the main activity entry (use tick symbol for correct)
             await _progressService.LogActivityAsync(new ActivityLog
             {
                 Id = Guid.NewGuid().ToString(),
                 Type = ActivityType.Practice,
-                Description = isCorrect ?
-                    $"Correctly signed '{CurrentSign?.CorrectAnswer}'" :
-                    $"Incorrectly signed '{CurrentSign?.CorrectAnswer}'",
+                Description = isCorrect
+                    ? $"Correctly signed '{CurrentSign?.CorrectAnswer}'"
+                    : $"Incorrectly signed '{CurrentSign?.CorrectAnswer}'",
                 IconName = isCorrect ? "quiz_correct_icon" : "quiz_incorrect_icon",
                 Timestamp = DateTime.Now,
                 Score = isCorrect ? "+1" : "N/A"
@@ -1364,7 +1369,9 @@ namespace com.kizwiz.sipnsign.ViewModels
             }
         }
 
-        // NEW: Log multiplayer game completion with achievements
+        /// <summary>
+        /// Log multiplayer game completion with achievements
+        /// </summary>
         private async void LogMultiplayerGameCompletion()
         {
             try
@@ -1444,12 +1451,16 @@ namespace com.kizwiz.sipnsign.ViewModels
             if (!IsMultiplayer || !Players.All(p => p.HasAnswered && p.GotCurrentAnswerCorrect))
                 return;
 
+            var signText = CurrentSign?.CorrectAnswer ?? "Unknown sign";
+            var modeText = IsGuessMode ? "Guess Mode" : "Perform Mode";
+
+            // Use the correctly named field _progressService (fixed typo)
             await _progressService.LogActivityAsync(new ActivityLog
             {
                 Id = Guid.NewGuid().ToString(),
                 Type = ActivityType.Practice,
-                Description = "All players got the sign correct - team harmony!",
-                IconName = "harmony_icon",
+                Description = $"All players answered correctly for '{signText}' ({modeText})",
+                IconName = "perfect_multi_icon",
                 Timestamp = DateTime.Now
             });
         }
