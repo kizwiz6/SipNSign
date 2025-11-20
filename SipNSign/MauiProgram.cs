@@ -46,6 +46,10 @@ public static class MauiProgram
                 options.WriteIndented = true;
             });
 
+            #if ANDROID
+            builder.Services.AddSingleton<IAudioFocusService, com.kizwiz.sipnsign.Platforms.Android.AudioFocusService>();
+            #endif
+
             builder.Services.AddSingleton(sp =>
             {
                 return new JsonSerializerOptions

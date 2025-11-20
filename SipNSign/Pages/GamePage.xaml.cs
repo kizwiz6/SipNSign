@@ -8,6 +8,8 @@ using System.Diagnostics;
 using CommunityToolkit.Mvvm.Messaging;
 using com.kizwiz.sipnsign.Converters;
 using com.kizwiz.sipnsign.Models;
+using System.Globalization;
+using CommunityToolkit.Maui.Core;
 
 namespace com.kizwiz.sipnsign.Pages
 {
@@ -24,6 +26,7 @@ namespace com.kizwiz.sipnsign.Pages
         private readonly SemaphoreSlim _cleanupLock = new(1, 1);
         private IDispatcherTimer? _timer;
         private MediaElement? _multiplayerGuessVideoElement;
+        private readonly IAudioFocusService? _audioFocusService;
         #endregion
 
         #region Properties
@@ -47,9 +50,7 @@ namespace com.kizwiz.sipnsign.Pages
             try
             {
                 InitializeComponent();
-
                 _videoService = videoService ?? throw new ArgumentNullException(nameof(videoService));
-                BindingContext = _viewModel;
                 _viewModel = new GameViewModel(serviceProvider, videoService, logger, progressService)
                 {
                     AnswerCommand = new Command<string>(HandleAnswer),
@@ -57,12 +58,11 @@ namespace com.kizwiz.sipnsign.Pages
                     CurrentVideoSource = MediaSource.FromFile("again.mp4")
                 };
                 _viewModel.SignRevealRequested += OnSignRevealRequested;
-
+                // Resolve audio focus service from DI (do NOT set a non-existent _audioServiceProvider)
+                _audioFocusService = serviceProvider?.GetService(typeof(IAudioFocusService)) as IAudioFocusService;
                 BindingContext = _viewModel;
                 ConnectToViewModel();
-
                 this.Loaded += OnPageLoaded;
-
                 this.Loaded += (s, e) => {
                     Debug.WriteLine($"=== GamePage Loaded ===");
                     Debug.WriteLine($"IsGuessMode: {_viewModel.IsGuessMode}");
@@ -132,15 +132,17 @@ namespace com.kizwiz.sipnsign.Pages
 
                         if (targetElement != null && !_isDisposed)
                         {
-                            // Stop any existing playback
                             try { targetElement.Stop(); } catch { }
 
-                            // Set new source
                             targetElement.Source = source;
                             targetElement.IsVisible = true;
 
                             // Auto-play for Guess mode, manual for Perform mode
                             targetElement.ShouldAutoPlay = _viewModel.IsGuessMode;
+
+                            // Request transient "ducking" audio focus so we do not fully interrupt music / other audio.
+                            bool focusGranted = _audioFocusService?.RequestTransientDuckingFocus() ?? false;
+                            Debug.WriteLine($"Audio focus request (ducking) granted: {focusGranted}");
 
                             if (_viewModel.IsGuessMode)
                             {
@@ -227,14 +229,13 @@ namespace com.kizwiz.sipnsign.Pages
         private void OnMediaOpened(object sender, EventArgs e)
         {
             Debug.WriteLine($"Media opened successfully");
-            MainThread.BeginInvokeOnMainThread(async () =>
+            MainThread.BeginInvokeOnMainThread(() =>
             {
                 var mediaElement = sender as MediaElement;
                 if (mediaElement != null)
                 {
                     try
                     {
-                        // Log detailed media information
                         Debug.WriteLine($"=== MEDIA DETAILS ===");
                         Debug.WriteLine($"Source: {mediaElement.Source}");
                         Debug.WriteLine($"Duration: {mediaElement.Duration}");
@@ -243,13 +244,10 @@ namespace com.kizwiz.sipnsign.Pages
                         Debug.WriteLine($"Aspect: {mediaElement.Aspect}");
                         Debug.WriteLine($"Width Request: {mediaElement.WidthRequest}");
                         Debug.WriteLine($"Height Request: {mediaElement.HeightRequest}");
-
                         // Ensure audio is completely disabled
                         mediaElement.Volume = 0;
                         mediaElement.ShouldMute = true;
-
                         Debug.WriteLine($"Audio disabled for MediaElement: Volume={mediaElement.Volume}, Muted={mediaElement.ShouldMute}");
-
                         mediaElement.Play();
                         Debug.WriteLine($"Play command sent, Current State: {mediaElement.CurrentState}");
                     }
@@ -334,7 +332,7 @@ namespace com.kizwiz.sipnsign.Pages
             Debug.WriteLine($"Media playback ended: {(sender as MediaElement)?.Source}");
         }
 
-        private void OnPageLoaded(object sender, EventArgs e)
+        private void OnPageLoaded(object? sender, EventArgs e)
         {
             try
             {
@@ -363,7 +361,6 @@ namespace com.kizwiz.sipnsign.Pages
                         _performVideoElement = FindMediaElement("PerformVideo");
                     }
                 }
-
                 // Set up event handlers
                 if (_sharedVideoElement != null)
                 {
@@ -568,6 +565,9 @@ namespace com.kizwiz.sipnsign.Pages
 
                 // Call Cleanup explicitly first
                 Cleanup();
+
+                base.OnDisappearing();
+                _audioFocusService?.AbandonFocus();
 
                 // Then proceed with existing code if needed
                 await MainThread.InvokeOnMainThreadAsync(() =>
@@ -812,19 +812,15 @@ namespace com.kizwiz.sipnsign.Pages
         {
             Debug.WriteLine("=== TESTING PLAYER CONVERTER ===");
             var converter = Resources["PlayerAnswerConverter"] as PlayerAnswerConverter;
-
             if (converter == null)
             {
                 Debug.WriteLine("ERROR: PlayerAnswerConverter not found in Resources");
                 return;
             }
-
             Debug.WriteLine("PlayerAnswerConverter found in Resources");
-
             // Test with a dummy player
             var player = new Player { Name = "Test Player" };
-            var result = converter.Convert(player, typeof(PlayerAnswerParameter), true, null);
-
+            var result = converter.Convert(player, typeof(PlayerAnswerParameter), true, CultureInfo.InvariantCulture);
             if (result is PlayerAnswerParameter param)
             {
                 Debug.WriteLine($"Converter works! Player: {param.Player.Name}, IsCorrect: {param.IsCorrect}");
@@ -865,6 +861,9 @@ namespace com.kizwiz.sipnsign.Pages
                 {
                     _sharedVideoElement.Stop();
                     _sharedVideoElement.Source = null;
+
+                    // Release audio focus if we previously requested it
+                    _audioFocusService?.AbandonFocus();
                 });
             }
             catch (Exception ex)
@@ -992,9 +991,9 @@ namespace com.kizwiz.sipnsign.Pages
                         Debug.WriteLine($"HasAllPlayersAnswered: {_viewModel.HasAllPlayersAnswered}");
 
                         // Auto-hide feedback after 2 seconds
-                        Device.StartTimer(TimeSpan.FromSeconds(2), () => {
+                        this.Dispatcher.DispatchDelayed(TimeSpan.FromSeconds(2), () =>
+                        {
                             _viewModel.IsFeedbackVisible = false;
-                            return false; // Don't repeat
                         });
                     }
                     else
@@ -1090,15 +1089,16 @@ namespace com.kizwiz.sipnsign.Pages
 
         private async void OnConfirmAnswersClicked(object sender, EventArgs e)
         {
-            if(ViewModel.IsMultiplayer && !ViewModel.HasAllPlayersAnswered)
+            if (ViewModel.IsMultiplayer && !ViewModel.HasAllPlayersAnswered)
             {
                 var unansweredPlayers = ViewModel.Players.Where(p => p.SelectedAnswer == 0).ToList();
                 var playerNames = string.Join(", ", unansweredPlayers.Select(p => p.Name));
 
-                await Application.Current.MainPage.DisplayAlert(
-                    "Waiting for Players",
-                    $"Still waiting for: {playerNames}\n\nMake sure all players have selected their answers (1-4).",
-                    "OK");
+                var window = Application.Current?.Windows?.FirstOrDefault();
+                if (window?.Page != null)
+                {
+                    await window.Page.DisplayAlert("Waiting for Players", $"Still waiting for: {playerNames}\n\nMake sure all players have selected their answers (1-4).", "OK");
+                }
                 return;
             }
 
@@ -1116,7 +1116,7 @@ namespace com.kizwiz.sipnsign.Pages
             }
 
             // Show feedback and move to next question
-            ViewModel.ShowFeedbackAndContinue(allPlayersCorrect);
+            await ViewModel.ShowFeedbackAndContinue(allPlayersCorrect);
         }
 
         /// <summary>
@@ -1140,10 +1140,16 @@ namespace com.kizwiz.sipnsign.Pages
                     {
                         // Get the answer text for this number (answerNumber is 1-4, array index is 0-3)
                         int answerIndex = answerNumber - 1;
-                        if (answerIndex >= 0 && answerIndex < _viewModel.CurrentSign.Choices.Count)
+                        var currentSign = _viewModel.CurrentSign;
+                        if (currentSign == null)
                         {
-                            string answerText = _viewModel.CurrentSign.Choices[answerIndex];
-                            bool isCorrect = answerText == _viewModel.CurrentSign.CorrectAnswer;
+                            Debug.WriteLine("CurrentSign is null - cannot select answer");
+                            return;
+                        }
+                        if (answerIndex >= 0 && answerIndex < currentSign.Choices.Count)
+                        {
+                            string answerText = currentSign.Choices[answerIndex];
+                            bool isCorrect = answerText == currentSign.CorrectAnswer;
 
                             Debug.WriteLine($"Player {player.Name}: Selected '{answerText}' - {(isCorrect ? "Correct" : "Incorrect")}");
 
@@ -1163,9 +1169,9 @@ namespace com.kizwiz.sipnsign.Pages
                             Debug.WriteLine($"HasAllPlayersAnswered: {_viewModel.HasAllPlayersAnswered}");
 
                             // Auto-hide feedback after 2 seconds
-                            Device.StartTimer(TimeSpan.FromSeconds(2), () => {
+                            this.Dispatcher.DispatchDelayed(TimeSpan.FromSeconds(2), () =>
+                            {
                                 _viewModel.IsFeedbackVisible = false;
-                                return false; // Don't repeat
                             });
                         }
                         else
