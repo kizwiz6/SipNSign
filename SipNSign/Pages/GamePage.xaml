@@ -204,6 +204,27 @@
             Volume="0"
             ShouldMute="True"
             IsVisible="{Binding IsMultiplayer}"/>
+
+                        <!-- Feedback Overlay for Guess Mode -->
+                        <Border IsVisible="{Binding IsFeedbackVisible}"
+                                StrokeShape="RoundRectangle 20"
+                                Margin="20,40"
+                                VerticalOptions="Center"
+                                HorizontalOptions="Center"
+                                ZIndex="10"
+                                InputTransparent="False">
+                            <Border.Background>
+                                <SolidColorBrush Color="{Binding FeedbackBackgroundColor}"/>
+                            </Border.Background>
+                            <VerticalStackLayout Spacing="10" Padding="20">
+                                <Label Text="{Binding FeedbackText}"
+                                       TextColor="White"
+                                       FontSize="24"
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center"/>
+                            </VerticalStackLayout>
+                        </Border>
                     </Grid>
                 </Border>
 
