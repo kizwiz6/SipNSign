@@ -1,140 +1,148 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
-        <OutputType>Exe</OutputType>
-        <RootNamespace>com.kizwiz.sipnsign</RootNamespace>
-        <UseMaui>true</UseMaui>
-        <SingleProject>true</SingleProject>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
+  <PropertyGroup>
+    <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>com.kizwiz.sipnsign</RootNamespace>
+    <UseMaui>true</UseMaui>
+    <SingleProject>true</SingleProject>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
 
-        <!-- Application Information -->
-        <ApplicationTitle>SipNSign</ApplicationTitle>
-        <ApplicationId>com.kizwiz.sipnsign</ApplicationId>
-        <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-        <ApplicationVersion>1</ApplicationVersion>
+    <!-- Application Information -->
+    <ApplicationTitle>SipNSign</ApplicationTitle>
+    <ApplicationId>com.kizwiz.sipnsign</ApplicationId>
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <ApplicationVersion>1</ApplicationVersion>
 
-		<AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
+    <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
 
-		<!-- Enable nullability context support -->
-		<NullabilityInfoContextSupport>true</NullabilityInfoContextSupport>
+    <!-- Enable nullability context support -->
+    <NullabilityInfoContextSupport>true</NullabilityInfoContextSupport>
 
-        <!-- Platform Versions -->
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">14.2</SupportedOSPlatformVersion>
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">14.0</SupportedOSPlatformVersion>
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
-		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+    <!-- Platform Versions -->
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">14.2</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">14.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
+    <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 
-		<AndroidTargetSdk>34</AndroidTargetSdk>
-    </PropertyGroup>
+    <AndroidTargetSdk>34</AndroidTargetSdk>
+  </PropertyGroup>
 
-	<PropertyGroup>
-		<MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
-	</PropertyGroup>
+  <PropertyGroup>
+    <MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <!-- Resources -->
-        <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
-		<MauiSplashScreen Include="Resources\Splash\splash_logo.png" Color="#0e324d" BaseSize="256,256" />
-        <MauiImage Include="Resources\Images\*" />
-		<MauiImage Include="Resources\Images\Themes\*.png" />
-        <MauiFont Include="Resources\Fonts\*" />
-		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
-    </ItemGroup>
+  <ItemGroup>
+    <!-- Resources -->
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+    <MauiSplashScreen Include="Resources\Splash\splash_logo.png" Color="#0e324d" BaseSize="256,256" />
+    <MauiImage Include="Resources\Images\*" />
+    <MauiImage Include="Resources\Images\Themes\*.png" />
+    <MauiFont Include="Resources\Fonts\*" />
+    <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
 
-    <ItemGroup>
-      <AndroidResource Remove="Resources\Themes\**" />
-      <Compile Remove="Resources\Themes\**" />
-      <EmbeddedResource Remove="Resources\Themes\**" />
-      <MauiCss Remove="Resources\Themes\**" />
-      <MauiXaml Remove="Resources\Themes\**" />
-      <None Remove="Resources\Themes\**" />
-    </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Remove="Resources\Themes\**" />
+    <Compile Remove="Resources\Themes\**" />
+    <EmbeddedResource Remove="Resources\Themes\**" />
+    <MauiCss Remove="Resources\Themes\**" />
+    <MauiXaml Remove="Resources\Themes\**" />
+    <None Remove="Resources\Themes\**" />
+  </ItemGroup>
 
-    <ItemGroup>
-      <None Remove="Platforms\Android\Resources\Images\first_sign_icon.svg" />
-      <None Remove="Platforms\Android\Resources\Images\locked_icon.svg" />
-      <None Remove="Platforms\Android\Resources\Images\mastery_icon.svg" />
-      <None Remove="Platforms\Android\Resources\Images\time_icon.svg" />
-      <None Remove="Resources\Splash\dotnet_bot.png" />
-    </ItemGroup>
+  <ItemGroup>
+    <None Remove="Platforms\Android\Resources\Images\first_sign_icon.svg" />
+    <None Remove="Platforms\Android\Resources\Images\locked_icon.svg" />
+    <None Remove="Platforms\Android\Resources\Images\mastery_icon.svg" />
+    <None Remove="Platforms\Android\Resources\Images\time_icon.svg" />
+    <None Remove="Resources\Splash\dotnet_bot.png" />
+  </ItemGroup>
 
   <ItemGroup>
     <!-- Core MAUI Packages -->
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.21" />
-    <PackageReference Include="Microsoft.Maui.Controls.Core" Version="9.0.21" />
-    <PackageReference Include="Microsoft.Maui.Controls.Xaml" Version="9.0.21" />
-    <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.21" />
-    <PackageReference Include="Microsoft.Maui.Core" Version="9.0.21" />
-    <PackageReference Include="Microsoft.Maui.Essentials" Version="9.0.21" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
 
-	  <PackageReference Include="System.Text.Json" Version="9.0.0">
-		  <IncludeAssets>all</IncludeAssets>
-		  <ExcludeAssets>none</ExcludeAssets>
-		  <PrivateAssets>none</PrivateAssets>
-	  </PackageReference>
-	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+    <PackageReference Include="System.Text.Json" Version="9.0.0">
+      <IncludeAssets>all</IncludeAssets>
+      <ExcludeAssets>none</ExcludeAssets>
+      <PrivateAssets>none</PrivateAssets>
+    </PackageReference>
+
+    <!-- Align DI to Maui 10 to avoid NU1605 -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
 
     <!-- Community Toolkit -->
-    <PackageReference Include="CommunityToolkit.Maui" Version="10.0.0" />
-    <PackageReference Include="CommunityToolkit.Maui.Core" Version="10.0.0" />
-    <PackageReference Include="CommunityToolkit.Maui.MediaElement" Version="5.0.0" />
+    <PackageReference Include="CommunityToolkit.Maui" Version="13.0.0" />
+    <PackageReference Include="CommunityToolkit.Maui.Core" Version="13.0.0" />
+    <PackageReference Include="CommunityToolkit.Maui.MediaElement" Version="7.0.0" />
+
+    <!-- Ensure Microsoft.Maui.Controls matches MediaElement transitive requirement -->
+    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.10" />
   </ItemGroup>
 
-    <!-- Android-specific packages -->
+  <!-- Android-specific packages - bumped to match transitive requirements from MAUI and Toolkit -->
   <ItemGroup Condition="$(TargetFramework.Contains('-android'))">
-    <PackageReference Include="Xamarin.AndroidX.Lifecycle.Common" Version="2.8.7.1" />
-    <PackageReference Include="Xamarin.AndroidX.Lifecycle.Runtime" Version="2.8.7.1" />
-    <PackageReference Include="Xamarin.AndroidX.Lifecycle.ViewModel" Version="2.8.7.1" />
-    <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData" Version="2.8.7.1" />
-    <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData.Core" Version="2.8.7.1" />
-    <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData.Core.Ktx" Version="2.8.7.1" />
-    <PackageReference Include="Xamarin.AndroidX.Activity" Version="1.9.3.1" />
-    <PackageReference Include="Xamarin.AndroidX.Activity.Ktx" Version="1.9.3.1" />
-    <PackageReference Include="Xamarin.AndroidX.Lifecycle.Runtime.Ktx" Version="2.8.7.1" />
-    <PackageReference Include="Xamarin.AndroidX.Lifecycle.ViewModel.Ktx" Version="2.8.7.1" />
-    <PackageReference Include="Xamarin.AndroidX.Core" Version="1.15.0.1" />
-    <PackageReference Include="Xamarin.AndroidX.Fragment" Version="1.8.5.1" />
-	  <PackageReference Include="Xamarin.AndroidX.Fragment.Ktx" Version="1.8.5.1" />
-    <PackageReference Include="Xamarin.AndroidX.AppCompat" Version="1.7.0.4" />
-    <PackageReference Include="Xamarin.AndroidX.Collection" Version="1.4.5.1" />
-    <PackageReference Include="Xamarin.AndroidX.Collection.Ktx" Version="1.4.5.1" />
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.Common" Version="2.9.2.1" />
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.Runtime" Version="2.9.2.1" />
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.ViewModel" Version="2.9.2.1" />
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData" Version="2.9.2.1" />
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData.Core" Version="2.9.2.1" />
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData.Core.Ktx" Version="2.9.2.1" />
+    <PackageReference Include="Xamarin.AndroidX.Activity" Version="1.10.1.3" />
+    <PackageReference Include="Xamarin.AndroidX.Activity.Ktx" Version="1.10.1.3" />
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.Runtime.Ktx" Version="2.9.2.1" />
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.ViewModel.Ktx" Version="2.9.2.1" />
+    <PackageReference Include="Xamarin.AndroidX.Core" Version="1.16.0.3" />
+    <PackageReference Include="Xamarin.AndroidX.Fragment" Version="1.8.8.1" />
+    <PackageReference Include="Xamarin.AndroidX.Fragment.Ktx" Version="1.8.8.1" />
+    <PackageReference Include="Xamarin.AndroidX.AppCompat" Version="1.7.1.1" />
+    <PackageReference Include="Xamarin.AndroidX.Collection" Version="1.5.0.3" />
+    <PackageReference Include="Xamarin.AndroidX.Collection.Ktx" Version="1.5.0.3" />
+    <PackageReference Include="Xamarin.AndroidX.Collection.Jvm" Version="1.5.0.3" />
+
+    <!-- Explicit Media3 / ExoPlayer versions to avoid AbstractMethodError -->
+    <PackageReference Include="Xamarin.AndroidX.Media3.Common" Version="1.8.0" />
+    <PackageReference Include="Xamarin.AndroidX.Media3.ExoPlayer" Version="1.8.0" />
+    <PackageReference Include="Xamarin.AndroidX.Media3.Session" Version="1.8.0" />
+    <PackageReference Include="Xamarin.AndroidX.Media3.Ui" Version="1.8.0" />
+    <!-- optional: include other media3 packages if transitive deps reference them -->
+    <PackageReference Include="Xamarin.AndroidX.Media3.Datasource" Version="1.8.0" />
   </ItemGroup>
-	<ItemGroup Condition="$(TargetFramework.Contains('-android'))">
-		<AndroidResource Include="Platforms\Android\Resources\raw\*.mp4" />
-	</ItemGroup>
+  <ItemGroup Condition="$(TargetFramework.Contains('-android'))">
+    <AndroidResource Include="Platforms\Android\Resources\raw\*.mp4" />
+  </ItemGroup>
   <ItemGroup>
-	  <MauiImage Include="Platforms\Android\Resources\Images\achievement_icon.svg" />
-	  <MauiImage Include="Platforms\Android\Resources\Images\century_club_icon.svg" />
-	  <MauiImage Include="Platforms\Android\Resources\Images\fifty_signs_icon.svg" />
-	  <MauiImage Include="Platforms\Android\Resources\Images\first_sign_icon.svg" />
-	  <MauiImage Include="Platforms\Android\Resources\Images\guess_100_icon.svg" />
-	  <MauiImage Include="Platforms\Android\Resources\Images\guess_1000_icon.svg" />
-	  <MauiImage Include="Platforms\Android\Resources\Images\locked_icon.svg" />
-	  <MauiImage Include="Platforms\Android\Resources\Images\mastery_icon.svg" />
-	  <MauiImage Include="Platforms\Android\Resources\Images\party_icon.svg" />
-	  <MauiImage Include="Platforms\Android\Resources\Images\perfect_session_icon.svg" />
-	  <MauiImage Include="Platforms\Android\Resources\Images\perform_100_icon.svg" />
-	  <MauiImage Include="Platforms\Android\Resources\Images\perform_1000_icon.svg" />
-	  <MauiImage Include="Platforms\Android\Resources\Images\quiz_correct_icon.svg" />
-	  <MauiImage Include="Platforms\Android\Resources\Images\quiz_icon.svg" />
-	  <MauiImage Include="Platforms\Android\Resources\Images\quiz_master_icon.svg" />
-	  <MauiImage Include="Platforms\Android\Resources\Images\quiz_incorrect_icon.svg" />
-	  <MauiImage Include="Platforms\Android\Resources\Images\social_icon.svg" />
-	  <MauiImage Include="Platforms\Android\Resources\Images\speed_master_icon.svg" />
-	  <MauiImage Include="Platforms\Android\Resources\Images\streak_icon.svg" />
-	  <MauiImage Include="Platforms\Android\Resources\Images\streak_monthly_icon.svg" />
-	  <MauiImage Include="Platforms\Android\Resources\Images\streak_weekly_icon.svg" />
-	  <MauiImage Include="Platforms\Android\Resources\Images\time_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\achievement_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\century_club_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\fifty_signs_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\first_sign_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\guess_100_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\guess_1000_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\locked_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\mastery_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\party_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\perfect_session_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\perform_100_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\perform_1000_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\quiz_correct_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\quiz_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\quiz_master_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\quiz_incorrect_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\social_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\speed_master_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\streak_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\streak_monthly_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\streak_weekly_icon.svg" />
+    <MauiImage Include="Platforms\Android\Resources\Images\time_icon.svg" />
 
   </ItemGroup>
-	<ItemGroup>
-		<MauiXaml Remove="**/*.xaml" />
-	</ItemGroup>
+  <ItemGroup>
+    <MauiXaml Remove="**/*.xaml" />
+  </ItemGroup>
   <ItemGroup>
     <Compile Update="Pages\PlayerSelectionPage.xaml.cs">
       <DependentUpon>PlayerSelectionPage.xaml</DependentUpon>
@@ -148,30 +156,30 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </MauiImage>
   </ItemGroup>
-	<!-- Add specific XAML files with correct build action -->
-	<ItemGroup>
-		<MauiXaml Include="App.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</MauiXaml>
-		<MauiXaml Include="AppShell.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</MauiXaml>
-		<MauiXaml Include="Pages\**\*.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</MauiXaml>
-		<MauiXaml Include="Resources\Styles\**\*.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</MauiXaml>		
-	</ItemGroup>
+  <!-- Add specific XAML files with correct build action -->
+  <ItemGroup>
+    <MauiXaml Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Include="AppShell.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Include="Pages\**\*.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Include="Resources\Styles\**\*.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+  </ItemGroup>
 
-	<ItemGroup>
-		<MauiXaml Update="Pages\GamePage.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</MauiXaml>
-		<MauiXaml Update="Pages\AchievementDetailsPage.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</MauiXaml>
-	</ItemGroup>
+  <ItemGroup>
+    <MauiXaml Update="Pages\GamePage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Pages\AchievementDetailsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+  </ItemGroup>
   <ItemGroup>
     <MauiXaml Update="Pages\AchievementDetailsPage.xaml">
       <Generator>MSBuild:Compile</Generator>

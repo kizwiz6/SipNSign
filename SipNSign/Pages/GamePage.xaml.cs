@@ -1,3 +1,4 @@
+using System;
 using com.kizwiz.sipnsign.Enums;
 using com.kizwiz.sipnsign.Services;
 using com.kizwiz.sipnsign.ViewModels;
@@ -210,11 +211,15 @@ namespace com.kizwiz.sipnsign.Pages
             if (e.PropertyName == nameof(MediaElement.CurrentState))
             {
                 Debug.WriteLine($"Current state: {mediaElement.CurrentState}");
-                if (mediaElement.CurrentState == MediaElementState.Failed)
+
+                // Avoid direct reference to MediaElementState enum (may not be available in current packages).
+                // Use the enum's name string to detect important states.
+                var stateName = mediaElement.CurrentState.ToString();
+                if (string.Equals(stateName, "Failed", StringComparison.OrdinalIgnoreCase))
                 {
                     Debug.WriteLine("Video failed to load");
                 }
-                else if (mediaElement.CurrentState == MediaElementState.Playing)
+                else if (string.Equals(stateName, "Playing", StringComparison.OrdinalIgnoreCase))
                 {
                     Debug.WriteLine("Video is playing");
                 }
@@ -562,53 +567,144 @@ namespace com.kizwiz.sipnsign.Pages
 
         protected override async void OnDisappearing()
         {
+            await _cleanupLock.WaitAsync();
             try
             {
+                Debug.WriteLine("OnDisappearing: start");
+
+                // Mark disposed so other work stops
                 _isDisposed = true;
 
-                // Call Cleanup explicitly first
-                Cleanup();
+                // Stop timer first
+                try { _timer?.Stop(); _timer = null; } catch (Exception ex) { Debug.WriteLine($"Timer stop error: {ex.Message}"); }
 
-                // Then proceed with existing code if needed
-                await MainThread.InvokeOnMainThreadAsync(() =>
+                // Ensure UI-thread cleanup runs immediately (stop, clear source, remove handlers)
+                try
                 {
-                    if (_sharedVideoElement != null)
+                    await MainThread.InvokeOnMainThreadAsync(() =>
                     {
-                        _sharedVideoElement.Stop();
-                        _sharedVideoElement.Source = null;
-                        _sharedVideoElement.Handler?.DisconnectHandler();
-                    }
+                        SafeStopAndClearMedia(_sharedVideoElement);
+                        SafeStopAndClearMedia(_performVideoElement);
+                        SafeStopAndClearMedia(_multiplayerPerformVideoElement);
+                        SafeStopAndClearMedia(_multiplayerGuessVideoElement);
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"UI-thread media cleanup error: {ex.Message}");
+                }
 
-                    if (_performVideoElement != null)
+#if ANDROID
+                // Defensive: release audio focus early to avoid finalizer racing to abandon focus on disposed listener
+                try
+                {
+                    var ctx = Android.App.Application.Context;
+                    var audioMgr = ctx?.GetSystemService(Android.Content.Context.AudioService) as Android.Media.AudioManager;
+                    if (audioMgr != null)
                     {
-                        _performVideoElement.Stop();
-                        _performVideoElement.Source = null;
-                        _performVideoElement.Handler?.DisconnectHandler();
+                        try
+                        {
+                            audioMgr.AbandonAudioFocus(null);
+                            Debug.WriteLine("Audio focus abandoned (defensive).");
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"AbandonAudioFocus error: {ex.Message}");
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Android audio focus defensive call failed: {ex.Message}");
+                }
+#endif
 
-                    if (_multiplayerPerformVideoElement != null)
-                    {
-                        _multiplayerPerformVideoElement.Stop();
-                        _multiplayerPerformVideoElement.Source = null;
-                        _multiplayerPerformVideoElement.Handler?.DisconnectHandler();
-                    }
-                });
+                // Give native peers a chance to be released deterministically
+                try
+                {
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                    GC.Collect();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Forced GC error: {ex.Message}");
+                }
 
-                await Task.Delay(100);
+                // Cleanup any remaining MediaElement internals (disconnect handlers)
+                try
+                {
+                    await CleanupMediaElements();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"CleanupMediaElements error: {ex.Message}");
+                }
 
-                ViewModel?.Cleanup();
+                // ViewModel cleanup
+                try { ViewModel?.Cleanup(); } catch (Exception ex) { Debug.WriteLine($"ViewModel cleanup error: {ex.Message}"); }
+
+                // Final house-keeping
+                try { Cleanup(); } catch (Exception ex) { Debug.WriteLine($"Cleanup() error: {ex.Message}"); }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in OnDisappearing: {ex.Message}");
+                Debug.WriteLine($"OnDisappearing unexpected error: {ex.Message}");
             }
             finally
             {
-                base.OnDisappearing();
-                _isDisposed = false;
+                try { base.OnDisappearing(); } catch { }
+                _isDisposed = false; // allow re-use if page reappears
+                try { _cleanupLock.Release(); } catch { }
+                Debug.WriteLine("OnDisappearing: complete");
             }
         }
         #endregion
+
+        /// <summary>
+        /// Safely stops playback, unsubscribes handlers and clears native resources for a MediaElement.
+        /// Safe to call from any thread — UI actions will be marshalled to the main thread.
+        /// Swallows exceptions to avoid crashes during finalization.
+        /// </summary>
+        private void SafeStopAndClearMedia(MediaElement? media)
+        {
+            if (media == null) return;
+
+            // Ensure UI-thread operations
+            if (!MainThread.IsMainThread)
+            {
+                try { MainThread.BeginInvokeOnMainThread(() => SafeStopAndClearMedia(media)); } catch { }
+                return;
+            }
+
+            try
+            {
+                // Defensive unsubscribe of events (no-op if not attached)
+                try { media.MediaOpened -= OnMediaOpened; } catch { }
+                try { media.MediaFailed -= OnMediaFailed; } catch { }
+                try { media.MediaEnded -= OnMediaEnded; } catch { }
+                try { media.PropertyChanged -= OnSharedVideoPropertyChanged; } catch { }
+
+                // Stop playback
+                try { media.Pause(); } catch { }
+                try { media.Stop(); } catch { }
+
+                // Clear source so toolkit services release native resources
+                try { media.Source = null; } catch { }
+
+                // Hide to avoid native rendering activity
+                try { media.IsVisible = false; } catch { }
+
+                // Disconnect handler to release platform view and related native peers
+                try { media.Handler?.DisconnectHandler(); } catch { }
+
+                Debug.WriteLine($"SafeStopAndClearMedia: cleaned media element");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"SafeStopAndClearMedia: error cleaning media element: {ex.Message}");
+            }
+        }
 
         // Connect this method to the ViewModel's property changes
         private void ConnectToViewModel()
@@ -1090,7 +1186,7 @@ namespace com.kizwiz.sipnsign.Pages
 
         private async void OnConfirmAnswersClicked(object sender, EventArgs e)
         {
-            if(ViewModel.IsMultiplayer && !ViewModel.HasAllPlayersAnswered)
+            if (ViewModel.IsMultiplayer && !ViewModel.HasAllPlayersAnswered)
             {
                 var unansweredPlayers = ViewModel.Players.Where(p => p.SelectedAnswer == 0).ToList();
                 var playerNames = string.Join(", ", unansweredPlayers.Select(p => p.Name));
