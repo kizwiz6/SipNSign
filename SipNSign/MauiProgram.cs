@@ -2,6 +2,7 @@
 using com.kizwiz.sipnsign.Services;
 using com.kizwiz.sipnsign.ViewModels;
 using CommunityToolkit.Maui;
+using Microsoft.Maui;
 using Microsoft.Maui.Controls.PlatformConfiguration;
 using System.Diagnostics;
 using System.Text.Json;
@@ -68,8 +69,6 @@ public static class MauiProgram
 
                 Debug.WriteLine("Core services registered");
 
-
-
                 builder.Services.AddSingleton<App>();
                 builder.Services.AddSingleton<AppShell>();
                 Debug.WriteLine("App and Shell registered");
@@ -95,10 +94,6 @@ public static class MauiProgram
                 Debug.WriteLine($"Stack trace: {ex.StackTrace}");
                 throw;
             }
-
-            var app = builder.Build();
-            Debug.WriteLine("App built successfully");
-            return app;
         }
         catch (Exception ex)
         {

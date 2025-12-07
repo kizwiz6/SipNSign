@@ -819,28 +819,21 @@ namespace com.kizwiz.sipnsign.Pages
             {
                 await _videoLoadLock.WaitAsync();
 
+                // Ensure UI-thread cleanup
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
-                    if (_sharedVideoElement != null)
+                    try
                     {
-                        _sharedVideoElement.Stop();
-                        _sharedVideoElement.Source = null;
-                        _sharedVideoElement.PropertyChanged -= OnSharedVideoPropertyChanged;
-                        _sharedVideoElement.Handler?.DisconnectHandler();
+                        // Use the centralized SafeStopAndClearMedia which unsubscribes events,
+                        // stops playback, clears Source and disconnects handlers.
+                        SafeStopAndClearMedia(_sharedVideoElement);
+                        SafeStopAndClearMedia(_performVideoElement);
+                        SafeStopAndClearMedia(_multiplayerPerformVideoElement);
+                        SafeStopAndClearMedia(_multiplayerGuessVideoElement);
                     }
-
-                    if (_performVideoElement != null)
+                    catch (Exception ex)
                     {
-                        _performVideoElement.Stop();
-                        _performVideoElement.Source = null;
-                        _performVideoElement.Handler?.DisconnectHandler();
-                    }
-
-                    if (_multiplayerPerformVideoElement != null)
-                    {
-                        _multiplayerPerformVideoElement.Stop();
-                        _multiplayerPerformVideoElement.Source = null;
-                        _multiplayerPerformVideoElement.Handler?.DisconnectHandler();
+                        Debug.WriteLine($"Error cleaning up media elements (UI): {ex.Message}");
                     }
                 });
             }
@@ -853,7 +846,8 @@ namespace com.kizwiz.sipnsign.Pages
                 _sharedVideoElement = null;
                 _performVideoElement = null;
                 _multiplayerPerformVideoElement = null;
-                _videoLoadLock.Release();
+                _multiplayerGuessVideoElement = null;
+                try { _videoLoadLock.Release(); } catch { }
             }
         }
 
@@ -868,33 +862,44 @@ namespace com.kizwiz.sipnsign.Pages
 
                 if (_timer != null)
                 {
-                    _timer.Stop();
+                    try { _timer.Stop(); } catch { }
                     _timer = null;
                 }
 
+                // Ensure deterministic UI-thread release of native peers
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
                     try
                     {
-                        _sharedVideoElement?.Handler?.DisconnectHandler();
-                        _performVideoElement?.Handler?.DisconnectHandler();
-                        _multiplayerPerformVideoElement?.Handler?.DisconnectHandler();
-                        _multiplayerGuessVideoElement?.Handler?.DisconnectHandler(); // ADD THIS
+                        // SafeStopAndClearMedia already disconnects handlers and unsubscribes events.
+                        SafeStopAndClearMedia(_sharedVideoElement);
+                        SafeStopAndClearMedia(_performVideoElement);
+                        SafeStopAndClearMedia(_multiplayerPerformVideoElement);
+                        SafeStopAndClearMedia(_multiplayerGuessVideoElement);
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"Error disconnecting handlers: {ex.Message}");
+                        Debug.WriteLine($"Error during UI media cleanup: {ex.Message}");
                     }
                 });
 
+                // Null out references so generated Java peers can be GC'd and monodroidClearReferences can run
                 _sharedVideoElement = null;
                 _performVideoElement = null;
                 _multiplayerPerformVideoElement = null;
-                _multiplayerGuessVideoElement = null; // ADD THIS
+                _multiplayerGuessVideoElement = null;
 
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-                GC.Collect();
+                // Best-effort native release
+                try
+                {
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                    GC.Collect();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Forced GC error: {ex.Message}");
+                }
 
                 Debug.WriteLine("Cleanup: Complete");
             }

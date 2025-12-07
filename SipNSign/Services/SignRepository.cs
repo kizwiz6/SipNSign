@@ -1,5 +1,6 @@
 ﻿using com.kizwiz.sipnsign.Enums;
 using com.kizwiz.sipnsign.Models;
+using Microsoft.Maui.Storage;
 using System.Text.Json;
 
 /// <summary>
@@ -193,9 +194,9 @@ public class SignRepository
 
         // STARTER PACK (Free)
         #region STARTER PACK
-            // Colors
-            signs.AddRange(new[]
-            {
+        // Colors
+        signs.AddRange(new[]
+        {
             new SignModel { VideoPath = "black.mp4", Choices = new List<string> { "Black", "Blue", "Green", "Red" }, CorrectAnswer = "Black", Language = SignLanguage.BSL, Category = SignCategory.Colors },
             new SignModel { VideoPath = "blue.mp4", Choices = new List<string> { "Blue", "Black", "Yellow", "Green" }, CorrectAnswer = "Blue", Language = SignLanguage.BSL, Category = SignCategory.Colors },
             new SignModel { VideoPath = "brown.mp4", Choices = new List<string> { "Red", "Brown", "Orange", "Purple" }, CorrectAnswer = "Brown", Language = SignLanguage.BSL, Category = SignCategory.Colors },
@@ -209,9 +210,9 @@ public class SignRepository
             new SignModel { VideoPath = "yellow.mp4", Choices = new List<string> { "Yellow", "Orange", "Gold", "Red" }, CorrectAnswer = "Yellow", Language = SignLanguage.BSL, Category = SignCategory.Colors },
             });
 
-            // Time
-            signs.AddRange(new[]
-            {
+        // Time
+        signs.AddRange(new[]
+        {
             new SignModel { VideoPath = "age.mp4", Choices = new List<string> { "Young", "Old", "Age", "Time" }, CorrectAnswer = "Age", Language = SignLanguage.BSL, Category = SignCategory.Time },
             new SignModel { VideoPath = "autumn.mp4", Choices = new List<string> { "Winter", "Autumn", "Summer", "Spring" }, CorrectAnswer = "Autumn", Language = SignLanguage.BSL, Category = SignCategory.Time },
             new SignModel { VideoPath = "spring.mp4", Choices = new List<string> { "Winter", "Spring", "Autumn", "Summer" }, CorrectAnswer = "Spring", Language = SignLanguage.BSL, Category = SignCategory.Time },
@@ -221,9 +222,9 @@ public class SignRepository
             new SignModel { VideoPath = "winter.mp4", Choices = new List<string> { "Winter", "Summer", "Spring", "Autumn" }, CorrectAnswer = "Winter", Language = SignLanguage.BSL, Category = SignCategory.Time },
             });
 
-            // Weather (part of starter pack)
-            signs.AddRange(new[]
-            {
+        // Weather (part of starter pack)
+        signs.AddRange(new[]
+        {
             new SignModel { VideoPath = "hot.mp4", Choices = new List<string> { "Cool", "Cold", "Warm", "Hot" }, CorrectAnswer = "Hot", Language = SignLanguage.BSL, Category = SignCategory.Weather },
             new SignModel { VideoPath = "weather.mp4", Choices = new List<string> { "Weather", "Climate", "Rain", "Temperature" }, CorrectAnswer = "Weather", Language = SignLanguage.BSL, Category = SignCategory.Weather },
             new SignModel { VideoPath = "rain.mp4", Choices = new List<string> { "Storm", "Rain", "Drizzle", "Hail" }, CorrectAnswer = "Rain", Language = SignLanguage.BSL, Category = SignCategory.Weather },
@@ -232,9 +233,9 @@ public class SignRepository
         #endregion
 
         #region Animals Pack
-            // Animals
-            signs.AddRange(new[]
-            {
+        // Animals
+        signs.AddRange(new[]
+        {
             new SignModel { VideoPath = "bird.mp4", Choices = new List<string> { "Bird", "Cat", "Dog", "Fish" }, CorrectAnswer = "Bird", Language = SignLanguage.BSL, Category = SignCategory.Animals },
             new SignModel { VideoPath = "dog.mp4", Choices = new List<string> { "Dog", "Cat", "Animal", "Bird" }, CorrectAnswer = "Dog", Language = SignLanguage.BSL, Category = SignCategory.Animals },
             new SignModel { VideoPath = "dolphin.mp4", Choices = new List<string> { "Whale", "Dolphin", "Shark", "Fish" }, CorrectAnswer = "Dolphin", Language = SignLanguage.BSL, Category = SignCategory.Animals },
@@ -271,9 +272,9 @@ public class SignRepository
             new SignModel { VideoPath = "sheep.mp4", Choices = new List<string> { "Sheep", "Goat", "Cow", "Lamb" }, CorrectAnswer = "Sheep", Language = SignLanguage.BSL, Category = SignCategory.Animals },
             });
 
-            // Nature (part of Animals pack)
-            signs.AddRange(new[]
-            {
+        // Nature (part of Animals pack)
+        signs.AddRange(new[]
+        {
             new SignModel { VideoPath = "cloud.mp4", Choices = new List<string> { "Sky", "Cloud", "Rain", "Storm" }, CorrectAnswer = "Cloud", Language = SignLanguage.BSL, Category = SignCategory.Nature },
             new SignModel { VideoPath = "farm.mp4", Choices = new List<string> { "Farm", "Ranch", "Garden", "Field" }, CorrectAnswer = "Farm", Language = SignLanguage.BSL, Category = SignCategory.Nature },
             new SignModel { VideoPath = "fire.mp4", Choices = new List<string> { "Flame", "Fire", "Smoke", "Heat" }, CorrectAnswer = "Fire", Language = SignLanguage.BSL, Category = SignCategory.Nature },
@@ -292,7 +293,7 @@ public class SignRepository
         // Countries
         signs.AddRange(new[]
         {
-            new SignModel { VideoPath = "America.mp4", Choices = new List<string> { "America", "Canada", "Brazil", "Mexico" }, CorrectAnswer = "America", Language = SignLanguage.BSL, Category = SignCategory.Countries },
+            new SignModel { VideoPath = "america.mp4", Choices = new List<string> { "America", "Canada", "Brazil", "Mexico" }, CorrectAnswer = "America", Language = SignLanguage.BSL, Category = SignCategory.Countries },
             new SignModel { VideoPath = "Belgium.mp4", Choices = new List<string> { "Belgium", "Germany", "France", "Netherlands" }, CorrectAnswer = "Belgium", Language = SignLanguage.BSL, Category = SignCategory.Countries },
             new SignModel { VideoPath = "brazil.mp4", Choices = new List<string> { "Brazil", "Argentina", "Chile", "Peru" }, CorrectAnswer = "Brazil", Language = SignLanguage.BSL, Category = SignCategory.Countries },
             new SignModel { VideoPath = "China.mp4", Choices = new List<string> { "China", "Japan", "Korea", "Vietnam" }, CorrectAnswer = "China", Language = SignLanguage.BSL, Category = SignCategory.Countries },
