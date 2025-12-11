@@ -1090,7 +1090,7 @@ namespace com.kizwiz.sipnsign.Pages
 
         private async void OnConfirmAnswersClicked(object sender, EventArgs e)
         {
-            if(ViewModel.IsMultiplayer && !ViewModel.HasAllPlayersAnswered)
+            if (ViewModel.IsMultiplayer && !ViewModel.HasAllPlayersAnswered)
             {
                 var unansweredPlayers = ViewModel.Players.Where(p => p.SelectedAnswer == 0).ToList();
                 var playerNames = string.Join(", ", unansweredPlayers.Select(p => p.Name));
@@ -1152,7 +1152,7 @@ namespace com.kizwiz.sipnsign.Pages
 
                             // Show feedback
                             _viewModel.FeedbackText = $"{player.Name} selected {answerNumber}: {answerText}";
-                            _viewModel.FeedbackBackgroundColor = _viewModel.GetFeedbackColor(isCorrect);
+                            _viewModel.FeedbackBackgroundColor = Color.FromArgb("#007BFF"); // Use a neutral color
                             _viewModel.IsFeedbackVisible = true;
 
                             // Force UI refresh
