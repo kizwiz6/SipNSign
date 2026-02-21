@@ -2,7 +2,8 @@
 using Android.Content.PM;
 using Android.OS;
 using AndroidX.Activity;
-using System.Diagnostics;
+using System;
+using System.Reflection;
 
 namespace com.kizwiz.sipnsign;
 
@@ -48,6 +49,66 @@ public class MainActivity : MauiAppCompatActivity
             System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
             throw;
         }
+    }
+
+    // NOTE: Activity does NOT have OnSleep. App lifecycle OnSleep should be handled in App.xaml.cs.
+    // Defensive cleanup moved to OnDestroy (protected override) to match base signature.
+    protected override void OnDestroy()
+    {
+        try
+        {
+            // Attempt to gracefully dispose toolkit MediaControlsService if present
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                var asmName = asm.GetName().Name;
+                if (string.IsNullOrEmpty(asmName))
+                    continue;
+
+                if (!(asmName.StartsWith("CommunityToolkit.Maui.Media", StringComparison.OrdinalIgnoreCase) ||
+                      asmName.StartsWith("CommunityToolkit.Maui", StringComparison.OrdinalIgnoreCase)))
+                    continue;
+
+                var svcType = asm.GetType("CommunityToolkit.Maui.Media.Services.MediaControlsService");
+                if (svcType == null) continue;
+
+                // Try a public static Instance property
+                var instProp = svcType.GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
+                var inst = instProp?.GetValue(null);
+
+                if (inst == null)
+                {
+                    // try a private static field fallback
+                    var field = svcType.GetField("_instance", BindingFlags.NonPublic | BindingFlags.Static)
+                                ?? svcType.GetField("Instance", BindingFlags.NonPublic | BindingFlags.Static);
+                    inst = field?.GetValue(null);
+                }
+
+                if (inst != null)
+                {
+                    // If IDisposable, dispose
+                    if (inst is IDisposable d)
+                    {
+                        try { d.Dispose(); } catch { }
+                    }
+                    else
+                    {
+                        // Try invoking Dispose() if available
+                        var disposeMethod = svcType.GetMethod("Dispose", BindingFlags.Public | BindingFlags.Instance)
+                                            ?? svcType.GetMethod("Dispose", BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (disposeMethod != null)
+                        {
+                            try { disposeMethod.Invoke(inst, Array.Empty<object>()); } catch { }
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Media controls cleanup failed: {ex.Message}");
+        }
+
+        base.OnDestroy();
     }
     #endregion
 

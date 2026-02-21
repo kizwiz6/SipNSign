@@ -26,6 +26,10 @@
         public const string TRANSPARENT_FEEDBACK_KEY = "TransparentFeedback";
         #endregion
 
+        #region Font Settings
+        public const string USE_CUSTOM_FONT_KEY = "UseCustomFont";
+        #endregion
+
         #region Game Settings
         // Guess Mode Settings
         public const string GUESS_MODE_QUESTIONS_KEY = "GuessQuestions";

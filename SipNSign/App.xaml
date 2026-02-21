@@ -41,6 +41,26 @@
             <x:Double x:Key="BodyFontSize">16</x:Double>
             <x:Double x:Key="CaptionFontSize">14</x:Double>
 
+            <!-- Font styling -->
+            <Style x:Key="CustomFontLabelStyle" TargetType="Label">
+                <Setter Property="FontFamily" Value="BangersRegular" />
+                <Setter Property="FontSize" Value="20" />
+            </Style>
+            <Style x:Key="CustomFontButtonStyle" TargetType="Button">
+                <Setter Property="FontFamily" Value="BangersRegular" />
+                <Setter Property="FontSize" Value="18" />
+            </Style>
+
+            <!-- Default styles (will be set based on user preference) -->
+            <Style TargetType="Label">
+                <Setter Property="FontFamily" Value="BangersRegular" />
+                <Setter Property="FontSize" Value="20" />
+            </Style>
+            <Style TargetType="Button">
+                <Setter Property="FontFamily" Value="BangersRegular" />
+                <Setter Property="FontSize" Value="18" />
+            </Style>
+
             <!-- Background gradient -->
             <LinearGradientBrush x:Key="BackgroundGradient" StartPoint="0,0" EndPoint="0,1">
                 <GradientStop Color="#1a237e" Offset="0.0" />

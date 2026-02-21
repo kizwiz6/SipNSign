@@ -35,7 +35,7 @@ public static class MauiProgram
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-                    fonts.AddFont("Bangers-Regular.ttf", "Bangers");
+                    fonts.AddFont("Bangers-Regular.ttf", "BangersRegular");
                 });
 
             Debug.WriteLine("Basic MAUI configuration completed");
