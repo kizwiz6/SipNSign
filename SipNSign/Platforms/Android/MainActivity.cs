@@ -1,9 +1,10 @@
-﻿using Android.App;
+using Android.App;
 using Android.Content.PM;
 using Android.OS;
+using Android.Runtime;
 using AndroidX.Activity;
+using com.kizwiz.sipnsign.Platforms.Android;
 using System;
-using System.Reflection;
 
 namespace com.kizwiz.sipnsign;
 
@@ -15,104 +16,42 @@ namespace com.kizwiz.sipnsign;
                                 ConfigChanges.ScreenLayout |
                                 ConfigChanges.SmallestScreenSize |
                                 ConfigChanges.Density)]
-/// <summary>
-/// Main Android activity for the application
-/// </summary>
 public class MainActivity : MauiAppCompatActivity
 {
-    #region Lifecycle Methods
     protected override void OnCreate(Bundle? savedInstanceState)
     {
         try
         {
-#if ANDROID
-            Android.Util.Log.Debug("SipNSignApp", "MainActivity OnCreate starting");
-#endif
-            System.Diagnostics.Debug.WriteLine("MainActivity OnCreate starting");
-
             base.OnCreate(savedInstanceState);
-            Window?.SetStatusBarColor(Android.Graphics.Color.ParseColor("#1a237e"));
 
-            System.Diagnostics.Debug.WriteLine("MainActivity base.OnCreate completed");
+            // Set custom status bar color
+            Window?.SetStatusBarColor(Android.Graphics.Color.ParseColor("#1a237e"));
 
             if (OperatingSystem.IsAndroidVersionAtLeast(33))
             {
-                System.Diagnostics.Debug.WriteLine("Registering back callback");
                 OnBackPressedDispatcher.AddCallback(this, new BackCallback(this));
             }
-
-            System.Diagnostics.Debug.WriteLine("MainActivity OnCreate completed");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Error in MainActivity.OnCreate: {ex.Message}");
-            System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
             throw;
         }
     }
 
-    // NOTE: Activity does NOT have OnSleep. App lifecycle OnSleep should be handled in App.xaml.cs.
-    // Defensive cleanup moved to OnDestroy (protected override) to match base signature.
-    protected override void OnDestroy()
+    internal static bool IsMediaSessionFinalizerCrash(Exception? ex)
     {
-        try
+        if (ex is ObjectDisposedException ode)
         {
-            // Attempt to gracefully dispose toolkit MediaControlsService if present
-            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                var asmName = asm.GetName().Name;
-                if (string.IsNullOrEmpty(asmName))
-                    continue;
+            if (ode.ObjectName?.Contains("MediaSessionCompat", StringComparison.OrdinalIgnoreCase) == true)
+                return true;
 
-                if (!(asmName.StartsWith("CommunityToolkit.Maui.Media", StringComparison.OrdinalIgnoreCase) ||
-                      asmName.StartsWith("CommunityToolkit.Maui", StringComparison.OrdinalIgnoreCase)))
-                    continue;
-
-                var svcType = asm.GetType("CommunityToolkit.Maui.Media.Services.MediaControlsService");
-                if (svcType == null) continue;
-
-                // Try a public static Instance property
-                var instProp = svcType.GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
-                var inst = instProp?.GetValue(null);
-
-                if (inst == null)
-                {
-                    // try a private static field fallback
-                    var field = svcType.GetField("_instance", BindingFlags.NonPublic | BindingFlags.Static)
-                                ?? svcType.GetField("Instance", BindingFlags.NonPublic | BindingFlags.Static);
-                    inst = field?.GetValue(null);
-                }
-
-                if (inst != null)
-                {
-                    // If IDisposable, dispose
-                    if (inst is IDisposable d)
-                    {
-                        try { d.Dispose(); } catch { }
-                    }
-                    else
-                    {
-                        // Try invoking Dispose() if available
-                        var disposeMethod = svcType.GetMethod("Dispose", BindingFlags.Public | BindingFlags.Instance)
-                                            ?? svcType.GetMethod("Dispose", BindingFlags.NonPublic | BindingFlags.Instance);
-                        if (disposeMethod != null)
-                        {
-                            try { disposeMethod.Invoke(inst, Array.Empty<object>()); } catch { }
-                        }
-                    }
-                }
-            }
+            if (ode.StackTrace?.Contains("MediaControlsService.Dispose", StringComparison.Ordinal) == true)
+                return true;
         }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Media controls cleanup failed: {ex.Message}");
-        }
-
-        base.OnDestroy();
+        return false;
     }
-    #endregion
 
-    #region Inner Classes
     private class BackCallback : OnBackPressedCallback
     {
         private readonly MainActivity _activity;
@@ -140,5 +79,4 @@ public class MainActivity : MauiAppCompatActivity
             }
         }
     }
-    #endregion
 }

@@ -174,24 +174,10 @@ namespace com.kizwiz.sipnsign
 
                 if (e.IsTerminating)
                 {
-                    // App is about to crash, try to show error to user
-                    MainThread.BeginInvokeOnMainThread(async () =>
-                    {
-                        try
-                        {
-                            if (Current?.MainPage != null)
-                            {
-                                await Current.MainPage.DisplayAlert(
-                                    "Critical Error",
-                                    "The application encountered a critical error and needs to close. The error has been logged.",
-                                    "OK");
-                            }
-                        }
-                        catch
-                        {
-                            // If we can't show dialog, at least the error is logged
-                        }
-                    });
+                    // Note: The actual crash prevention for the known MediaSessionCompat
+                    // finalization bug is handled by AndroidEnvironment.UnhandledExceptionRaiser
+                    // in MainActivity.cs which can set e.Handled = true to prevent termination.
+                    // AppDomain.UnhandledException CANNOT prevent termination.
                 }
             }
         }

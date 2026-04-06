@@ -1,13 +1,14 @@
+using com.kizwiz.sipnsign.Converters;
 using com.kizwiz.sipnsign.Enums;
+using com.kizwiz.sipnsign.Models;
 using com.kizwiz.sipnsign.Services;
 using com.kizwiz.sipnsign.ViewModels;
-using CommunityToolkit.Maui.Views;
+using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Core.Primitives;
+using CommunityToolkit.Maui.Views;
+using CommunityToolkit.Mvvm.Messaging;
 using System.ComponentModel;
 using System.Diagnostics;
-using CommunityToolkit.Mvvm.Messaging;
-using com.kizwiz.sipnsign.Converters;
-using com.kizwiz.sipnsign.Models;
 
 namespace com.kizwiz.sipnsign.Pages
 {
@@ -566,36 +567,26 @@ namespace com.kizwiz.sipnsign.Pages
             {
                 _isDisposed = true;
 
-                // Call Cleanup explicitly first
-                Cleanup();
-
-                // Then proceed with existing code if needed
+                // Properly dispose all media elements
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
-                    if (_sharedVideoElement != null)
+                    try
                     {
-                        _sharedVideoElement.Stop();
-                        _sharedVideoElement.Source = null;
-                        _sharedVideoElement.Handler?.DisconnectHandler();
+                        CleanupMediaElement(_sharedVideoElement);
+                        CleanupMediaElement(_performVideoElement);
+                        CleanupMediaElement(_multiplayerPerformVideoElement);
+                        CleanupMediaElement(_multiplayerGuessVideoElement);
                     }
-
-                    if (_performVideoElement != null)
+                    catch (Exception ex)
                     {
-                        _performVideoElement.Stop();
-                        _performVideoElement.Source = null;
-                        _performVideoElement.Handler?.DisconnectHandler();
-                    }
-
-                    if (_multiplayerPerformVideoElement != null)
-                    {
-                        _multiplayerPerformVideoElement.Stop();
-                        _multiplayerPerformVideoElement.Source = null;
-                        _multiplayerPerformVideoElement.Handler?.DisconnectHandler();
+                        Debug.WriteLine($"Error cleaning up media elements: {ex.Message}");
                     }
                 });
 
-                await Task.Delay(100);
+                // Give time for cleanup
+                await Task.Delay(150);
 
+                // Cleanup ViewModel
                 ViewModel?.Cleanup();
             }
             catch (Exception ex)
@@ -606,6 +597,38 @@ namespace com.kizwiz.sipnsign.Pages
             {
                 base.OnDisappearing();
                 _isDisposed = false;
+            }
+        }
+
+        /// <summary>
+        /// Safely cleans up a MediaElement instance
+        /// </summary>
+        private void CleanupMediaElement(MediaElement? element)
+        {
+            if (element == null) return;
+
+            try
+            {
+                // Unsubscribe from events
+                element.PropertyChanged -= OnSharedVideoPropertyChanged;
+                element.MediaOpened -= OnMediaOpened;
+                element.MediaFailed -= OnMediaFailed;
+                element.MediaEnded -= OnMediaEnded;
+
+                // Stop playback
+                element.Stop();
+
+                // Clear source
+                element.Source = null;
+
+                // Disconnect handler (releases platform resources)
+                element.Handler?.DisconnectHandler();
+
+                Debug.WriteLine($"Successfully cleaned up MediaElement");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error cleaning up MediaElement: {ex.Message}");
             }
         }
         #endregion
