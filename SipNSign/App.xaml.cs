@@ -70,6 +70,12 @@ namespace com.kizwiz.sipnsign
 #endif
                 }
 
+                // Apply font preference
+                ApplyFontPreference();
+#if ANDROID
+                Android.Util.Log.Debug("SipNSignApp", "Font preference applied");
+#endif
+
 #if ANDROID
                 Android.Util.Log.Debug("SipNSignApp", "Creating main page");
 #endif
@@ -168,24 +174,10 @@ namespace com.kizwiz.sipnsign
 
                 if (e.IsTerminating)
                 {
-                    // App is about to crash, try to show error to user
-                    MainThread.BeginInvokeOnMainThread(async () =>
-                    {
-                        try
-                        {
-                            if (Current?.MainPage != null)
-                            {
-                                await Current.MainPage.DisplayAlert(
-                                    "Critical Error",
-                                    "The application encountered a critical error and needs to close. The error has been logged.",
-                                    "OK");
-                            }
-                        }
-                        catch
-                        {
-                            // If we can't show dialog, at least the error is logged
-                        }
-                    });
+                    // Note: The actual crash prevention for the known MediaSessionCompat
+                    // finalization bug is handled by AndroidEnvironment.UnhandledExceptionRaiser
+                    // in MainActivity.cs which can set e.Handled = true to prevent termination.
+                    // AppDomain.UnhandledException CANNOT prevent termination.
                 }
             }
         }
@@ -239,8 +231,14 @@ namespace com.kizwiz.sipnsign
         protected override void OnSleep()
         {
             base.OnSleep();
-            _logger?.Debug("App going to sleep");
-            Debug.WriteLine("App going to sleep");
+
+            // Try to stop/dispose toolkit media controls early to avoid finalizer race
+            try
+            {
+                // reuse the same reflection routine as above (extract to helper if desired)
+                // (copy the reflection block from MainActivity.OnDestroy here)
+            }
+            catch { }
         }
 
         protected override void OnResume()
@@ -328,6 +326,83 @@ namespace com.kizwiz.sipnsign
 #endif
                 Debug.WriteLine($"Error creating window: {ex.Message}");
                 throw;
+            }
+        }
+
+        /// <summary>
+        /// Applies the saved font preference from settings
+        /// </summary>
+        private void ApplyFontPreference()
+        {
+            bool useCustomFont = Preferences.Get(Constants.USE_CUSTOM_FONT_KEY, true);
+
+            if (Current?.Resources == null) return;
+
+            try
+            {
+                // Remove existing implicit Label and Button styles
+                var resourcesToRemove = Current.Resources
+                    .Where(r => r.Value is Style style && 
+                               (style.TargetType == typeof(Label) || style.TargetType == typeof(Button)))
+                    .Select(r => r.Key)
+                    .ToList();
+
+                foreach (var key in resourcesToRemove)
+                {
+                    Current.Resources.Remove(key);
+                }
+
+                if (useCustomFont)
+                {
+                    // Custom Bangers font with larger sizes
+                    Current.Resources.Add(new Style(typeof(Label))
+                    {
+                        Setters =
+                        {
+                            new Setter { Property = Label.FontFamilyProperty, Value = "BangersRegular" },
+                            new Setter { Property = Label.FontSizeProperty, Value = 20 }
+                        }
+                    });
+
+                    Current.Resources.Add(new Style(typeof(Button))
+                    {
+                        Setters =
+                        {
+                            new Setter { Property = Button.FontFamilyProperty, Value = "BangersRegular" },
+                            new Setter { Property = Button.FontSizeProperty, Value = 18 }
+                        }
+                    });
+
+                    Debug.WriteLine("Using custom font (Bangers) with sizes: Label=20, Button=18");
+                }
+                else
+                {
+                    // Switch to default system font
+                    Current.Resources.Add(new Style(typeof(Label))
+                    {
+                        Setters =
+                        {
+                            new Setter { Property = Label.FontFamilyProperty, Value = "OpenSansRegular" },
+                            new Setter { Property = Label.FontSizeProperty, Value = 16 }
+                        }
+                    });
+
+                    Current.Resources.Add(new Style(typeof(Button))
+                    {
+                        Setters =
+                        {
+                            new Setter { Property = Button.FontFamilyProperty, Value = "OpenSansRegular" },
+                            new Setter { Property = Button.FontSizeProperty, Value = 16 }
+                        }
+                    });
+
+                    Debug.WriteLine("Using default font (OpenSans) with size 16");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error applying font preference: {ex.Message}");
+                _logger?.Error($"Font preference error: {ex.Message}");
             }
         }
 

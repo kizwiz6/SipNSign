@@ -32,6 +32,7 @@ namespace com.kizwiz.sipnsign.Pages
             // Initialize switches with current preferences
             SoberModeSwitch.IsToggled = Preferences.Get(Constants.SOBER_MODE_KEY, false);
             TransparentFeedbackSwitch.IsToggled = Preferences.Get(Constants.TRANSPARENT_FEEDBACK_KEY, false);
+            CustomFontSwitch.IsToggled = Preferences.Get(Constants.USE_CUSTOM_FONT_KEY, true);
 
             LoadSavedSettings();
         }
@@ -136,6 +137,99 @@ namespace com.kizwiz.sipnsign.Pages
         private void OnSoberModeToggled(object sender, ToggledEventArgs e)
         {
             Preferences.Set(Constants.SOBER_MODE_KEY, e.Value);
+        }
+
+        /// <summary>
+        /// Handles the custom font toggle and applies font changes globally
+        /// </summary>
+        private void OnCustomFontToggled(object sender, ToggledEventArgs e)
+        {
+            Preferences.Set(Constants.USE_CUSTOM_FONT_KEY, e.Value);
+            ApplyFontChange(e.Value);
+            Debug.WriteLine($"Custom font toggled: {e.Value}");
+        }
+
+        /// <summary>
+        /// Applies font changes to the application globally
+        /// </summary>
+        private void ApplyFontChange(bool useCustomFont)
+        {
+            if (Application.Current?.Resources == null) return;
+
+            try
+            {
+                // Remove existing implicit Label and Button styles
+                var resourcesToRemove = Application.Current.Resources
+                    .Where(r => r.Value is Style style && 
+                               (style.TargetType == typeof(Label) || style.TargetType == typeof(Button)))
+                    .Select(r => r.Key)
+                    .ToList();
+
+                foreach (var key in resourcesToRemove)
+                {
+                    Application.Current.Resources.Remove(key);
+                }
+
+                if (useCustomFont)
+                {
+                    // Apply custom Bangers font with larger size
+                    Application.Current.Resources.Add(new Style(typeof(Label))
+                    {
+                        Setters =
+                        {
+                            new Setter { Property = Label.FontFamilyProperty, Value = "BangersRegular" },
+                            new Setter { Property = Label.FontSizeProperty, Value = 20 }
+                        }
+                    });
+
+                    Application.Current.Resources.Add(new Style(typeof(Button))
+                    {
+                        Setters =
+                        {
+                            new Setter { Property = Button.FontFamilyProperty, Value = "BangersRegular" },
+                            new Setter { Property = Button.FontSizeProperty, Value = 18 }
+                        }
+                    });
+
+                    Debug.WriteLine("Applied custom font (Bangers) with sizes: Label=20, Button=18");
+                }
+                else
+                {
+                    // Apply default system font with standard size
+                    Application.Current.Resources.Add(new Style(typeof(Label))
+                    {
+                        Setters =
+                        {
+                            new Setter { Property = Label.FontFamilyProperty, Value = "OpenSansRegular" },
+                            new Setter { Property = Label.FontSizeProperty, Value = 16 }
+                        }
+                    });
+
+                    Application.Current.Resources.Add(new Style(typeof(Button))
+                    {
+                        Setters =
+                        {
+                            new Setter { Property = Button.FontFamilyProperty, Value = "OpenSansRegular" },
+                            new Setter { Property = Button.FontSizeProperty, Value = 16 }
+                        }
+                    });
+
+                    Debug.WriteLine("Applied default font (OpenSans) with size 16");
+                }
+
+                // Force a visual refresh by triggering a layout update
+                if (Application.Current?.MainPage != null)
+                {
+                    Application.Current.MainPage.Dispatcher.Dispatch(() =>
+                    {
+                        Application.Current.MainPage.InvalidateMeasure();
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error applying font change: {ex.Message}");
+            }
         }
 
         private void OnDefaultPlayerNameChanged(object sender, TextChangedEventArgs e)
