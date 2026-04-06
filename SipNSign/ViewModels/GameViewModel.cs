@@ -1861,7 +1861,6 @@ namespace com.kizwiz.sipnsign.ViewModels
 
                 if (correctPlayers.Any())
                 {
-                    // Show only player names for correct players (remove "(selected ...)")
                     var correctNames = string.Join(", ", correctPlayers.Select(p => p.Name));
                     message = $"✓ Correct: {correctNames}\n\n";
                 }
@@ -1869,24 +1868,14 @@ namespace com.kizwiz.sipnsign.ViewModels
                 if (incorrectPlayers.Any())
                 {
                     var incorrectNames = string.Join(", ", incorrectPlayers.Select(p => p.Name));
-
                     message += isSoberMode
                             ? $"✗ Incorrect: {incorrectNames}"
                             : $"✗ Take a sip: {incorrectNames}";
                 }
             }
 
-            // Show color-coded feedback overlay first
-            FeedbackText = title + "\n\n" + CurrentSign?.CorrectAnswer;
-            FeedbackBackgroundColor = allCorrect ?
-                Color.FromArgb("#28a745") :
-                Color.FromArgb("#007BFF");
-            IsFeedbackVisible = true;
-
-            // Then show detailed alert
+            // DO NOT show a color-coded overlay here — the Android popup already provides detailed results.
             await Application.Current.MainPage.DisplayAlert(title, message.Trim(), "Next Sign");
-
-            IsFeedbackVisible = false;
         }
 
         private void SubscribeToPlayer(Player player)

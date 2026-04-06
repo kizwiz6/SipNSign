@@ -1,8 +1,10 @@
-﻿using Android.App;
+using Android.App;
 using Android.Content.PM;
 using Android.OS;
+using Android.Runtime;
 using AndroidX.Activity;
-using System.Diagnostics;
+using com.kizwiz.sipnsign.Platforms.Android;
+using System;
 
 namespace com.kizwiz.sipnsign;
 
@@ -14,44 +16,42 @@ namespace com.kizwiz.sipnsign;
                                 ConfigChanges.ScreenLayout |
                                 ConfigChanges.SmallestScreenSize |
                                 ConfigChanges.Density)]
-/// <summary>
-/// Main Android activity for the application
-/// </summary>
 public class MainActivity : MauiAppCompatActivity
 {
-    #region Lifecycle Methods
     protected override void OnCreate(Bundle? savedInstanceState)
     {
         try
         {
-#if ANDROID
-            Android.Util.Log.Debug("SipNSignApp", "MainActivity OnCreate starting");
-#endif
-            System.Diagnostics.Debug.WriteLine("MainActivity OnCreate starting");
-
             base.OnCreate(savedInstanceState);
-            Window?.SetStatusBarColor(Android.Graphics.Color.ParseColor("#1a237e"));
 
-            System.Diagnostics.Debug.WriteLine("MainActivity base.OnCreate completed");
+            // Set custom status bar color
+            Window?.SetStatusBarColor(Android.Graphics.Color.ParseColor("#1a237e"));
 
             if (OperatingSystem.IsAndroidVersionAtLeast(33))
             {
-                System.Diagnostics.Debug.WriteLine("Registering back callback");
                 OnBackPressedDispatcher.AddCallback(this, new BackCallback(this));
             }
-
-            System.Diagnostics.Debug.WriteLine("MainActivity OnCreate completed");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Error in MainActivity.OnCreate: {ex.Message}");
-            System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
             throw;
         }
     }
-    #endregion
 
-    #region Inner Classes
+    internal static bool IsMediaSessionFinalizerCrash(Exception? ex)
+    {
+        if (ex is ObjectDisposedException ode)
+        {
+            if (ode.ObjectName?.Contains("MediaSessionCompat", StringComparison.OrdinalIgnoreCase) == true)
+                return true;
+
+            if (ode.StackTrace?.Contains("MediaControlsService.Dispose", StringComparison.Ordinal) == true)
+                return true;
+        }
+        return false;
+    }
+
     private class BackCallback : OnBackPressedCallback
     {
         private readonly MainActivity _activity;
@@ -79,5 +79,4 @@ public class MainActivity : MauiAppCompatActivity
             }
         }
     }
-    #endregion
 }

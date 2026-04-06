@@ -202,6 +202,30 @@
                 </VerticalStackLayout>
             </Border>
 
+            <!-- Font Settings -->
+            <Border Stroke="Gray" 
+                Padding="15" 
+                StrokeShape="RoundRectangle 10"
+                BackgroundColor="{DynamicResource CardBackground}"
+                Opacity="0.95">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Font Settings" 
+                       TextColor="{DynamicResource CardText}"
+                       FontSize="20" 
+                       FontAttributes="Bold"/>
+
+                    <Label Text="Use Custom Font (Bangers)"
+                       TextColor="{DynamicResource CardText}"
+                       FontAttributes="Bold"/>
+                    <Switch x:Name="CustomFontSwitch" 
+                        IsToggled="True"
+                        Toggled="OnCustomFontToggled"/>
+                    <Label Text="Toggle between the custom Bangers font and system default"
+                       TextColor="{DynamicResource CardText}"
+                       FontSize="14"/>
+                </VerticalStackLayout>
+            </Border>
+
             <Button Text="Terms and Disclaimer" 
                     Clicked="OnDisclaimerClicked"
                     Style="{StaticResource PrimaryButton}"
