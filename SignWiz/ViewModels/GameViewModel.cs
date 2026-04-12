@@ -1542,8 +1542,7 @@ namespace com.kizwiz.signwiz.ViewModels
                     return;
                 }
 
-                var uri = new Uri($"file://{fullPath}");
-                var source = MediaSource.FromUri(uri);
+                var source = MediaSource.FromUri(new Uri(fullPath));
 
                 var window = Application.Current?.Windows.FirstOrDefault();
                 var gamePage = window?.Page?.Navigation?.NavigationStack.LastOrDefault() as GamePage;

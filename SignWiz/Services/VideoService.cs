@@ -59,9 +59,18 @@ namespace com.kizwiz.signwiz.Services
                     throw new FileNotFoundException($"Video resource not found: {videoFileName}");
                 }
 
-                var uri = $"android.resource://{context.PackageName}/{resourceId}";
-                _logger.Debug($"Resource URI created: {uri}");
-                return uri;
+                // Extract raw resource to cache file for Media3 compatibility
+                var cachedPath = Path.Combine(FileSystem.CacheDirectory, resourceName + ".mp4");
+                if (!File.Exists(cachedPath))
+                {
+                    _logger.Debug($"Extracting resource to cache: {cachedPath}");
+                    using var resourceStream = context.Resources!.OpenRawResource(resourceId);
+                    using var fileStream = File.Create(cachedPath);
+                    await resourceStream.CopyToAsync(fileStream);
+                }
+
+                _logger.Debug($"Cached video path: {cachedPath}");
+                return cachedPath;
 #else
                 var assetPath = $"Resources/Raw/{videoFileName}";
                 _logger.Debug($"Looking for video at: {assetPath}");

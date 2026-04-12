@@ -2,7 +2,6 @@
 using Android.Content.PM;
 using Android.OS;
 using AndroidX.Activity;
-using com.kizwiz.signwiz.Platforms.Android;
 using System;
 
 namespace com.kizwiz.signwiz;

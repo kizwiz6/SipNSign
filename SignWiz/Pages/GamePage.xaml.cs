@@ -6,12 +6,9 @@ using com.kizwiz.signwiz.ViewModels;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Core.Primitives;
 using CommunityToolkit.Maui.Views;
-using CommunityToolkit.Maui.Core.Primitives;
 using System.ComponentModel;
 using System.Diagnostics;
 using CommunityToolkit.Mvvm.Messaging;
-using com.kizwiz.sipnsign.Converters;
-using com.kizwiz.sipnsign.Models;
 
 namespace com.kizwiz.signwiz.Pages
 {
@@ -98,9 +95,9 @@ namespace com.kizwiz.signwiz.Pages
                 Debug.WriteLine($"=== LoadVideoForCurrentSign: {videoFileName} ===");
                 Debug.WriteLine($"Mode: {_viewModel.CurrentMode}, Multiplayer: {_viewModel.IsMultiplayer}");
 
-                // Get the video URI
+                // Get the video path (file path on all platforms)
                 var videoPath = await _videoService.GetVideoPath(videoFileName);
-                var source = MediaSource.FromUri(videoPath);
+                var source = MediaSource.FromUri(new Uri(videoPath));
                 Debug.WriteLine($"Video source created: {videoPath}");
 
                 await MainThread.InvokeOnMainThreadAsync(() =>
