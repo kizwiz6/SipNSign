@@ -2,7 +2,7 @@ using System;
 using Microsoft.Maui;
 using Microsoft.Maui.Hosting;
 
-namespace com.kizwiz.sipnsign;
+namespace com.kizwiz.signwiz;
 
 class Program : MauiApplication
 {

@@ -1,4 +1,4 @@
-﻿using com.kizwiz.sipnsign;
+﻿using com.kizwiz.signwiz;
 using Microsoft.Maui;
 using Microsoft.Maui.Hosting;
 using Microsoft.UI.Xaml;

@@ -1,7 +1,7 @@
-﻿using com.kizwiz.sipnsign.Pages;
+﻿using com.kizwiz.signwiz.Pages;
 using System.Diagnostics;
 
-namespace com.kizwiz.sipnsign;
+namespace com.kizwiz.signwiz;
 
 public partial class AppShell : Shell
 {

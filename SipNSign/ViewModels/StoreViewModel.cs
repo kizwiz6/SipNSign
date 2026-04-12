@@ -1,11 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using com.kizwiz.sipnsign.Services;
+using com.kizwiz.signwiz.Services;
 using System.Diagnostics;
 using System.Globalization;
 using System.Windows.Input;
 
-namespace com.kizwiz.sipnsign.ViewModels
+namespace com.kizwiz.signwiz.ViewModels
 {
     public partial class StoreViewModel : ObservableObject
     {

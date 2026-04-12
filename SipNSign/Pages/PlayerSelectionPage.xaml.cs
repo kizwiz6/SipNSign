@@ -1,10 +1,10 @@
-using com.kizwiz.sipnsign.Enums;
-using com.kizwiz.sipnsign.Models;
-using com.kizwiz.sipnsign.Services;
-using com.kizwiz.sipnsign.ViewModels;
+using com.kizwiz.signwiz.Enums;
+using com.kizwiz.signwiz.Models;
+using com.kizwiz.signwiz.Services;
+using com.kizwiz.signwiz.ViewModels;
 using System.Diagnostics;
 
-namespace com.kizwiz.sipnsign.Pages;
+namespace com.kizwiz.signwiz.Pages;
 
 public partial class PlayerSelectionPage : ContentPage
 {

@@ -1,8 +1,8 @@
-﻿using com.kizwiz.sipnsign.Models;
+﻿using com.kizwiz.signwiz.Models;
 using System.Diagnostics;
 using System.Text.Json;
 
-namespace com.kizwiz.sipnsign.Services
+namespace com.kizwiz.signwiz.Services
 {
     /// <summary>
     /// Manages user progress, achievements, and activity tracking

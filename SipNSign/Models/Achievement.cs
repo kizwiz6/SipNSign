@@ -1,4 +1,4 @@
-﻿namespace com.kizwiz.sipnsign.Models
+﻿namespace com.kizwiz.signwiz.Models
 {
     /// <summary>
     /// Represents an achievement that can be unlocked by users in the application

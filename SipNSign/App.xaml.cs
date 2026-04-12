@@ -1,9 +1,9 @@
-﻿using com.kizwiz.sipnsign.Services;
+﻿using com.kizwiz.signwiz.Services;
 using System.Diagnostics;
 
 [assembly: XamlCompilation(XamlCompilationOptions.Compile)]
 
-namespace com.kizwiz.sipnsign
+namespace com.kizwiz.signwiz
 {
     /// <summary>
     /// The main application class that initializes the app, manages themes,

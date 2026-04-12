@@ -1,11 +1,11 @@
-﻿using com.kizwiz.sipnsign.Enums;
-using com.kizwiz.sipnsign.Pages;
+﻿using com.kizwiz.signwiz.Enums;
+using com.kizwiz.signwiz.Pages;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 using System.Diagnostics;
 using System.Linq;
 
-namespace com.kizwiz.sipnsign.Services
+namespace com.kizwiz.signwiz.Services
 {
     /// <summary>
     /// Manages application-wide theme settings and colors

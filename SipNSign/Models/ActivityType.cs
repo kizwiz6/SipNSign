@@ -1,4 +1,4 @@
-﻿namespace com.kizwiz.sipnsign.Models
+﻿namespace com.kizwiz.signwiz.Models
 {
     /// <summary>
     /// Defines different types of activities that can be logged

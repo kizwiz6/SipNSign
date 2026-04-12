@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace com.kizwiz.sipnsign.Services
+namespace com.kizwiz.signwiz.Services
 {
     /// <summary>
     /// Service for managing video file operations and initialization

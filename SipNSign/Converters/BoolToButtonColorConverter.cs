@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace com.kizwiz.sipnsign.Converters
+namespace com.kizwiz.signwiz.Converters
 {
     /// <summary>
     /// Converts boolean values to button colors

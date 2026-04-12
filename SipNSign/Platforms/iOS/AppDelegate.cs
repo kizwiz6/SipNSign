@@ -2,7 +2,7 @@
 using Microsoft.Maui;
 using Microsoft.Maui.Hosting;
 
-namespace com.kizwiz.sipnsign;
+namespace com.kizwiz.signwiz;
 
 [Register("AppDelegate")]
 public class AppDelegate : MauiUIApplicationDelegate

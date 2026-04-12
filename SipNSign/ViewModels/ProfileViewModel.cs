@@ -1,10 +1,10 @@
-﻿using com.kizwiz.sipnsign.Models;
-using com.kizwiz.sipnsign.Services;
+﻿using com.kizwiz.signwiz.Models;
+using com.kizwiz.signwiz.Services;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 
-namespace com.kizwiz.sipnsign.ViewModels
+namespace com.kizwiz.signwiz.ViewModels
 {
     /// <summary>
     /// View model for managing user progress and achievements display

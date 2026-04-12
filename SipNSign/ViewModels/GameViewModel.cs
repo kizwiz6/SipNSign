@@ -1,14 +1,14 @@
-﻿using com.kizwiz.sipnsign.Enums;
-using com.kizwiz.sipnsign.Models;
-using com.kizwiz.sipnsign.Pages;
-using com.kizwiz.sipnsign.Services;
+﻿using com.kizwiz.signwiz.Enums;
+using com.kizwiz.signwiz.Models;
+using com.kizwiz.signwiz.Pages;
+using com.kizwiz.signwiz.Services;
 using CommunityToolkit.Maui.Views;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Input;
 
-namespace com.kizwiz.sipnsign.ViewModels
+namespace com.kizwiz.signwiz.ViewModels
 {
     /// <summary>
     /// Manages the game state and logic for both Guess and Perform modes

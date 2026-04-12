@@ -1,4 +1,4 @@
-﻿namespace com.kizwiz.sipnsign;
+﻿namespace com.kizwiz.signwiz;
 
 public partial class MainPage : ContentPage
 {

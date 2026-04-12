@@ -1,9 +1,9 @@
-﻿using com.kizwiz.sipnsign.Models;
+﻿using com.kizwiz.signwiz.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 
-namespace com.kizwiz.sipnsign.ViewModels
+namespace com.kizwiz.signwiz.ViewModels
 {
     public partial class PlayerSelectionViewModel : ObservableObject
     {

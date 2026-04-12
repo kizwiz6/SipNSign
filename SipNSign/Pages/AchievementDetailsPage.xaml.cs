@@ -1,8 +1,8 @@
-using com.kizwiz.sipnsign.Models;
-using com.kizwiz.sipnsign.Services;
-using com.kizwiz.sipnsign.ViewModels;
+using com.kizwiz.signwiz.Models;
+using com.kizwiz.signwiz.Services;
+using com.kizwiz.signwiz.ViewModels;
 
-namespace com.kizwiz.sipnsign.Pages
+namespace com.kizwiz.signwiz.Pages
 {
     public partial class AchievementDetailsPage : ContentPage
     {

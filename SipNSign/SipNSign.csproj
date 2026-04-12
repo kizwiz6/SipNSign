@@ -1,19 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
-        <OutputType>Exe</OutputType>
-        <RootNamespace>com.kizwiz.sipnsign</RootNamespace>
-        <UseMaui>true</UseMaui>
-        <SingleProject>true</SingleProject>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
+  <PropertyGroup>
+    <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
 
-        <!-- Application Information -->
-        <ApplicationTitle>SipNSign</ApplicationTitle>
-        <ApplicationId>com.kizwiz.sipnsign</ApplicationId>
-        <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-        <ApplicationVersion>1</ApplicationVersion>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>com.kizwiz.signwiz</RootNamespace>
+    <UseMaui>true</UseMaui>
+    <SingleProject>true</SingleProject>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    
+    <TrimMode>partial</TrimMode>
+
+    <!-- Application Information -->
+    <ApplicationTitle>SignWiz</ApplicationTitle>
+
+    <!-- App Identifier -->
+    <ApplicationId>com.kizwiz.signwiz</ApplicationId>
+    
+    <!-- Versions -->
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <ApplicationVersion>1</ApplicationVersion>
 
 		<AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
 

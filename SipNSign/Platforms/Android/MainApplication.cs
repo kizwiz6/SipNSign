@@ -1,7 +1,7 @@
 ﻿using Android.App;
 using Android.Runtime;
 
-namespace com.kizwiz.sipnsign
+namespace com.kizwiz.signwiz
 {
     [Application]
     public class MainApplication : MauiApplication

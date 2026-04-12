@@ -1,4 +1,4 @@
-namespace com.kizwiz.sipnsign.Resources.Styles;
+namespace com.kizwiz.signwiz.Resources.Styles;
 
 public partial class SplashScreen : ContentPage
 {

@@ -1,4 +1,4 @@
-﻿namespace com.kizwiz.sipnsign.Models
+﻿namespace com.kizwiz.signwiz.Models
 {
     /// <summary>
     /// Parameters for configuring a game session

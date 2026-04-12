@@ -1,4 +1,4 @@
-namespace com.kizwiz.sipnsign.Pages;
+namespace com.kizwiz.signwiz.Pages;
 
 public partial class DisclaimerPage : ContentPage
 {

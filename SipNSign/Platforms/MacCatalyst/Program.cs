@@ -1,7 +1,7 @@
 ﻿using ObjCRuntime;
 using UIKit;
 
-namespace com.kizwiz.sipnsign;
+namespace com.kizwiz.signwiz;
 
 public class Program
 {

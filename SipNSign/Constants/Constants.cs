@@ -1,4 +1,4 @@
-﻿namespace com.kizwiz.sipnsign
+﻿namespace com.kizwiz.signwiz
 {
     /// <summary>
     /// Application-wide constant values

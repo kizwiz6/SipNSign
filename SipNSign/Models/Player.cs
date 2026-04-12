@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.Diagnostics;
 
-namespace com.kizwiz.sipnsign.Models
+namespace com.kizwiz.signwiz.Models
 {
     public partial class Player : ObservableObject
     {

@@ -2,9 +2,10 @@
 using Android.Content.PM;
 using Android.OS;
 using AndroidX.Activity;
-using System.Diagnostics;
+using com.kizwiz.signwiz.Platforms.Android;
+using System;
 
-namespace com.kizwiz.sipnsign;
+namespace com.kizwiz.signwiz;
 
 [Activity(Theme = "@style/Maui.SplashTheme",
           MainLauncher = true,

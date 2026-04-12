@@ -1,4 +1,4 @@
-﻿namespace com.kizwiz.sipnsign.Enums
+﻿namespace com.kizwiz.signwiz.Enums
 {
     public enum GameMode
     {

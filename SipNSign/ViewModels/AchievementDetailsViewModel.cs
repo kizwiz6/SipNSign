@@ -1,11 +1,11 @@
-﻿using com.kizwiz.sipnsign.Models;
-using com.kizwiz.sipnsign.Services;
+﻿using com.kizwiz.signwiz.Models;
+using com.kizwiz.signwiz.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Diagnostics;
 using System.Windows.Input;
 
-namespace com.kizwiz.sipnsign.ViewModels
+namespace com.kizwiz.signwiz.ViewModels
 {
     /// <summary>
     /// View model for displaying achievement details

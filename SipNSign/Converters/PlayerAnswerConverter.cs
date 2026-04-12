@@ -1,8 +1,8 @@
-﻿using com.kizwiz.sipnsign.Models;
+﻿using com.kizwiz.signwiz.Models;
 using System.Diagnostics;
 using System.Globalization;
 
-namespace com.kizwiz.sipnsign.Converters
+namespace com.kizwiz.signwiz.Converters
 {
     /// <summary>
     /// Converts a Player object and boolean parameter into a PlayerAnswerParameter

@@ -1,5 +1,5 @@
-﻿using com.kizwiz.sipnsign.Enums;
-using com.kizwiz.sipnsign.Models;
+﻿using com.kizwiz.signwiz.Enums;
+using com.kizwiz.signwiz.Models;
 using System.Text.Json;
 
 /// <summary>

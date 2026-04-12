@@ -1,4 +1,4 @@
-﻿namespace com.kizwiz.sipnsign.Services
+﻿namespace com.kizwiz.signwiz.Services
 {
     public class IAPService : IIAPService
     {

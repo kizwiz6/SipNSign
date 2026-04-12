@@ -1,15 +1,15 @@
-﻿using com.kizwiz.sipnsign.Pages;
-using com.kizwiz.sipnsign.Services;
-using com.kizwiz.sipnsign.ViewModels;
+﻿using com.kizwiz.signwiz.Pages;
+using com.kizwiz.signwiz.Services;
+using com.kizwiz.signwiz.ViewModels;
 using CommunityToolkit.Maui;
 using Microsoft.Maui.Controls.PlatformConfiguration;
 using System.Diagnostics;
 using System.Text.Json;
 
-namespace com.kizwiz.sipnsign;
+namespace com.kizwiz.signwiz;
 
 /// <summary>
-/// The main entry point for the SipNSign application.
+/// The main entry point for the SignWiz application.
 /// Configures the MAUI application with necessary services and fonts.
 /// </summary>
 public static class MauiProgram

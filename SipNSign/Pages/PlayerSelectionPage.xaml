@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:viewmodels="clr-namespace:com.kizwiz.sipnsign.ViewModels"
-             xmlns:models="clr-namespace:com.kizwiz.sipnsign.Models"
-             x:Class="com.kizwiz.sipnsign.Pages.PlayerSelectionPage"
+             xmlns:viewmodels="clr-namespace:com.kizwiz.signwiz.ViewModels"
+             xmlns:models="clr-namespace:com.kizwiz.signwiz.Models"
+             x:Class="com.kizwiz.signwiz.Pages.PlayerSelectionPage"
              x:DataType="viewmodels:PlayerSelectionViewModel"
              Style="{StaticResource AppPageStyle}"
              Title="Choose Game Mode">

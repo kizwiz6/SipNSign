@@ -1,4 +1,4 @@
-﻿namespace com.kizwiz.sipnsign.Enums
+﻿namespace com.kizwiz.signwiz.Enums
 {
     /// <summary>
     /// Defines the different sign languages that can be used.

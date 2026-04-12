@@ -1,4 +1,4 @@
-﻿namespace com.kizwiz.sipnsign.Services
+﻿namespace com.kizwiz.signwiz.Services
 {
     /// <summary>
     /// Interface for handling sharing functionality in the application

@@ -1,6 +1,6 @@
 using Microsoft.Maui.Controls;
 
-namespace com.kizwiz.sipnsign.Resources.Styles
+namespace com.kizwiz.signwiz.Resources.Styles
 {
     /// <summary>
     /// Represents a resource dictionary for color definitions used throughout the application.

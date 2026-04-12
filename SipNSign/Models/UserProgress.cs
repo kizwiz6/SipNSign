@@ -1,4 +1,4 @@
-﻿namespace com.kizwiz.sipnsign.Models
+﻿namespace com.kizwiz.signwiz.Models
 {
     /// <summary>
     /// Represents the user's progress in the application.

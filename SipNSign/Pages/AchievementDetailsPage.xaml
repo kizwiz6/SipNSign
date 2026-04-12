@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-            xmlns:converters="clr-namespace:com.kizwiz.sipnsign.Converters"
-            xmlns:viewmodels="clr-namespace:com.kizwiz.sipnsign.ViewModels"
+            xmlns:converters="clr-namespace:com.kizwiz.signwiz.Converters"
+            xmlns:viewmodels="clr-namespace:com.kizwiz.signwiz.ViewModels"
             x:DataType="viewmodels:AchievementDetailsViewModel"
-            x:Class="com.kizwiz.sipnsign.Pages.AchievementDetailsPage"
+            x:Class="com.kizwiz.signwiz.Pages.AchievementDetailsPage"
             Style="{StaticResource AppPageStyle}"
             Title="Achievement Details">
 

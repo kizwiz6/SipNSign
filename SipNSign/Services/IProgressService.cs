@@ -1,6 +1,6 @@
-﻿using com.kizwiz.sipnsign.Models;
+﻿using com.kizwiz.signwiz.Models;
 
-namespace com.kizwiz.sipnsign.Services
+namespace com.kizwiz.signwiz.Services
 {
     /// <summary>
     /// Interface for managing user progress and achievements

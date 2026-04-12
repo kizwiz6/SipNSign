@@ -1,6 +1,6 @@
-﻿using com.kizwiz.sipnsign.Enums;
+﻿using com.kizwiz.signwiz.Enums;
 
-namespace com.kizwiz.sipnsign.Services
+namespace com.kizwiz.signwiz.Services
 {
     /// <summary>
     /// Defines the contract for theme management

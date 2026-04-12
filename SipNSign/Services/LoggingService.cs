@@ -1,4 +1,4 @@
-﻿using com.kizwiz.sipnsign.Services;
+﻿using com.kizwiz.signwiz.Services;
 using System.Text;
 
 public class LoggingService : ILoggingService

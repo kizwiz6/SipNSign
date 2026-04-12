@@ -1,4 +1,4 @@
-﻿namespace com.kizwiz.sipnsign.Services
+﻿namespace com.kizwiz.signwiz.Services
 {
     /// <summary>
     /// Interface for managing video content and playback

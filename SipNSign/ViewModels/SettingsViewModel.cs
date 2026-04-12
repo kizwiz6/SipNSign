@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace com.kizwiz.sipnsign.ViewModels
+namespace com.kizwiz.signwiz.ViewModels
 {
     /// <summary>
     /// View model for managing application settings

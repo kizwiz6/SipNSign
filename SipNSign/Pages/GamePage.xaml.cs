@@ -1,6 +1,10 @@
-using com.kizwiz.sipnsign.Enums;
-using com.kizwiz.sipnsign.Services;
-using com.kizwiz.sipnsign.ViewModels;
+using com.kizwiz.signwiz.Converters;
+using com.kizwiz.signwiz.Enums;
+using com.kizwiz.signwiz.Models;
+using com.kizwiz.signwiz.Services;
+using com.kizwiz.signwiz.ViewModels;
+using CommunityToolkit.Maui.Core;
+using CommunityToolkit.Maui.Core.Primitives;
 using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Maui.Core.Primitives;
 using System.ComponentModel;
@@ -9,7 +13,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using com.kizwiz.sipnsign.Converters;
 using com.kizwiz.sipnsign.Models;
 
-namespace com.kizwiz.sipnsign.Pages
+namespace com.kizwiz.signwiz.Pages
 {
     /// <summary>
     /// Handles game interactions and video playback for both Guess and Perform modes

@@ -1,9 +1,9 @@
-using com.kizwiz.sipnsign.Models;
-using com.kizwiz.sipnsign.Services;
-using com.kizwiz.sipnsign.ViewModels;
+using com.kizwiz.signwiz.Models;
+using com.kizwiz.signwiz.Services;
+using com.kizwiz.signwiz.ViewModels;
 using System.Diagnostics;
 
-namespace com.kizwiz.sipnsign.Pages;
+namespace com.kizwiz.signwiz.Pages;
 
 /// <summary>
 /// Displays user progress, achievements and activity history

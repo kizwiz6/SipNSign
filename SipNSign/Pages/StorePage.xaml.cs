@@ -1,7 +1,7 @@
-using com.kizwiz.sipnsign.ViewModels;
+using com.kizwiz.signwiz.ViewModels;
 using System.Diagnostics;
 
-namespace com.kizwiz.sipnsign.Pages;
+namespace com.kizwiz.signwiz.Pages;
 
 public partial class StorePage : ContentPage
 {

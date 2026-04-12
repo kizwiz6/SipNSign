@@ -1,6 +1,6 @@
-﻿using com.kizwiz.sipnsign.Enums;
+﻿using com.kizwiz.signwiz.Enums;
 
-namespace com.kizwiz.sipnsign.Models
+namespace com.kizwiz.signwiz.Models
 {
     public class SignPack
     {
