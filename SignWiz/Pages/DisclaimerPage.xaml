@@ -1,43 +1,75 @@
-<VerticalStackLayout Spacing="15">
-    <Label Text="How to Play"
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="com.kizwiz.signwiz.Pages.DisclaimerPage"
+             Style="{StaticResource AppPageStyle}"
+             Title="Terms &amp; Disclaimer">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+            <Border BackgroundColor="{DynamicResource CardBackground}"
+                    Opacity="0.95"
+                    Padding="20"
+                    StrokeShape="RoundRectangle 10">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="How to Play"
            TextColor="{DynamicResource CardText}"
            FontSize="22"
            FontAttributes="Bold"/>
 
-    <Label Text="Guess Mode"
+                    <Label Text="Guess Mode"
            TextColor="{DynamicResource CardText}"
            FontSize="18"
            FontAttributes="Bold"/>
-    <Label TextColor="{DynamicResource CardText}"
+                    <Label TextColor="{DynamicResource CardText}"
            Text="Watch the video and identify the sign. In Multiplayer, there is no time limit—simply wait for everyone to choose their numbered answer (1-4) next to their name before clicking 'Confirm Answers'."/>
 
-    <Label Text="Perform Mode"
+                    <Label Text="Perform Mode"
            TextColor="{DynamicResource CardText}"
            FontSize="18"
            FontAttributes="Bold"/>
-    <Label TextColor="{DynamicResource CardText}"
+                    <Label TextColor="{DynamicResource CardText}"
            Text="A word is revealed and it's your turn to sign! Once you've performed the sign, use the 'Right' or 'Wrong' buttons next to each player's name to track the scores."/>
 
-    <Label Text="Local Multiplayer"
+                    <Label Text="Local Multiplayer"
            TextColor="{DynamicResource CardText}"
            FontSize="20"
            Margin="0,10,0,0"
            FontAttributes="Bold"/>
-    <Label TextColor="{DynamicResource CardText}"
-           Text="All multiplayer games happen on this single screen. Pass the device around your group to play together in person—no internet connection required!"/>
+                    <Label TextColor="{DynamicResource CardText}"
+                            Text="All multiplayer games happen on this single screen. Pass the device around your group to play together in person—no internet connection required!"/>
 
-    <Label Text="The SignWiz Store"
-           TextColor="{DynamicResource CardText}"
-           FontSize="20"
-           Margin="0,10,0,0"
-           FontAttributes="Bold"/>
-    <Label TextColor="{DynamicResource CardText}"
-           Text="Master more signs by purchasing themed Sign Packs, unlock advanced Local Multiplayer modes, or customize your experience with new Wizard Themes."/>
-    <Label Text="Regional Variations"
+                    <Label Text="The SignWiz Store"
                            TextColor="{DynamicResource CardText}"
                            FontSize="20"
                            Margin="0,10,0,0"
                            FontAttributes="Bold"/>
-    <Label TextColor="{DynamicResource CardText}"
-                           Text="BSL is a rich language with many regional dialects. The signs shown are one common variation; others may exist within the Deaf community."/>
-</VerticalStackLayout>
+                    <Label TextColor="{DynamicResource CardText}"
+                           Text="Master more signs by purchasing themed Sign Packs, unlock advanced Local Multiplayer modes, or customize your experience with new Wizard Themes."/>
+
+                    <!-- BSL Attribution -->
+                    <Label Text="BSL Recognition"
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="20"
+                           Margin="0,10,0,0"
+                           FontAttributes="Bold"/>
+                    <Label TextColor="{DynamicResource CardText}"
+                           Text="British Sign Language (BSL) is a rich, complex language with its own grammar and structure. This app aims to introduce basic signs respectfully while acknowledging BSL's significance as a recognised language in the UK."/>
+                    
+                    <!-- Contact -->
+                    <Label Text="Contact"
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="20"
+                           Margin="0,10,0,0"
+                           FontAttributes="Bold"/>
+                    <Label TextColor="{DynamicResource CardText}"
+                           Text="For support, concerns, or feedback about BSL signs, please contact us through the app's support channels."/>
+                </VerticalStackLayout>
+            </Border>
+
+            <Button Text="I Understand"
+                    Style="{StaticResource PrimaryButton}"
+                    Clicked="OnUnderstandClicked"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
