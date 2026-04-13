@@ -15,6 +15,12 @@
         <Setter Property="Padding" Value="0" />
     </Style>
 
+    <Style x:Key="MenuButtonStyle" TargetType="Button">
+        <Setter Property="TextColor" Value="{Binding CurrentTheme.DarkText}" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="FontSize" Value="18" />
+    </Style>
+
     <Style TargetType="ActivityIndicator">
         <Setter Property="Color" Value="{AppThemeBinding Light={DynamicResource Primary}, Dark={DynamicResource White}}" />
     </Style>

@@ -21,7 +21,7 @@
                 <Setter Property="CornerRadius" Value="25"/>
                 <Setter Property="FontSize" Value="18"/>
                 <Setter Property="FontAttributes" Value="Bold"/>
-                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="TextColor" Value="{DynamicResource AppDarkText}"/>
                 <Setter Property="Shadow">
                     <Shadow Brush="Black"
                         Offset="0,3"

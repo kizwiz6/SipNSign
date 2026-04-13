@@ -134,6 +134,9 @@
 		<MauiXaml Remove="**/*.xaml" />
 	</ItemGroup>
   <ItemGroup>
+    <Compile Update="Pages\.xaml.cs">
+      <DependentUpon>.xaml</DependentUpon>
+    </Compile>
     <Compile Update="Pages\PlayerSelectionPage.xaml.cs">
       <DependentUpon>PlayerSelectionPage.xaml</DependentUpon>
     </Compile>

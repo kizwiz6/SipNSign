@@ -43,6 +43,43 @@ namespace com.kizwiz.signwiz.Services
                 }
             },
             {
+            CustomAppTheme.Magic, new ThemeColors {
+                // Backgrounds: The SignWiz Signature Navy
+                Background1 = Color.FromArgb("#1a237e"),  // Deep Navy
+                Background2 = Color.FromArgb("#0d1240"),  // Midnight Navy depth
+
+                // Brand Colors
+                Primary = Color.FromArgb("#FFD700"),      // Radiant Gold
+                Secondary = Color.FromArgb("#FFB300"),    // Amber Gold
+        
+                // Text Colors
+                Text = Colors.White,                      // General text
+                LightText = Colors.White,
+                DarkText = Color.FromArgb("#1a237e"),     // <--- USE THIS for text on Gold Buttons
+
+                // UI Elements
+                // Shifted from grey to a "Translucent Navy" feel
+                CardBackground = Color.FromArgb("#2c3691"),
+                CardText = Colors.White,       
+
+                // Buttons: The "Wiz" Gold Suite
+                MenuButton1 = Color.FromArgb("#FFD700"),  // Guess Mode
+                MenuButton2 = Color.FromArgb("#FFB300"),  // Perform Mode
+                MenuButton3 = Color.FromArgb("#E6C200"),  // Progress
+        
+                // Neutral Slate for secondary actions (replaces Purple)
+                MenuButton4 = Color.FromArgb("#9E9E9E"),  // Settings
+                MenuButton5 = Color.FromArgb("#FFD700"),  // Store
+
+                AnswerButton = Color.FromArgb("#FFD700"), 
+        
+                // Shell & Navigation
+                ShellBackground = Color.FromArgb("#1a237e"),
+                ShellForeground = Color.FromArgb("#FFD700"),
+                BackgroundImage = "magic_theme_bg.png"
+            }
+        },
+            {
                 CustomAppTheme.Dark, new ThemeColors {
                     Background1 = Color.FromArgb("#121212"),  // Almost black
                     Background2 = Color.FromArgb("#1E1E1E"),  // Dark gray
@@ -251,6 +288,11 @@ namespace com.kizwiz.signwiz.Services
                 {
                     resources[resource.Key] = resource.Value;
                 }
+
+                resources["AppDarkText"] = themeColors.DarkText;
+
+                // Log it to the Output window so you can confirm the color code being sent
+                Debug.WriteLine($"Theme applied. AppDarkText set to: {themeColors.DarkText.ToHex()}");
 
                 // Also update the Shell color resource keys so XAML/DynamicResource bindings pick them up
                 resources["ShellBackgroundColor"] = themeColors.ShellBackground;

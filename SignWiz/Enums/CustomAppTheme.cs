@@ -13,6 +13,7 @@
         Space,
         Ocean,
         Neon,
-        Monochrome
+        Monochrome,
+        Magic
     }
 }
