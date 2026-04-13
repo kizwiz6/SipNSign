@@ -45,7 +45,7 @@
                        TextColor="{DynamicResource CardText}"
                        FontAttributes="Bold"/>
                     <Entry x:Name="DefaultPlayerNameEntry"
-                       Placeholder="Your name (e.g., Alex)"
+                       Placeholder="Your name"
                        TextColor="{DynamicResource CardText}"
                        MaxLength="15"
                        TextChanged="OnDefaultPlayerNameChanged"/>
