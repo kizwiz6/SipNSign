@@ -80,10 +80,8 @@ namespace com.kizwiz.signwiz.Pages
                 Preferences.Set("selected_game_mode", "Guess");
 
                 // Navigate to PlayerSelectionPage
-                var playerSelectionPage = new PlayerSelectionPage();
+                var playerSelectionPage = new PlayerSelectionPage(_serviceProvider);
                 await Navigation.PushAsync(playerSelectionPage);
-
-                _logger?.Debug("Navigation to PlayerSelectionPage (Guess) completed");
             }
             catch (Exception ex)
             {
@@ -113,10 +111,8 @@ namespace com.kizwiz.signwiz.Pages
                 Preferences.Set("selected_game_mode", "Perform");
 
                 // Navigate to PlayerSelectionPage
-                var playerSelectionPage = new PlayerSelectionPage();
+                var playerSelectionPage = new PlayerSelectionPage(_serviceProvider);
                 await Navigation.PushAsync(playerSelectionPage);
-
-                _logger?.Debug("Navigation to PlayerSelectionPage (Perform) completed");
             }
             catch (Exception ex)
             {

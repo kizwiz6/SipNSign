@@ -36,6 +36,9 @@ namespace com.kizwiz.signwiz.ViewModels
         private bool _isThemesPackPurchasable = true;
 
         [ObservableProperty]
+        private bool _isMultiplayerPurchasable = true;
+
+        [ObservableProperty]
         private string _animalPackButtonText;
 
         [ObservableProperty]
@@ -53,6 +56,9 @@ namespace com.kizwiz.signwiz.ViewModels
         [ObservableProperty]
         private string _themesPackButtonText;
 
+        [ObservableProperty]
+        private string _multiplayerButtonText;
+
         private readonly Dictionary<string, Dictionary<string, decimal>> _regionalPrices = new()
         {
             {
@@ -63,7 +69,8 @@ namespace com.kizwiz.signwiz.ViewModels
                     { "food_drink", 0.99m },
                     { "emotions", 0.99m },
                     { "sports_hobbies", 0.99m },
-                    { "premium_themes", 0.99m }
+                    { "premium_themes", 0.99m },
+                    { "multiplayer", 1.99m }
                 }
             },
             {
@@ -74,7 +81,8 @@ namespace com.kizwiz.signwiz.ViewModels
                     { "food_drink", 0.99m },
                     { "emotions", 0.99m },
                     { "sports_hobbies", 0.99m },
-                    { "premium_themes", 0.99m }
+                    { "premium_themes", 0.99m },
+                    { "multiplayer", 1.99m }
                 }
             },
             {
@@ -85,7 +93,8 @@ namespace com.kizwiz.signwiz.ViewModels
                     { "food_drink", 0.89m },
                     { "emotions", 0.89m },
                     { "sports_hobbies", 0.99m },
-                    { "premium_themes", 0.89m }
+                    { "premium_themes", 0.89m },
+                    { "multiplayer", 1.79m }
                 }
             },
             {
@@ -96,7 +105,8 @@ namespace com.kizwiz.signwiz.ViewModels
                     { "food_drink", 120m },
                     { "emotions", 120m },
                     { "sports_hobbies", 0.99m },
-                    { "premium_themes", 120m }
+                    { "premium_themes", 120m },
+                    { "multiplayer", 250m }
                 }
             },
             {
@@ -107,7 +117,8 @@ namespace com.kizwiz.signwiz.ViewModels
                     { "food_drink", 1.49m },
                     { "emotions", 1.49m },
                     { "sports_hobbies", 0.99m },
-                    { "premium_themes", 1.49m }
+                    { "premium_themes", 1.49m },
+                    { "multiplayer", 2.99m }
                 }
             }
         };
@@ -188,7 +199,7 @@ namespace com.kizwiz.signwiz.ViewModels
 
         private async Task UpdateButtonStates()
         {
-            foreach (var packId in new[] { "animals", "geography", "food_drink", "emotions", "sports_hobbies", "premium_themes" })
+            foreach (var packId in new[] { "animals", "geography", "food_drink", "emotions", "sports_hobbies", "premium_themes", "multiplayer" })
             {
                 bool isPurchased = await _iapService.IsProductPurchasedAsync(packId);
                 var priceText = isPurchased ? "OWNED" : FormatPrice(packId);
@@ -219,6 +230,10 @@ namespace com.kizwiz.signwiz.ViewModels
                         ThemesPackButtonText = priceText;
                         IsThemesPackPurchasable = !isPurchased;
                         break;
+                    case "multiplayer":
+                        MultiplayerButtonText = priceText;
+                        IsMultiplayerPurchasable = !isPurchased;
+                        break;
                 }
             }
         }
@@ -230,7 +245,7 @@ namespace com.kizwiz.signwiz.ViewModels
                 _purchasedPacks.Clear();
                 _purchasedPacks["starter"] = true;
 
-                foreach (var packId in new[] { "animals", "geography", "food_drink", "emotions", "sports_hobbies", "premium_themes" })
+                foreach (var packId in new[] { "animals", "geography", "food_drink", "emotions", "sports_hobbies", "premium_themes", "multiplayer" })
                 {
                     bool isPurchased = await _iapService.IsProductPurchasedAsync(packId);
                     _purchasedPacks[packId] = isPurchased;
@@ -310,6 +325,7 @@ namespace com.kizwiz.signwiz.ViewModels
             "emotions" => "Emotions",
             "sports_hobbies" => "Sports & Hobbies",
             "premium_themes" => "Premium Themes",
+            "multiplayer" => "Multiplayer",
             _ => "Unknown"
         };
     }

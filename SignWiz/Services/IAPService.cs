@@ -16,7 +16,8 @@
                 { "food_drink", 0.99m },
                 { "emotions", 0.99m },
                 { "sports_hobbies", 0.99m },
-                { "premium_themes", 0.99m }  // ← ADDED THIS LINE
+                { "premium_themes", 0.99m },
+                { "multiplayer", 1.99m }
             };
         }
 

@@ -150,14 +150,13 @@
 
         <!-- Guess Mode -->
         <Grid Grid.Row="1" IsVisible="{Binding IsGuessMode}">
-            <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="12" RowSpacing="8">
+            <Grid RowDefinitions="Auto,Auto,*, Auto" Padding="12" RowSpacing="8">
                 <!-- Row 0: Video container -->
                 <Border Grid.Row="0"
                 Padding="0"
-                Stroke="{DynamicResource Primary}"
-                StrokeThickness="1"
-                Background="Black"
-                StrokeShape="RoundRectangle 15"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 20"
+                Background="Transparent"
                 HeightRequest="360">
                     <Border.Triggers>
                         <!-- Reduce frame height when in multiplayer -->
@@ -175,8 +174,6 @@
             ShouldAutoPlay="True"
             ShouldLoopPlayback="True"
             Aspect="AspectFit"
-            HeightRequest="320"
-            WidthRequest="320"
             HorizontalOptions="Center"
             VerticalOptions="Center"
             MediaOpened="OnMediaOpened"
@@ -194,8 +191,6 @@
             ShouldAutoPlay="True"
             ShouldLoopPlayback="True"
             Aspect="AspectFit"
-            HeightRequest="260"
-            WidthRequest="320"
             HorizontalOptions="Center"
             VerticalOptions="Center"
             MediaOpened="OnMediaOpened"
@@ -388,22 +383,17 @@
                         HeightRequest="340"
                           Margin="0,10,0,15">
                         <!-- Container for video -->
-                        <Border Padding="1"
-                                Stroke="{DynamicResource Primary}"
-                                StrokeThickness="1"
-                                Background="Black"
-                                StrokeShape="RoundRectangle 10"
+                        <Border Padding="0"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 20"
+                                Background="Transparent"
                                 Margin="0,0"
                                 HeightRequest="400">
-                            <!-- Increased from 300 -->
                             <toolkit:MediaElement 
                                 x:Name="PerformVideo"
                                 ShouldShowPlaybackControls="False"
                                 ShouldAutoPlay="True"
                                 ShouldLoopPlayback="True"
-                                HeightRequest="400"   
-                                WidthRequest="320"
-                                
                                 HorizontalOptions="Center"
                                 VerticalOptions="Center"
                                 Aspect="AspectFit"
@@ -481,21 +471,17 @@
                   HeightRequest="340"
                           Margin="0,10,0,15">
                         <!-- Container for video -->
-                        <Border Padding="1"
-        Stroke="{DynamicResource Primary}"
-        StrokeThickness="1"
-        Background="Black"
-        StrokeShape="RoundRectangle 10"
+                        <Border Padding="0"
+        StrokeThickness="0"
+        StrokeShape="RoundRectangle 20"
+        Background="Transparent"
         Margin="0,0"
         HeightRequest="400">
-                            <!-- Increased from 300 -->
                             <toolkit:MediaElement 
         x:Name="MultiplayerPerformVideo"
         ShouldShowPlaybackControls="False"
         ShouldAutoPlay="True"
         ShouldLoopPlayback="True"
-        HeightRequest="400"   
-        WidthRequest="320"
         HorizontalOptions="Center"
         VerticalOptions="Center"
         Aspect="AspectFit"

@@ -215,6 +215,36 @@
                 </Grid>
             </Border>
 
+            <!-- Multiplayer -->
+            <Border BackgroundColor="{DynamicResource CardBackground}"
+                    Opacity="0.95"
+                    Padding="15" 
+                    StrokeShape="RoundRectangle 10">
+                <Grid ColumnDefinitions="*,Auto" RowSpacing="5">
+                    <VerticalStackLayout Grid.Column="0">
+                        <Label Text="Multiplayer" 
+                               TextColor="{DynamicResource CardText}"
+                               FontSize="24" 
+                               FontAttributes="Bold"
+                               Margin="0,0,0,5"/>
+
+                        <Label Text="Challenge your friends! Unlock multiplayer mode for competitive sign language fun."
+                               TextColor="{DynamicResource CardText}"
+                               FontSize="14"/>
+                    </VerticalStackLayout>
+
+                    <Button Text="{Binding MultiplayerButtonText}" 
+                            Command="{Binding PurchasePackCommand}"
+                            CommandParameter="multiplayer"
+                            IsEnabled="{Binding IsMultiplayerPurchasable}"
+                            Style="{StaticResource PrimaryButton}"
+                            HeightRequest="40"
+                            WidthRequest="110"
+                            Grid.Column="1"
+                            VerticalOptions="Center"/>
+                </Grid>
+            </Border>
+
             <!-- Restore Purchases -->
             <Border BackgroundColor="{DynamicResource CardBackground}"
                     Opacity="0.95"

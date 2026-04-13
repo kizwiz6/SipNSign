@@ -11,10 +11,12 @@ public partial class PlayerSelectionPage : ContentPage
     private PlayerSelectionViewModel _viewModel;
     private bool _isInitialized = false;
     private GameMode _selectedMode; // Store which mode was selected from MainMenu
+    private readonly IServiceProvider _serviceProvider;
 
-    public PlayerSelectionPage()
+    public PlayerSelectionPage(IServiceProvider serviceProvider)
     {
         InitializeComponent();
+        _serviceProvider = serviceProvider;
         _viewModel = new PlayerSelectionViewModel();
         BindingContext = _viewModel;
 
@@ -85,8 +87,19 @@ public partial class PlayerSelectionPage : ContentPage
         await StartGame(gameParameters, _selectedMode);
     }
 
-    private void OnMultiplayerClicked(object sender, EventArgs e)
+    private async void OnMultiplayerClicked(object sender, EventArgs e)
     {
+        // Check if multiplayer has been purchased
+        var iapService = _serviceProvider.GetRequiredService<IIAPService>();
+        bool isMultiplayerPurchased = await iapService.IsProductPurchasedAsync("multiplayer");
+
+        if (!isMultiplayerPurchased)
+        {
+            await DisplayAlert("Multiplayer Locked",
+                "Multiplayer mode is a premium feature. Please visit the Store to unlock it!", "OK");
+            return;
+        }
+
         // Just show player configuration - mode is already set (no popup)
         ModeSelectionLayout.IsVisible = false;
         PlayerConfigLayout.IsVisible = true;
