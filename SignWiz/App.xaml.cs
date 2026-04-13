@@ -1,4 +1,6 @@
-﻿using com.kizwiz.signwiz.Services;
+﻿using com.kizwiz.signwiz.Messages;
+using com.kizwiz.signwiz.Services;
+using CommunityToolkit.Mvvm.Messaging;
 using System.Diagnostics;
 
 [assembly: XamlCompilation(XamlCompilationOptions.Compile)]
@@ -241,6 +243,7 @@ namespace com.kizwiz.signwiz
             base.OnSleep();
             _logger?.Debug("App going to sleep");
             Debug.WriteLine("App going to sleep");
+            WeakReferenceMessenger.Default.Send(new AppSleepMessage());
         }
 
         protected override void OnResume()
@@ -248,6 +251,7 @@ namespace com.kizwiz.signwiz
             base.OnResume();
             _logger?.Debug("App resumed");
             Debug.WriteLine("App resumed");
+            WeakReferenceMessenger.Default.Send(new AppResumeMessage());
         }
 
         /// <summary>

@@ -598,6 +598,41 @@
             </ScrollView>
         </Grid>
 
+        <!-- Game Paused Overlay -->
+        <Grid IsVisible="{Binding IsGamePaused}"
+              InputTransparent="False"
+              ZIndex="98"
+              Grid.RowSpan="3"
+              BackgroundColor="#CC000000">
+            <Border Margin="30"
+                    BackgroundColor="{DynamicResource CardBackground}"
+                    Opacity="0.95"
+                    VerticalOptions="Center"
+                    HorizontalOptions="Center"
+                    StrokeShape="RoundRectangle 20"
+                    Padding="30">
+                <VerticalStackLayout Spacing="20" HorizontalOptions="Center">
+                    <Label Text="⏸️"
+                           FontSize="48"
+                           HorizontalOptions="Center"/>
+                    <Label Text="Game Paused"
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="28"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"/>
+                    <Label Text="The game was paused because the app went to the background."
+                           TextColor="{DynamicResource CardText}"
+                           FontSize="16"
+                           HorizontalTextAlignment="Center"
+                           HorizontalOptions="Center"/>
+                    <Button Text="Resume"
+                            Command="{Binding ResumeCommand}"
+                            Style="{StaticResource PrimaryButton}"
+                            Margin="0,10,0,0"/>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
         <!-- Game Over Screen Overlay -->
         <Grid IsVisible="{Binding IsGameOver}" 
               InputTransparent="False" 

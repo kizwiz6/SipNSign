@@ -41,6 +41,8 @@ namespace com.kizwiz.signwiz.ViewModels
         private string _feedbackText = string.Empty;
         private bool _isGameOver;
         private bool _isGameActive = true;
+        private bool _isGamePaused;
+        private int _remainingTimeBeforePause;
         private double _progressPercentage;
         private Color _feedbackBackgroundColor;
         private string _guessResults;
@@ -65,6 +67,7 @@ namespace com.kizwiz.signwiz.ViewModels
         private ICommand _recordPlayerAnswerCommand;
         private ICommand _showScoreboardCommand;
         private ICommand _confirmGuessAnswersCommand;
+        private ICommand _resumeCommand;
         private string _currentPlayerTurnText = string.Empty;
         private int GetTotalQuestions() => Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
         public int TotalQuestions => GetTotalQuestions();
@@ -107,6 +110,22 @@ namespace com.kizwiz.signwiz.ViewModels
             {
                 _isGameActive = value;
                 OnPropertyChanged(nameof(IsGameActive));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether the game is currently paused (e.g. app backgrounded).
+        /// </summary>
+        public bool IsGamePaused
+        {
+            get => _isGamePaused;
+            set
+            {
+                if (_isGamePaused != value)
+                {
+                    _isGamePaused = value;
+                    OnPropertyChanged(nameof(IsGamePaused));
+                }
             }
         }
 
@@ -887,6 +906,8 @@ namespace com.kizwiz.signwiz.ViewModels
 
         private async void Timer_Tick(object? sender, EventArgs e)
         {
+            if (IsGamePaused) return;
+
             if (RemainingTime > 0)
             {
                 RemainingTime--;
@@ -1555,6 +1576,42 @@ namespace com.kizwiz.signwiz.ViewModels
             {
                 Debug.WriteLine($"Error loading video: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// Pauses the game when the app is backgrounded. Stops the timer and preserves remaining time.
+        /// </summary>
+        public void PauseGame()
+        {
+            if (IsGameOver || IsGamePaused) return;
+
+            Debug.WriteLine("GameViewModel: Pausing game");
+            _remainingTimeBeforePause = RemainingTime;
+            _timer?.Stop();
+            IsGamePaused = true;
+        }
+
+        /// <summary>
+        /// Resumes the game after being paused. Restores the timer with the previously saved remaining time.
+        /// </summary>
+        public void ResumeGame()
+        {
+            if (!IsGamePaused) return;
+
+            Debug.WriteLine("GameViewModel: Resuming game");
+            IsGamePaused = false;
+
+            // Restore timer only for single-player guess mode with a timed game
+            if (!IsMultiplayer && IsGuessMode && _remainingTimeBeforePause > 0)
+            {
+                RemainingTime = _remainingTimeBeforePause;
+                _timer?.Start();
+            }
+        }
+
+        public ICommand ResumeCommand
+        {
+            get => _resumeCommand ??= new Command(ResumeGame);
         }
 
         public void Cleanup()

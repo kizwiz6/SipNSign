@@ -1,5 +1,6 @@
 using com.kizwiz.signwiz.Converters;
 using com.kizwiz.signwiz.Enums;
+using com.kizwiz.signwiz.Messages;
 using com.kizwiz.signwiz.Models;
 using com.kizwiz.signwiz.Services;
 using com.kizwiz.signwiz.ViewModels;
@@ -482,6 +483,16 @@ namespace com.kizwiz.signwiz.Pages
             base.OnAppearing();
             _isDisposed = false;
 
+            // Register for app lifecycle messages
+            WeakReferenceMessenger.Default.Register<AppSleepMessage>(this, (r, m) =>
+            {
+                MainThread.BeginInvokeOnMainThread(OnAppSleep);
+            });
+            WeakReferenceMessenger.Default.Register<AppResumeMessage>(this, (r, m) =>
+            {
+                MainThread.BeginInvokeOnMainThread(OnAppResume);
+            });
+
             // Disable overscroll on Android to prevent video blank bug
 #if ANDROID
             DisableScrollViewOverscroll();
@@ -567,6 +578,10 @@ namespace com.kizwiz.signwiz.Pages
             {
                 _isDisposed = true;
 
+                // Unregister lifecycle messages
+                WeakReferenceMessenger.Default.Unregister<AppSleepMessage>(this);
+                WeakReferenceMessenger.Default.Unregister<AppResumeMessage>(this);
+
                 // Call Cleanup explicitly first
                 Cleanup();
 
@@ -611,6 +626,47 @@ namespace com.kizwiz.signwiz.Pages
         }
         #endregion
 
+        #region App Lifecycle Pause/Resume
+        /// <summary>
+        /// Called when the app is backgrounded. Pauses video playback and game timer.
+        /// </summary>
+        private void OnAppSleep()
+        {
+            if (_isDisposed || _viewModel == null) return;
+
+            Debug.WriteLine("GamePage: App going to sleep — pausing game");
+
+            _viewModel.PauseGame();
+
+            // Pause all active MediaElements
+            try
+            {
+                _sharedVideoElement?.Pause();
+                _multiplayerGuessVideoElement?.Pause();
+                _performVideoElement?.Pause();
+                _multiplayerPerformVideoElement?.Pause();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error pausing media elements: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Called when the app returns to the foreground. Does NOT auto-resume;
+        /// the user must press the Resume button shown by the pause overlay.
+        /// </summary>
+        private void OnAppResume()
+        {
+            if (_isDisposed || _viewModel == null) return;
+
+            Debug.WriteLine("GamePage: App resumed — waiting for user to press Resume");
+            // Intentionally left empty: the user taps the Resume button in the overlay,
+            // which calls ResumeCommand on the ViewModel, which resumes the timer.
+            // Video playback is resumed below when IsGamePaused changes to false.
+        }
+        #endregion
+
         // Connect this method to the ViewModel's property changes
         private void ConnectToViewModel()
         {
@@ -644,6 +700,23 @@ namespace com.kizwiz.signwiz.Pages
                         Debug.WriteLine($"IsMultiplayer changed to: {_viewModel.IsMultiplayer}");
                         // Reinitialize to find the right video element
                         InitializeVideoElementsForCurrentMode();
+                    }
+
+                    if (e.PropertyName == nameof(GameViewModel.IsGamePaused) && !_viewModel.IsGamePaused)
+                    {
+                        // Game was just resumed via the Resume button — restart video playback
+                        Debug.WriteLine("GamePage: IsGamePaused changed to false — resuming video");
+                        try
+                        {
+                            _sharedVideoElement?.Play();
+                            _multiplayerGuessVideoElement?.Play();
+                            _performVideoElement?.Play();
+                            _multiplayerPerformVideoElement?.Play();
+                        }
+                        catch (Exception ex2)
+                        {
+                            Debug.WriteLine($"Error resuming media elements: {ex2.Message}");
+                        }
                     }
                 };
             }
