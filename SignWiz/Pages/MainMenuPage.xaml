@@ -21,12 +21,17 @@
                 <Setter Property="CornerRadius" Value="25"/>
                 <Setter Property="FontSize" Value="18"/>
                 <Setter Property="FontAttributes" Value="Bold"/>
-                <Setter Property="TextColor" Value="{DynamicResource AppDarkText}"/>
+                <Setter Property="CharacterSpacing" Value="2"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="BorderColor" Value="#80FFFFFF"/>
+                <Setter Property="BorderWidth" Value="1.5"/>
                 <Setter Property="Shadow">
-                    <Shadow Brush="Black"
-                        Offset="0,3"
-                        Radius="3"
-                        Opacity="0.3"/>
+                    <Setter.Value>
+                        <Shadow Brush="Black"
+                            Offset="0,4"
+                            Radius="8"
+                            Opacity="0.35"/>
+                    </Setter.Value>
                 </Setter>
             </Style>
         </ResourceDictionary>
@@ -80,32 +85,62 @@
             <Button Text="Guess Mode"
             StyleId="GuessMode"
             Style="{StaticResource MenuButton}"
-            BackgroundColor="{DynamicResource GuessMode}"
-            Clicked="OnGuessGameClicked"/>
+            Clicked="OnGuessGameClicked">
+                <Button.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#2196F3" Offset="0.0" />
+                        <GradientStop Color="#007BFF" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Button.Background>
+            </Button>
 
             <Button Text="Perform Mode"
             StyleId="PerformMode"
             Style="{StaticResource MenuButton}"
-            BackgroundColor="{DynamicResource PerformMode}"
-            Clicked="OnPerformGameClicked"/>
+            Clicked="OnPerformGameClicked">
+                <Button.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#43A047" Offset="0.0" />
+                        <GradientStop Color="#28a745" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Button.Background>
+            </Button>
 
             <Button Text="Profile"
             StyleId="Profile"
             Style="{StaticResource MenuButton}"
-            BackgroundColor="{DynamicResource Profile}"
-            Clicked="OnViewScoresClicked"/>
+            Clicked="OnViewScoresClicked">
+                <Button.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#FFD54F" Offset="0.0" />
+                        <GradientStop Color="#FFC107" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Button.Background>
+            </Button>
 
             <Button Text="Settings"
             StyleId="Settings"
             Style="{StaticResource MenuButton}"
-            BackgroundColor="{DynamicResource Settings}"
-            Clicked="OnSettingsClicked"/>
+            Clicked="OnSettingsClicked">
+                <Button.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#FF7043" Offset="0.0" />
+                        <GradientStop Color="#FF5722" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Button.Background>
+            </Button>
 
             <Button Text="Store"
             StyleId="Store"
             Style="{StaticResource MenuButton}"
-            BackgroundColor="{DynamicResource Store}"
-            Clicked="OnStoreClicked"/>
+            Clicked="OnStoreClicked">
+                <Button.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#AB47BC" Offset="0.0" />
+                        <GradientStop Color="#9C27B0" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Button.Background>
+            </Button>
         </VerticalStackLayout>
     </Grid>
 </ContentPage>
