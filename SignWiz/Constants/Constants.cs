@@ -7,7 +7,6 @@
     {
         #region Theme Settings
         public const string THEME_KEY = "app_theme";
-        public const string SOBER_MODE_KEY = "sober_mode";
         #endregion
 
         #region Timer Settings

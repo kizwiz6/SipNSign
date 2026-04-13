@@ -882,17 +882,13 @@ namespace com.kizwiz.signwiz.ViewModels
 
         private string GetFeedbackText(bool isCorrect)
         {
-            bool isSoberMode = Preferences.Get(Constants.SOBER_MODE_KEY, false);
-
             if (isCorrect)
             {
                 return $"Correct!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.";
             }
             else
             {
-                return isSoberMode
-                    ? $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nKeep Learning!"
-                    : $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
+                return $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nKeep Learning!";
             }
         }
 
@@ -933,9 +929,7 @@ namespace com.kizwiz.signwiz.ViewModels
                 if (Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true))
                 {
                     FeedbackBackgroundColor = GetFeedbackColor(false);
-                    FeedbackText = Preferences.Get(Constants.SOBER_MODE_KEY, false)
-                        ? $"Time's up!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nKeep practicing!"
-                        : $"Time's up!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!";
+                    FeedbackText = $"Time's up!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nKeep practicing!";
                     IsFeedbackVisible = true;
                 }
 
@@ -1036,12 +1030,9 @@ namespace com.kizwiz.signwiz.ViewModels
             // If in multiplayer, show a different message that doesn't target a specific player
             if (IsMultiplayer)
             {
-                bool isSoberMode = Preferences.Get(Constants.SOBER_MODE_KEY, false);
                 FeedbackText = isCorrect
                     ? $"Correct!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'."
-                    : (isSoberMode
-                        ? $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nKeep Learning!"
-                        : $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nTake a sip!");
+                    : $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nKeep Learning!";
             }
             else
             {
@@ -1137,10 +1128,7 @@ namespace com.kizwiz.signwiz.ViewModels
 
                 IsSignHidden = true;
                 _timer?.Stop();
-                bool isSoberMode = Preferences.Get(Constants.SOBER_MODE_KEY, false);
-                FeedbackText = isSoberMode
-                    ? $"Keep practicing '{CurrentSign?.CorrectAnswer}'!"
-                    : $"Remember to practice '{CurrentSign?.CorrectAnswer}'!\n\nTake a sip!";
+                FeedbackText = $"Keep practicing '{CurrentSign?.CorrectAnswer}'!";
                 FeedbackBackgroundColor = GetFeedbackColor(false);
                 await ShowFeedbackAndContinue(false);
                 await LogGameActivity(false);
@@ -1858,8 +1846,6 @@ namespace com.kizwiz.signwiz.ViewModels
             var incorrectPlayers = Players.Where(p => p.HasAnswered && !p.GotCurrentAnswerCorrect).ToList();
             var allCorrect = Players.All(p => p.GotCurrentAnswerCorrect);
 
-            bool isSoberMode = Preferences.Get(Constants.SOBER_MODE_KEY, false);
-
             string title;
             string message;
 
@@ -1885,9 +1871,7 @@ namespace com.kizwiz.signwiz.ViewModels
                 if (incorrectPlayers.Any())
                 {
                     var incorrectNames = string.Join(", ", incorrectPlayers.Select(p => p.Name));
-                    message += isSoberMode
-                        ? $"Keep practicing: {incorrectNames}"
-                        : $"Time for a sip: {incorrectNames}";
+                    message += $"Keep practicing: {incorrectNames}";
                 }
             }
 
@@ -1899,8 +1883,6 @@ namespace com.kizwiz.signwiz.ViewModels
             var correctPlayers = Players.Where(p => p.HasAnswered && p.GotCurrentAnswerCorrect).ToList();
             var incorrectPlayers = Players.Where(p => p.HasAnswered && !p.GotCurrentAnswerCorrect).ToList();
             var allCorrect = Players.All(p => p.GotCurrentAnswerCorrect);
-
-            bool isSoberMode = Preferences.Get(Constants.SOBER_MODE_KEY, false);
 
             string title;
             string message;
@@ -1924,9 +1906,7 @@ namespace com.kizwiz.signwiz.ViewModels
                 if (incorrectPlayers.Any())
                 {
                     var incorrectNames = string.Join(", ", incorrectPlayers.Select(p => p.Name));
-                    message += isSoberMode
-                            ? $"✗ Incorrect: {incorrectNames}"
-                            : $"✗ Take a sip: {incorrectNames}";
+                    message += $"✗ Incorrect: {incorrectNames}";
                 }
             }
 

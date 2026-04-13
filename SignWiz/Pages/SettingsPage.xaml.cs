@@ -30,7 +30,6 @@ namespace com.kizwiz.signwiz.Pages
             ThemePicker.SelectedItem = _themeService.GetCurrentTheme().ToString();
 
             // Initialize switches with current preferences
-            SoberModeSwitch.IsToggled = Preferences.Get(Constants.SOBER_MODE_KEY, false);
             TransparentFeedbackSwitch.IsToggled = Preferences.Get(Constants.TRANSPARENT_FEEDBACK_KEY, false);
 
             LoadSavedSettings();
@@ -133,11 +132,6 @@ namespace com.kizwiz.signwiz.Pages
         }
 
         // Event handler for the toggle switch
-        private void OnSoberModeToggled(object sender, ToggledEventArgs e)
-        {
-            Preferences.Set(Constants.SOBER_MODE_KEY, e.Value);
-        }
-
         private void OnDefaultPlayerNameChanged(object sender, TextChangedEventArgs e)
         {
             // Save the player name, or use default if empty
@@ -170,16 +164,6 @@ namespace com.kizwiz.signwiz.Pages
             {
                 bool isCorrect = gamePage.ViewModel.FeedbackText.Contains("Correct");
                 gamePage.ViewModel.FeedbackBackgroundColor = gamePage.ViewModel.GetFeedbackColor(isCorrect);
-            }
-        }
-
-        public bool IsSoberMode
-        {
-            get => Preferences.Get(Constants.SOBER_MODE_KEY, false);
-            set
-            {
-                Preferences.Set(Constants.SOBER_MODE_KEY, value);
-                OnPropertyChanged(nameof(IsSoberMode));
             }
         }
 
