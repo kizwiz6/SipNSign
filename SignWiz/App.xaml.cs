@@ -73,12 +73,11 @@ namespace com.kizwiz.signwiz
                 }
 
 #if ANDROID
-                Android.Util.Log.Debug("SipNSignApp", "Creating main page");
+                Android.Util.Log.Debug("SipNSignApp", "Creating splash screen");
 #endif
-                var appShell = serviceProvider.GetRequiredService<AppShell>();
-                MainPage = appShell;
+                MainPage = new Resources.Styles.SplashScreen(serviceProvider);
 #if ANDROID  
-                Android.Util.Log.Debug("SipNSignApp", "Main page set via MainPage property");
+                Android.Util.Log.Debug("SipNSignApp", "Splash screen set as MainPage");
                 Android.Util.Log.Debug("SipNSignApp", "==== App Constructor End ====");
 #endif
             }

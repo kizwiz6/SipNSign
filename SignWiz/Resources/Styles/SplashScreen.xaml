@@ -5,38 +5,43 @@
 
     <ContentPage.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="{StaticResource AppBackground1}" Offset="0.0" />
-            <GradientStop Color="{StaticResource AppBackground2}" Offset="1.0" />
+            <GradientStop Color="#0e324d" Offset="0.0" />
+            <GradientStop Color="#0d47a1" Offset="1.0" />
         </LinearGradientBrush>
     </ContentPage.Background>
 
     <Grid RowDefinitions="*,Auto,Auto,*">
-        <!-- Logo -->
         <Image Grid.Row="1"
                Source="logo_nobg.png"
-               HeightRequest="200"
-               Margin="50"/>
+               HeightRequest="220"
+               Margin="40"/>
 
-        <!-- App Name -->
-        <Label Grid.Row="2"
-               Text="Sip N' Sign"
-               FontFamily="Bangers"
-               FontSize="48"
-               TextColor="White"
-               HorizontalOptions="Center">
-            <Label.Shadow>
-                <Shadow Brush="Black"
-                        Offset="3,3"
-                        Radius="5"
-                        Opacity="0.5"/>
-            </Label.Shadow>
-        </Label>
+        <VerticalStackLayout Grid.Row="2" Spacing="0" HorizontalOptions="Center">
+            <Label Text="SignWiz"
+                   FontFamily="Bangers"
+                   FontSize="54"
+                   TextColor="White"
+                   HorizontalOptions="Center">
+                <Label.Shadow>
+                    <Shadow Brush="Black"
+                            Offset="4,4"
+                            Radius="10"
+                            Opacity="0.6"/>
+                </Label.Shadow>
+            </Label>
 
-        <!-- Loading Indicator -->
+            <Label Text="The Magic of Signing"
+                   FontSize="18"
+                   TextColor="#FFA726"
+                   HorizontalOptions="Center"
+                   CharacterSpacing="2"
+                   Margin="0,-5,0,0"/>
+        </VerticalStackLayout>
+
         <ActivityIndicator Grid.Row="3"
                           IsRunning="True"
-                          Color="{StaticResource Primary}"
-                          VerticalOptions="Start"
-                          Margin="0,20,0,0"/>
+                          Color="#FFA726"
+                          VerticalOptions="Center"
+                          Scale="1.5"/>
     </Grid>
 </ContentPage>
