@@ -8,73 +8,122 @@
             Style="{StaticResource AppPageStyle}"
             Title="Achievement Details">
 
-    <Grid Padding="20" RowDefinitions="Auto,*">
-        <!-- Achievement Card -->
-        <Border BackgroundColor="{DynamicResource CardBackground}"
-               Opacity="0.95"
-               StrokeShape="RoundRectangle 20"
-               Padding="20"
-               Margin="0,10">
-            <VerticalStackLayout Spacing="20">
-                <!-- Achievement Icon -->
-                <Image Source="{Binding Icon}"
-                      HeightRequest="100"
-                      WidthRequest="100"
-                      HorizontalOptions="Center"/>
+    <Grid Padding="20" RowDefinitions="Auto,Auto">
+        <!-- Achievement Card (captured for sharing) -->
+        <Border x:Name="AchievementCard"
+               StrokeThickness="2"
+               Stroke="#FFD700"
+               StrokeShape="RoundRectangle 24"
+               Padding="24"
+               Margin="0,10"
+               Shadow="{Shadow Brush=Black, Offset='4,6', Radius=20, Opacity=0.5}">
+            <Border.Background>
+                <RadialGradientBrush Center="0.5,0.4" Radius="0.85">
+                    <GradientStop Color="#1a237e" Offset="0.0"/>
+                    <GradientStop Color="#0d1b5e" Offset="0.65"/>
+                    <GradientStop Color="#1a1a3e" Offset="1.0"/>
+                </RadialGradientBrush>
+            </Border.Background>
+
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="16">
+                <!-- Glowing Icon Badge -->
+                <Border Grid.Row="0"
+                       HeightRequest="120"
+                       WidthRequest="120"
+                       StrokeShape="RoundRectangle 60"
+                       StrokeThickness="3"
+                       Stroke="#FFD700"
+                       BackgroundColor="#22FFD700"
+                       HorizontalOptions="Center"
+                       Shadow="{Shadow Brush=#FFD700, Offset='0,0', Radius=16, Opacity=0.4}">
+                    <Image Source="{Binding Icon}"
+                          HeightRequest="80"
+                          WidthRequest="80"
+                          HorizontalOptions="Center"
+                          VerticalOptions="Center"/>
+                </Border>
 
                 <!-- Achievement Title -->
-                <Label Text="{Binding Title}"
-                      TextColor="{DynamicResource CardText}"
-                      FontSize="28"
+                <Label Grid.Row="1"
+                      Text="{Binding Title}"
+                      TextColor="White"
+                      FontSize="26"
                       FontAttributes="Bold"
-                      HorizontalOptions="Center"/>
-
-                <!-- Achievement Description -->
-                <Label Text="{Binding Description}"
-                      TextColor="{DynamicResource CardText}"
-                      FontSize="18"
                       HorizontalOptions="Center"
                       HorizontalTextAlignment="Center"/>
 
+                <!-- Achievement Description -->
+                <Label Grid.Row="2"
+                      Text="{Binding Description}"
+                      TextColor="#B0BEC5"
+                      FontSize="16"
+                      HorizontalOptions="Center"
+                      HorizontalTextAlignment="Center"
+                      Margin="8,0"/>
+
                 <!-- Progress Section -->
-                <VerticalStackLayout IsVisible="{Binding IsUnlocked, Converter={StaticResource InverseBoolConverter}}">
-                    <ProgressBar Progress="{Binding Progress}"
-                                ProgressColor="{DynamicResource Primary}"
-                                HeightRequest="10"/>
-                    <Label Text="{Binding Description}"
-                              TextColor="{DynamicResource CardText}"
-                              HorizontalOptions="Center"
-                              Margin="0,10,0,0"/>
+                <VerticalStackLayout Grid.Row="3"
+                                    IsVisible="{Binding IsUnlocked, Converter={StaticResource InverseBoolConverter}}"
+                                    Spacing="6">
+                    <Border StrokeShape="RoundRectangle 6"
+                           BackgroundColor="#1A1A3E"
+                           StrokeThickness="0"
+                           HeightRequest="12"
+                           Padding="0">
+                        <ProgressBar Progress="{Binding Progress}"
+                                    ProgressColor="#FFD700"
+                                    HeightRequest="12"/>
+                    </Border>
+                    <Label Text="{Binding ProgressText}"
+                          TextColor="#B0BEC5"
+                          FontSize="14"
+                          HorizontalOptions="Center"/>
                 </VerticalStackLayout>
 
-                <!-- Unlock Status with better formatting -->
-                <StackLayout IsVisible="{Binding IsUnlocked}"
-                             Orientation="Horizontal"
+                <!-- Unlock Status -->
+                <HorizontalStackLayout Grid.Row="4"
+                             IsVisible="{Binding IsUnlocked}"
                              HorizontalOptions="Center"
-                             Spacing="5">
+                             Spacing="8">
                     <Label Text="🏆"
-                           FontSize="20"
+                           FontSize="22"
                            VerticalOptions="Center"/>
                     <Label Text="{Binding UnlockDateDisplay}"
-                           TextColor="{DynamicResource CardText}"
+                           TextColor="#FFD700"
+                           FontSize="14"
                            FontAttributes="Bold"
                            VerticalOptions="Center"/>
-                </StackLayout>
+                </HorizontalStackLayout>
 
-                <!-- Share Button with improved styling -->
-                <Button Text="SHARE ACHIEVEMENT"
-                       IsVisible="{Binding IsUnlocked}"
-                       Command="{Binding ShareCommand}"
-                       Style="{StaticResource PrimaryButton}"
-                       FontAttributes="Bold"
-                       Margin="0,20,0,0">
-                    <Button.ImageSource>
-                        <FontImageSource Glyph="🎉"
-                                      Color="White"
-                                      Size="20"/>
-                    </Button.ImageSource>
-                </Button>
-            </VerticalStackLayout>
+                <!-- SignWiz Watermark -->
+                <HorizontalStackLayout Grid.Row="5"
+                             HorizontalOptions="End"
+                             Opacity="0.5"
+                             Spacing="4"
+                             Margin="0,8,0,0">
+                    <Label Text="🧙‍♂️"
+                           FontSize="14"
+                           VerticalOptions="Center"/>
+                    <Label Text="SignWiz"
+                           TextColor="#B0BEC5"
+                           FontSize="12"
+                           FontAttributes="Italic"
+                           VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+            </Grid>
         </Border>
+
+        <!-- Share Button (outside the captured card) -->
+        <Button Grid.Row="1"
+               Text="📸  SHARE ACHIEVEMENT"
+               IsVisible="{Binding IsUnlocked}"
+               Command="{Binding ShareCommand}"
+               BackgroundColor="#FFD700"
+               TextColor="#1a237e"
+               FontAttributes="Bold"
+               FontSize="16"
+               CornerRadius="16"
+               HeightRequest="52"
+               Margin="20,10,20,0"/>
     </Grid>
 </ContentPage>

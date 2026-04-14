@@ -1,6 +1,7 @@
 using com.kizwiz.signwiz.Models;
 using com.kizwiz.signwiz.Services;
 using com.kizwiz.signwiz.ViewModels;
+using System.Diagnostics;
 
 namespace com.kizwiz.signwiz.Pages
 {
@@ -40,6 +41,9 @@ namespace com.kizwiz.signwiz.Pages
                     _viewModel = new AchievementDetailsViewModel(achievement, shareService, progressService);
                 }
 
+                // Wire up the card capture delegate for image sharing
+                _viewModel.CaptureCardAsync = CaptureAchievementCardAsync;
+
                 BindingContext = _viewModel;
                 logger?.Debug("AchievementDetailsPage created successfully");
             }
@@ -55,6 +59,26 @@ namespace com.kizwiz.signwiz.Pages
         protected override void OnAppearing()
         {
             base.OnAppearing();
+        }
+
+        /// <summary>
+        /// Captures the achievement card Border as a PNG image stream.
+        /// </summary>
+        private async Task<Stream?> CaptureAchievementCardAsync()
+        {
+            try
+            {
+                var result = await AchievementCard.CaptureAsync();
+                if (result != null)
+                {
+                    return await result.OpenReadAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error capturing achievement card: {ex.Message}");
+            }
+            return null;
         }
     }
 }

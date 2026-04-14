@@ -39,6 +39,7 @@ namespace com.kizwiz.signwiz.ViewModels
         private List<SignModel> _signs;
         private List<int> _availableIndices;
         private string _feedbackText = string.Empty;
+        private string _feedbackIcon = string.Empty;
         private bool _isGameOver;
         private bool _isGameActive = true;
         private bool _isGamePaused;
@@ -463,6 +464,19 @@ namespace com.kizwiz.signwiz.ViewModels
             }
         }
 
+        public string FeedbackIcon
+        {
+            get => _feedbackIcon;
+            set
+            {
+                if (_feedbackIcon != value)
+                {
+                    _feedbackIcon = value;
+                    OnPropertyChanged(nameof(FeedbackIcon));
+                }
+            }
+        }
+
         public int FinalScore
         {
             get => _finalScore;
@@ -539,12 +553,13 @@ namespace com.kizwiz.signwiz.ViewModels
                 }
                 else
                 {
+                    // Dim non-selected buttons so green/red feedback pops
                     if (Application.Current?.Resources.TryGetValue("AnswerButton", out var themeColorObject) == true &&
                         themeColorObject is Color themeColor)
                     {
-                        return themeColor;
+                        return themeColor.WithAlpha(0.4f);
                     }
-                    return ButtonBaseColor;
+                    return ButtonBaseColor.WithAlpha(0.4f);
                 }
             }
 
@@ -884,13 +899,15 @@ namespace com.kizwiz.signwiz.ViewModels
         {
             if (isCorrect)
             {
-                return $"Correct!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.";
+                return $"Correct!\nThe sign means '{CurrentSign?.CorrectAnswer}'.";
             }
             else
             {
-                return $"Incorrect.\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nKeep Learning!";
+                return $"Incorrect.\nThe sign means '{CurrentSign?.CorrectAnswer}'.\nKeep Learning!";
             }
         }
+
+        private string GetFeedbackIcon(bool isCorrect) => isCorrect ? "✅" : "❌";
 
         private void InitializeGame()
         {

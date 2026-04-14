@@ -32,6 +32,11 @@ namespace com.kizwiz.signwiz.ViewModels
             : string.Empty;
 
         public ICommand ShareCommand { get; }
+
+        /// <summary>
+        /// Delegate set by the page to capture the achievement card as an image stream.
+        /// </summary>
+        public Func<Task<Stream?>>? CaptureCardAsync { get; set; }
         #endregion
 
         #region Constructor
@@ -59,53 +64,74 @@ namespace com.kizwiz.signwiz.ViewModels
                 Debug.WriteLine($"Error initializing user progress: {ex.Message}");
             }
         }
+
         private async Task ShareAchievement()
         {
             try
             {
-                var shareText = $"🎮 Achievement Unlocked in SipNSign! 🎉\n\n" +
+                // Try to capture and share the card as an image
+                if (CaptureCardAsync != null)
+                {
+                    var stream = await CaptureCardAsync();
+                    if (stream != null)
+                    {
+                        var filePath = Path.Combine(FileSystem.CacheDirectory, "achievement_share.png");
+                        using (var fileStream = File.Create(filePath))
+                        {
+                            await stream.CopyToAsync(fileStream);
+                        }
+                        stream.Dispose();
+
+                        await _shareService.ShareImageAsync(filePath, "Check out my achievement in SignWiz! 🧙‍♂️✨");
+                        await LogShareActivity();
+                        return;
+                    }
+                }
+
+                // Fallback to text sharing
+                var shareText = $"🎮 Achievement Unlocked in SignWiz! 🎉\n\n" +
                                $"🏆 {Title}\n" +
                                $"📝 {Description}\n\n" +
                                $"🗓️ Unlocked on: {_achievement.UnlockedDate:dd MMM yyyy}\n\n" +
                                $"🎯 Progress: {_achievement.ProgressCurrent}/{_achievement.ProgressRequired}\n\n" +
-                               $"🎲 Download SipNSign and learn sign language while having fun!\n" +
-                               $"#SipNSign #SignLanguage #Gaming";
+                               $"🧙‍♂️ Download SignWiz and learn sign language while having fun!\n" +
+                               $"#SignWiz #SignLanguage #Gaming";
 
                 await _shareService.ShareTextAsync(shareText, "Share Achievement");
-
-                // Log the sharing activity
-                await _progressService.LogActivityAsync(new ActivityLog
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Type = ActivityType.Achievement,
-                    Description = "Shared an achievement",
-                    IconName = "social_icon",
-                    Timestamp = DateTime.Now,
-                    Score = "🏆"  // Use trophy emoji for score
-                });
-
-                // Find and unlock the Social Butterfly achievement
-                var userProgress = await _progressService.GetUserProgressAsync();
-                var socialAchievement = userProgress.Achievements
-                    .FirstOrDefault(a => a.Id == "SOCIAL_BUTTERFLY");
-
-                if (socialAchievement != null && !socialAchievement.IsUnlocked)
-                {
-                    // Force set progress and unlock status
-                    socialAchievement.ProgressCurrent = socialAchievement.ProgressRequired;
-                    socialAchievement.IsUnlocked = true;
-                    socialAchievement.UnlockedDate = DateTime.Now;
-
-                    // Save progress
-                    await _progressService.SaveProgressAsync(userProgress);
-
-                    // Force update achievements
-                    await _progressService.UpdateAchievementsAsync();
-                }
+                await LogShareActivity();
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error sharing achievement: {ex.Message}");
+            }
+        }
+
+        private async Task LogShareActivity()
+        {
+            // Log the sharing activity
+            await _progressService.LogActivityAsync(new ActivityLog
+            {
+                Id = Guid.NewGuid().ToString(),
+                Type = ActivityType.Achievement,
+                Description = "Shared an achievement",
+                IconName = "social_icon",
+                Timestamp = DateTime.Now,
+                Score = "🏆"
+            });
+
+            // Find and unlock the Social Butterfly achievement
+            var userProgress = await _progressService.GetUserProgressAsync();
+            var socialAchievement = userProgress.Achievements
+                .FirstOrDefault(a => a.Id == "SOCIAL_BUTTERFLY");
+
+            if (socialAchievement != null && !socialAchievement.IsUnlocked)
+            {
+                socialAchievement.ProgressCurrent = socialAchievement.ProgressRequired;
+                socialAchievement.IsUnlocked = true;
+                socialAchievement.UnlockedDate = DateTime.Now;
+
+                await _progressService.SaveProgressAsync(userProgress);
+                await _progressService.UpdateAchievementsAsync();
             }
         }
         #endregion
