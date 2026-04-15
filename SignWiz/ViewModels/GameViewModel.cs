@@ -41,6 +41,8 @@ namespace com.kizwiz.signwiz.ViewModels
         private string _feedbackText = string.Empty;
         private string _feedbackIcon = string.Empty;
         private bool _isGameOver;
+        private bool _isTie;
+        private string _winnerText = string.Empty;
         private bool _isGameActive = true;
         private bool _isGamePaused;
         private int _remainingTimeBeforePause;
@@ -412,6 +414,35 @@ namespace com.kizwiz.signwiz.ViewModels
                 OnPropertyChanged(nameof(IsGameOver));
             }
         }
+
+        public bool IsTie
+        {
+            get => _isTie;
+            set
+            {
+                if (_isTie != value)
+                {
+                    _isTie = value;
+                    OnPropertyChanged(nameof(IsTie));
+                }
+            }
+        }
+
+        public string WinnerText
+        {
+            get => _winnerText;
+            set
+            {
+                if (_winnerText != value)
+                {
+                    _winnerText = value;
+                    OnPropertyChanged(nameof(WinnerText));
+                }
+            }
+        }
+
+        public ObservableCollection<RankedPlayer> WinnerPlayers { get; } = new();
+        public ObservableCollection<RankedPlayer> OtherRankedPlayers { get; } = new();
 
         public double ProgressPercentage
         {
@@ -1630,6 +1661,18 @@ namespace com.kizwiz.signwiz.ViewModels
 
         public required MediaSource CurrentVideoSource { get; set; }
 
+        public ICommand GoHomeCommand => new Command(async () =>
+        {
+            try
+            {
+                await Shell.Current.Navigation.PopToRootAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error navigating home: {ex.Message}");
+            }
+        });
+
         public ICommand GoToSettingsCommand => new Command(async () =>
         {
             try
@@ -1702,6 +1745,10 @@ namespace com.kizwiz.signwiz.ViewModels
             IsGameOver = false;
             CurrentScore = 0;
             SignsPlayed = 0;
+            IsTie = false;
+            WinnerText = string.Empty;
+            WinnerPlayers.Clear();
+            OtherRankedPlayers.Clear();
             ResetButtonColors();
 
             if (IsMultiplayer)
@@ -1741,7 +1788,7 @@ namespace com.kizwiz.signwiz.ViewModels
             LoadNextSign();
         }
 
-        // UPDATED: EndGame with multiplayer logging
+        // UPDATED: EndGame with multiplayer logging and tie detection
         public void EndGame()
         {
             try
@@ -1762,8 +1809,40 @@ namespace com.kizwiz.signwiz.ViewModels
 
                     if (IsMultiplayer)
                     {
-                        var winner = Players.OrderByDescending(p => p.Score).First();
-                        GuessResults = $"Winner: {winner.Name}\nScore: {winner.Score} points!";
+                        var sorted = Players.OrderByDescending(p => p.Score).ToList();
+                        int topScore = sorted.First().Score;
+                        var winners = sorted.Where(p => p.Score == topScore).ToList();
+
+                        IsTie = winners.Count > 1;
+                        WinnerText = IsTie ? "\U0001F3C6 It's a Tie!" : $"\U0001F3C6 {winners.First().Name} Wins!";
+                        GuessResults = IsTie ? "It's a Tie!" : $"Winner: {winners.First().Name}";
+
+                        // Build ranked player lists
+                        WinnerPlayers.Clear();
+                        OtherRankedPlayers.Clear();
+
+                        int rank = 1;
+                        for (int i = 0; i < sorted.Count; i++)
+                        {
+                            if (i > 0 && sorted[i].Score < sorted[i - 1].Score)
+                                rank = i + 1;
+
+                            var rp = new RankedPlayer
+                            {
+                                Rank = rank,
+                                Name = sorted[i].Name,
+                                Score = sorted[i].Score,
+                                IsWinner = sorted[i].Score == topScore
+                            };
+
+                            if (rp.IsWinner)
+                                WinnerPlayers.Add(rp);
+                            else
+                                OtherRankedPlayers.Add(rp);
+                        }
+
+                        OnPropertyChanged(nameof(WinnerPlayers));
+                        OnPropertyChanged(nameof(OtherRankedPlayers));
                     }
                     else
                     {
@@ -1782,6 +1861,8 @@ namespace com.kizwiz.signwiz.ViewModels
 
                     OnPropertyChanged(nameof(IsGameOver));
                     OnPropertyChanged(nameof(GuessResults));
+                    OnPropertyChanged(nameof(IsTie));
+                    OnPropertyChanged(nameof(WinnerText));
                 });
             }
             catch (Exception ex)

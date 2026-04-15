@@ -56,9 +56,17 @@ namespace com.kizwiz.signwiz.Pages
             }
         }
 
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
+            try
+            {
+                await _viewModel.LoadAchievementCollectionAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error loading achievement collection: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -79,6 +87,18 @@ namespace com.kizwiz.signwiz.Pages
                 Debug.WriteLine($"Error capturing achievement card: {ex.Message}");
             }
             return null;
+        }
+
+        /// <summary>
+        /// Handles taps on achievement thumbnails in the bottom carousel.
+        /// </summary>
+        private void OnCollectionItemTapped(object? sender, TappedEventArgs e)
+        {
+            if (sender is VisualElement element &&
+                element.BindingContext is AchievementThumbnail thumbnail)
+            {
+                _viewModel.SelectAchievement(thumbnail);
+            }
         }
     }
 }
