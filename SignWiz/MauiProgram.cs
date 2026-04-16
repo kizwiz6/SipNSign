@@ -85,6 +85,7 @@ public static class MauiProgram
                 builder.Services.AddTransient<StoreViewModel>();
                 builder.Services.AddTransient<AchievementDetailsPage>();
                 builder.Services.AddTransient<AchievementDetailsViewModel>();
+                builder.Services.AddTransient<SignDetailsPage>();
                 Debug.WriteLine("Pages registered");
 
                 return builder.Build();

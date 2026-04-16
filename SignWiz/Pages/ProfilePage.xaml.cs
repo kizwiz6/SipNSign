@@ -51,6 +51,61 @@ public partial class ProfilePage : ContentPage
     }
 
     /// <summary>
+    /// Event handler for activity tap events. Navigates to SignDetailsPage if the activity has an associated sign.
+    /// </summary>
+    private async void OnActivityTapped(object? sender, TappedEventArgs e)
+    {
+        if (_isNavigating) return;
+
+        try
+        {
+            _isNavigating = true;
+
+            if (sender is VisualElement element &&
+                element.BindingContext is ActivityItem activityItem)
+            {
+                if (string.IsNullOrEmpty(activityItem.SignName))
+                {
+                    Debug.WriteLine("Activity has no associated sign - ignoring tap");
+                    return;
+                }
+
+                var services = Application.Current?.Handler?.MauiContext?.Services;
+                var signRepository = services?.GetService<SignRepository>();
+
+                if (signRepository == null)
+                {
+                    Debug.WriteLine("SignRepository not available");
+                    await DisplayAlert("Error", "Unable to load sign data.", "OK");
+                    return;
+                }
+
+                var sign = signRepository.GetSignByName(activityItem.SignName);
+
+                if (sign == null)
+                {
+                    Debug.WriteLine($"Sign not found for name: {activityItem.SignName}");
+                    await DisplayAlert("Error", "Sign data not found.", "OK");
+                    return;
+                }
+
+                var detailsPage = new SignDetailsPage(sign);
+                await Navigation.PushAsync(detailsPage);
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error in OnActivityTapped: {ex.Message}");
+            Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+            await DisplayAlert("Error", "Unable to display sign details.", "OK");
+        }
+        finally
+        {
+            _isNavigating = false;
+        }
+    }
+
+    /// <summary>
     /// Event handler for achievement tap events.
     /// </summary>
     /// <param name="sender">The source of the event.</param>

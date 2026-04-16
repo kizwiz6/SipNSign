@@ -23,13 +23,13 @@
 
             <!-- Statistics Grid -->
             <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="15" RowSpacing="15">
-                <!-- Signs Learned -->
+                <!-- Total Signs Correct -->
                 <Border Grid.Column="0" Grid.Row="0" 
                         BackgroundColor="{DynamicResource CardBackground}"
                         Opacity="0.95"
                         Padding="15">
                     <VerticalStackLayout>
-                        <Label Text="Signs Learned"
+                        <Label Text="Total Correct"
                                TextColor="{DynamicResource CardText}"
                                HorizontalOptions="Center"/>
                         <Label Text="{Binding SignsLearned}"
@@ -145,6 +145,11 @@
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="models:ActivityItem">
                                 <Grid Padding="10" ColumnDefinitions="Auto,*,Auto">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer 
+                                            Tapped="OnActivityTapped"
+                                            NumberOfTapsRequired="1"/>
+                                    </Grid.GestureRecognizers>
                                     <Image Source="{Binding Icon}"
                                            HeightRequest="40"
                                            WidthRequest="40"

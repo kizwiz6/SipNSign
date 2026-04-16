@@ -1397,7 +1397,8 @@ namespace com.kizwiz.signwiz.ViewModels
                     : $"Incorrectly signed '{CurrentSign?.CorrectAnswer}'",
                 IconName = isCorrect ? "quiz_correct_icon" : "quiz_incorrect_icon",
                 Timestamp = DateTime.Now,
-                Score = isCorrect ? "+1" : "N/A"
+                Score = isCorrect ? "+1" : "N/A",
+                SignName = CurrentSign?.CorrectAnswer
             });
 
             if (isCorrect)

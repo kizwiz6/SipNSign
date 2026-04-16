@@ -2,7 +2,7 @@
 {
     /// <summary>
     /// Records user activities and progress in the application
-    /// </summary
+    /// </summary>
     public class ActivityLog
     {
         #region Properties
@@ -30,6 +30,10 @@
         /// Type of activity performed
         /// </summary>
         public ActivityType Type { get; set; }
+        /// <summary>
+        /// Name of the sign associated with this activity (e.g., "Hello")
+        /// </summary>
+        public string? SignName { get; set; }
         #endregion
     }
 }

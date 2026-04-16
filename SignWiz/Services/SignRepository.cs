@@ -92,6 +92,19 @@ public class SignRepository
         // Return signs for the category
         return _signsByLanguage[language].Where(s => s.Category == category).ToList();
     }
+
+    /// <summary>
+    /// Returns a sign by its name (CorrectAnswer), searching all signs regardless of purchase status.
+    /// Used for reviewing signs the user has already practiced.
+    /// </summary>
+    public SignModel? GetSignByName(string signName, SignLanguage language = SignLanguage.BSL)
+    {
+        if (string.IsNullOrEmpty(signName) || !_signsByLanguage.ContainsKey(language))
+            return null;
+
+        return _signsByLanguage[language]
+            .FirstOrDefault(s => string.Equals(s.CorrectAnswer, signName, StringComparison.OrdinalIgnoreCase));
+    }
     #endregion
 
     #region Private Methods

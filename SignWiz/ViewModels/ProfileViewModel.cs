@@ -182,7 +182,8 @@ namespace com.kizwiz.signwiz.ViewModels
                     Icon = activity.IconName ?? icon,
                     Description = activity.Description ?? "Activity recorded",
                     TimeAgo = FormatTimeAgo(activity.Timestamp),
-                    Score = score ?? ""
+                    Score = score ?? "",
+                    SignName = activity.SignName
                 });
             }
 

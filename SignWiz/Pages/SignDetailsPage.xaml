@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="com.kizwiz.signwiz.Pages.SignDetailsPage"
+             Style="{StaticResource AppPageStyle}"
+             Title="Sign Review">
+
+    <Grid Padding="20">
+        <!-- Sign Video Card -->
+        <Border StrokeThickness="2"
+                Stroke="#FFD700"
+                StrokeShape="RoundRectangle 24"
+                Padding="24"
+                Margin="0,10"
+                VerticalOptions="Center"
+                Shadow="{Shadow Brush=Black, Offset='4,6', Radius=20, Opacity=0.5}">
+            <Border.Background>
+                <RadialGradientBrush Center="0.5,0.4" Radius="0.85">
+                    <GradientStop Color="#1a237e" Offset="0.0"/>
+                    <GradientStop Color="#0d1b5e" Offset="0.65"/>
+                    <GradientStop Color="#1a1a3e" Offset="1.0"/>
+                </RadialGradientBrush>
+            </Border.Background>
+
+            <VerticalStackLayout Spacing="16">
+                <!-- Sign Name -->
+                <Label x:Name="SignNameLabel"
+                       TextColor="White"
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"/>
+
+                <!-- Category -->
+                <Label x:Name="CategoryLabel"
+                       TextColor="#B0BEC5"
+                       FontSize="16"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"/>
+
+                <!-- Video Player -->
+                <Border StrokeShape="RoundRectangle 12"
+                        StrokeThickness="0"
+                        BackgroundColor="#0d1b5e"
+                        Padding="0"
+                        HeightRequest="300">
+                    <Grid>
+                        <toolkit:MediaElement x:Name="SignVideo"
+                                              ShouldLoopPlayback="True"
+                                              ShouldShowPlaybackControls="False"
+                                              Aspect="AspectFit"
+                                              HorizontalOptions="Fill"
+                                              VerticalOptions="Fill"
+                                              MediaOpened="OnMediaOpened"
+                                              MediaFailed="OnMediaFailed"/>
+                    </Grid>
+                </Border>
+
+                <!-- Replay Button -->
+                <Button x:Name="ReplayButton"
+                        Text="🔁  REPLAY"
+                        BackgroundColor="#FFD700"
+                        TextColor="#1a237e"
+                        FontAttributes="Bold"
+                        FontSize="16"
+                        CornerRadius="16"
+                        HeightRequest="48"
+                        Clicked="OnReplayClicked"/>
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</ContentPage>

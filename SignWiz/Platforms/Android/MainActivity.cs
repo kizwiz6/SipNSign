@@ -6,6 +6,9 @@ using System;
 
 namespace com.kizwiz.signwiz;
 
+/// <summary>
+/// Main Android activity for the application
+/// </summary>
 [Activity(Theme = "@style/Maui.SplashTheme",
           MainLauncher = true,
           ConfigurationChanges = ConfigChanges.ScreenSize |
@@ -14,9 +17,6 @@ namespace com.kizwiz.signwiz;
                                 ConfigChanges.ScreenLayout |
                                 ConfigChanges.SmallestScreenSize |
                                 ConfigChanges.Density)]
-/// <summary>
-/// Main Android activity for the application
-/// </summary>
 public class MainActivity : MauiAppCompatActivity
 {
     #region Lifecycle Methods
