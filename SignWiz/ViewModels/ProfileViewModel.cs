@@ -105,6 +105,18 @@ namespace com.kizwiz.signwiz.ViewModels
         public ObservableCollection<ActivityItem> RecentActivities { get; private set; }
         public ObservableCollection<AchievementItem> Achievements { get; private set; }
         public string AchievementsHeaderText => $"Achievements ({_userProgress.Achievements.Count(a => a.IsUnlocked)}/{_userProgress.Achievements.Count})";
+
+        public string ProfileTitle
+        {
+            get
+            {
+                var name = Preferences.Get(Constants.DEFAULT_PLAYER_NAME_KEY, Constants.DEFAULT_PLAYER_NAME);
+                if (string.IsNullOrWhiteSpace(name) || name == Constants.DEFAULT_PLAYER_NAME)
+                    return "Profile";
+                var possessive = name.EndsWith("s", StringComparison.OrdinalIgnoreCase) ? $"{name}'" : $"{name}'s";
+                return $"{possessive} Profile";
+            }
+        }
         #endregion
 
 
@@ -134,6 +146,7 @@ namespace com.kizwiz.signwiz.ViewModels
                 Achievements = new List<Achievement>(),
                 Activities = new List<ActivityLog>()
             };
+            OnPropertyChanged(nameof(ProfileTitle));
         }
         #endregion
 
@@ -144,6 +157,7 @@ namespace com.kizwiz.signwiz.ViewModels
         public async Task LoadProgressAsync()
         {
             _userProgress = await _progressService.GetUserProgressAsync();
+            OnPropertyChanged(nameof(ProfileTitle));
             UpdateUI();
         }
         #endregion
@@ -175,7 +189,7 @@ namespace com.kizwiz.signwiz.ViewModels
                     _ => "quiz_icon"
                 };
 
-                var score = activity.Type == ActivityType.Achievement ? "🏆" : activity.Score;
+                var score = activity.Type == ActivityType.Achievement ? "🏆" : "▶️";
 
                 RecentActivities.Add(new ActivityItem
                 {
@@ -191,7 +205,7 @@ namespace com.kizwiz.signwiz.ViewModels
 
             // Update Achievements - WITH MULTIPLAYER ICONS
             Achievements.Clear();
-            foreach (var achievement in _userProgress.Achievements.OrderBy(a => a.IsUnlocked))
+            foreach (var achievement in _userProgress.Achievements.OrderByDescending(a => a.IsUnlocked))
             {
                 var progress = (double)achievement.ProgressCurrent / achievement.ProgressRequired;
 

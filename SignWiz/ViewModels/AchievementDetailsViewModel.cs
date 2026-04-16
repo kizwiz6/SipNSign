@@ -83,7 +83,7 @@ namespace com.kizwiz.signwiz.ViewModels
                 AchievementsCountText = $"Achievements Unlocked: {unlockedCount}/{totalCount}";
 
                 AchievementCollection.Clear();
-                foreach (var ach in userProgress.Achievements)
+                foreach (var ach in userProgress.Achievements.OrderByDescending(a => a.IsUnlocked))
                 {
                     var icon = GetAchievementIcon(ach);
                     AchievementCollection.Add(new AchievementThumbnail(ach, icon, ach.Id == _achievement.Id));

@@ -7,7 +7,7 @@
              x:DataType="viewmodels:ProfileViewModel"
              x:Class="com.kizwiz.signwiz.Pages.ProfilePage"
              Style="{StaticResource AppPageStyle}"
-             Title="Profile">
+             Title="{Binding ProfileTitle}">
 
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -21,7 +21,18 @@
     <ScrollView>
         <VerticalStackLayout Spacing="20" Padding="20">
 
-            <!-- Statistics Grid -->
+            <!-- Statistics -->
+            <Border BackgroundColor="{DynamicResource CardBackground}"
+                    Opacity="0.95"
+                    Padding="15"
+                    StrokeShape="RoundRectangle 10"
+                    Shadow="{OnPlatform iOS={StaticResource DefaultShadow}}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Your Stats"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           TextColor="{DynamicResource CardText}"/>
+
             <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="15" RowSpacing="15">
                 <!-- Total Signs Correct -->
                 <Border Grid.Column="0" Grid.Row="0" 
@@ -33,7 +44,7 @@
                                TextColor="{DynamicResource CardText}"
                                HorizontalOptions="Center"/>
                         <Label Text="{Binding SignsLearned}"
-                               FontSize="32"
+                               FontSize="22"
                                FontAttributes="Bold"
                                TextColor="{DynamicResource CardText}"
                                HorizontalOptions="Center"/>
@@ -50,7 +61,7 @@
                                TextColor="{DynamicResource CardText}"
                                HorizontalOptions="Center"/>
                         <Label Text="{Binding CurrentStreak}"
-                               FontSize="32"
+                               FontSize="22"
                                FontAttributes="Bold"
                                TextColor="{DynamicResource CardText}"
                                HorizontalOptions="Center"/>
@@ -67,7 +78,7 @@
                                TextColor="{DynamicResource CardText}"
                                HorizontalOptions="Center"/>
                         <Label Text="{Binding AccuracyDisplay}"
-                               FontSize="32"
+                               FontSize="22"
                                FontAttributes="Bold"
                                TextColor="{DynamicResource CardText}"
                                HorizontalOptions="Center"/>
@@ -84,7 +95,7 @@
                                TextColor="{DynamicResource CardText}"
                                HorizontalOptions="Center"/>
                         <Label Text="{Binding PracticeTimeDisplay}"
-                               FontSize="32"
+                               FontSize="22"
                                FontAttributes="Bold"
                                TextColor="{DynamicResource CardText}"
                                HorizontalOptions="Center"/>
@@ -97,11 +108,11 @@
                         Opacity="0.95"
                         Padding="15">
                     <VerticalStackLayout>
-                        <Label Text="Guess Mode Signs"
+                        <Label Text="Guess Signs"
                                TextColor="{DynamicResource CardText}"
                                HorizontalOptions="Center"/>
                         <Label Text="{Binding GuessModeSigns}"
-                               FontSize="32"
+                               FontSize="22"
                                FontAttributes="Bold"
                                TextColor="{DynamicResource CardText}"
                                HorizontalOptions="Center"/>
@@ -114,17 +125,19 @@
                        Opacity="0.95"
                        Padding="15">
                     <VerticalStackLayout>
-                        <Label Text="Perform Mode Signs"
+                        <Label Text="Perform Signs"
                                TextColor="{DynamicResource CardText}"
                                HorizontalOptions="Center"/>
                         <Label Text="{Binding PerformModeSigns}"
-                               FontSize="32"
+                               FontSize="22"
                                FontAttributes="Bold"
                                TextColor="{DynamicResource CardText}"
                                HorizontalOptions="Center"/>
                     </VerticalStackLayout>
                 </Border>
             </Grid>
+                </VerticalStackLayout>
+            </Border>
 
             <!-- Recent Activity -->
             <Border BackgroundColor="{DynamicResource CardBackground}"
