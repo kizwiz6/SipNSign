@@ -269,14 +269,14 @@ namespace com.kizwiz.signwiz.ViewModels
                 if (success)
                 {
                     await UpdateButtonStates();
-                    await Application.Current.MainPage.DisplayAlert("Success",
+                    await Application.Current!.Windows[0].Page!.DisplayAlertAsync("Success",
                         $"Successfully purchased the {GetPackName(packId)} pack!", "OK");
                 }
             }
             catch (Exception ex)
             {
                 _logger.Error($"Error purchasing pack: {ex.Message}");
-                await Application.Current.MainPage.DisplayAlert("Error",
+                await Application.Current!.Windows[0].Page!.DisplayAlertAsync("Error",
                     "Failed to complete purchase. Please try again.", "OK");
             }
             finally
@@ -296,12 +296,12 @@ namespace com.kizwiz.signwiz.ViewModels
                 {
                     await LoadPurchasedPacks();
                     await UpdateButtonStates();
-                    await Application.Current.MainPage.DisplayAlert("Success",
+                    await Application.Current!.Windows[0].Page!.DisplayAlertAsync("Success",
                         "Your purchases have been restored!", "OK");
                 }
                 else
                 {
-                    await Application.Current.MainPage.DisplayAlert("Error",
+                    await Application.Current!.Windows[0].Page!.DisplayAlertAsync("Error",
                         "Failed to restore purchases. Please try again.", "OK");
                 }
             }

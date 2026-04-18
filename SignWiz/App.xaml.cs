@@ -174,9 +174,9 @@ namespace com.kizwiz.signwiz
                     {
                         try
                         {
-                            if (Current?.MainPage != null)
+                            if (Current?.Windows.Count > 0 && Current.Windows[0].Page != null)
                             {
-                                await Current.MainPage.DisplayAlert(
+                                await Current.Windows[0].Page.DisplayAlertAsync(
                                     "Critical Error",
                                     "The application encountered a critical error and needs to close. The error has been logged.",
                                     "OK");
@@ -275,9 +275,9 @@ namespace com.kizwiz.signwiz
                     {
                         try
                         {
-                            if (Current?.MainPage != null)
+                            if (Current?.Windows.Count > 0 && Current.Windows[0].Page != null)
                             {
-                                var result = await Current.MainPage.DisplayAlert(
+                                var result = await Current.Windows[0].Page.DisplayAlertAsync(
                                     "Previous Crash Detected",
                                     "The app crashed in the previous session. Would you like to view the crash report?",
                                     "View", "Dismiss");

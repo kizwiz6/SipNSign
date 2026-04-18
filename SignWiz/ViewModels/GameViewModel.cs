@@ -188,7 +188,7 @@ namespace com.kizwiz.signwiz.ViewModels
                         var unansweredPlayers = Players.Where(p => !p.HasAnswered).ToList();
                         var playerNames = string.Join(", ", unansweredPlayers.Select(p => p.Name));
 
-                        await Application.Current.MainPage.DisplayAlert(
+                        await Application.Current!.Windows[0].Page!.DisplayAlertAsync(
                             "Waiting for Players",
                             $"Still waiting for: {playerNames}\n\nMake sure all players have selected their answers (1-4).",
                             "OK");
@@ -788,9 +788,8 @@ namespace com.kizwiz.signwiz.ViewModels
                         IsFeedbackVisible = true;
 
                         // Auto-hide feedback after delay
-                        Device.StartTimer(TimeSpan.FromSeconds(2), () => {
+                        Application.Current!.Windows[0].Page!.Dispatcher.DispatchDelayed(TimeSpan.FromSeconds(2), () => {
                             IsFeedbackVisible = false;
-                            return false; // Don't repeat
                         });
                     });
                 });

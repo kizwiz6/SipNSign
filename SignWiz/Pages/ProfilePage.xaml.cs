@@ -46,7 +46,7 @@ public partial class ProfilePage : ContentPage
         catch (Exception ex)
         {
             Debug.WriteLine($"Error loading progress: {ex.Message}");
-            await DisplayAlert("Error", "Unable to load progress data", "OK");
+            await DisplayAlertAsync("Error", "Unable to load progress data", "OK");
         }
     }
 

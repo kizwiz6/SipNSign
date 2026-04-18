@@ -147,11 +147,11 @@ namespace com.kizwiz.signwiz.Pages
         {
             try
             {
-                await DisplayAlert("Success", "Settings saved successfully", "OK");
+                await DisplayAlertAsync("Success", "Settings saved successfully", "OK");
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", $"Failed to save settings: {ex.Message}", "OK");
+                await DisplayAlertAsync("Error", $"Failed to save settings: {ex.Message}", "OK");
             }
         }
 
@@ -353,7 +353,7 @@ namespace com.kizwiz.signwiz.Pages
 
         private async void OnClearHistoryClicked(object sender, EventArgs e)
         {
-            bool answer = await DisplayAlert("Clear History",
+            bool answer = await DisplayAlertAsync("Clear History",
                 "Are you sure you want to clear your learning history? This cannot be undone.",
                 "Yes", "No");
 
@@ -362,11 +362,11 @@ namespace com.kizwiz.signwiz.Pages
                 try
                 {
                     // Clear learning history implementation
-                    await DisplayAlert("Success", "Learning history cleared successfully", "OK");
+                    await DisplayAlertAsync("Success", "Learning history cleared successfully", "OK");
                 }
                 catch (Exception ex)
                 {
-                    await DisplayAlert("Error", $"Failed to clear history: {ex.Message}", "OK");
+                    await DisplayAlertAsync("Error", $"Failed to clear history: {ex.Message}", "OK");
                 }
             }
         }

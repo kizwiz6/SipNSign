@@ -47,7 +47,7 @@
                 if (!_productPrices.ContainsKey(productId))
                 {
                     _logger.Error($"Unknown product ID: {productId}");
-                    await Application.Current.MainPage.DisplayAlert(
+                    await Application.Current!.Windows[0].Page!.DisplayAlertAsync(
                         "Error",
                         "Product not found",
                         "OK");
@@ -55,7 +55,7 @@
                 }
 
                 // Here you would implement actual payment processing
-                bool purchaseConfirmed = await Application.Current.MainPage.DisplayAlert(
+                bool purchaseConfirmed = await Application.Current!.Windows[0].Page!.DisplayAlertAsync(
                     "Confirm Purchase",
                     $"Would you like to purchase this pack for £{_productPrices[productId]:F2}?",
                     "Yes", "No");

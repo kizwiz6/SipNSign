@@ -279,7 +279,7 @@ namespace com.kizwiz.signwiz.Pages
 
                 string names = unanswered.Any() ? string.Join(", ", unanswered) : "No one";
                 string plural = unanswered.Count > 1 ? "are" : "is";
-                await DisplayAlert("Waiting for Players", $"{names} {plural} still to answer.", "OK");
+                await DisplayAlertAsync("Waiting for Players", $"{names} {plural} still to answer.", "OK");
                 return;
             }
 
@@ -1066,9 +1066,8 @@ namespace com.kizwiz.signwiz.Pages
                         Debug.WriteLine($"HasAllPlayersAnswered: {_viewModel.HasAllPlayersAnswered}");
 
                         // Auto-hide feedback after 2 seconds
-                        Device.StartTimer(TimeSpan.FromSeconds(2), () => {
+                        Dispatcher.DispatchDelayed(TimeSpan.FromSeconds(2), () => {
                             _viewModel.IsFeedbackVisible = false;
-                            return false; // Don't repeat
                         });
                     }
                     else
@@ -1127,9 +1126,8 @@ namespace com.kizwiz.signwiz.Pages
                         Debug.WriteLine($"HasAllPlayersAnswered: {_viewModel.HasAllPlayersAnswered}");
 
                         // Auto-hide feedback after 2 seconds
-                        Device.StartTimer(TimeSpan.FromSeconds(2), () => {
+                        Dispatcher.DispatchDelayed(TimeSpan.FromSeconds(2), () => {
                             _viewModel.IsFeedbackVisible = false;
-                            return false; // Don't repeat
                         });
                     }
                     else
@@ -1169,7 +1167,7 @@ namespace com.kizwiz.signwiz.Pages
                 var unansweredPlayers = ViewModel.Players.Where(p => p.SelectedAnswer == 0).ToList();
                 var playerNames = string.Join(", ", unansweredPlayers.Select(p => p.Name));
 
-                await Application.Current.MainPage.DisplayAlert(
+                await DisplayAlertAsync(
                     "Waiting for Players",
                     $"Still waiting for: {playerNames}\n\nMake sure all players have selected their answers (1-4).",
                     "OK");
@@ -1190,7 +1188,7 @@ namespace com.kizwiz.signwiz.Pages
             }
 
             // Show feedback and move to next question
-            ViewModel.ShowFeedbackAndContinue(allPlayersCorrect);
+            await ViewModel.ShowFeedbackAndContinue(allPlayersCorrect);
         }
 
         /// <summary>
@@ -1237,9 +1235,8 @@ namespace com.kizwiz.signwiz.Pages
                             Debug.WriteLine($"HasAllPlayersAnswered: {_viewModel.HasAllPlayersAnswered}");
 
                             // Auto-hide feedback after 2 seconds
-                            Device.StartTimer(TimeSpan.FromSeconds(2), () => {
+                            Dispatcher.DispatchDelayed(TimeSpan.FromSeconds(2), () => {
                                 _viewModel.IsFeedbackVisible = false;
-                                return false; // Don't repeat
                             });
                         }
                         else

@@ -42,16 +42,19 @@
                 <!-- Video Player -->
                 <Border StrokeShape="RoundRectangle 12"
                         StrokeThickness="0"
-                        BackgroundColor="#0d1b5e"
+                        Background="Transparent"
                         Padding="0"
                         HeightRequest="300">
                     <Grid>
                         <toolkit:MediaElement x:Name="SignVideo"
+                                              ShouldAutoPlay="True"
                                               ShouldLoopPlayback="True"
                                               ShouldShowPlaybackControls="False"
+                                              ShouldMute="True"
+                                              Volume="0"
                                               Aspect="AspectFit"
-                                              HorizontalOptions="Fill"
-                                              VerticalOptions="Fill"
+                                              HorizontalOptions="Center"
+                                              VerticalOptions="Center"
                                               MediaOpened="OnMediaOpened"
                                               MediaFailed="OnMediaFailed"/>
                     </Grid>

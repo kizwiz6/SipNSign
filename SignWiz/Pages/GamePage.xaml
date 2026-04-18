@@ -262,7 +262,7 @@
                 </Grid>
 
                 <!-- Row 2: Multiplayer area -->
-                <Grid Grid.Row="2" IsVisible="{Binding IsMultiplayer}" RowDefinitions="Auto,*,Auto" VerticalOptions="FillAndExpand">
+                <Grid Grid.Row="2" IsVisible="{Binding IsMultiplayer}" RowDefinitions="Auto,*,Auto" VerticalOptions="Fill">
                     <!-- Legend -->
                     <Grid Grid.Row="0" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" RowSpacing="8" ColumnSpacing="8" Margin="0,0,0,6">
                         <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource AnswerButton}" IsEnabled="False" Text="{Binding CurrentSign.Choices[0], StringFormat='1. {0}'}"/>
@@ -276,7 +276,7 @@
                            ItemsSource="{Binding Players}"
                            ItemsLayout="VerticalList"
                            SelectionMode="None"
-                           VerticalOptions="FillAndExpand"
+                           VerticalOptions="Fill"
                            Margin="0,0,0,4">
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="models:Player">

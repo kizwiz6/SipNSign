@@ -6,6 +6,7 @@
              x:Class="com.kizwiz.signwiz.Pages.PlayerSelectionPage"
              x:DataType="viewmodels:PlayerSelectionViewModel"
              Style="{StaticResource AppPageStyle}"
+             x:Name="ThisPage"
              Title="Choose Game Mode">
 
     <Grid>
@@ -17,13 +18,15 @@
                    TextColor="White"
                    HorizontalOptions="Center"/>
 
-            <Button Text="Single Player" 
-                    Style="{StaticResource PrimaryButton}"
-                    Clicked="OnSinglePlayerClicked"/>
+            <Button x:Name="SinglePlayerButton"
+                     Text="Single Player" 
+                     Style="{StaticResource PrimaryButton}"
+                     Clicked="OnSinglePlayerClicked"/>
 
-            <Button Text="Multiplayer" 
-                    Style="{StaticResource PrimaryButton}"
-                    Clicked="OnMultiplayerClicked"/>
+             <Button x:Name="MultiplayerButton"
+                     Text="Multiplayer" 
+                     Style="{StaticResource SecondaryButton}"
+                     Clicked="OnMultiplayerClicked"/>
         </VerticalStackLayout>
 
         <VerticalStackLayout x:Name="PlayerConfigLayout" 

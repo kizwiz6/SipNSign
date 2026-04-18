@@ -86,7 +86,7 @@ namespace com.kizwiz.signwiz.Pages
             catch (Exception ex)
             {
                 _logger?.Error($"Error navigating to Guess mode: {ex.Message}");
-                await DisplayAlert("Error", "Failed to start Guess mode", "OK");
+                await DisplayAlertAsync("Error", "Failed to start Guess mode", "OK");
             }
             finally
             {

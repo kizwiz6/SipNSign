@@ -28,12 +28,8 @@
                     StrokeShape="RoundRectangle 10"
                     Shadow="{OnPlatform iOS={StaticResource DefaultShadow}}">
                 <VerticalStackLayout Spacing="10">
-                    <Label Text="Your Stats"
-                           FontSize="20"
-                           FontAttributes="Bold"
-                           TextColor="{DynamicResource CardText}"/>
 
-            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="15" RowSpacing="15">
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="15" RowSpacing="15">
                 <!-- Total Signs Correct -->
                 <Border Grid.Column="0" Grid.Row="0" 
                         BackgroundColor="{DynamicResource CardBackground}"

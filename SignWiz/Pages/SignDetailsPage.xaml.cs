@@ -32,8 +32,6 @@ public partial class SignDetailsPage : ContentPage
 
             SignNameLabel.Text = _sign.CorrectAnswer;
             CategoryLabel.Text = _sign.Category.ToString();
-
-            Loaded += OnPageLoaded;
         }
         catch (Exception ex)
         {
@@ -43,10 +41,16 @@ public partial class SignDetailsPage : ContentPage
         }
     }
 
-    private async void OnPageLoaded(object? sender, EventArgs e)
+    protected override void OnAppearing()
     {
-        Debug.WriteLine("SignDetailsPage: Loaded event fired, loading video...");
-        await LoadVideoAsync();
+        base.OnAppearing();
+
+        // Delay video load to ensure Android SurfaceView is fully created
+        Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(300), async () =>
+        {
+            Debug.WriteLine("SignDetailsPage: Dispatched, loading video...");
+            await LoadVideoAsync();
+        });
     }
 
     protected override void OnDisappearing()
@@ -70,31 +74,51 @@ public partial class SignDetailsPage : ContentPage
             var videoFileName = Path.GetFileName(_sign.VideoPath);
             Debug.WriteLine($"=== SignDetailsPage LoadVideo: {videoFileName} ===");
 
+            // Wait for the MediaElement handler to be ready (same pattern as GamePage)
+            int retries = 0;
+            while (SignVideo.Handler == null && retries < 10)
+            {
+                Debug.WriteLine($"Waiting for SignVideo handler... (attempt {retries + 1})");
+                await Task.Delay(100);
+                retries++;
+            }
+
+            if (SignVideo.Handler == null)
+            {
+                Debug.WriteLine("ERROR: SignVideo handler never initialized!");
+                return;
+            }
+
+            Debug.WriteLine($"SignVideo handler ready after {retries} retries");
+
             var videoPath = await _videoService.GetVideoPath(videoFileName);
             Debug.WriteLine($"Video path resolved: {videoPath}");
 
             var source = MediaSource.FromUri(new Uri(videoPath));
 
-            await MainThread.InvokeOnMainThreadAsync(() =>
+            // Already on main thread via Dispatcher, set source directly
+            try
             {
-                try
-                {
-                    SignVideo.Stop();
-                    SignVideo.Source = source;
-                    _videoSourceSet = true;
-                    SignVideo.Play();
-                    Debug.WriteLine($"Video source set and Play() called, State: {SignVideo.CurrentState}");
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Error setting video source: {ex.Message}");
-                }
-            });
+                // Set flag BEFORE assigning source, because OnMediaOpened
+                // can fire synchronously during the Source setter
+                _videoSourceSet = true;
+
+                SignVideo.Stop();
+                SignVideo.Source = null;
+                SignVideo.Source = source;
+                SignVideo.IsVisible = true;
+                Debug.WriteLine($"Video source set, State: {SignVideo.CurrentState}");
+                // ShouldAutoPlay=True handles playback start; OnMediaOpened is the safety net
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error setting video source: {ex.Message}");
+            }
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"Error loading video: {ex.Message}");
-            await DisplayAlert("Error", "Unable to load the sign video.", "OK");
+            await DisplayAlertAsync("Error", "Unable to load the sign video.", "OK");
         }
     }
 

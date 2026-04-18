@@ -39,8 +39,9 @@ public partial class PlayerSelectionPage : ContentPage
         }
         _isInitialized = true;
 
-        // Ensure title matches the current UI state
-        this.Title = "Choose Game Mode";
+        // Set title to reflect the selected game mode
+        string modeName = _selectedMode == GameMode.Guess ? "Guess Mode" : "Perform Mode";
+        this.Title = modeName;
     }
 
     private void LoadSavedSettings()
@@ -64,7 +65,8 @@ public partial class PlayerSelectionPage : ContentPage
 
         LoadSavedSettings();
 
-        this.Title = "Choose Game Mode";
+        string resetModeName = _selectedMode == GameMode.Guess ? "Guess Mode" : "Perform Mode";
+        this.Title = resetModeName;
     }
 
     // FIXED: No more popup, just use the mode from MainMenu
@@ -95,7 +97,7 @@ public partial class PlayerSelectionPage : ContentPage
 
         if (!isMultiplayerPurchased)
         {
-            await DisplayAlert("Multiplayer Locked",
+            await DisplayAlertAsync("Multiplayer Locked",
                 "Multiplayer mode is a premium feature. Please visit the Store to unlock it!", "OK");
             return;
         }
@@ -114,7 +116,7 @@ public partial class PlayerSelectionPage : ContentPage
         var validationResult = ValidatePlayerNames();
         if (!validationResult.IsValid)
         {
-            await DisplayAlert("Invalid Names", validationResult.ErrorMessage, "OK");
+            await DisplayAlertAsync("Invalid Names", validationResult.ErrorMessage, "OK");
             return;
         }
 
@@ -122,7 +124,7 @@ public partial class PlayerSelectionPage : ContentPage
 
         if (allPlayers.Count < 2)
         {
-            await DisplayAlert("Not enough players", "Please add at least one additional player", "OK");
+            await DisplayAlertAsync("Not enough players", "Please add at least one additional player", "OK");
             return;
         }
 
@@ -246,7 +248,7 @@ public partial class PlayerSelectionPage : ContentPage
         catch (Exception ex)
         {
             Debug.WriteLine($"Error starting game: {ex.Message}");
-            await DisplayAlert("Error", "Failed to start game", "OK");
+            await DisplayAlertAsync("Error", "Failed to start game", "OK");
         }
     }
 

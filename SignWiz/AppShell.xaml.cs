@@ -116,7 +116,7 @@ public partial class AppShell : Shell
         catch (Exception ex)
         {
             Debug.WriteLine($"Navigation error to {route}: {ex.Message}");
-            await DisplayAlert("Navigation Error", "Unable to navigate to the requested page. Please try again.", "OK");
+            await DisplayAlertAsync("Navigation Error", "Unable to navigate to the requested page. Please try again.", "OK");
         }
     }
 }

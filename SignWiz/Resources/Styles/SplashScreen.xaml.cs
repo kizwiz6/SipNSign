@@ -18,7 +18,7 @@ public partial class SplashScreen : ContentPage
 
 		MainThread.BeginInvokeOnMainThread(() =>
 		{
-			Application.Current!.MainPage = _serviceProvider.GetRequiredService<AppShell>();
+			Application.Current!.Windows[0].Page = _serviceProvider.GetRequiredService<AppShell>();
 		});
 	}
 }
