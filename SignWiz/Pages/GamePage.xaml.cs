@@ -347,6 +347,9 @@ namespace com.kizwiz.signwiz.Pages
                 Debug.WriteLine($"IsMultiplayer: {ViewModel.IsMultiplayer}");
                 Debug.WriteLine($"CurrentSign: {ViewModel.CurrentSign?.CorrectAnswer ?? "null"}");
 
+                // Initialize answer button colors from theme
+                InitializeAnswerButtonColors();
+
                 // Only initialize MediaElements for current mode
                 if (ViewModel.IsGuessMode)
                 {
@@ -705,6 +708,9 @@ namespace com.kizwiz.signwiz.Pages
                     {
                         Debug.WriteLine($"CurrentSign changed to: {_viewModel.CurrentSign?.CorrectAnswer}");
 
+                        // Reset button colors when new sign loads
+                        InitializeAnswerButtonColors();
+
                         // Initialize elements if not done yet
                         if (_viewModel.IsGuessMode && _viewModel.IsMultiplayer && _multiplayerGuessVideoElement == null)
                         {
@@ -975,6 +981,60 @@ namespace com.kizwiz.signwiz.Pages
         }
 
         #region Game Controls
+        /// <summary>
+        /// Initializes answer button colors from the current theme
+        /// </summary>
+        private void InitializeAnswerButtonColors()
+        {
+            try
+            {
+                Color themeColor = GetThemeColor();
+                Debug.WriteLine($"InitializeAnswerButtonColors: Setting buttons to theme color {themeColor}");
+
+                var button1 = this.FindByName<Button>("AnswerButton1");
+                var button2 = this.FindByName<Button>("AnswerButton2");
+                var button3 = this.FindByName<Button>("AnswerButton3");
+                var button4 = this.FindByName<Button>("AnswerButton4");
+
+                // Use Background property instead of BackgroundColor to override the implicit style
+                var themeBrush = new SolidColorBrush(themeColor);
+
+                if (button1 != null) button1.Background = themeBrush;
+                if (button2 != null) button2.Background = themeBrush;
+                if (button3 != null) button3.Background = themeBrush;
+                if (button4 != null) button4.Background = themeBrush;
+
+                Debug.WriteLine($"Answer buttons initialized: B1={button1 != null}, B2={button2 != null}, B3={button3 != null}, B4={button4 != null}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in InitializeAnswerButtonColors: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Gets the current theme's Primary color
+        /// </summary>
+        private Color GetThemeColor()
+        {
+            try
+            {
+                if (Application.Current?.Resources != null &&
+                    Application.Current.Resources.TryGetValue("Primary", out var colorValue) &&
+                    colorValue is Color themeColor)
+                {
+                    return themeColor;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error getting theme color: {ex.Message}");
+            }
+
+            // Fallback to a default blue color
+            return Color.FromArgb("#007BFF");
+        }
+
         /// <summary>
         /// Processes user answer selection
         /// </summary>
@@ -1289,159 +1349,334 @@ namespace com.kizwiz.signwiz.Pages
 
         #region Visual Feedback Animations
         /// <summary>
-        /// Shows stylish visual feedback for correct or incorrect answers using border animations and badges
+        /// Shows button flash feedback, border glow, and correct answer badge for Guess mode
         /// </summary>
-        /// <param name="isCorrect">True for correct answer (green glow), false for incorrect (red shake)</param>
-        public async Task ShowStylishFeedback(bool isCorrect)
+        /// <param name="selectedAnswer">The answer the user selected</param>
+        /// <param name="isCorrect">True if the answer was correct</param>
+        public async Task ShowButtonFeedback(string selectedAnswer, bool isCorrect)
         {
             try
             {
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    // Determine which border and badge to use based on mode
+                    // Find the video border for glow effect
                     Border? videoBorder = null;
-                    Border? feedbackBadge = null;
-                    Label? feedbackBadgeText = null;
-
                     if (_viewModel.IsGuessMode)
                     {
                         videoBorder = this.FindByName<Border>("VideoGuessBorder");
-                        feedbackBadge = this.FindByName<Border>("FeedbackBadge");
-                        feedbackBadgeText = this.FindByName<Label>("FeedbackBadgeText");
                     }
                     else if (_viewModel.IsPerformMode)
                     {
                         if (_viewModel.IsMultiplayer)
                         {
                             videoBorder = this.FindByName<Border>("VideoPerformMultiplayerBorder");
-                            feedbackBadge = this.FindByName<Border>("FeedbackBadgePerformMultiplayer");
-                            feedbackBadgeText = this.FindByName<Label>("FeedbackBadgeTextPerformMultiplayer");
                         }
                         else
                         {
                             videoBorder = this.FindByName<Border>("VideoPerformBorder");
-                            feedbackBadge = this.FindByName<Border>("FeedbackBadgePerform");
-                            feedbackBadgeText = this.FindByName<Label>("FeedbackBadgeTextPerform");
                         }
                     }
 
-                    if (videoBorder == null || feedbackBadge == null || feedbackBadgeText == null)
+                    // Find the badge and label
+                    var correctAnswerBadge = this.FindByName<Border>("CorrectAnswerBadge");
+                    var correctAnswerText = this.FindByName<Label>("CorrectAnswerText");
+
+                    // Find answer buttons by name (only in single-player Guess mode)
+                    Button? selectedButton = null;
+                    Button? correctButton = null;
+
+                    Debug.WriteLine($"=== ShowButtonFeedback ===");
+                    Debug.WriteLine($"Selected Answer: {selectedAnswer}");
+                    Debug.WriteLine($"Correct Answer: {_viewModel.CurrentSign?.CorrectAnswer}");
+                    Debug.WriteLine($"Is Correct: {isCorrect}");
+
+                    // Try to find buttons by name first (more reliable)
+                    if (_viewModel.IsGuessMode && !_viewModel.IsMultiplayer)
                     {
-                        Debug.WriteLine("Could not find video border or feedback badge elements");
-                        return;
+                        var button1 = this.FindByName<Button>("AnswerButton1");
+                        var button2 = this.FindByName<Button>("AnswerButton2");
+                        var button3 = this.FindByName<Button>("AnswerButton3");
+                        var button4 = this.FindByName<Button>("AnswerButton4");
+
+                        Debug.WriteLine($"Named buttons found: Button1={button1 != null}, Button2={button2 != null}, Button3={button3 != null}, Button4={button4 != null}");
+
+                        // Check each button to find selected and correct
+                        foreach (var button in new[] { button1, button2, button3, button4 })
+                        {
+                            if (button == null) continue;
+
+                            Debug.WriteLine($"  Checking button: Text='{button.Text}', BackgroundColor={button.BackgroundColor}");
+
+                            if (button.Text == selectedAnswer)
+                            {
+                                selectedButton = button;
+                                Debug.WriteLine($"  ✓ Found SELECTED button: '{button.Text}'");
+                            }
+                            if (button.Text == _viewModel.CurrentSign?.CorrectAnswer)
+                            {
+                                correctButton = button;
+                                Debug.WriteLine($"  ✓ Found CORRECT button: '{button.Text}'");
+                            }
+                        }
                     }
 
-                    // Set badge text and color
+                    Debug.WriteLine($"Selected button found: {selectedButton != null}");
+                    Debug.WriteLine($"Correct button found: {correctButton != null}");
+
                     if (isCorrect)
                     {
-                        feedbackBadgeText.Text = "✨ MAGICAL!";
-                        feedbackBadge.BackgroundColor = Color.FromArgb("#28a745"); // Green
-                        await AnimateCorrectFeedback(videoBorder, feedbackBadge);
+                        // Correct answer: Flash button green and glow border green
+                        var tasks = new List<Task>();
+
+                        if (selectedButton != null)
+                        {
+                            Debug.WriteLine($"Starting green flash for button: '{selectedButton.Text}'");
+                            tasks.Add(FlashButtonGreen(selectedButton));
+                        }
+                        else
+                        {
+                            Debug.WriteLine("WARNING: Selected button not found for green flash!");
+                        }
+
+                        if (videoBorder != null)
+                        {
+                            tasks.Add(AnimateGreenGlow(videoBorder));
+                        }
+
+                        await Task.WhenAll(tasks);
                     }
                     else
                     {
-                        feedbackBadgeText.Text = "🔮 TRY AGAIN";
-                        feedbackBadge.BackgroundColor = Color.FromArgb("#dc3545"); // Red
-                        await AnimateIncorrectFeedback(videoBorder, feedbackBadge);
-                    }
+                        // Incorrect answer: Flash selected button red, correct button green, and glow border red
+                        var tasks = new List<Task>();
 
-                    // Hide badge after delay
-                    await Task.Delay(1500);
-                    feedbackBadge.IsVisible = false;
+                        if (selectedButton != null)
+                        {
+                            Debug.WriteLine($"Starting red flash for button: '{selectedButton.Text}'");
+                            tasks.Add(FlashButtonRed(selectedButton));
+                        }
+                        else
+                        {
+                            Debug.WriteLine("WARNING: Selected button not found for red flash!");
+                        }
+
+                        if (correctButton != null)
+                        {
+                            Debug.WriteLine($"Starting green flash for correct button: '{correctButton.Text}'");
+                            tasks.Add(FlashButtonGreen(correctButton));
+                        }
+                        else
+                        {
+                            Debug.WriteLine("WARNING: Correct button not found for green flash!");
+                        }
+
+                        if (videoBorder != null)
+                        {
+                            tasks.Add(AnimateRedGlow(videoBorder));
+                        }
+
+                        await Task.WhenAll(tasks);
+
+                        // Show the correct answer badge
+                        if (correctAnswerBadge != null && correctAnswerText != null)
+                        {
+                            correctAnswerText.Text = $"✓ {_viewModel.CurrentSign?.CorrectAnswer}";
+                            correctAnswerBadge.Opacity = 0;
+                            correctAnswerBadge.IsVisible = true;
+                            await correctAnswerBadge.FadeTo(1, 300);
+                            await Task.Delay(1200); // Keep visible for 1.2 seconds
+                            await correctAnswerBadge.FadeTo(0, 300);
+                            correctAnswerBadge.IsVisible = false;
+                        }
+                    }
                 });
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in ShowStylishFeedback: {ex.Message}");
+                Debug.WriteLine($"Error in ShowButtonFeedback: {ex.Message}");
+                Debug.WriteLine($"StackTrace: {ex.StackTrace}");
             }
         }
 
         /// <summary>
-        /// Animates correct answer feedback with emerald green pulsing glow
+        /// Flash a button green for 1 second with gradient magic theme
         /// </summary>
-        private async Task AnimateCorrectFeedback(Border videoBorder, Border feedbackBadge)
+        private async Task FlashButtonGreen(Button button)
         {
             try
             {
-                // Show the badge with fade-in
-                feedbackBadge.Opacity = 0;
-                feedbackBadge.IsVisible = true;
-                await feedbackBadge.FadeTo(1, 250);
+                // Create a solid green color
+                var greenColor = Color.FromArgb("#28a745");
+                var greenBrush = new SolidColorBrush(greenColor);
 
-                // Animate the border with pulsing green glow
+                Debug.WriteLine($"FlashButtonGreen START: Button '{button.Text}', Current BG: {button.Background}");
+
+                // Change to green - use Background property to override implicit style
+                button.Background = greenBrush;
+                button.TextColor = Colors.White;
+
+                Debug.WriteLine($"FlashButtonGreen SET: Button '{button.Text}' changed to GREEN");
+
+                await Task.Delay(1500);
+
+                // Restore to theme color
+                Color themeColor = GetThemeColor();
+                var themeBrush = new SolidColorBrush(themeColor);
+                button.Background = themeBrush;
+                button.TextColor = Colors.White;
+
+                Debug.WriteLine($"FlashButtonGreen RESTORE: Button '{button.Text}' restored to theme color");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in FlashButtonGreen: {ex.Message}");
+                Debug.WriteLine($"StackTrace: {ex.StackTrace}");
+            }
+        }
+
+        /// <summary>
+        /// Flash a button red for 1 second with magic theme
+        /// </summary>
+        private async Task FlashButtonRed(Button button)
+        {
+            try
+            {
+                // Create a solid red color
+                var redColor = Color.FromArgb("#dc3545");
+                var redBrush = new SolidColorBrush(redColor);
+
+                Debug.WriteLine($"FlashButtonRed START: Button '{button.Text}', Current BG: {button.Background}");
+
+                // Change to red - use Background property to override implicit style
+                button.Background = redBrush;
+                button.TextColor = Colors.White;
+
+                Debug.WriteLine($"FlashButtonRed SET: Button '{button.Text}' changed to RED");
+
+                await Task.Delay(1500);
+
+                // Restore to theme color
+                Color themeColor = GetThemeColor();
+                var themeBrush = new SolidColorBrush(themeColor);
+                button.Background = themeBrush;
+                button.TextColor = Colors.White;
+
+                Debug.WriteLine($"FlashButtonRed RESTORE: Button '{button.Text}' restored to theme color");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in FlashButtonRed: {ex.Message}");
+                Debug.WriteLine($"StackTrace: {ex.StackTrace}");
+            }
+        }
+
+        /// <summary>
+        /// Animates green glow effect on video border for correct answers
+        /// </summary>
+        private async Task AnimateGreenGlow(Border videoBorder)
+        {
+            try
+            {
                 var greenColor = Color.FromArgb("#28a745");
 
-                // Pulse 1: Grow
+                // Pulse: Grow glow
                 videoBorder.Stroke = greenColor;
-                var animation = new Animation(v => videoBorder.StrokeThickness = v, 0, 6);
-                animation.Commit(videoBorder, "GlowPulse1", 16, 500, Easing.CubicOut);
+                var animation = new Animation(v => videoBorder.StrokeThickness = v, 0, 8);
+                animation.Commit(videoBorder, "GreenGlow", 16, 500, Easing.CubicOut);
                 await Task.Delay(500);
 
-                // Pulse 2: Hold and fade
-                var animation2 = new Animation(v => videoBorder.StrokeThickness = v, 6, 4);
-                animation2.Commit(videoBorder, "GlowPulse2", 16, 250, Easing.Linear);
-                await Task.Delay(250);
-
-                // Fade out border
-                var animation3 = new Animation(v => videoBorder.StrokeThickness = v, 4, 0);
-                animation3.Commit(videoBorder, "GlowFadeOut", 16, 500, Easing.CubicIn);
-
-                // Fade border color to transparent
+                // Hold
                 await Task.Delay(500);
+
+                // Fade out
+                var animation2 = new Animation(v => videoBorder.StrokeThickness = v, 8, 0);
+                animation2.Commit(videoBorder, "GreenFadeOut", 16, 500, Easing.CubicIn);
+                await Task.Delay(500);
+
+                // Reset
                 videoBorder.Stroke = Colors.Transparent;
+                videoBorder.StrokeThickness = 0;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in AnimateCorrectFeedback: {ex.Message}");
+                Debug.WriteLine($"Error in AnimateGreenGlow: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Animates incorrect answer feedback with crimson red flash and shake
+        /// Animates red glow effect on video border for incorrect answers
         /// </summary>
-        private async Task AnimateIncorrectFeedback(Border videoBorder, Border feedbackBadge)
+        private async Task AnimateRedGlow(Border videoBorder)
         {
             try
             {
-                // Show the badge with fade-in
-                feedbackBadge.Opacity = 0;
-                feedbackBadge.IsVisible = true;
-                await feedbackBadge.FadeTo(1, 250);
-
-                // Flash red border
                 var redColor = Color.FromArgb("#dc3545");
+
+                // Flash red
                 videoBorder.Stroke = redColor;
-                videoBorder.StrokeThickness = 6;
-
-                // Shake animation - rapid left-right movement
-                await Task.WhenAll(
-                    videoBorder.TranslateTo(10, 0, 50),
-                    Task.Run(async () => 
-                    {
-                        await Task.Delay(50);
-                        await videoBorder.TranslateTo(-10, 0, 50);
-                        await Task.Delay(50);
-                        await videoBorder.TranslateTo(8, 0, 50);
-                        await Task.Delay(50);
-                        await videoBorder.TranslateTo(-8, 0, 50);
-                        await Task.Delay(50);
-                        await videoBorder.TranslateTo(5, 0, 50);
-                        await Task.Delay(50);
-                        await videoBorder.TranslateTo(0, 0, 50);
-                    })
-                );
-
-                // Fade out border
-                var animation = new Animation(v => videoBorder.StrokeThickness = v, 6, 0);
-                animation.Commit(videoBorder, "RedFlashFadeOut", 16, 500, Easing.CubicIn);
-
+                videoBorder.StrokeThickness = 8;
                 await Task.Delay(500);
+
+                // Pulse
+                var animation = new Animation(v => videoBorder.StrokeThickness = v, 8, 6);
+                animation.Commit(videoBorder, "RedPulse", 16, 250, Easing.Linear);
+                await Task.Delay(250);
+
+                var animation2 = new Animation(v => videoBorder.StrokeThickness = v, 6, 8);
+                animation2.Commit(videoBorder, "RedPulse2", 16, 250, Easing.Linear);
+                await Task.Delay(250);
+
+                // Fade out
+                var animation3 = new Animation(v => videoBorder.StrokeThickness = v, 8, 0);
+                animation3.Commit(videoBorder, "RedFadeOut", 16, 500, Easing.CubicIn);
+                await Task.Delay(500);
+
+                // Reset
                 videoBorder.Stroke = Colors.Transparent;
+                videoBorder.StrokeThickness = 0;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in AnimateIncorrectFeedback: {ex.Message}");
+                Debug.WriteLine($"Error in AnimateRedGlow: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// Recursively finds all Button elements in the visual tree
+        /// </summary>
+        private List<Button> FindAllButtons(Element element)
+        {
+            var buttons = new List<Button>();
+
+            if (element is Button button)
+            {
+                buttons.Add(button);
+            }
+
+            if (element is Layout layout)
+            {
+                foreach (var child in layout.Children)
+                {
+                    if (child is Element childElement)
+                    {
+                        buttons.AddRange(FindAllButtons(childElement));
+                    }
+                }
+            }
+            else if (element is ContentView contentView && contentView.Content is Element content)
+            {
+                buttons.AddRange(FindAllButtons(content));
+            }
+            else if (element is ScrollView scrollView && scrollView.Content is Element scrollContent)
+            {
+                buttons.AddRange(FindAllButtons(scrollContent));
+            }
+            else if (element is Border border && border.Content is Element borderContent)
+            {
+                buttons.AddRange(FindAllButtons(borderContent));
+            }
+
+            return buttons;
         }
         #endregion
     }

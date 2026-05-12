@@ -202,21 +202,22 @@
             ShouldMute="True"
             IsVisible="{Binding IsMultiplayer}"/>
 
-                        <!-- Feedback Badge -->
-                        <Border x:Name="FeedbackBadge"
+                        <!-- Correct Answer Badge - Shows at bottom of video -->
+                        <Border x:Name="CorrectAnswerBadge"
                                 IsVisible="False"
-                                Padding="15,8"
-                                Margin="0,10,0,0"
+                                Padding="20,10"
+                                Margin="0,0,0,10"
                                 StrokeShape="RoundRectangle 15"
+                                BackgroundColor="#28a745"
                                 HorizontalOptions="Center"
-                                VerticalOptions="Start"
+                                VerticalOptions="End"
                                 ZIndex="10">
                             <Border.Shadow>
                                 <Shadow Brush="Black" Offset="0,2" Radius="8" Opacity="0.4"/>
                             </Border.Shadow>
-                            <Label x:Name="FeedbackBadgeText"
+                            <Label x:Name="CorrectAnswerText"
                                    TextColor="White"
-                                   FontSize="18"
+                                   FontSize="20"
                                    FontAttributes="Bold"
                                    HorizontalOptions="Center"/>
                         </Border>
@@ -224,41 +225,62 @@
                 </Border>
 
                 <!-- Row 1: Single-player answers (2 per row) - slightly less vertical gap -->
-                <Grid Grid.Row="1"
+                <Grid x:Name="AnswerButtonsGrid"
+                      Grid.Row="1"
       IsVisible="{Binding IsMultiplayer, Converter={StaticResource InverseBoolConverter}}"
       ColumnDefinitions="*,*"
       RowDefinitions="Auto,Auto"
       ColumnSpacing="8"
       RowSpacing="6"
       Margin="0,6,0,0">
-                    <Button Grid.Row="0" Grid.Column="0"
-                    Style="{StaticResource AnswerButton}"
+                    <Button x:Name="AnswerButton1"
+                    Grid.Row="0" Grid.Column="0"
+                    TextColor="White"
+                    FontSize="15"
+                    CornerRadius="8"
+                    Padding="6"
+                    Margin="4"
+                    WidthRequest="140"
+                    HorizontalOptions="Fill"
                     Text="{Binding CurrentSign.Choices[0]}"
                     Command="{Binding AnswerCommand}"
-                    CommandParameter="{Binding CurrentSign.Choices[0]}"
-                    BackgroundColor="{Binding Button1Color}"
-                    HorizontalOptions="Fill"/>
-                    <Button Grid.Row="0" Grid.Column="1"
-                    Style="{StaticResource AnswerButton}"
+                    CommandParameter="{Binding CurrentSign.Choices[0]}"/>
+                    <Button x:Name="AnswerButton2"
+                    Grid.Row="0" Grid.Column="1"
+                    TextColor="White"
+                    FontSize="15"
+                    CornerRadius="8"
+                    Padding="6"
+                    Margin="4"
+                    WidthRequest="140"
+                    HorizontalOptions="Fill"
                     Text="{Binding CurrentSign.Choices[1]}"
                     Command="{Binding AnswerCommand}"
-                    CommandParameter="{Binding CurrentSign.Choices[1]}"
-                    BackgroundColor="{Binding Button2Color}"
-                    HorizontalOptions="Fill"/>
-                    <Button Grid.Row="1" Grid.Column="0"
-                    Style="{StaticResource AnswerButton}"
+                    CommandParameter="{Binding CurrentSign.Choices[1]}"/>
+                    <Button x:Name="AnswerButton3"
+                    Grid.Row="1" Grid.Column="0"
+                    TextColor="White"
+                    FontSize="15"
+                    CornerRadius="8"
+                    Padding="6"
+                    Margin="4"
+                    WidthRequest="140"
+                    HorizontalOptions="Fill"
                     Text="{Binding CurrentSign.Choices[2]}"
                     Command="{Binding AnswerCommand}"
-                    CommandParameter="{Binding CurrentSign.Choices[2]}"
-                    BackgroundColor="{Binding Button3Color}"
-                    HorizontalOptions="Fill"/>
-                    <Button Grid.Row="1" Grid.Column="1"
-                    Style="{StaticResource AnswerButton}"
+                    CommandParameter="{Binding CurrentSign.Choices[2]}"/>
+                    <Button x:Name="AnswerButton4"
+                    Grid.Row="1" Grid.Column="1"
+                    TextColor="White"
+                    FontSize="15"
+                    CornerRadius="8"
+                    Padding="6"
+                    Margin="4"
+                    WidthRequest="140"
+                    HorizontalOptions="Fill"
                     Text="{Binding CurrentSign.Choices[3]}"
                     Command="{Binding AnswerCommand}"
-                    CommandParameter="{Binding CurrentSign.Choices[3]}"
-                    BackgroundColor="{Binding Button4Color}"
-                    HorizontalOptions="Fill"/>
+                    CommandParameter="{Binding CurrentSign.Choices[3]}"/>
                 </Grid>
 
                 <!-- Row 2: Multiplayer area -->
@@ -406,25 +428,6 @@
                                 ShouldMute="True"
                                 IsVisible="{Binding IsSignRevealed}"/>
                         </Border>
-
-                        <!-- Feedback Badge -->
-                        <Border x:Name="FeedbackBadgePerform"
-                                IsVisible="False"
-                                Padding="15,8"
-                                Margin="0,10,0,0"
-                                StrokeShape="RoundRectangle 15"
-                                HorizontalOptions="Center"
-                                VerticalOptions="Start"
-                                ZIndex="10">
-                            <Border.Shadow>
-                                <Shadow Brush="Black" Offset="0,2" Radius="8" Opacity="0.4"/>
-                            </Border.Shadow>
-                            <Label x:Name="FeedbackBadgeTextPerform"
-                                   TextColor="White"
-                                   FontSize="18"
-                                   FontAttributes="Bold"
-                                   HorizontalOptions="Center"/>
-                        </Border>
                     </Grid>
 
                     <!-- Response Buttons - Single Player -->
@@ -494,25 +497,6 @@
         Volume="0"
         ShouldMute="True"
         IsVisible="{Binding IsSignRevealed}"/>
-                        </Border>
-
-                        <!-- Feedback Badge -->
-                        <Border x:Name="FeedbackBadgePerformMultiplayer"
-                                IsVisible="False"
-                                Padding="15,8"
-                                Margin="0,10,0,0"
-                                StrokeShape="RoundRectangle 15"
-                                HorizontalOptions="Center"
-                                VerticalOptions="Start"
-                                ZIndex="10">
-                            <Border.Shadow>
-                                <Shadow Brush="Black" Offset="0,2" Radius="8" Opacity="0.4"/>
-                            </Border.Shadow>
-                            <Label x:Name="FeedbackBadgeTextPerformMultiplayer"
-                                   TextColor="White"
-                                   FontSize="18"
-                                   FontAttributes="Bold"
-                                   HorizontalOptions="Center"/>
                         </Border>
                     </Grid>
 

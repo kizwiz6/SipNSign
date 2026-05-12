@@ -1083,8 +1083,8 @@ namespace com.kizwiz.signwiz.ViewModels
                     UpdateButtonColor(answer, isCorrect);
                 });
 
-                // Trigger stylish feedback animation instead of overlay
-                await TriggerStylishFeedback(isCorrect);
+                // Trigger button flash feedback animation
+                await TriggerButtonFeedback(answer, isCorrect);
 
                 // Log activity
                 if (isCorrect)
@@ -1951,19 +1951,19 @@ namespace com.kizwiz.signwiz.ViewModels
         }
 
         /// <summary>
-        /// Triggers the stylish visual feedback animation on the page
+        /// Triggers button flash feedback animation on the page
         /// </summary>
-        private async Task TriggerStylishFeedback(bool isCorrect)
+        private async Task TriggerButtonFeedback(string selectedAnswer, bool isCorrect)
         {
             try
             {
                 if (_pageReference?.TryGetTarget(out var page) == true)
                 {
-                    // Use reflection to call the ShowStylishFeedback method
-                    var method = page.GetType().GetMethod("ShowStylishFeedback");
+                    // Use reflection to call the ShowButtonFeedback method
+                    var method = page.GetType().GetMethod("ShowButtonFeedback");
                     if (method != null)
                     {
-                        var task = method.Invoke(page, new object[] { isCorrect }) as Task;
+                        var task = method.Invoke(page, new object[] { selectedAnswer, isCorrect }) as Task;
                         if (task != null)
                         {
                             await task;
@@ -1973,7 +1973,7 @@ namespace com.kizwiz.signwiz.ViewModels
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error triggering stylish feedback: {ex.Message}");
+                Debug.WriteLine($"Error triggering button feedback: {ex.Message}");
             }
         }
         #endregion
