@@ -15,49 +15,49 @@ namespace com.kizwiz.signwiz.ViewModels
         private readonly Dictionary<string, bool> _purchasedPacks = new();
 
         [ObservableProperty]
-        private bool _isLoading;
+        private partial bool IsLoading { get; set; }
 
         [ObservableProperty]
-        private bool _isAnimalPackPurchasable = true;
+        private partial bool IsAnimalPackPurchasable { get; set; } = true;
 
         [ObservableProperty]
-        private bool _isGeographyPackPurchasable = true;
+        private partial bool IsGeographyPackPurchasable { get; set; } = true;
 
         [ObservableProperty]
-        private bool _isFoodPackPurchasable = true;
+        private partial bool IsFoodPackPurchasable { get; set; } = true;
 
         [ObservableProperty]
-        private bool _isEmotionsPackPurchasable = true;
+        private partial bool IsEmotionsPackPurchasable { get; set; } = true;
 
         [ObservableProperty]
-        private bool _isSportsHobbiesPackPurchasable = true;
+        private partial bool IsSportsHobbiesPackPurchasable { get; set; } = true;
 
         [ObservableProperty]
-        private bool _isThemesPackPurchasable = true;
+        private partial bool IsThemesPackPurchasable { get; set; } = true;
 
         [ObservableProperty]
-        private bool _isMultiplayerPurchasable = true;
+        private partial bool IsMultiplayerPurchasable { get; set; } = true;
 
         [ObservableProperty]
-        private string _animalPackButtonText;
+        private partial string? AnimalPackButtonText { get; set; }
 
         [ObservableProperty]
-        private string _geographyPackButtonText;
+        private partial string? GeographyPackButtonText { get; set; }
 
         [ObservableProperty]
-        private string _foodPackButtonText;
+        private partial string? FoodPackButtonText { get; set; }
 
         [ObservableProperty]
-        private string _emotionsPackButtonText;
+        private partial string? EmotionsPackButtonText { get; set; }
 
         [ObservableProperty]
-        private string _sportsHobbiesPackButtonText;
+        private partial string? SportsHobbiesPackButtonText { get; set; }
 
         [ObservableProperty]
-        private string _themesPackButtonText;
+        private partial string? ThemesPackButtonText { get; set; }
 
         [ObservableProperty]
-        private string _multiplayerButtonText;
+        private partial string? MultiplayerButtonText { get; set; }
 
         private readonly Dictionary<string, Dictionary<string, decimal>> _regionalPrices = new()
         {
@@ -308,7 +308,7 @@ namespace com.kizwiz.signwiz.ViewModels
             catch (Exception ex)
             {
                 _logger.Error($"Error restoring purchases: {ex.Message}");
-                await Application.Current.MainPage.DisplayAlert("Error",
+                await Application.Current!.Windows[0].Page!.DisplayAlertAsync("Error",
                     "Failed to restore purchases. Please try again.", "OK");
             }
             finally

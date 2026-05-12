@@ -10,7 +10,7 @@ public partial class PlayerSelectionPage : ContentPage
 {
     private PlayerSelectionViewModel _viewModel;
     private bool _isInitialized = false;
-    private GameMode _selectedMode; // Store which mode was selected from MainMenu
+    private readonly GameMode _selectedMode; // Store which mode was selected from MainMenu
     private readonly IServiceProvider _serviceProvider;
 
     public PlayerSelectionPage(IServiceProvider serviceProvider)
@@ -82,7 +82,7 @@ public partial class PlayerSelectionPage : ContentPage
         var gameParameters = new GameParameters
         {
             IsMultiplayer = false,
-            Players = new List<Player> { new Player { Name = "You", IsMainPlayer = true } },
+            Players = new List<Player> { new() { Name = "You", IsMainPlayer = true } },
             QuestionsCount = questionsCount
         };
 
@@ -230,7 +230,13 @@ public partial class PlayerSelectionPage : ContentPage
         {
             LogPlayersInfo(parameters);
 
-            var serviceProvider = Application.Current.Handler.MauiContext.Services.GetService<IServiceProvider>();
+            var serviceProvider = Application.Current?.Handler?.MauiContext?.Services?.GetService<IServiceProvider>();
+            if (serviceProvider == null)
+            {
+                Debug.WriteLine("ServiceProvider is null!");
+                return;
+            }
+
             var videoService = serviceProvider.GetRequiredService<IVideoService>();
             var logger = serviceProvider.GetRequiredService<ILoggingService>();
             var progressService = serviceProvider.GetRequiredService<IProgressService>();

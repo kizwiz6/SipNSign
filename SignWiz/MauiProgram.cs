@@ -27,6 +27,7 @@ public static class MauiProgram
             var builder = MauiApp.CreateBuilder();
             Debug.WriteLine("Builder created");
 
+#pragma warning disable CA1416 // Validate platform compatibility
             builder
                 .UseMauiApp<App>()
                 .UseMauiCommunityToolkit()
@@ -37,6 +38,7 @@ public static class MauiProgram
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                     fonts.AddFont("Bangers-Regular.ttf", "Bangers");
                 });
+#pragma warning restore CA1416 // Validate platform compatibility
 
             Debug.WriteLine("Basic MAUI configuration completed");
 
@@ -96,10 +98,6 @@ public static class MauiProgram
                 Debug.WriteLine($"Stack trace: {ex.StackTrace}");
                 throw;
             }
-
-            var app = builder.Build();
-            Debug.WriteLine("App built successfully");
-            return app;
         }
         catch (Exception ex)
         {

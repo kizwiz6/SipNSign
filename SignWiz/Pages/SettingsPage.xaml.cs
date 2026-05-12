@@ -172,7 +172,7 @@ namespace com.kizwiz.signwiz.Pages
             var window = Application.Current?.Windows.FirstOrDefault();
             if (window?.Page != null)
             {
-                await window.Page.DisplayAlert("Settings Saved", "Your preferences have been updated", "OK");
+                await window.Page.DisplayAlertAsync("Settings Saved", "Your preferences have been updated", "OK");
             }
         }
 
@@ -229,12 +229,12 @@ namespace com.kizwiz.signwiz.Pages
                 if (loggingService != null)
                 {
                     var logs = await loggingService.GetLogContents();
-                    await DisplayAlert("Application Logs", logs, "OK");
+                    await DisplayAlertAsync("Application Logs", logs, "OK");
                 }
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", $"Could not read logs: {ex.Message}", "OK");
+                await DisplayAlertAsync("Error", $"Could not read logs: {ex.Message}", "OK");
             }
         }
 
@@ -301,7 +301,7 @@ namespace com.kizwiz.signwiz.Pages
                 // Check if trying to select a premium theme
                 if (theme != CustomAppTheme.Blue && !await HasPremiumThemes())
                 {
-                    await DisplayAlert("Premium Feature",
+                    await DisplayAlertAsync("Premium Feature",
                         "Premium themes are locked. Purchase the Premium Themes Pack in the Store to unlock all themes!",
                         "OK");
 
@@ -382,12 +382,12 @@ namespace com.kizwiz.signwiz.Pages
                 if (progressJson != null)
                 {
                     // Save file implementation
-                    await DisplayAlert("Success", "Progress exported successfully", "OK");
+                    await DisplayAlertAsync("Success", "Progress exported successfully", "OK");
                 }
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", $"Failed to export progress: {ex.Message}", "OK");
+                await DisplayAlertAsync("Error", $"Failed to export progress: {ex.Message}", "OK");
             }
         }
 
@@ -414,20 +414,20 @@ namespace com.kizwiz.signwiz.Pages
                 var loggingService = _serviceProvider?.GetService<ILoggingService>();
                 if (loggingService != null)
                 {
-                    bool answer = await DisplayAlert("Clear Logs",
+                    bool answer = await DisplayAlertAsync("Clear Logs",
                         "Are you sure you want to clear all debug logs?",
                         "Yes", "No");
 
                     if (answer)
                     {
                         await loggingService.CleanupLogs();
-                        await DisplayAlert("Success", "Debug logs cleared successfully", "OK");
+                        await DisplayAlertAsync("Success", "Debug logs cleared successfully", "OK");
                     }
                 }
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", $"Could not clear logs: {ex.Message}", "OK");
+                await DisplayAlertAsync("Error", $"Could not clear logs: {ex.Message}", "OK");
             }
         }
 
@@ -439,16 +439,16 @@ namespace com.kizwiz.signwiz.Pages
                 if (File.Exists(logFile))
                 {
                     var logs = await File.ReadAllTextAsync(logFile);
-                    await DisplayAlert("Application Logs", logs, "OK");
+                    await DisplayAlertAsync("Application Logs", logs, "OK");
                 }
                 else
                 {
-                    await DisplayAlert("Logs", "No logs found", "OK");
+                    await DisplayAlertAsync("Logs", "No logs found", "OK");
                 }
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", $"Could not read logs: {ex.Message}", "OK");
+                await DisplayAlertAsync("Error", $"Could not read logs: {ex.Message}", "OK");
             }
         }
     }

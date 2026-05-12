@@ -10,10 +10,10 @@ namespace com.kizwiz.signwiz.ViewModels
         private const int MAX_PLAYERS = 10;
 
         [ObservableProperty]
-        private string _mainPlayerName = Preferences.Get(Constants.DEFAULT_PLAYER_NAME_KEY, Constants.DEFAULT_PLAYER_NAME);
+        public partial string MainPlayerName { get; set; } = Preferences.Get(Constants.DEFAULT_PLAYER_NAME_KEY, Constants.DEFAULT_PLAYER_NAME);
 
         [ObservableProperty]
-        private ObservableCollection<Player> _additionalPlayers = new();
+        public partial ObservableCollection<Player> AdditionalPlayers { get; set; } = new();
 
         // Property to check if we can add more players
         public bool CanAddMorePlayers => (AdditionalPlayers.Count + 1) < MAX_PLAYERS;

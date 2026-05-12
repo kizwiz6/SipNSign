@@ -8,7 +8,6 @@ namespace com.kizwiz.signwiz.Services
     public class VideoService : IVideoService
     {
         #region Fields
-        private bool _isInitialized = false;
         private readonly string _videoDirectory;
         private readonly SemaphoreSlim _initializationLock = new SemaphoreSlim(1, 1);
         private readonly ILoggingService _logger;
@@ -30,7 +29,6 @@ namespace com.kizwiz.signwiz.Services
         public Task InitializeVideos()
         {
             // No need to copy files on Android as we access raw resources directly
-            _isInitialized = true;
             return Task.CompletedTask;
         }
 
@@ -48,10 +46,10 @@ namespace com.kizwiz.signwiz.Services
 #if ANDROID
                 var context = Android.App.Application.Context;
                 var resourceName = Path.GetFileNameWithoutExtension(videoFileName).ToLower();
-                var resourceId = context.Resources.GetIdentifier(
+                var resourceId = context.Resources?.GetIdentifier(
                     resourceName,
                     "raw",
-                    context.PackageName);
+                    context.PackageName) ?? 0;
 
                 if (resourceId == 0)
                 {

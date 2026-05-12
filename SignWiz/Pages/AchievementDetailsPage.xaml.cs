@@ -7,7 +7,7 @@ namespace com.kizwiz.signwiz.Pages
 {
     public partial class AchievementDetailsPage : ContentPage
     {
-        private readonly AchievementDetailsViewModel _viewModel;
+        private readonly AchievementDetailsViewModel? _viewModel;
 
         public AchievementDetailsPage(Achievement achievement)
         {
@@ -25,9 +25,7 @@ namespace com.kizwiz.signwiz.Pages
                 if (services == null)
                 {
                     logger?.Error("Services not available - attempting fallback");
-                    var shareService = new ShareService();
-                    var progressService = services.GetRequiredService<IProgressService>();
-                    _viewModel = new AchievementDetailsViewModel(achievement, shareService, progressService);
+                    return; // Cannot proceed without services
                 }
                 else
                 {
@@ -38,7 +36,7 @@ namespace com.kizwiz.signwiz.Pages
                         logger?.Error("IShareService not found - using fallback");
                         shareService = new ShareService();
                     }
-                    _viewModel = new AchievementDetailsViewModel(achievement, shareService, progressService);
+                    _viewModel = new AchievementDetailsViewModel(achievement!, shareService, progressService);
                 }
 
                 // Wire up the card capture delegate for image sharing
@@ -61,7 +59,10 @@ namespace com.kizwiz.signwiz.Pages
             base.OnAppearing();
             try
             {
-                await _viewModel.LoadAchievementCollectionAsync();
+                if (_viewModel != null)
+                {
+                    await _viewModel.LoadAchievementCollectionAsync();
+                }
             }
             catch (Exception ex)
             {
@@ -94,7 +95,8 @@ namespace com.kizwiz.signwiz.Pages
         /// </summary>
         private void OnCollectionItemTapped(object? sender, TappedEventArgs e)
         {
-            if (sender is VisualElement element &&
+            if (_viewModel != null &&
+                sender is VisualElement element &&
                 element.BindingContext is AchievementThumbnail thumbnail)
             {
                 _viewModel.SelectAchievement(thumbnail);

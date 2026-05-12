@@ -77,7 +77,13 @@ public class AchievementTests
     [Fact]
     public void NewAchievement_IsNotUnlocked()
     {
-        var achievement = new Achievement();
+        var achievement = new Achievement
+        {
+            Id = "test_id",
+            Title = "Test",
+            Description = "Test Description",
+            IconName = "test_icon"
+        };
 
         Assert.False(achievement.IsUnlocked);
         Assert.Null(achievement.UnlockedDate);
@@ -90,6 +96,9 @@ public class AchievementTests
         var achievement = new Achievement
         {
             Id = "FIRST_SIGN",
+            Title = "First Sign",
+            Description = "Test Description",
+            IconName = "test_icon",
             IsUnlocked = true,
             UnlockedDate = unlockDate,
             ProgressCurrent = 1,
@@ -105,6 +114,10 @@ public class AchievementTests
     {
         var achievement = new Achievement
         {
+            Id = "test_id",
+            Title = "Test",
+            Description = "Test Description",
+            IconName = "test_icon",
             ProgressCurrent = 30,
             ProgressRequired = 100
         };
@@ -851,7 +864,14 @@ public class AchievementTests
     [InlineData("SIGNS_1000_PERFORM", 1000, 1200, 1000)]
     public void Achievement_ProgressCapping_WorksForVariousValues(string id, int required, int actual, int expected)
     {
-        var achievement = new Achievement { Id = id, ProgressRequired = required };
+        var achievement = new Achievement
+        {
+            Id = id,
+            Title = "Test",
+            Description = "Test Description",
+            IconName = "test_icon",
+            ProgressRequired = required
+        };
 
         achievement.ProgressCurrent = Math.Min(actual, achievement.ProgressRequired);
 

@@ -8,15 +8,19 @@ public class ActivityLogTests
     [Fact]
     public void NewActivityLog_HasDefaultValues()
     {
-        var log = new ActivityLog();
+        var log = new ActivityLog
+        {
+            Id = "test_id",
+            IconName = "test_icon"
+        };
 
         Assert.Null(log.Id);
         Assert.Null(log.Description);
         Assert.Null(log.IconName);
         Assert.Null(log.Score);
         Assert.Null(log.SignName);
-        Assert.Equal(default(DateTime), log.Timestamp);
-        Assert.Equal(default(ActivityType), log.Type);
+        Assert.Equal(default, log.Timestamp);
+        Assert.Equal(default, log.Type);
     }
 
     [Fact]
@@ -59,6 +63,7 @@ public class ActivityLogTests
         var log = new ActivityLog
         {
             Id = Guid.NewGuid().ToString(),
+            IconName = "quiz_icon",
             Type = ActivityType.Quiz,
             Description = "Completed quiz",
             Score = "8/10",

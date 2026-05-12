@@ -14,7 +14,11 @@ public class LoggingService : ILoggingService
     {
         _logFile = Path.Combine(FileSystem.AppDataDirectory, $"app_{DateTime.Now:yyyyMMdd}.log");
         // Ensure the directory exists
-        Directory.CreateDirectory(Path.GetDirectoryName(_logFile));
+        var directory = Path.GetDirectoryName(_logFile);
+        if (!string.IsNullOrEmpty(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
     }
 
     /// <summary>
@@ -138,6 +142,11 @@ public class LoggingService : ILoggingService
             }
 
             // Create a new empty log file
+            if (string.IsNullOrEmpty(logDirectory))
+            {
+                throw new InvalidOperationException("Log directory path is null or empty");
+            }
+
             var newLogFile = Path.Combine(logDirectory, $"app_{DateTime.Now:yyyyMMdd}.log");
             await File.WriteAllTextAsync(newLogFile, ""); // Create empty file
 

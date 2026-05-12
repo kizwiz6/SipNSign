@@ -21,7 +21,7 @@ namespace com.kizwiz.signwiz.Pages
         #region Fields
         private readonly GameViewModel _viewModel;
         private readonly IVideoService _videoService;
-        private readonly SemaphoreSlim _videoLoadLock = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim _videoLoadLock = new(1, 1);
         private bool _isDisposed;
         private readonly SemaphoreSlim _cleanupLock = new(1, 1);
         private IDispatcherTimer? _timer;
@@ -304,12 +304,12 @@ namespace com.kizwiz.signwiz.Pages
                 // Check if file exists and get file info
                 try
                 {
-                    var uri = uriSource.Uri.ToString();
-                    if (uri.StartsWith("android.resource://"))
+                    var uri = uriSource.Uri?.ToString();
+                    if (uri != null && uri.StartsWith("android.resource://"))
                     {
                         Debug.WriteLine("Android resource - checking resource ID");
                     }
-                    else if (uri.StartsWith("file://"))
+                    else if (uri != null && uri.StartsWith("file://"))
                     {
                         var filePath = uri.Replace("file://", "");
                         if (File.Exists(filePath))
@@ -336,7 +336,7 @@ namespace com.kizwiz.signwiz.Pages
             Debug.WriteLine($"Media playback ended: {(sender as MediaElement)?.Source}");
         }
 
-        private void OnPageLoaded(object sender, EventArgs e)
+        private void OnPageLoaded(object? sender, EventArgs e)
         {
             try
             {
@@ -897,7 +897,7 @@ namespace com.kizwiz.signwiz.Pages
 
             // Test with a dummy player
             var player = new Player { Name = "Test Player" };
-            var result = converter.Convert(player, typeof(PlayerAnswerParameter), true, null);
+            var result = converter.Convert(player, typeof(PlayerAnswerParameter), true, System.Globalization.CultureInfo.InvariantCulture);
 
             if (result is PlayerAnswerParameter param)
             {
@@ -958,7 +958,7 @@ namespace com.kizwiz.signwiz.Pages
 
         /// <summary>
         /// Reveals sign video in perform mode
-        /// </summary> 
+        /// </summary>
         private void RevealSign()
         {
             _viewModel.RevealSign();
@@ -1208,7 +1208,7 @@ namespace com.kizwiz.signwiz.Pages
 
                     // Find the player by name
                     var player = _viewModel.Players.FirstOrDefault(p => p.Name == playerName);
-                    if (player != null)
+                    if (player != null && _viewModel.CurrentSign?.Choices != null)
                     {
                         // Get the answer text for this number (answerNumber is 1-4, array index is 0-3)
                         int answerIndex = answerNumber - 1;

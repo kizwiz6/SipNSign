@@ -10,7 +10,7 @@ namespace com.kizwiz.signwiz.Converters
     /// </summary>
     public class PlayerAnswerConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             Debug.WriteLine($"PlayerAnswerConverter.Convert called with value={value?.GetType().Name ?? "null"}, parameter={parameter ?? "null"}");
 
@@ -44,7 +44,7 @@ namespace com.kizwiz.signwiz.Converters
             return null;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

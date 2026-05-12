@@ -9,6 +9,7 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <EnableMauiImageProcessing>false</EnableMauiImageProcessing>
   </PropertyGroup>
 
   <ItemGroup>

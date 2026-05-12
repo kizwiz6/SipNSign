@@ -50,8 +50,9 @@ namespace com.kizwiz.signwiz.ViewModels
         private Color _feedbackBackgroundColor;
         private string _guessResults;
         private bool _isFeedbackVisible;
-        private bool _debugCommandsWorking = false;
         private bool _isScoreboardVisible = false;
+        private int _consecutiveTimeouts;
+        private const int ConsecutiveTimeoutThreshold = 3;
         private int _finalScore;
         private Color _button1Color = Colors.Transparent;
         private Color _button2Color = Colors.Transparent;
@@ -59,18 +60,18 @@ namespace com.kizwiz.signwiz.ViewModels
         private Color _button4Color = Colors.Transparent;
         private GameMode _currentMode = GameMode.Guess;
         private bool _isSignHidden = true;
-        private List<double> _answerTimes = new List<double>();
+        private readonly List<double> _answerTimes = new List<double>();
         private double _averageAnswerTime;
         private UserProgress? _userProgress;
-        private ICommand _playAgainCommand;
-        private ICommand _incorrectPerformCommand;
-        private ICommand _correctPerformCommand;
-        private ICommand _nextSignCommand;
-        private ICommand _confirmResultsCommand;
-        private ICommand _recordPlayerAnswerCommand;
-        private ICommand _showScoreboardCommand;
-        private ICommand _confirmGuessAnswersCommand;
-        private ICommand _resumeCommand;
+        private ICommand? _playAgainCommand;
+        private ICommand? _incorrectPerformCommand;
+        private ICommand? _correctPerformCommand;
+        private ICommand? _nextSignCommand;
+        private ICommand? _confirmResultsCommand;
+        private ICommand? _recordPlayerAnswerCommand;
+        private ICommand? _showScoreboardCommand;
+        private ICommand? _confirmGuessAnswersCommand;
+        private ICommand? _resumeCommand;
         private string _currentPlayerTurnText = string.Empty;
         private int GetTotalQuestions() => Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
         public int TotalQuestions => GetTotalQuestions();
@@ -248,7 +249,7 @@ namespace com.kizwiz.signwiz.ViewModels
                     catch (Exception ex)
                     {
                         Debug.WriteLine($"Error in ConfirmGuessAnswersCommand: {ex.Message}");
-                        await Application.Current.MainPage.DisplayAlert("Error",
+                        await Application.Current!.Windows[0].Page!.DisplayAlertAsync("Error",
                             "There was an error processing answers. Please try again.", "OK");
                     }
                     finally
@@ -664,8 +665,8 @@ namespace com.kizwiz.signwiz.ViewModels
         }
         public ICommand VideoLoadedCommand { get; private set; }
         public required ICommand RevealSignCommand { get; set; }
-        public ICommand CorrectPerformCommand => _correctPerformCommand;
-        public ICommand IncorrectPerformCommand => _incorrectPerformCommand;
+        public ICommand CorrectPerformCommand => _correctPerformCommand!;
+        public ICommand IncorrectPerformCommand => _incorrectPerformCommand!;
         public ICommand SwitchModeCommand { get; private set; }
         public ICommand NextSignCommand
         {
@@ -681,7 +682,7 @@ namespace com.kizwiz.signwiz.ViewModels
                         var unansweredPlayers = Players.Where(p => !p.HasAnswered).ToList();
                         var playerNames = string.Join(", ", unansweredPlayers.Select(p => p.Name));
 
-                        await Application.Current.MainPage.DisplayAlert(
+                        await Application.Current!.Windows[0].Page!.DisplayAlertAsync(
                             "Waiting for Players",
                             $"Still waiting for: {playerNames}\n\nMake sure all players have recorded their answers before moving to the next sign.",
                             "OK");
@@ -719,7 +720,7 @@ namespace com.kizwiz.signwiz.ViewModels
                     catch (Exception ex)
                     {
                         Debug.WriteLine($"Error in NextSignCommand: {ex.Message}");
-                        await Application.Current.MainPage.DisplayAlert("Error",
+                        await Application.Current!.Windows[0].Page!.DisplayAlertAsync("Error",
                             "There was an error loading the next sign. Please try again.", "OK");
                     }
                     finally
@@ -738,7 +739,7 @@ namespace com.kizwiz.signwiz.ViewModels
                     Debug.WriteLine($"RecordPlayerAnswerCommand called with parameter type: {param?.GetType().Name ?? "null"}");
 
                     // Extract player and correctness value
-                    Player player = null;
+                    Player? player = null;
                     bool isCorrect = false;
 
                     if (param is PlayerAnswerParameter playerParam)
@@ -972,6 +973,8 @@ namespace com.kizwiz.signwiz.ViewModels
             try
             {
                 IsProcessingAnswer = true;
+                _consecutiveTimeouts++;
+                Debug.WriteLine($"Consecutive timeouts: {_consecutiveTimeouts}/{ConsecutiveTimeoutThreshold}");
 
                 if (Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true))
                 {
@@ -987,11 +990,65 @@ namespace com.kizwiz.signwiz.ViewModels
                 await Task.Delay(Preferences.Get(Constants.INCORRECT_DELAY_KEY, Constants.DEFAULT_DELAY));
                 IsFeedbackVisible = false;
                 await LogGameActivity(false);
+
+                // Check if user has timed out on multiple consecutive signs
+                if (_consecutiveTimeouts >= ConsecutiveTimeoutThreshold)
+                {
+                    await MainThread.InvokeOnMainThreadAsync(async () =>
+                    {
+                        await ShowStillPlayingPrompt();
+                    });
+                    return;
+                }
+
                 LoadNextSign();
             }
             finally
             {
                 IsProcessingAnswer = false;
+            }
+        }
+
+        /// <summary>
+        /// Shows a prompt asking if the user is still playing after consecutive timeouts.
+        /// Offers the option to continue with or without the timer.
+        /// </summary>
+        private async Task ShowStillPlayingPrompt()
+        {
+            _timer?.Stop();
+            IsGamePaused = true;
+
+            string result = await Application.Current!.Windows[0].Page!.DisplayActionSheetAsync(
+                $"Are you still playing?\n\nYou've timed out on {_consecutiveTimeouts} signs in a row.",
+                null,
+                null,
+                "Continue with Timer",
+                "Continue without Timer",
+                "End Game");
+
+            _consecutiveTimeouts = 0;
+            IsGamePaused = false;
+
+            switch (result)
+            {
+                case "Continue with Timer":
+                    LoadNextSign();
+                    break;
+
+                case "Continue without Timer":
+                    Preferences.Set(Constants.TIMER_DURATION_KEY, 0);
+                    OnPropertyChanged(nameof(IsTimerEnabled));
+                    Debug.WriteLine("Timer disabled by user from still-playing prompt");
+                    LoadNextSign();
+                    break;
+
+                case "End Game":
+                    EndGame();
+                    break;
+
+                default:
+                    LoadNextSign();
+                    break;
             }
         }
 
@@ -1008,6 +1065,9 @@ namespace com.kizwiz.signwiz.ViewModels
             {
                 IsProcessingAnswer = true;
                 if (_timer != null) _timer.Stop();
+
+                // User actively answered, reset consecutive timeout counter
+                _consecutiveTimeouts = 0;
 
                 double answerTime = QuestionTimeLimit - RemainingTime;
                 UpdateAnswerTime(answerTime);
@@ -1691,9 +1751,9 @@ namespace com.kizwiz.signwiz.ViewModels
             {
                 Debug.WriteLine($"Navigation error: {ex.Message}");
                 var window = Application.Current?.Windows.FirstOrDefault();
-                if (window != null)
+                if (window?.Page != null)
                 {
-                    await window.Page.DisplayAlert("Error", "Unable to open settings", "OK");
+                    await window.Page.DisplayAlertAsync("Error", "Unable to open settings", "OK");
                 }
             }
         });
@@ -1745,6 +1805,7 @@ namespace com.kizwiz.signwiz.ViewModels
             IsGameOver = false;
             CurrentScore = 0;
             SignsPlayed = 0;
+            _consecutiveTimeouts = 0;
             IsTie = false;
             WinnerText = string.Empty;
             WinnerPlayers.Clear();
@@ -1973,7 +2034,7 @@ namespace com.kizwiz.signwiz.ViewModels
                 }
             }
 
-            await Application.Current.MainPage.DisplayAlert(title, message.Trim(), "Next Sign");
+            await Application.Current!.Windows[0].Page!.DisplayAlertAsync(title, message.Trim(), "Next Sign");
         }
 
         private async Task ShowGuessResults()
@@ -2009,7 +2070,7 @@ namespace com.kizwiz.signwiz.ViewModels
             }
 
             // DO NOT show a color-coded overlay here — the Android popup already provides detailed results.
-            await Application.Current.MainPage.DisplayAlert(title, message.Trim(), "Next Sign");
+            await Application.Current!.Windows[0].Page!.DisplayAlertAsync(title, message.Trim(), "Next Sign");
         }
 
         private void SubscribeToPlayer(Player player)
@@ -2049,7 +2110,7 @@ namespace com.kizwiz.signwiz.ViewModels
                         var unansweredPlayers = Players.Where(p => !p.HasAnswered).ToList();
                         var playerNames = string.Join(", ", unansweredPlayers.Select(p => p.Name));
 
-                        await Application.Current.MainPage.DisplayAlert(
+                        await Application.Current!.Windows[0].Page!.DisplayAlertAsync(
                             "Waiting for Players",
                             $"Still waiting for: {playerNames}\n\nMake sure all players have recorded their answers.",
                             "OK");
@@ -2096,7 +2157,7 @@ namespace com.kizwiz.signwiz.ViewModels
                     catch (Exception ex)
                     {
                         Debug.WriteLine($"Error in ConfirmResultsCommand: {ex.Message}");
-                        await Application.Current.MainPage.DisplayAlert("Error",
+                        await Application.Current!.Windows[0].Page!.DisplayAlertAsync("Error",
                             "There was an error loading the next sign. Please try again.", "OK");
                     }
                     finally
@@ -2162,7 +2223,7 @@ namespace com.kizwiz.signwiz.ViewModels
 
                     MainThread.BeginInvokeOnMainThread(async () =>
                     {
-                        await Application.Current.MainPage.DisplayAlert("Scoreboard", scoreboard, "Close");
+                        await Application.Current!.Windows[0].Page!.DisplayAlertAsync("Scoreboard", scoreboard, "Close");
                     });
                 });
             }

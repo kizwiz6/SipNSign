@@ -4,14 +4,14 @@ namespace com.kizwiz.signwiz.Converters
 {
     public class BoolToOpacityConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             bool flag = false;
             if (value is bool b) flag = b;
             return flag ? 1.0 : 0.5;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

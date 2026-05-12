@@ -107,10 +107,11 @@ namespace com.kizwiz.signwiz.Services
                         break;
 
                     case "QUIZ_PERFECT":
-                        var perfectQuiz = _currentProgress.Activities
+                        var perfectQuiz = _currentProgress.Activities?
                             .Any(a => a.Type == ActivityType.Quiz &&
+                                 a.Description != null &&
                                  a.Description.Contains("100 questions") &&
-                                 a.Score == "100/100");
+                                 a.Score == "100/100") ?? false;
                         if (perfectQuiz)
                         {
                             await UnlockAchievement(achievement);
@@ -172,10 +173,11 @@ namespace com.kizwiz.signwiz.Services
 
                     case "SOCIAL_BUTTERFLY" when !achievement.IsUnlocked:
                         // Check if there's any sharing activity in the log
-                        var hasShared = _currentProgress.Activities
+                        var hasShared = _currentProgress.Activities?
                             .Any(a => a.Type == ActivityType.Achievement &&
+                                 a.Description != null &&
                                  (a.Description.Contains("Shared an achievement") ||
-                                  a.Description.Contains("Social Butterfly")));
+                                  a.Description.Contains("Social Butterfly"))) ?? false;
 
                         if (hasShared)
                         {
@@ -204,10 +206,11 @@ namespace com.kizwiz.signwiz.Services
                         break;
 
                     case "PARTY_HOST" when !achievement.IsUnlocked:
-                        var largeGamePlayed = _currentProgress.Activities
+                        var largeGamePlayed = _currentProgress.Activities?
                             .Any(a => a.Type == ActivityType.Practice &&
-                                     a.Description.Contains("Multiplayer game completed with") &&
-                                     ExtractPlayerCount(a.Description) >= 5);
+                                 a.Description != null &&
+                                 a.Description.Contains("Multiplayer game completed with") &&
+                                 ExtractPlayerCount(a.Description) >= 5) ?? false;
                         if (largeGamePlayed)
                         {
                             await UnlockAchievement(achievement);
@@ -216,9 +219,10 @@ namespace com.kizwiz.signwiz.Services
                         break;
 
                     case "MULTIPLAYER_FIRST" when !achievement.IsUnlocked:
-                        var firstMultiGame = _currentProgress.Activities
+                        var firstMultiGame = _currentProgress.Activities?
                             .Any(a => a.Type == ActivityType.Practice &&
-                                     a.Description.Contains("Multiplayer game completed"));
+                                 a.Description != null &&
+                                 a.Description.Contains("Multiplayer game completed")) ?? false;
                         if (firstMultiGame)
                         {
                             await UnlockAchievement(achievement);
@@ -227,9 +231,10 @@ namespace com.kizwiz.signwiz.Services
                         break;
 
                     case "MULTIPLAYER_10" when !achievement.IsUnlocked:
-                        var multiGames10 = _currentProgress.Activities
+                        var multiGames10 = _currentProgress.Activities?
                             .Count(a => a.Type == ActivityType.Practice &&
-                                       a.Description.Contains("Multiplayer game completed"));
+                                   a.Description != null &&
+                                   a.Description.Contains("Multiplayer game completed")) ?? 0;
                         achievement.ProgressCurrent = multiGames10;
                         if (multiGames10 >= 10)
                         {
@@ -238,9 +243,10 @@ namespace com.kizwiz.signwiz.Services
                         break;
 
                     case "MULTIPLAYER_50" when !achievement.IsUnlocked:
-                        var multiGames50 = _currentProgress.Activities
+                        var multiGames50 = _currentProgress.Activities?
                             .Count(a => a.Type == ActivityType.Practice &&
-                                       a.Description.Contains("Multiplayer game completed"));
+                                   a.Description != null &&
+                                   a.Description.Contains("Multiplayer game completed")) ?? 0;
                         achievement.ProgressCurrent = multiGames50;
                         if (multiGames50 >= 50)
                         {
@@ -249,22 +255,24 @@ namespace com.kizwiz.signwiz.Services
                         break;
 
                     case "CHAMPION_WIN" when !achievement.IsUnlocked:
-                        var recentWins = _currentProgress.Activities
+                        var recentWins = _currentProgress.Activities?
                             .Where(a => a.Type == ActivityType.Practice &&
-                                       a.Description.Contains("Won multiplayer game"))
+                                   a.Description != null &&
+                                   a.Description.Contains("Won multiplayer game"))
                             .OrderByDescending(a => a.Timestamp)
                             .Take(3)
-                            .ToList();
+                            .ToList() ?? new List<ActivityLog>();
 
                         if (recentWins.Count == 3)
                         {
                             // Check if they're consecutive (no losses between them)
-                            var gamesAfterFirstWin = _currentProgress.Activities
+                            var gamesAfterFirstWin = _currentProgress.Activities?
                                 .Where(a => a.Type == ActivityType.Practice &&
-                                           a.Description.Contains("Multiplayer game completed") &&
-                                           a.Timestamp >= recentWins[2].Timestamp &&
-                                           a.Timestamp <= recentWins[0].Timestamp)
-                                .Count();
+                                       a.Description != null &&
+                                       a.Description.Contains("Multiplayer game completed") &&
+                                       a.Timestamp >= recentWins[2].Timestamp &&
+                                       a.Timestamp <= recentWins[0].Timestamp)
+                                .Count() ?? 0;
 
                             if (gamesAfterFirstWin == 3) // Only 3 games = 3 wins in a row
                             {
@@ -275,9 +283,10 @@ namespace com.kizwiz.signwiz.Services
                         break;
 
                     case "CLOSE_CALL" when !achievement.IsUnlocked:
-                        var closeWin = _currentProgress.Activities
+                        var closeWin = _currentProgress.Activities?
                             .Any(a => a.Type == ActivityType.Practice &&
-                                     a.Description.Contains("Won multiplayer game by 1 point"));
+                                 a.Description != null &&
+                                 a.Description.Contains("Won multiplayer game by 1 point")) ?? false;
                         if (closeWin)
                         {
                             await UnlockAchievement(achievement);
@@ -286,9 +295,10 @@ namespace com.kizwiz.signwiz.Services
                         break;
 
                     case "PERFECT_ROUND_ALL" when !achievement.IsUnlocked:
-                        var perfectRound = _currentProgress.Activities
+                        var perfectRound = _currentProgress.Activities?
                             .Any(a => a.Type == ActivityType.Practice &&
-                                     a.Description.Contains("All players got the sign correct"));
+                                 a.Description != null &&
+                                 a.Description.Contains("All players got the sign correct")) ?? false;
                         if (perfectRound)
                         {
                             await UnlockAchievement(achievement);
@@ -297,9 +307,10 @@ namespace com.kizwiz.signwiz.Services
                         break;
 
                     case "COMEBACK_KING" when !achievement.IsUnlocked:
-                        var comeback = _currentProgress.Activities
+                        var comeback = _currentProgress.Activities?
                             .Any(a => a.Type == ActivityType.Practice &&
-                                     a.Description.Contains("comeback victory"));
+                                 a.Description != null &&
+                                 a.Description.Contains("comeback victory")) ?? false;
                         if (comeback)
                         {
                             await UnlockAchievement(achievement);
@@ -308,9 +319,10 @@ namespace com.kizwiz.signwiz.Services
                         break;
 
                     case "PERFECT_MULTIPLAYER" when !achievement.IsUnlocked:
-                        var perfectGame = _currentProgress.Activities
+                        var perfectGame = _currentProgress.Activities?
                             .Any(a => a.Type == ActivityType.Practice &&
-                                     a.Description.Contains("Perfect multiplayer game"));
+                                 a.Description != null &&
+                                 a.Description.Contains("Perfect multiplayer game")) ?? false;
                         if (perfectGame)
                         {
                             await UnlockAchievement(achievement);
@@ -319,12 +331,13 @@ namespace com.kizwiz.signwiz.Services
                         break;
 
                     case "PARTY_ANIMAL" when !achievement.IsUnlocked:
-                        var groupSizes = _currentProgress.Activities
+                        var groupSizes = _currentProgress.Activities?
                             .Where(a => a.Type == ActivityType.Practice &&
-                                       a.Description.Contains("Multiplayer game completed with"))
-                            .Select(a => ExtractPlayerCount(a.Description))
+                                   a.Description != null &&
+                                   a.Description.Contains("Multiplayer game completed with"))
+                            .Select(a => ExtractPlayerCount(a.Description!))
                             .Distinct()
-                            .Count();
+                            .Count() ?? 0;
                         achievement.ProgressCurrent = groupSizes;
                         if (groupSizes >= 10)
                         {
@@ -402,80 +415,70 @@ namespace com.kizwiz.signwiz.Services
         {
             return new List<Achievement>
             {
-                new Achievement
-                {
+                new() {
                     Id = "STREAK_7",
                     Title = "Week Warrior",
                     Description = "Practiced for 7 consecutive days",
                     IconName = "streak_weekly_icon",
                     ProgressRequired = 7
                 },
-                new Achievement
-                {
+                new() {
                     Id = "SIGNS_50",
                     Title = "Sign Master",
                     Description = "Learnt 50 signs",
                     IconName = "fifty_signs_icon",
                     ProgressRequired = 50
                 },
-                new Achievement
-                {
+                new() {
                     Id = "SIGNS_100",
                     Title = "Century Club",
                     Description = "Learnt 100 signs",
                     IconName = "century_club_icon",
                     ProgressRequired = 100
                 },
-                new Achievement
-                {
+                new() {
                     Id = "SIGNS_100_GUESS",
                     Title = "Guess Master",
                     Description = "Got 100 signs correct in Guess Mode",
                     IconName = "guess_100_icon",
                     ProgressRequired = 100
                 },
-                new Achievement
-                {
+                new() {
                     Id = "SIGNS_1000_GUESS",
                     Title = "Ultimate Guesser",
                     Description = "Got 1000 signs correct in Guess Mode",
                     IconName = "guess_1000_icon",
                     ProgressRequired = 1000
                 },
-                new Achievement
-                {
+                new() {
                     Id = "SIGNS_100_PERFORM",
                     Title = "Performance Pro",
                     Description = "Successfully performed 100 signs",
                     IconName = "perform_100_icon",
                     ProgressRequired = 100
                 },
-                new Achievement
-                {
+                new() {
                     Id = "SIGNS_1000_PERFORM",
                     Title = "Sign Language Star",
                     Description = "Successfully performed 1000 signs",
                     IconName = "perform_1000_icon",
                     ProgressRequired = 1000
                 },
-                new Achievement
-                {
+                new() {
                     Id = "QUIZ_PERFECT",
                     Title = "Perfect Score",
                     Description = "Got 100% on a 100-question quiz",
                     IconName = "quiz_master_icon",
                     ProgressRequired = 1
                 },
-                new Achievement
-                {
+                new() {
                     Id = "FIRST_SIGN",
                     Title = "First Steps",
                     Description = "Learnt your first sign",
                     IconName = "first_sign_icon",
                     ProgressRequired = 1
                 },
-                new Achievement
-                {
+                new() {
                     Id = "STREAK_30",
                     Title = "Monthly Master",
                     Description = "Practiced for 30 consecutive days",
@@ -636,7 +639,7 @@ namespace com.kizwiz.signwiz.Services
                         var json = File.ReadAllText(_progressFile);
                         Debug.WriteLine("Read existing progress file");
 
-                        var options = new JsonSerializerOptions
+                        JsonSerializerOptions options = new()
                         {
                             WriteIndented = true,
                             DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull

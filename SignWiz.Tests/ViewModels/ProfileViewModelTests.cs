@@ -145,6 +145,8 @@ public class ProfileViewModelTests
             {
                 new ActivityLog
                 {
+                    Id = "act1",
+                    IconName = "practice_icon",
                     Description = "Practiced Hello",
                     Timestamp = DateTime.Now.AddMinutes(-5),
                     Type = ActivityType.Practice,
@@ -153,6 +155,8 @@ public class ProfileViewModelTests
                 },
                 new ActivityLog
                 {
+                    Id = "act2",
+                    IconName = "quiz_icon",
                     Description = "Completed quiz",
                     Timestamp = DateTime.Now.AddMinutes(-10),
                     Type = ActivityType.Quiz,
@@ -182,6 +186,8 @@ public class ProfileViewModelTests
             {
                 new ActivityLog
                 {
+                    Id = "act1",
+                    IconName = "practice_icon",
                     Description = "Practiced Hello",
                     Timestamp = DateTime.Now,
                     Type = ActivityType.Practice,
@@ -189,6 +195,8 @@ public class ProfileViewModelTests
                 },
                 new ActivityLog
                 {
+                    Id = "act2",
+                    IconName = "practice_icon",
                     Description = "",
                     Timestamp = DateTime.Now,
                     Type = ActivityType.Practice,
@@ -213,6 +221,8 @@ public class ProfileViewModelTests
         // Arrange
         var activities = Enumerable.Range(1, 15).Select(i => new ActivityLog
         {
+            Id = $"act{i}",
+            IconName = "practice_icon",
             Description = $"Activity {i}",
             Timestamp = DateTime.Now.AddMinutes(-i),
             Type = ActivityType.Practice,
@@ -249,6 +259,7 @@ public class ProfileViewModelTests
                     Id = "FIRST_SIGN",
                     Title = "First Sign",
                     Description = "Learn your first sign",
+                    IconName = "first_sign_icon",
                     IsUnlocked = true,
                     ProgressCurrent = 1,
                     ProgressRequired = 1
@@ -258,6 +269,7 @@ public class ProfileViewModelTests
                     Id = "SIGNS_50",
                     Title = "50 Signs",
                     Description = "Learn 50 signs",
+                    IconName = "signs_icon",
                     IsUnlocked = false,
                     ProgressCurrent = 10,
                     ProgressRequired = 50
@@ -284,9 +296,9 @@ public class ProfileViewModelTests
             Activities = new List<ActivityLog>(),
             Achievements = new List<Achievement>
             {
-                new Achievement { Id = "A1", Title = "A1", IsUnlocked = true, ProgressCurrent = 1, ProgressRequired = 1 },
-                new Achievement { Id = "A2", Title = "A2", IsUnlocked = false, ProgressCurrent = 0, ProgressRequired = 5 },
-                new Achievement { Id = "A3", Title = "A3", IsUnlocked = true, ProgressCurrent = 3, ProgressRequired = 3 }
+                new Achievement { Id = "A1", Title = "A1", Description = "Achievement 1", IconName = "icon1", IsUnlocked = true, ProgressCurrent = 1, ProgressRequired = 1 },
+                new Achievement { Id = "A2", Title = "A2", Description = "Achievement 2", IconName = "icon2", IsUnlocked = false, ProgressCurrent = 0, ProgressRequired = 5 },
+                new Achievement { Id = "A3", Title = "A3", Description = "Achievement 3", IconName = "icon3", IsUnlocked = true, ProgressCurrent = 3, ProgressRequired = 3 }
             }
         };
         _progressServiceMock

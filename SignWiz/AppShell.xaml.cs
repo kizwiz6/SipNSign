@@ -31,11 +31,10 @@ public partial class AppShell : Shell
         Android.Util.Log.Debug("SipNSignApp", "==== AppShell Constructor End ====");
 #endif
         }
-        catch (Exception ex)
+        catch (Exception)
         {
 #if ANDROID
-        Android.Util.Log.Error("SipNSignApp", $"Error initializing AppShell: {ex.Message}");
-        Android.Util.Log.Error("SipNSignApp", $"Stack trace: {ex.StackTrace}");
+        Android.Util.Log.Error("SipNSignApp", "Error initializing AppShell");
 #endif
             throw;
         }

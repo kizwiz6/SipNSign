@@ -6,10 +6,10 @@ namespace com.kizwiz.signwiz.Models
     public partial class Player : ObservableObject
     {
         [ObservableProperty]
-        private string _name = "";
+        public partial string Name { get; set; } = string.Empty;
 
         [ObservableProperty]
-        private bool _isMainPlayer = false;
+        public partial bool IsMainPlayer { get; set; } = false;
 
         // Make SelectedAnswer observable so UI triggers update for DataTriggers
         private int _selectedAnswer = 0;

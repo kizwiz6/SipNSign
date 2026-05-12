@@ -2,7 +2,7 @@
 {
     public class PlayerAnswerParameter
     {
-        public Player Player { get; set; }
+        public required Player Player { get; set; }
         public bool IsCorrect { get; set; }
     }
 }

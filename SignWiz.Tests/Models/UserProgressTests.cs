@@ -53,6 +53,7 @@ public class UserProgressTests
             Id = "TEST",
             Title = "Test Achievement",
             Description = "A test",
+            IconName = "test_icon",
             ProgressCurrent = 0,
             ProgressRequired = 1
         });
@@ -68,6 +69,7 @@ public class UserProgressTests
         progress.Activities.Add(new ActivityLog
         {
             Id = "act1",
+            IconName = "practice_icon",
             Description = "Test activity",
             Type = ActivityType.Practice,
             Timestamp = DateTime.Now

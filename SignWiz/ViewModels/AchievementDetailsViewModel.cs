@@ -281,7 +281,7 @@ namespace com.kizwiz.signwiz.ViewModels
         public bool IsUnlocked { get; set; }
         public DateTime? UnlockDate { get; set; }
         public double Progress { get; set; }
-        public string ProgressText { get; set; }
+        public string? ProgressText { get; set; }
 
         public string UnlockDateDisplay => UnlockDate.HasValue
             ? UnlockDate.Value.ToString("dd MMMM yyyy 'at' hh:mm tt")

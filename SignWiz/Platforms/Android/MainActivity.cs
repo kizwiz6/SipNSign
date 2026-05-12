@@ -30,7 +30,9 @@ public class MainActivity : MauiAppCompatActivity
             System.Diagnostics.Debug.WriteLine("MainActivity OnCreate starting");
 
             base.OnCreate(savedInstanceState);
+#pragma warning disable CA1422 // Validate platform compatibility
             Window?.SetStatusBarColor(Android.Graphics.Color.ParseColor("#1a237e"));
+#pragma warning restore CA1422 // Validate platform compatibility
 
             System.Diagnostics.Debug.WriteLine("MainActivity base.OnCreate completed");
 

@@ -76,7 +76,7 @@ public partial class ProfilePage : ContentPage
                 if (signRepository == null)
                 {
                     Debug.WriteLine("SignRepository not available");
-                    await DisplayAlert("Error", "Unable to load sign data.", "OK");
+                    await DisplayAlertAsync("Error", "Unable to load sign data.", "OK");
                     return;
                 }
 
@@ -85,7 +85,7 @@ public partial class ProfilePage : ContentPage
                 if (sign == null)
                 {
                     Debug.WriteLine($"Sign not found for name: {activityItem.SignName}");
-                    await DisplayAlert("Error", "Sign data not found.", "OK");
+                    await DisplayAlertAsync("Error", "Sign data not found.", "OK");
                     return;
                 }
 
@@ -97,7 +97,7 @@ public partial class ProfilePage : ContentPage
         {
             Debug.WriteLine($"Error in OnActivityTapped: {ex.Message}");
             Debug.WriteLine($"Stack trace: {ex.StackTrace}");
-            await DisplayAlert("Error", "Unable to display sign details.", "OK");
+            await DisplayAlertAsync("Error", "Unable to display sign details.", "OK");
         }
         finally
         {
@@ -151,14 +151,14 @@ public partial class ProfilePage : ContentPage
             else
             {
                 Debug.WriteLine("BindingContext is not an AchievementItem");
-                await DisplayAlert("Error", "Achievement data not found", "OK");
+                await DisplayAlertAsync("Error", "Achievement data not found", "OK");
             }
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"Error in OnAchievementTapped: {ex.Message}");
             Debug.WriteLine($"Stack trace: {ex.StackTrace}");
-            await DisplayAlert("Error", "Unable to display achievement details. Please ensure you're connected to the internet.", "OK");
+            await DisplayAlertAsync("Error", "Unable to display achievement details. Please ensure you're connected to the internet.", "OK");
         }
         finally
         {

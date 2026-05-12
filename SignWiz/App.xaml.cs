@@ -75,9 +75,10 @@ namespace com.kizwiz.signwiz
 #if ANDROID
                 Android.Util.Log.Debug("SipNSignApp", "Creating splash screen");
 #endif
-                MainPage = new Resources.Styles.SplashScreen(serviceProvider);
+                // Store the service provider for use in CreateWindow
+                // The window will be created in CreateWindow method
 #if ANDROID  
-                Android.Util.Log.Debug("SipNSignApp", "Splash screen set as MainPage");
+                Android.Util.Log.Debug("SipNSignApp", "Service provider stored");
                 Android.Util.Log.Debug("SipNSignApp", "==== App Constructor End ====");
 #endif
             }
@@ -176,7 +177,7 @@ namespace com.kizwiz.signwiz
                         {
                             if (Current?.Windows.Count > 0 && Current.Windows[0].Page != null)
                             {
-                                await Current.Windows[0].Page.DisplayAlertAsync(
+                                await Current.Windows[0].Page!.DisplayAlertAsync(
                                     "Critical Error",
                                     "The application encountered a critical error and needs to close. The error has been logged.",
                                     "OK");
@@ -277,18 +278,18 @@ namespace com.kizwiz.signwiz
                         {
                             if (Current?.Windows.Count > 0 && Current.Windows[0].Page != null)
                             {
-                                var result = await Current.Windows[0].Page.DisplayAlertAsync(
+                                var result = await Current.Windows[0].Page!.DisplayAlertAsync(
                                     "Previous Crash Detected",
                                     "The app crashed in the previous session. Would you like to view the crash report?",
                                     "View", "Dismiss");
 
-                                if (result == true)
+                                if (result)
                                 {
                                     var displayLog = crashLogs.Length > 1000
                                         ? crashLogs.Substring(crashLogs.Length - 1000) + "\n\n[Truncated - showing last 1000 chars]"
                                         : crashLogs;
 
-                                    await Current.MainPage.DisplayAlert(
+                                    await Current!.Windows[0].Page!.DisplayAlertAsync(
                                         "Crash Report",
                                         displayLog,
                                         "OK");
@@ -315,7 +316,9 @@ namespace com.kizwiz.signwiz
 #endif
             try
             {
-                Window window = new Window(MainPage)
+                // Create splash screen as the initial page
+                var initialPage = new Resources.Styles.SplashScreen(_serviceProvider);
+                Window window = new(initialPage)
                 {
                     Title = "SipNSign"
                 };

@@ -54,10 +54,10 @@ namespace com.kizwiz.signwiz.Pages
                 Android.Util.Log.Debug("SipNSignApp", "MainMenuPage force refresh completed");
 #endif
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 #if ANDROID
-                Android.Util.Log.Error("SipNSignApp", $"Critical error in MainMenuPage: {ex}");
+                Android.Util.Log.Error("SipNSignApp", "Critical error in MainMenuPage initialization");
 #endif
                 throw;
             }
@@ -117,7 +117,7 @@ namespace com.kizwiz.signwiz.Pages
             catch (Exception ex)
             {
                 _logger?.Error($"Error navigating to Perform mode: {ex.Message}");
-                await DisplayAlert("Error", "Failed to start Perform mode", "OK");
+                await DisplayAlertAsync("Error", "Failed to start Perform mode", "OK");
             }
             finally
             {
@@ -139,7 +139,7 @@ namespace com.kizwiz.signwiz.Pages
             _themeService.ThemeChanged -= OnThemeChanged;
         }
 
-        private void OnThemeChanged(object sender, EventArgs e)
+        private void OnThemeChanged(object? sender, EventArgs e)
         {
             MainThread.BeginInvokeOnMainThread(() =>
             {
@@ -228,7 +228,7 @@ namespace com.kizwiz.signwiz.Pages
             catch (Exception ex)
             {
                 _logger?.Error($"Error viewing scores: {ex.Message}");
-                await DisplayAlert("Error", "Unable to load progress data", "OK");
+                await DisplayAlertAsync("Error", "Unable to load progress data", "OK");
             }
             finally
             {
@@ -250,7 +250,7 @@ namespace com.kizwiz.signwiz.Pages
             catch (Exception ex)
             {
                 _logger?.Error($"Settings error: {ex.Message}");
-                await DisplayAlert("Error", "Unable to open settings", "OK");
+                await DisplayAlertAsync("Error", "Unable to open settings", "OK");
             }
             finally
             {
@@ -271,7 +271,7 @@ namespace com.kizwiz.signwiz.Pages
             catch (Exception ex)
             {
                 _logger?.Error($"Store error: {ex.Message}");
-                await DisplayAlert("Error", "Unable to open store", "OK");
+                await DisplayAlertAsync("Error", "Unable to open store", "OK");
             }
             finally
             {
@@ -287,16 +287,16 @@ namespace com.kizwiz.signwiz.Pages
                 if (File.Exists(logFile))
                 {
                     var logs = await File.ReadAllTextAsync(logFile);
-                    await DisplayAlert("Application Logs", logs, "OK");
+                    await DisplayAlertAsync("Application Logs", logs, "OK");
                 }
                 else
                 {
-                    await DisplayAlert("Logs", "No logs found", "OK");
+                    await DisplayAlertAsync("Logs", "No logs found", "OK");
                 }
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", $"Could not read logs: {ex.Message}", "OK");
+                await DisplayAlertAsync("Error", $"Could not read logs: {ex.Message}", "OK");
             }
         }
     }
