@@ -40,25 +40,22 @@
                        HorizontalTextAlignment="Center"/>
 
                 <!-- Video Player -->
-                <Border StrokeShape="RoundRectangle 12"
-                        StrokeThickness="0"
-                        Background="Transparent"
-                        Padding="0"
-                        HeightRequest="300">
-                    <Grid>
-                        <toolkit:MediaElement x:Name="SignVideo"
-                                              ShouldAutoPlay="True"
-                                              ShouldLoopPlayback="True"
-                                              ShouldShowPlaybackControls="False"
-                                              ShouldMute="True"
-                                              Volume="0"
-                                              Aspect="AspectFit"
-                                              HorizontalOptions="Center"
-                                              VerticalOptions="Center"
-                                              MediaOpened="OnMediaOpened"
-                                              MediaFailed="OnMediaFailed"/>
-                    </Grid>
-                </Border>
+                <Grid HeightRequest="300"
+                      HorizontalOptions="FillAndExpand"
+                      BackgroundColor="Black">
+                    <toolkit:MediaElement x:Name="SignVideo"
+                                          ShouldAutoPlay="True"
+                                          ShouldLoopPlayback="True"
+                                          ShouldShowPlaybackControls="False"
+                                          ShouldMute="True"
+                                          Volume="0"
+                                          Aspect="AspectFit"
+                                          HorizontalOptions="FillAndExpand"
+                                          VerticalOptions="FillAndExpand"
+                                          ZIndex="999"
+                                          MediaOpened="OnMediaOpened"
+                                          MediaFailed="OnMediaFailed"/>
+                </Grid>
 
                 <!-- Replay Button -->
                 <Button x:Name="ReplayButton"

@@ -51,7 +51,6 @@ namespace com.kizwiz.signwiz.Pages
                 InitializeComponent();
 
                 _videoService = videoService ?? throw new ArgumentNullException(nameof(videoService));
-                BindingContext = _viewModel;
                 _viewModel = new GameViewModel(serviceProvider, videoService, logger, progressService)
                 {
                     AnswerCommand = new Command<string>(HandleAnswer),
@@ -59,6 +58,9 @@ namespace com.kizwiz.signwiz.Pages
                     CurrentVideoSource = MediaSource.FromFile("again.mp4")
                 };
                 _viewModel.SignRevealRequested += OnSignRevealRequested;
+
+                // Set page reference for animations
+                _viewModel.SetPageReference(this);
 
                 BindingContext = _viewModel;
                 ConnectToViewModel();
@@ -340,6 +342,11 @@ namespace com.kizwiz.signwiz.Pages
         {
             try
             {
+                Debug.WriteLine($"=== OnPageLoaded ===");
+                Debug.WriteLine($"IsGuessMode: {ViewModel.IsGuessMode}");
+                Debug.WriteLine($"IsMultiplayer: {ViewModel.IsMultiplayer}");
+                Debug.WriteLine($"CurrentSign: {ViewModel.CurrentSign?.CorrectAnswer ?? "null"}");
+
                 // Only initialize MediaElements for current mode
                 if (ViewModel.IsGuessMode)
                 {
@@ -347,11 +354,21 @@ namespace com.kizwiz.signwiz.Pages
                     {
                         _multiplayerGuessVideoElement = FindMediaElement("MultiplayerGuessVideo");
                         Debug.WriteLine($"MultiplayerGuessVideo element found: {_multiplayerGuessVideoElement != null}");
+                        if (_multiplayerGuessVideoElement != null)
+                        {
+                            Debug.WriteLine($"  - IsVisible: {_multiplayerGuessVideoElement.IsVisible}");
+                            Debug.WriteLine($"  - Width: {_multiplayerGuessVideoElement.Width}, Height: {_multiplayerGuessVideoElement.Height}");
+                        }
                     }
                     else
                     {
                         _sharedVideoElement = FindMediaElement("SharedVideo");
                         Debug.WriteLine($"SharedVideo element found: {_sharedVideoElement != null}");
+                        if (_sharedVideoElement != null)
+                        {
+                            Debug.WriteLine($"  - IsVisible: {_sharedVideoElement.IsVisible}");
+                            Debug.WriteLine($"  - Width: {_sharedVideoElement.Width}, Height: {_sharedVideoElement.Height}");
+                        }
                     }
                 }
                 else if (ViewModel.IsPerformMode)
@@ -359,10 +376,12 @@ namespace com.kizwiz.signwiz.Pages
                     if (ViewModel.IsMultiplayer)
                     {
                         _multiplayerPerformVideoElement = FindMediaElement("MultiplayerPerformVideo");
+                        Debug.WriteLine($"MultiplayerPerformVideo element found: {_multiplayerPerformVideoElement != null}");
                     }
                     else
                     {
                         _performVideoElement = FindMediaElement("PerformVideo");
+                        Debug.WriteLine($"PerformVideo element found: {_performVideoElement != null}");
                     }
                 }
 
@@ -371,10 +390,18 @@ namespace com.kizwiz.signwiz.Pages
                 {
                     _sharedVideoElement.PropertyChanged += OnSharedVideoPropertyChanged;
                 }
+
+                // Trigger video load if we have a current sign
+                if (ViewModel.CurrentSign != null)
+                {
+                    Debug.WriteLine("CurrentSign exists, triggering video load...");
+                    _ = LoadVideoForCurrentSign();
+                }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error in OnPageLoaded: {ex.Message}");
+                Debug.WriteLine($"StackTrace: {ex.StackTrace}");
             }
         }
 
@@ -1259,5 +1286,163 @@ namespace com.kizwiz.signwiz.Pages
                 Debug.WriteLine($"Error in OnPlayerGuessAnswerClicked: {ex.Message}");
             }
         }
+
+        #region Visual Feedback Animations
+        /// <summary>
+        /// Shows stylish visual feedback for correct or incorrect answers using border animations and badges
+        /// </summary>
+        /// <param name="isCorrect">True for correct answer (green glow), false for incorrect (red shake)</param>
+        public async Task ShowStylishFeedback(bool isCorrect)
+        {
+            try
+            {
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    // Determine which border and badge to use based on mode
+                    Border? videoBorder = null;
+                    Border? feedbackBadge = null;
+                    Label? feedbackBadgeText = null;
+
+                    if (_viewModel.IsGuessMode)
+                    {
+                        videoBorder = this.FindByName<Border>("VideoGuessBorder");
+                        feedbackBadge = this.FindByName<Border>("FeedbackBadge");
+                        feedbackBadgeText = this.FindByName<Label>("FeedbackBadgeText");
+                    }
+                    else if (_viewModel.IsPerformMode)
+                    {
+                        if (_viewModel.IsMultiplayer)
+                        {
+                            videoBorder = this.FindByName<Border>("VideoPerformMultiplayerBorder");
+                            feedbackBadge = this.FindByName<Border>("FeedbackBadgePerformMultiplayer");
+                            feedbackBadgeText = this.FindByName<Label>("FeedbackBadgeTextPerformMultiplayer");
+                        }
+                        else
+                        {
+                            videoBorder = this.FindByName<Border>("VideoPerformBorder");
+                            feedbackBadge = this.FindByName<Border>("FeedbackBadgePerform");
+                            feedbackBadgeText = this.FindByName<Label>("FeedbackBadgeTextPerform");
+                        }
+                    }
+
+                    if (videoBorder == null || feedbackBadge == null || feedbackBadgeText == null)
+                    {
+                        Debug.WriteLine("Could not find video border or feedback badge elements");
+                        return;
+                    }
+
+                    // Set badge text and color
+                    if (isCorrect)
+                    {
+                        feedbackBadgeText.Text = "✨ MAGICAL!";
+                        feedbackBadge.BackgroundColor = Color.FromArgb("#28a745"); // Green
+                        await AnimateCorrectFeedback(videoBorder, feedbackBadge);
+                    }
+                    else
+                    {
+                        feedbackBadgeText.Text = "🔮 TRY AGAIN";
+                        feedbackBadge.BackgroundColor = Color.FromArgb("#dc3545"); // Red
+                        await AnimateIncorrectFeedback(videoBorder, feedbackBadge);
+                    }
+
+                    // Hide badge after delay
+                    await Task.Delay(1500);
+                    feedbackBadge.IsVisible = false;
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in ShowStylishFeedback: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Animates correct answer feedback with emerald green pulsing glow
+        /// </summary>
+        private async Task AnimateCorrectFeedback(Border videoBorder, Border feedbackBadge)
+        {
+            try
+            {
+                // Show the badge with fade-in
+                feedbackBadge.Opacity = 0;
+                feedbackBadge.IsVisible = true;
+                await feedbackBadge.FadeTo(1, 250);
+
+                // Animate the border with pulsing green glow
+                var greenColor = Color.FromArgb("#28a745");
+
+                // Pulse 1: Grow
+                videoBorder.Stroke = greenColor;
+                var animation = new Animation(v => videoBorder.StrokeThickness = v, 0, 6);
+                animation.Commit(videoBorder, "GlowPulse1", 16, 500, Easing.CubicOut);
+                await Task.Delay(500);
+
+                // Pulse 2: Hold and fade
+                var animation2 = new Animation(v => videoBorder.StrokeThickness = v, 6, 4);
+                animation2.Commit(videoBorder, "GlowPulse2", 16, 250, Easing.Linear);
+                await Task.Delay(250);
+
+                // Fade out border
+                var animation3 = new Animation(v => videoBorder.StrokeThickness = v, 4, 0);
+                animation3.Commit(videoBorder, "GlowFadeOut", 16, 500, Easing.CubicIn);
+
+                // Fade border color to transparent
+                await Task.Delay(500);
+                videoBorder.Stroke = Colors.Transparent;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in AnimateCorrectFeedback: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Animates incorrect answer feedback with crimson red flash and shake
+        /// </summary>
+        private async Task AnimateIncorrectFeedback(Border videoBorder, Border feedbackBadge)
+        {
+            try
+            {
+                // Show the badge with fade-in
+                feedbackBadge.Opacity = 0;
+                feedbackBadge.IsVisible = true;
+                await feedbackBadge.FadeTo(1, 250);
+
+                // Flash red border
+                var redColor = Color.FromArgb("#dc3545");
+                videoBorder.Stroke = redColor;
+                videoBorder.StrokeThickness = 6;
+
+                // Shake animation - rapid left-right movement
+                await Task.WhenAll(
+                    videoBorder.TranslateTo(10, 0, 50),
+                    Task.Run(async () => 
+                    {
+                        await Task.Delay(50);
+                        await videoBorder.TranslateTo(-10, 0, 50);
+                        await Task.Delay(50);
+                        await videoBorder.TranslateTo(8, 0, 50);
+                        await Task.Delay(50);
+                        await videoBorder.TranslateTo(-8, 0, 50);
+                        await Task.Delay(50);
+                        await videoBorder.TranslateTo(5, 0, 50);
+                        await Task.Delay(50);
+                        await videoBorder.TranslateTo(0, 0, 50);
+                    })
+                );
+
+                // Fade out border
+                var animation = new Animation(v => videoBorder.StrokeThickness = v, 6, 0);
+                animation.Commit(videoBorder, "RedFlashFadeOut", 16, 500, Easing.CubicIn);
+
+                await Task.Delay(500);
+                videoBorder.Stroke = Colors.Transparent;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in AnimateIncorrectFeedback: {ex.Message}");
+            }
+        }
+        #endregion
     }
 }

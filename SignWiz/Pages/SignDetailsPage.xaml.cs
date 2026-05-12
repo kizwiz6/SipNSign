@@ -50,6 +50,42 @@ public partial class SignDetailsPage : ContentPage
         {
             Debug.WriteLine("SignDetailsPage: Dispatched, loading video...");
             await LoadVideoAsync();
+
+#if ANDROID
+            // Android-specific: Force the video surface to render properly
+            await Task.Delay(200);
+            if (SignVideo?.Handler?.PlatformView is Android.Views.View androidView)
+            {
+                Debug.WriteLine("SignDetailsPage: Applying Android-specific video rendering fixes");
+                Debug.WriteLine($"Android view type: {androidView.GetType().Name}");
+
+                // Find the SurfaceView child if it exists
+                if (androidView is Android.Views.ViewGroup viewGroup)
+                {
+                    for (int i = 0; i < viewGroup.ChildCount; i++)
+                    {
+                        var child = viewGroup.GetChildAt(i);
+                        Debug.WriteLine($"  Child {i}: {child?.GetType().Name}");
+
+                        if (child is Android.Views.SurfaceView surfaceView)
+                        {
+                            Debug.WriteLine("  Found SurfaceView, applying z-order fixes");
+                            surfaceView.SetZOrderOnTop(false);
+                            surfaceView.SetZOrderMediaOverlay(true);
+                            surfaceView.BringToFront();
+                            surfaceView.Invalidate();
+                        }
+                    }
+                }
+
+                // Force parent to redraw
+                androidView.BringToFront();
+                androidView.Invalidate();
+                androidView.RequestLayout();
+
+                Debug.WriteLine("SignDetailsPage: Android video rendering fixes applied");
+            }
+#endif
         });
     }
 
@@ -73,6 +109,14 @@ public partial class SignDetailsPage : ContentPage
         {
             var videoFileName = Path.GetFileName(_sign.VideoPath);
             Debug.WriteLine($"=== SignDetailsPage LoadVideo: {videoFileName} ===");
+            Debug.WriteLine($"SignVideo element exists: {SignVideo != null}");
+
+            if (SignVideo != null)
+            {
+                Debug.WriteLine($"  - IsVisible: {SignVideo.IsVisible}");
+                Debug.WriteLine($"  - Width: {SignVideo.Width}, Height: {SignVideo.Height}");
+                Debug.WriteLine($"  - Bounds: {SignVideo.Bounds}");
+            }
 
             // Wait for the MediaElement handler to be ready (same pattern as GamePage)
             int retries = 0;
@@ -93,6 +137,7 @@ public partial class SignDetailsPage : ContentPage
 
             var videoPath = await _videoService.GetVideoPath(videoFileName);
             Debug.WriteLine($"Video path resolved: {videoPath}");
+            Debug.WriteLine($"File exists: {File.Exists(videoPath)}");
 
             var source = MediaSource.FromUri(new Uri(videoPath));
 
@@ -108,16 +153,19 @@ public partial class SignDetailsPage : ContentPage
                 SignVideo.Source = source;
                 SignVideo.IsVisible = true;
                 Debug.WriteLine($"Video source set, State: {SignVideo.CurrentState}");
+                Debug.WriteLine($"After setting source - Width: {SignVideo.Width}, Height: {SignVideo.Height}");
                 // ShouldAutoPlay=True handles playback start; OnMediaOpened is the safety net
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error setting video source: {ex.Message}");
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
             }
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"Error loading video: {ex.Message}");
+            Debug.WriteLine($"Stack trace: {ex.StackTrace}");
             await DisplayAlertAsync("Error", "Unable to load the sign video.", "OK");
         }
     }
@@ -127,12 +175,27 @@ public partial class SignDetailsPage : ContentPage
         Debug.WriteLine($"SignDetailsPage: Media opened, source set: {_videoSourceSet}");
         if (!_videoSourceSet) return;
 
-        MainThread.BeginInvokeOnMainThread(() =>
+        MainThread.BeginInvokeOnMainThread(async () =>
         {
             try
             {
+                Debug.WriteLine($"SignDetailsPage: Starting play sequence...");
+
+                // Android workaround: Force a layout refresh to ensure SurfaceView renders
+                SignVideo.IsVisible = false;
+                await Task.Delay(100);
+                SignVideo.IsVisible = true;
+
+                // Force layout invalidation
+                SignVideo.InvalidateMeasure();
+                await Task.Delay(100);
+
                 SignVideo.Play();
                 Debug.WriteLine($"SignDetailsPage: Play command sent, State: {SignVideo.CurrentState}");
+
+                // Double-check after a moment
+                await Task.Delay(500);
+                Debug.WriteLine($"SignDetailsPage: After delay - State: {SignVideo.CurrentState}, IsVisible: {SignVideo.IsVisible}");
             }
             catch (Exception ex)
             {

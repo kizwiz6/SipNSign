@@ -73,6 +73,10 @@ namespace com.kizwiz.signwiz.ViewModels
         private ICommand? _confirmGuessAnswersCommand;
         private ICommand? _resumeCommand;
         private string _currentPlayerTurnText = string.Empty;
+
+        // Reference to the page for triggering animations
+        private WeakReference<object>? _pageReference;
+
         private int GetTotalQuestions() => Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
         public int TotalQuestions => GetTotalQuestions();
         private int _signsPlayed = 0;
@@ -1077,15 +1081,10 @@ namespace com.kizwiz.signwiz.ViewModels
                 // Run UI updates on main thread
                 await MainThread.InvokeOnMainThreadAsync(() => {
                     UpdateButtonColor(answer, isCorrect);
-
-                    // Only show feedback if enabled
-                    if (Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true))
-                    {
-                        FeedbackText = GetFeedbackText(isCorrect);
-                        FeedbackBackgroundColor = GetFeedbackColor(isCorrect);
-                        IsFeedbackVisible = true;
-                    }
                 });
+
+                // Trigger stylish feedback animation instead of overlay
+                await TriggerStylishFeedback(isCorrect);
 
                 // Log activity
                 if (isCorrect)
@@ -1101,11 +1100,17 @@ namespace com.kizwiz.signwiz.ViewModels
                 // Check if this is the last question
                 bool isLastQuestion = _availableIndices.Count == 0;
 
-                await ShowFeedbackAndContinue(isCorrect);
+                // Wait for feedback duration
+                await Task.Delay(1500);
 
                 if (isLastQuestion)
                 {
                     EndGame();
+                }
+                else
+                {
+                    // Load next sign
+                    LoadNextSign();
                 }
             }
             finally
@@ -1935,6 +1940,41 @@ namespace com.kizwiz.signwiz.ViewModels
         public virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        /// <summary>
+        /// Sets the page reference for triggering visual feedback animations
+        /// </summary>
+        public void SetPageReference(object page)
+        {
+            _pageReference = new WeakReference<object>(page);
+        }
+
+        /// <summary>
+        /// Triggers the stylish visual feedback animation on the page
+        /// </summary>
+        private async Task TriggerStylishFeedback(bool isCorrect)
+        {
+            try
+            {
+                if (_pageReference?.TryGetTarget(out var page) == true)
+                {
+                    // Use reflection to call the ShowStylishFeedback method
+                    var method = page.GetType().GetMethod("ShowStylishFeedback");
+                    if (method != null)
+                    {
+                        var task = method.Invoke(page, new object[] { isCorrect }) as Task;
+                        if (task != null)
+                        {
+                            await task;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error triggering stylish feedback: {ex.Message}");
+            }
         }
         #endregion
 
