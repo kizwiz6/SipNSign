@@ -711,6 +711,12 @@ namespace com.kizwiz.signwiz.Pages
                         // Reset button colors when new sign loads
                         InitializeAnswerButtonColors();
 
+                        // Reset multiplayer answer buttons to default state
+                        if (_viewModel.IsMultiplayer && _viewModel.IsGuessMode)
+                        {
+                            ResetMultiplayerAnswerButtons();
+                        }
+
                         // Initialize elements if not done yet
                         if (_viewModel.IsGuessMode && _viewModel.IsMultiplayer && _multiplayerGuessVideoElement == null)
                         {
@@ -982,6 +988,82 @@ namespace com.kizwiz.signwiz.Pages
 
         #region Game Controls
         /// <summary>
+        /// Handles when an answer button is loaded - sets initial theme color immediately
+        /// </summary>
+        private void OnAnswerButtonLoaded(object sender, EventArgs e)
+        {
+            if (sender is Button button)
+            {
+                Color themeColor = GetThemeColor();
+                var themeBrush = new SolidColorBrush(themeColor);
+                button.Background = themeBrush;
+                Debug.WriteLine($"Answer button '{button.Text}' loaded with theme color");
+            }
+        }
+
+        /// <summary>
+        /// Handles when a single player perform button is loaded - sets color immediately
+        /// </summary>
+        private void OnPerformButtonLoaded(object sender, EventArgs e)
+        {
+            if (sender is Button button)
+            {
+                // Determine color based on button name
+                Color buttonColor;
+                if (button.Text != null && button.Text.Contains("RIGHT"))
+                {
+                    buttonColor = Color.FromArgb("#228B22"); // ForestGreen
+                }
+                else
+                {
+                    buttonColor = Color.FromArgb("#DC143C"); // Crimson
+                }
+
+                var colorBrush = new SolidColorBrush(buttonColor);
+                button.Background = colorBrush;
+                Debug.WriteLine($"Perform button '{button.Text}' loaded with color {buttonColor}");
+            }
+        }
+
+        /// <summary>
+        /// Handles when a multiplayer player perform button is loaded - sets color immediately
+        /// </summary>
+        private void OnPlayerPerformButtonLoaded(object sender, EventArgs e)
+        {
+            if (sender is Button button)
+            {
+                // Determine color based on button text (✓ or ✗)
+                Color buttonColor;
+                if (button.Text == "✓")
+                {
+                    buttonColor = Color.FromArgb("#228B22"); // ForestGreen
+                }
+                else
+                {
+                    buttonColor = Color.FromArgb("#DC143C"); // Crimson
+                }
+
+                var colorBrush = new SolidColorBrush(buttonColor);
+                button.Background = colorBrush;
+                Debug.WriteLine($"Player perform button '{button.Text}' for player {button.ClassId} loaded with color {buttonColor}");
+            }
+        }
+
+        /// <summary>
+        /// Handles when a multiplayer player answer button is loaded - sets initial theme color immediately
+        /// </summary>
+        private void OnPlayerAnswerButtonLoaded(object sender, EventArgs e)
+        {
+            if (sender is Button button)
+            {
+                Color themeColor = GetThemeColor();
+                var themeBrush = new SolidColorBrush(themeColor);
+                button.Background = themeBrush;
+                Debug.WriteLine($"Player answer button {button.CommandParameter} for player {button.ClassId} loaded with theme color");
+            }
+        }
+
+        /// <summary>
         /// Initializes answer button colors from the current theme
         /// </summary>
         private void InitializeAnswerButtonColors()
@@ -1033,6 +1115,85 @@ namespace com.kizwiz.signwiz.Pages
 
             // Fallback to a default blue color
             return Color.FromArgb("#007BFF");
+        }
+
+        /// <summary>
+        /// Resets all multiplayer answer buttons to default state
+        /// </summary>
+        private void ResetMultiplayerAnswerButtons()
+        {
+            try
+            {
+                Debug.WriteLine("=== ResetMultiplayerAnswerButtons called ===");
+                Color defaultColor = GetThemeColor();
+                var defaultBrush = new SolidColorBrush(defaultColor);
+
+                // Force the UI to update by dispatching on main thread
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    // Find the CollectionView containing player rows
+                    var playersList = FindAllElements<Button>(this)
+                        .Where(b => b.ClassId != null && 
+                               (b.CommandParameter as string) != null &&
+                               int.TryParse(b.CommandParameter as string, out _))
+                        .ToList();
+
+                    foreach (var button in playersList)
+                    {
+                        button.Background = defaultBrush;
+                        button.Scale = 1.0;
+                        Debug.WriteLine($"Reset button for player {button.ClassId}, answer {button.CommandParameter}");
+                    }
+
+                    Debug.WriteLine($"Reset {playersList.Count} multiplayer answer buttons");
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in ResetMultiplayerAnswerButtons: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Recursively finds all elements of a specific type in the visual tree
+        /// </summary>
+        private List<T> FindAllElements<T>(Element element) where T : Element
+        {
+            var elements = new List<T>();
+
+            if (element is T item)
+            {
+                elements.Add(item);
+            }
+
+            if (element is Layout layout)
+            {
+                foreach (var child in layout.Children)
+                {
+                    if (child is Element childElement)
+                    {
+                        elements.AddRange(FindAllElements<T>(childElement));
+                    }
+                }
+            }
+            else if (element is ContentView contentView && contentView.Content is Element content)
+            {
+                elements.AddRange(FindAllElements<T>(content));
+            }
+            else if (element is ScrollView scrollView && scrollView.Content is Element scrollContent)
+            {
+                elements.AddRange(FindAllElements<T>(scrollContent));
+            }
+            else if (element is Border border && border.Content is Element borderContent)
+            {
+                elements.AddRange(FindAllElements<T>(borderContent));
+            }
+            else if (element is CollectionView collectionView)
+            {
+                // CollectionView items are handled dynamically, skip for now
+            }
+
+            return elements;
         }
 
         /// <summary>
@@ -1140,10 +1301,22 @@ namespace com.kizwiz.signwiz.Pages
                             IsCorrect = true
                         });
 
-                        // Show feedback
-                        _viewModel.FeedbackText = $"{player.Name} got it right!";
-                        _viewModel.FeedbackBackgroundColor = _viewModel.GetFeedbackColor(true);
-                        _viewModel.IsFeedbackVisible = true;
+                        // Show feedback - use perform feedback if in perform mode
+                        if (_viewModel.IsPerformMode && _viewModel.IsMultiplayer)
+                        {
+                            ShowMultiplayerPerformFeedback($"{player.Name} got it right! ✓", true);
+                        }
+                        else
+                        {
+                            _viewModel.FeedbackText = $"{player.Name} got it right!";
+                            _viewModel.FeedbackBackgroundColor = _viewModel.GetFeedbackColor(true);
+                            _viewModel.IsFeedbackVisible = true;
+
+                            // Auto-hide feedback after 2 seconds
+                            Dispatcher.DispatchDelayed(TimeSpan.FromSeconds(2), () => {
+                                _viewModel.IsFeedbackVisible = false;
+                            });
+                        }
 
                         // Force UI refresh
                         _viewModel.OnPropertyChanged(nameof(_viewModel.Players));
@@ -1151,11 +1324,6 @@ namespace com.kizwiz.signwiz.Pages
 
                         Debug.WriteLine($"Player {player.Name} updated: HasAnswered={player.HasAnswered}, GotCurrentAnswerCorrect={player.GotCurrentAnswerCorrect}, Score={player.Score}");
                         Debug.WriteLine($"HasAllPlayersAnswered: {_viewModel.HasAllPlayersAnswered}");
-
-                        // Auto-hide feedback after 2 seconds
-                        Dispatcher.DispatchDelayed(TimeSpan.FromSeconds(2), () => {
-                            _viewModel.IsFeedbackVisible = false;
-                        });
                     }
                     else
                     {
@@ -1200,10 +1368,22 @@ namespace com.kizwiz.signwiz.Pages
                             IsCorrect = false
                         });
 
-                        // Show feedback
-                        _viewModel.FeedbackText = $"{player.Name} got it wrong!";
-                        _viewModel.FeedbackBackgroundColor = _viewModel.GetFeedbackColor(false);
-                        _viewModel.IsFeedbackVisible = true;
+                        // Show feedback - use perform feedback if in perform mode
+                        if (_viewModel.IsPerformMode && _viewModel.IsMultiplayer)
+                        {
+                            ShowMultiplayerPerformFeedback($"{player.Name} got it wrong ✗", false);
+                        }
+                        else
+                        {
+                            _viewModel.FeedbackText = $"{player.Name} got it wrong!";
+                            _viewModel.FeedbackBackgroundColor = _viewModel.GetFeedbackColor(false);
+                            _viewModel.IsFeedbackVisible = true;
+
+                            // Auto-hide feedback after 2 seconds
+                            Dispatcher.DispatchDelayed(TimeSpan.FromSeconds(2), () => {
+                                _viewModel.IsFeedbackVisible = false;
+                            });
+                        }
 
                         // Force UI refresh
                         _viewModel.OnPropertyChanged(nameof(_viewModel.Players));
@@ -1211,11 +1391,6 @@ namespace com.kizwiz.signwiz.Pages
 
                         Debug.WriteLine($"Player {player.Name} updated: HasAnswered={player.HasAnswered}, GotCurrentAnswerCorrect={player.GotCurrentAnswerCorrect}, Score={player.Score}");
                         Debug.WriteLine($"HasAllPlayersAnswered: {_viewModel.HasAllPlayersAnswered}");
-
-                        // Auto-hide feedback after 2 seconds
-                        Dispatcher.DispatchDelayed(TimeSpan.FromSeconds(2), () => {
-                            _viewModel.IsFeedbackVisible = false;
-                        });
                     }
                     else
                     {
@@ -1285,12 +1460,12 @@ namespace com.kizwiz.signwiz.Pages
         {
             try
             {
-                if (sender is Button button &&
-                    !string.IsNullOrEmpty(button.ClassId) &&
-                    button.CommandParameter is string answerNumberStr &&
+                if (sender is Button clickedButton &&
+                    !string.IsNullOrEmpty(clickedButton.ClassId) &&
+                    clickedButton.CommandParameter is string answerNumberStr &&
                     int.TryParse(answerNumberStr, out int answerNumber))
                 {
-                    string playerName = button.ClassId;
+                    string playerName = clickedButton.ClassId;
                     Debug.WriteLine($"OnPlayerGuessAnswerClicked: Player={playerName}, Answer={answerNumber}");
 
                     // Find the player by name
@@ -1309,10 +1484,11 @@ namespace com.kizwiz.signwiz.Pages
                             // Record the answer with the number and text
                             player.RecordGuessAnswer(answerNumber, answerText, isCorrect);
 
-                            // Show feedback
-                            _viewModel.FeedbackText = $"{player.Name} selected {answerNumber}: {answerText}";
-                            _viewModel.FeedbackBackgroundColor = Color.FromArgb("#007BFF"); // Use a neutral color
-                            _viewModel.IsFeedbackVisible = true;
+                            // Highlight the selected button and reset others for this player
+                            HighlightPlayerAnswerButton(clickedButton, playerName, answerNumber);
+
+                            // Show feedback badge at bottom of video
+                            ShowMultiplayerFeedback($"{player.Name} selected:\n{answerNumber}. {answerText}");
 
                             // Force UI refresh
                             _viewModel.OnPropertyChanged(nameof(_viewModel.Players));
@@ -1320,11 +1496,6 @@ namespace com.kizwiz.signwiz.Pages
 
                             Debug.WriteLine($"Player {player.Name} updated: HasAnswered={player.HasAnswered}, Score={player.Score}");
                             Debug.WriteLine($"HasAllPlayersAnswered: {_viewModel.HasAllPlayersAnswered}");
-
-                            // Auto-hide feedback after 2 seconds
-                            Dispatcher.DispatchDelayed(TimeSpan.FromSeconds(2), () => {
-                                _viewModel.IsFeedbackVisible = false;
-                            });
                         }
                         else
                         {
@@ -1344,6 +1515,165 @@ namespace com.kizwiz.signwiz.Pages
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error in OnPlayerGuessAnswerClicked: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Shows multiplayer feedback badge at bottom of video
+        /// </summary>
+        private async void ShowMultiplayerFeedback(string message)
+        {
+            try
+            {
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    var feedbackBadge = this.FindByName<Border>("MultiplayerFeedbackBadge");
+                    var feedbackText = this.FindByName<Label>("MultiplayerFeedbackText");
+
+                    if (feedbackBadge != null && feedbackText != null)
+                    {
+                        feedbackText.Text = message;
+                        feedbackBadge.Opacity = 0;
+                        feedbackBadge.IsVisible = true;
+
+                        // Fade in
+                        await feedbackBadge.FadeTo(1, 250);
+
+                        // Keep visible for 2 seconds
+                        await Task.Delay(2000);
+
+                        // Fade out
+                        await feedbackBadge.FadeTo(0, 250);
+                        feedbackBadge.IsVisible = false;
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in ShowMultiplayerFeedback: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Shows multiplayer perform feedback badge at bottom of video
+        /// </summary>
+        private async void ShowMultiplayerPerformFeedback(string message, bool isCorrect)
+        {
+            try
+            {
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    var feedbackBadge = this.FindByName<Border>("MultiplayerPerformFeedbackBadge");
+                    var feedbackText = this.FindByName<Label>("MultiplayerPerformFeedbackText");
+
+                    if (feedbackBadge != null && feedbackText != null)
+                    {
+                        feedbackText.Text = message;
+                        // Set background color based on correct/incorrect
+                        feedbackBadge.BackgroundColor = isCorrect ? Color.FromArgb("#28a745") : Color.FromArgb("#dc3545");
+                        feedbackBadge.Opacity = 0;
+                        feedbackBadge.IsVisible = true;
+
+                        // Fade in
+                        await feedbackBadge.FadeTo(1, 250);
+
+                        // Keep visible for 2 seconds
+                        await Task.Delay(2000);
+
+                        // Fade out
+                        await feedbackBadge.FadeTo(0, 250);
+                        feedbackBadge.IsVisible = false;
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in ShowMultiplayerPerformFeedback: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Shows single player perform feedback badge at bottom of video
+        /// </summary>
+        public async Task ShowSinglePlayerPerformFeedback(string message, bool isCorrect)
+        {
+            try
+            {
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    var feedbackBadge = this.FindByName<Border>("SinglePlayerPerformFeedbackBadge");
+                    var feedbackText = this.FindByName<Label>("SinglePlayerPerformFeedbackText");
+
+                    if (feedbackBadge != null && feedbackText != null)
+                    {
+                        feedbackText.Text = message;
+                        // Set background color based on correct/incorrect
+                        feedbackBadge.BackgroundColor = isCorrect ? Color.FromArgb("#28a745") : Color.FromArgb("#dc3545");
+                        feedbackBadge.Opacity = 0;
+                        feedbackBadge.IsVisible = true;
+
+                        // Fade in
+                        await feedbackBadge.FadeTo(1, 250);
+
+                        // Keep visible for 1.5 seconds
+                        await Task.Delay(1500);
+
+                        // Fade out
+                        await feedbackBadge.FadeTo(0, 250);
+                        feedbackBadge.IsVisible = false;
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in ShowSinglePlayerPerformFeedback: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Highlights the selected player answer button and resets others
+        /// </summary>
+        private void HighlightPlayerAnswerButton(Button selectedButton, string playerName, int selectedAnswer)
+        {
+            try
+            {
+                // Find all buttons for this player in the CollectionView
+                var collectionView = this.FindByName<CollectionView>("ItemsSource");
+
+                // Get the parent StackLayout containing all 4 buttons
+                var parent = selectedButton.Parent as StackLayout;
+                if (parent != null)
+                {
+                    // Get theme colors
+                    Color selectedColor = Color.FromArgb("#4169E1"); // Royal Blue - selected but not revealed
+                    Color defaultColor = GetThemeColor();
+
+                    var selectedBrush = new SolidColorBrush(selectedColor);
+                    var defaultBrush = new SolidColorBrush(defaultColor);
+
+                    // Reset all buttons to default, highlight the selected one
+                    foreach (var child in parent.Children)
+                    {
+                        if (child is Button btn)
+                        {
+                            if (btn == selectedButton)
+                            {
+                                btn.Background = selectedBrush;
+                                btn.Scale = 1.1;
+                                Debug.WriteLine($"Highlighted button {btn.Text} for {playerName}");
+                            }
+                            else
+                            {
+                                btn.Background = defaultBrush;
+                                btn.Scale = 1.0;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in HighlightPlayerAnswerButton: {ex.Message}");
             }
         }
 

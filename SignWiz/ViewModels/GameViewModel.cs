@@ -883,13 +883,26 @@ namespace com.kizwiz.signwiz.ViewModels
 
                     if (Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true))
                     {
-                        FeedbackText = GetFeedbackText(true);
-                        FeedbackBackgroundColor = GetFeedbackColor(true);
-                        IsFeedbackVisible = true;
+                        // Show feedback overlay on video if we have page reference
+                        if (_pageReference != null && _pageReference.TryGetTarget(out var page) && page is Pages.GamePage gamePage)
+                        {
+                            await gamePage.ShowSinglePlayerPerformFeedback("Correct! ✓", true);
+                        }
+                        else
+                        {
+                            // Fallback to old feedback style
+                            FeedbackText = GetFeedbackText(true);
+                            FeedbackBackgroundColor = GetFeedbackColor(true);
+                            IsFeedbackVisible = true;
+                            await Task.Delay(2000);
+                            IsFeedbackVisible = false;
+                        }
+                    }
+                    else
+                    {
+                        await Task.Delay(500); // Short delay even without feedback
                     }
 
-                    await Task.Delay(2000);
-                    IsFeedbackVisible = false;
                     IsSignHidden = true;
                     await LogGameActivity(true);
                     LoadNextSign();
@@ -910,13 +923,26 @@ namespace com.kizwiz.signwiz.ViewModels
 
                     if (Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true))
                     {
-                        FeedbackText = GetFeedbackText(false);
-                        FeedbackBackgroundColor = GetFeedbackColor(false);
-                        IsFeedbackVisible = true;
+                        // Show feedback overlay on video if we have page reference
+                        if (_pageReference != null && _pageReference.TryGetTarget(out var page) && page is Pages.GamePage gamePage)
+                        {
+                            await gamePage.ShowSinglePlayerPerformFeedback("Keep practicing! ✗", false);
+                        }
+                        else
+                        {
+                            // Fallback to old feedback style
+                            FeedbackText = GetFeedbackText(false);
+                            FeedbackBackgroundColor = GetFeedbackColor(false);
+                            IsFeedbackVisible = true;
+                            await Task.Delay(2000);
+                            IsFeedbackVisible = false;
+                        }
+                    }
+                    else
+                    {
+                        await Task.Delay(500); // Short delay even without feedback
                     }
 
-                    await Task.Delay(2000);
-                    IsFeedbackVisible = false;
                     IsSignHidden = true;
                     await LogGameActivity(false);
                     LoadNextSign();
