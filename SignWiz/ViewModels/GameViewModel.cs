@@ -764,21 +764,14 @@ namespace com.kizwiz.signwiz.ViewModels
                         return;
                     }
 
-                    // Update player's answer status
-                    player.GotCurrentAnswerCorrect = isCorrect;
-                    Debug.WriteLine($"Set {player.Name}.GotCurrentAnswerCorrect = {isCorrect}");
+                    // Record the answer - this handles score updates internally via Player.RecordAnswer()
+                    player.RecordAnswer(isCorrect);
+                    Debug.WriteLine($"Recorded answer for {player.Name}: {(isCorrect ? "Correct" : "Incorrect")}, Score: {player.Score}");
 
-                    // Update score if correct
-                    if (isCorrect)
+                    // Keep main player's CurrentScore in sync
+                    if (player.IsMainPlayer)
                     {
-                        player.Score += 1;
-                        Debug.WriteLine($"Updated {player.Name} score to {player.Score}");
-
-                        // Keep main player's CurrentScore in sync
-                        if (player.IsMainPlayer)
-                        {
-                            CurrentScore = player.Score;
-                        }
+                        CurrentScore = player.Score;
                     }
 
                     // Update UI on main thread (no logging here — Confirm command will log)

@@ -297,6 +297,12 @@ namespace com.kizwiz.signwiz.Pages
             {
                 vm.ConfirmGuessAnswersCommand.Execute(null);
             }
+
+            // Scroll back to top of player list after confirming
+            if (vm.IsMultiplayer && vm.IsGuessMode)
+            {
+                await ScrollPlayerListToTop();
+            }
         }
         #endregion
 
@@ -1472,15 +1478,8 @@ namespace com.kizwiz.signwiz.Pages
                     {
                         Debug.WriteLine($"Found player: {player.Name}, recording correct answer");
 
-                        // Use the new RecordAnswer method (allows changing answers)
+                        // Use the new RecordAnswer method (allows changing answers and handles scoring)
                         player.RecordAnswer(true);
-
-                        // Notify the ViewModel that the player's answer state has changed
-                        ViewModel.RecordPlayerAnswer(new PlayerAnswerParameter
-                        {
-                            Player = player,
-                            IsCorrect = true
-                        });
 
                         // Show feedback - use perform feedback if in perform mode
                         if (_viewModel.IsPerformMode && _viewModel.IsMultiplayer)
@@ -1540,14 +1539,8 @@ namespace com.kizwiz.signwiz.Pages
                     {
                         Debug.WriteLine($"Found player: {player.Name}, recording incorrect answer");
 
-                        // Use the new RecordAnswer method (allows changing answers)
+                        // Use the new RecordAnswer method (allows changing answers and handles scoring)
                         player.RecordAnswer(false);
-
-                        ViewModel.RecordPlayerAnswer(new PlayerAnswerParameter
-                        {
-                            Player = player,
-                            IsCorrect = false
-                        });
 
                         // Show feedback - use perform feedback if in perform mode
                         if (_viewModel.IsPerformMode && _viewModel.IsMultiplayer)
@@ -1858,6 +1851,30 @@ namespace com.kizwiz.signwiz.Pages
             }
         }
 
+        /// <summary>
+        /// Scrolls the multiplayer player list back to the top
+        /// </summary>
+        private async Task ScrollPlayerListToTop()
+        {
+            try
+            {
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    var collectionView = this.FindByName<CollectionView>("MultiplayerPlayersCollectionView");
+                    if (collectionView != null && _viewModel?.Players != null && _viewModel.Players.Count > 0)
+                    {
+                        // Scroll to the first player in the list
+                        collectionView.ScrollTo(0, position: ScrollToPosition.Start, animate: true);
+                        Debug.WriteLine("Scrolled player list to top");
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error scrolling player list to top: {ex.Message}");
+            }
+        }
+
         #region Visual Feedback Animations
         /// <summary>
         /// Shows button flash feedback, border glow, and correct answer badge for Guess mode
@@ -1988,10 +2005,10 @@ namespace com.kizwiz.signwiz.Pages
 
                         await Task.WhenAll(tasks);
 
-                        // Show the correct answer badge
+                        // Show the correct answer badge (just the sign name, no checkmark)
                         if (correctAnswerBadge != null && correctAnswerText != null)
                         {
-                            correctAnswerText.Text = $"✓ {_viewModel.CurrentSign?.CorrectAnswer}";
+                            correctAnswerText.Text = _viewModel.CurrentSign?.CorrectAnswer ?? "";
                             correctAnswerBadge.Opacity = 0;
                             correctAnswerBadge.IsVisible = true;
                             await correctAnswerBadge.FadeToAsync(1, 300);
@@ -2010,7 +2027,7 @@ namespace com.kizwiz.signwiz.Pages
         }
 
         /// <summary>
-        /// Flash a button green for 1 second with gradient magic theme
+        /// Flash a button green - keeps the color until next sign loads
         /// </summary>
         private async Task FlashButtonGreen(Button button)
         {
@@ -2026,17 +2043,10 @@ namespace com.kizwiz.signwiz.Pages
                 button.Background = greenBrush;
                 button.TextColor = Colors.White;
 
-                Debug.WriteLine($"FlashButtonGreen SET: Button '{button.Text}' changed to GREEN");
+                Debug.WriteLine($"FlashButtonGreen SET: Button '{button.Text}' changed to GREEN - will stay until next sign");
 
-                await Task.Delay(1500);
-
-                // Restore to theme color
-                Color themeColor = GetThemeColor();
-                var themeBrush = new SolidColorBrush(themeColor);
-                button.Background = themeBrush;
-                button.TextColor = Colors.White;
-
-                Debug.WriteLine($"FlashButtonGreen RESTORE: Button '{button.Text}' restored to theme color");
+                // No restoration - color persists until InitializeAnswerButtonColors is called for next sign
+                await Task.CompletedTask;
             }
             catch (Exception ex)
             {
@@ -2046,7 +2056,7 @@ namespace com.kizwiz.signwiz.Pages
         }
 
         /// <summary>
-        /// Flash a button red for 1 second with magic theme
+        /// Flash a button red - keeps the color until next sign loads
         /// </summary>
         private async Task FlashButtonRed(Button button)
         {
@@ -2062,17 +2072,10 @@ namespace com.kizwiz.signwiz.Pages
                 button.Background = redBrush;
                 button.TextColor = Colors.White;
 
-                Debug.WriteLine($"FlashButtonRed SET: Button '{button.Text}' changed to RED");
+                Debug.WriteLine($"FlashButtonRed SET: Button '{button.Text}' changed to RED - will stay until next sign");
 
-                await Task.Delay(1500);
-
-                // Restore to theme color
-                Color themeColor = GetThemeColor();
-                var themeBrush = new SolidColorBrush(themeColor);
-                button.Background = themeBrush;
-                button.TextColor = Colors.White;
-
-                Debug.WriteLine($"FlashButtonRed RESTORE: Button '{button.Text}' restored to theme color");
+                // No restoration - color persists until InitializeAnswerButtonColors is called for next sign
+                await Task.CompletedTask;
             }
             catch (Exception ex)
             {

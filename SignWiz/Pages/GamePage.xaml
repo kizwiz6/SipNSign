@@ -51,17 +51,24 @@
             </Style>
 
             <Style x:Key="PlayerAnswerButton" TargetType="Button">
-                <Setter Property="BackgroundColor" Value="{DynamicResource Primary}" />
+                <!-- Explicitly override the global Button style properties -->
+                <Setter Property="Background" Value="Transparent" />
                 <Setter Property="TextColor" Value="White" />
                 <Setter Property="FontSize" Value="13" />
+                <Setter Property="FontFamily" Value="OpenSansRegular" />
+                <Setter Property="FontAttributes" Value="None" />
                 <Setter Property="CornerRadius" Value="8" />
                 <Setter Property="Padding" Value="6" />
                 <Setter Property="Margin" Value="2" />
                 <Setter Property="WidthRequest" Value="40" />
                 <Setter Property="HeightRequest" Value="40" />
+                <Setter Property="BorderWidth" Value="0" />
+                <Setter Property="BorderColor" Value="Transparent" />
+                <Setter Property="CharacterSpacing" Value="0" />
+                <Setter Property="Shadow" Value="{x:Null}" />
                 <Style.Triggers>
                     <Trigger TargetType="Button" Property="IsPressed" Value="True">
-                        <Setter Property="BackgroundColor" Value="{DynamicResource PrimaryDark}" />
+                        <Setter Property="Opacity" Value="0.8" />
                     </Trigger>
                 </Style.Triggers>
             </Style>
@@ -154,8 +161,8 @@
             <Grid x:Name="GuessMainGrid" RowDefinitions="*,Auto,Auto" Padding="8" RowSpacing="6">
                 <Grid.Triggers>
                     <DataTrigger TargetType="Grid" Binding="{Binding IsMultiplayer}" Value="True">
-                        <!-- In multiplayer: video=Auto (fixed), controls=Auto (compact but tappable) -->
-                        <Setter Property="RowDefinitions" Value="Auto,Auto,Auto,Auto" />
+                        <!-- In multiplayer: video=Auto (fixed), single-player answer=Auto, multiplayer area=* (scrollable) -->
+                        <Setter Property="RowDefinitions" Value="Auto,Auto,*" />
                         <Setter Property="Padding" Value="6" />
                         <Setter Property="RowSpacing" Value="6" />
                     </DataTrigger>
@@ -176,8 +183,8 @@
                 MaximumHeightRequest="480">
                     <Border.Triggers>
                         <DataTrigger TargetType="Border" Binding="{Binding IsMultiplayer}" Value="True">
-                            <Setter Property="HeightRequest" Value="280" />
-                            <Setter Property="MaximumHeightRequest" Value="280" />
+                            <Setter Property="HeightRequest" Value="320" />
+                            <Setter Property="MaximumHeightRequest" Value="320" />
                             <Setter Property="VerticalOptions" Value="Start" />
                         </DataTrigger>
                     </Border.Triggers>
@@ -185,7 +192,7 @@
                     <Grid WidthRequest="360">
                         <Grid.Triggers>
                             <DataTrigger TargetType="Grid" Binding="{Binding IsMultiplayer}" Value="True">
-                                <Setter Property="HeightRequest" Value="280" />
+                                <Setter Property="HeightRequest" Value="320" />
                             </DataTrigger>
                         </Grid.Triggers>
 
@@ -229,7 +236,7 @@
                                 Padding="20,10"
                                 Margin="0,0,0,10"
                                 StrokeShape="RoundRectangle 15"
-                                BackgroundColor="#28a745"
+                                BackgroundColor="{DynamicResource Primary}"
                                 HorizontalOptions="Center"
                                 VerticalOptions="End"
                                 ZIndex="10">
@@ -330,7 +337,7 @@
                 </Grid>
 
                 <!-- Row 2: Multiplayer area -->
-                <Grid Grid.Row="2" IsVisible="{Binding IsMultiplayer}" RowDefinitions="Auto,Auto,Auto" VerticalOptions="Start">
+                <Grid Grid.Row="2" IsVisible="{Binding IsMultiplayer}" RowDefinitions="Auto,*,Auto" VerticalOptions="Fill">
                     <!-- Legend - Styled as non-interactive reference labels -->
                     <Grid Grid.Row="0" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" RowSpacing="4" ColumnSpacing="4" Margin="0,0,0,6">
                         <!-- Answer 1 -->
@@ -390,13 +397,13 @@
                         </Border>
                     </Grid>
 
-                    <!-- Players list: Compact list with larger tap targets -->
+                    <!-- Players list: Scrollable list with larger tap targets -->
                     <CollectionView x:Name="MultiplayerPlayersCollectionView"
                            Grid.Row="1"
                            ItemsSource="{Binding Players}"
                            ItemsLayout="VerticalList"
                            SelectionMode="None"
-                           VerticalOptions="Start">
+                           VerticalOptions="FillAndExpand">
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="models:Player">
                                 <Grid Padding="6,4">
