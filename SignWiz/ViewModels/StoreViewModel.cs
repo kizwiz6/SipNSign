@@ -33,31 +33,31 @@ namespace com.kizwiz.signwiz.ViewModels
         private partial bool IsSportsHobbiesPackPurchasable { get; set; } = true;
 
         [ObservableProperty]
-        private partial bool IsThemesPackPurchasable { get; set; } = true;
+        private bool isThemesPackPurchasable = true;
 
         [ObservableProperty]
-        private partial bool IsMultiplayerPurchasable { get; set; } = true;
+        private bool isMultiplayerPurchasable = true;
 
         [ObservableProperty]
-        private partial string? AnimalPackButtonText { get; set; }
+        private string? animalPackButtonText;
 
         [ObservableProperty]
-        private partial string? GeographyPackButtonText { get; set; }
+        private string? geographyPackButtonText;
 
         [ObservableProperty]
-        private partial string? FoodPackButtonText { get; set; }
+        private string? foodPackButtonText;
 
         [ObservableProperty]
-        private partial string? EmotionsPackButtonText { get; set; }
+        private string? emotionsPackButtonText;
 
         [ObservableProperty]
-        private partial string? SportsHobbiesPackButtonText { get; set; }
+        private string? sportsHobbiesPackButtonText;
 
         [ObservableProperty]
-        private partial string? ThemesPackButtonText { get; set; }
+        private string? themesPackButtonText;
 
         [ObservableProperty]
-        private partial string? MultiplayerButtonText { get; set; }
+        private string? multiplayerButtonText;
 
         private readonly Dictionary<string, Dictionary<string, decimal>> _regionalPrices = new()
         {
@@ -203,36 +203,44 @@ namespace com.kizwiz.signwiz.ViewModels
             {
                 bool isPurchased = await _iapService.IsProductPurchasedAsync(packId);
                 var priceText = isPurchased ? "OWNED" : FormatPrice(packId);
+                Debug.WriteLine($"UpdateButtonStates: {packId} -> isPurchased={isPurchased}, text={priceText}");
 
                 switch (packId)
                 {
                     case "animals":
                         AnimalPackButtonText = priceText;
                         IsAnimalPackPurchasable = !isPurchased;
+                        Debug.WriteLine($"  -> AnimalPack: Text={AnimalPackButtonText}, Purchasable={IsAnimalPackPurchasable}");
                         break;
                     case "geography":
                         GeographyPackButtonText = priceText;
                         IsGeographyPackPurchasable = !isPurchased;
+                        Debug.WriteLine($"  -> GeographyPack: Text={GeographyPackButtonText}, Purchasable={IsGeographyPackPurchasable}");
                         break;
                     case "food_drink":
                         FoodPackButtonText = priceText;
                         IsFoodPackPurchasable = !isPurchased;
+                        Debug.WriteLine($"  -> FoodPack: Text={FoodPackButtonText}, Purchasable={IsFoodPackPurchasable}");
                         break;
                     case "emotions":
                         EmotionsPackButtonText = priceText;
                         IsEmotionsPackPurchasable = !isPurchased;
+                        Debug.WriteLine($"  -> EmotionsPack: Text={EmotionsPackButtonText}, Purchasable={IsEmotionsPackPurchasable}");
                         break;
                     case "sports_hobbies":
                         SportsHobbiesPackButtonText = priceText;
                         IsSportsHobbiesPackPurchasable = !isPurchased;
+                        Debug.WriteLine($"  -> SportsHobbiesPack: Text={SportsHobbiesPackButtonText}, Purchasable={IsSportsHobbiesPackPurchasable}");
                         break;
                     case "premium_themes":
                         ThemesPackButtonText = priceText;
                         IsThemesPackPurchasable = !isPurchased;
+                        Debug.WriteLine($"  -> ThemesPack: Text={ThemesPackButtonText}, Purchasable={IsThemesPackPurchasable}");
                         break;
                     case "multiplayer":
                         MultiplayerButtonText = priceText;
                         IsMultiplayerPurchasable = !isPurchased;
+                        Debug.WriteLine($"  -> MultiplayerPack: Text={MultiplayerButtonText}, Purchasable={IsMultiplayerPurchasable}");
                         break;
                 }
             }
@@ -264,11 +272,16 @@ namespace com.kizwiz.signwiz.ViewModels
             try
             {
                 IsLoading = true;
+                Debug.WriteLine($"=== PurchasePack START: packId={packId} ===");
+
                 bool success = await _iapService.PurchaseAsync(packId);
+                Debug.WriteLine($"=== PurchaseAsync returned: {success} ===");
 
                 if (success)
                 {
                     await UpdateButtonStates();
+                    Debug.WriteLine($"=== UpdateButtonStates completed after purchase ===");
+
                     await Application.Current!.Windows[0].Page!.DisplayAlertAsync("Success",
                         $"Successfully purchased the {GetPackName(packId)} pack!", "OK");
                 }
@@ -282,6 +295,7 @@ namespace com.kizwiz.signwiz.ViewModels
             finally
             {
                 IsLoading = false;
+                Debug.WriteLine($"=== PurchasePack END ===");
             }
         }
 

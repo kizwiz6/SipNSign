@@ -285,6 +285,13 @@ namespace com.kizwiz.signwiz.Pages
                 return;
             }
 
+            // IMMEDIATELY reset all multiplayer button visuals BEFORE executing the command
+            if (vm.IsMultiplayer && vm.IsGuessMode)
+            {
+                Debug.WriteLine("=== RESETTING BUTTONS BEFORE CONFIRM COMMAND ===");
+                await ImmediatelyResetAllMultiplayerButtons();
+            }
+
             // All answered -> execute the Confirm command via ViewModel
             if (vm.ConfirmGuessAnswersCommand?.CanExecute(null) ?? false)
             {
@@ -714,6 +721,15 @@ namespace com.kizwiz.signwiz.Pages
                         // Reset multiplayer answer buttons to default state
                         if (_viewModel.IsMultiplayer && _viewModel.IsGuessMode)
                         {
+                            Debug.WriteLine("=== TRIGGERING MULTIPLAYER BUTTON RESET ===");
+
+                            // Force CollectionView to refresh by re-raising the Players collection
+                            _viewModel.OnPropertyChanged(nameof(_viewModel.Players));
+
+                            // Small delay to let the CollectionView update
+                            await Task.Delay(100);
+
+                            // Now reset the buttons
                             ResetMultiplayerAnswerButtons();
                         }
 
@@ -1054,12 +1070,41 @@ namespace com.kizwiz.signwiz.Pages
         /// </summary>
         private void OnPlayerAnswerButtonLoaded(object sender, EventArgs e)
         {
-            if (sender is Button button)
+            if (sender is Button button && !string.IsNullOrEmpty(button.ClassId))
             {
-                Color themeColor = GetThemeColor();
-                var themeBrush = new SolidColorBrush(themeColor);
-                button.Background = themeBrush;
-                Debug.WriteLine($"Player answer button {button.CommandParameter} for player {button.ClassId} loaded with theme color");
+                string playerName = button.ClassId;
+                var player = _viewModel?.Players?.FirstOrDefault(p => p.Name == playerName);
+
+                // Parse the answer number from CommandParameter
+                int buttonAnswerNumber = 0;
+                if (button.CommandParameter is string paramStr && int.TryParse(paramStr, out int parsed))
+                {
+                    buttonAnswerNumber = parsed;
+                }
+
+                Debug.WriteLine($"=== OnPlayerAnswerButtonLoaded: Player={playerName}, ButtonAnswer={buttonAnswerNumber}, PlayerSelectedAnswer={player?.SelectedAnswer ?? -999} ===");
+
+                // Check if this button should be highlighted based on player's current selection
+                bool shouldHighlight = player != null && 
+                                      player.SelectedAnswer == buttonAnswerNumber && 
+                                      buttonAnswerNumber > 0;
+
+                if (shouldHighlight)
+                {
+                    // Apply selection highlight
+                    Color selectedColor = Color.FromArgb("#4169E1"); // Royal Blue
+                    button.Background = new SolidColorBrush(selectedColor);
+                    button.Scale = 1.1;
+                    Debug.WriteLine($">>> HIGHLIGHTED button {buttonAnswerNumber} for {playerName}");
+                }
+                else
+                {
+                    // Apply default theme color
+                    Color themeColor = GetThemeColor();
+                    button.Background = new SolidColorBrush(themeColor);
+                    button.Scale = 1.0;
+                    Debug.WriteLine($">>> DEFAULT theme for button {buttonAnswerNumber} for {playerName}");
+                }
             }
         }
 
@@ -1118,39 +1163,175 @@ namespace com.kizwiz.signwiz.Pages
         }
 
         /// <summary>
+        /// Finds all buttons in CollectionView items by directly iterating the visual children
+        /// </summary>
+        private List<Button> FindButtonsInCollectionView(CollectionView collectionView)
+        {
+            var buttons = new List<Button>();
+
+            if (collectionView == null)
+                return buttons;
+
+            try
+            {
+                // Try to find buttons by recursively searching all visual descendants
+                var queue = new Queue<Element>();
+                queue.Enqueue(collectionView);
+
+                while (queue.Count > 0)
+                {
+                    var element = queue.Dequeue();
+
+                    if (element is Button button && 
+                        !string.IsNullOrEmpty(button.ClassId) &&
+                        button.CommandParameter is string paramStr &&
+                        int.TryParse(paramStr, out _))
+                    {
+                        buttons.Add(button);
+                        Debug.WriteLine($"  Found button: ClassId={button.ClassId}, CommandParameter={button.CommandParameter}");
+                    }
+
+                    // Add all visual children to the queue
+                    if (element is Layout layout)
+                    {
+                        foreach (var child in layout.Children)
+                        {
+                            if (child is Element childElement)
+                                queue.Enqueue(childElement);
+                        }
+                    }
+                    else if (element is ContentView contentView && contentView.Content is Element content)
+                    {
+                        queue.Enqueue(content);
+                    }
+                    else if (element is ScrollView scrollView && scrollView.Content is Element scrollContent)
+                    {
+                        queue.Enqueue(scrollContent);
+                    }
+                    else if (element is Border border && border.Content is Element borderContent)
+                    {
+                        queue.Enqueue(borderContent);
+                    }
+
+                    // Handle CollectionView - note: we rely on the layout traversal above
+                    // The buttons are in the ItemTemplate and will be found through the layout hierarchy
+                    if (element is CollectionView cv)
+                    {
+                        Debug.WriteLine($"  CollectionView has {cv.ItemsSource?.Cast<object>().Count() ?? 0} items");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in FindButtonsInCollectionView: {ex.Message}");
+            }
+
+            return buttons;
+        }
+
+        /// <summary>
         /// Resets all multiplayer answer buttons to default state
         /// </summary>
-        private void ResetMultiplayerAnswerButtons()
+        private async void ResetMultiplayerAnswerButtons()
         {
             try
             {
                 Debug.WriteLine("=== ResetMultiplayerAnswerButtons called ===");
-                Color defaultColor = GetThemeColor();
-                var defaultBrush = new SolidColorBrush(defaultColor);
 
-                // Force the UI to update by dispatching on main thread
-                MainThread.BeginInvokeOnMainThread(() =>
+                // Give the CollectionView time to update its items
+                await Task.Delay(100);
+
+                await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    // Find the CollectionView containing player rows
-                    var playersList = FindAllElements<Button>(this)
-                        .Where(b => b.ClassId != null && 
-                               (b.CommandParameter as string) != null &&
-                               int.TryParse(b.CommandParameter as string, out _))
-                        .ToList();
+                    Color defaultColor = GetThemeColor();
+                    var defaultBrush = new SolidColorBrush(defaultColor);
 
-                    foreach (var button in playersList)
+                    // Find the specific CollectionView by name
+                    var collectionView = this.FindByName<CollectionView>("MultiplayerPlayersCollectionView");
+                    if (collectionView == null)
+                    {
+                        Debug.WriteLine("ERROR: MultiplayerPlayersCollectionView not found!");
+                        return;
+                    }
+
+                    Debug.WriteLine($"Found CollectionView with {collectionView.ItemsSource?.Cast<object>().Count() ?? 0} items");
+
+                    // Use our custom method to find buttons
+                    var playerButtons = FindButtonsInCollectionView(collectionView);
+
+                    Debug.WriteLine($"Found {playerButtons.Count} player answer buttons to reset");
+
+                    foreach (var button in playerButtons)
                     {
                         button.Background = defaultBrush;
                         button.Scale = 1.0;
-                        Debug.WriteLine($"Reset button for player {button.ClassId}, answer {button.CommandParameter}");
+                        Debug.WriteLine($"  Reset button for player {button.ClassId}, answer {button.CommandParameter}");
                     }
 
-                    Debug.WriteLine($"Reset {playersList.Count} multiplayer answer buttons");
+                    // If no buttons were found, try again after a longer delay
+                    if (playerButtons.Count == 0)
+                    {
+                        Debug.WriteLine("No buttons found in CollectionView, retrying after longer delay...");
+                        await Task.Delay(300);
+
+                        playerButtons = FindButtonsInCollectionView(collectionView);
+
+                        Debug.WriteLine($"Retry found {playerButtons.Count} player answer buttons");
+
+                        foreach (var button in playerButtons)
+                        {
+                            button.Background = defaultBrush;
+                            button.Scale = 1.0;
+                            Debug.WriteLine($"  Reset button for player {button.ClassId}, answer {button.CommandParameter}");
+                        }
+                    }
+
+                    Debug.WriteLine($"Reset complete: {playerButtons.Count} buttons processed");
                 });
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error in ResetMultiplayerAnswerButtons: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Immediately resets all multiplayer answer buttons - called right before Confirm
+        /// </summary>
+        private async Task ImmediatelyResetAllMultiplayerButtons()
+        {
+            try
+            {
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    Color defaultColor = GetThemeColor();
+                    var defaultBrush = new SolidColorBrush(defaultColor);
+
+                    // Find the specific CollectionView by name
+                    var collectionView = this.FindByName<CollectionView>("MultiplayerPlayersCollectionView");
+                    if (collectionView == null)
+                    {
+                        Debug.WriteLine("ERROR: MultiplayerPlayersCollectionView not found in ImmediatelyResetAllMultiplayerButtons!");
+                        return;
+                    }
+
+                    // Use our custom method to find buttons
+                    var allButtons = FindButtonsInCollectionView(collectionView);
+
+                    Debug.WriteLine($"=== RESETTING BUTTONS BEFORE CONFIRM COMMAND ===");
+                    Debug.WriteLine($"ImmediatelyResetAllMultiplayerButtons: Resetting {allButtons.Count} buttons in CollectionView");
+
+                    foreach (var button in allButtons)
+                    {
+                        button.Background = defaultBrush;
+                        button.Scale = 1.0;
+                        Debug.WriteLine($"  Reset button {button.CommandParameter} for {button.ClassId}");
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in ImmediatelyResetAllMultiplayerButtons: {ex.Message}");
             }
         }
 
@@ -1575,13 +1756,13 @@ namespace com.kizwiz.signwiz.Pages
                         feedbackBadge.IsVisible = true;
 
                         // Fade in
-                        await feedbackBadge.FadeTo(1, 250);
+                        await feedbackBadge.FadeToAsync(1, 250);
 
                         // Keep visible for 2 seconds
                         await Task.Delay(2000);
 
                         // Fade out
-                        await feedbackBadge.FadeTo(0, 250);
+                        await feedbackBadge.FadeToAsync(0, 250);
                         feedbackBadge.IsVisible = false;
                     }
                 });
@@ -1613,13 +1794,13 @@ namespace com.kizwiz.signwiz.Pages
                         feedbackBadge.IsVisible = true;
 
                         // Fade in
-                        await feedbackBadge.FadeTo(1, 250);
+                        await feedbackBadge.FadeToAsync(1, 250);
 
                         // Keep visible for 1.5 seconds
                         await Task.Delay(1500);
 
                         // Fade out
-                        await feedbackBadge.FadeTo(0, 250);
+                        await feedbackBadge.FadeToAsync(0, 250);
                         feedbackBadge.IsVisible = false;
                     }
                 });
@@ -1813,9 +1994,9 @@ namespace com.kizwiz.signwiz.Pages
                             correctAnswerText.Text = $"✓ {_viewModel.CurrentSign?.CorrectAnswer}";
                             correctAnswerBadge.Opacity = 0;
                             correctAnswerBadge.IsVisible = true;
-                            await correctAnswerBadge.FadeTo(1, 300);
+                            await correctAnswerBadge.FadeToAsync(1, 300);
                             await Task.Delay(1200); // Keep visible for 1.2 seconds
-                            await correctAnswerBadge.FadeTo(0, 300);
+                            await correctAnswerBadge.FadeToAsync(0, 300);
                             correctAnswerBadge.IsVisible = false;
                         }
                     }
@@ -1903,6 +2084,7 @@ namespace com.kizwiz.signwiz.Pages
         /// <summary>
         /// Animates green glow effect on video border for correct answers
         /// </summary>
+#pragma warning disable CA1416 // Platform compatibility - MAUI cross-platform code
         private async Task AnimateGreenGlow(Border videoBorder)
         {
             try
@@ -1927,6 +2109,7 @@ namespace com.kizwiz.signwiz.Pages
                 videoBorder.Stroke = Colors.Transparent;
                 videoBorder.StrokeThickness = 0;
             }
+#pragma warning restore CA1416
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error in AnimateGreenGlow: {ex.Message}");

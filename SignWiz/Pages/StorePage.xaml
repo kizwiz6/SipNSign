@@ -27,7 +27,8 @@
 
                     <Button Text="OWNED" 
                             IsEnabled="False"
-                            Style="{StaticResource SecondaryButton}"
+                            Style="{StaticResource StoreButton}"
+                            Loaded="OnOwnedButtonLoaded"
                             HeightRequest="40"
                             WidthRequest="110"
                             Grid.Column="1"
@@ -57,11 +58,21 @@
                             Command="{Binding PurchasePackCommand}"
                             CommandParameter="animals"
                             IsEnabled="{Binding IsAnimalPackPurchasable}"
-                            Style="{StaticResource PrimaryButton}"
+                            Loaded="OnStoreButtonLoaded"
                             HeightRequest="40"
                             WidthRequest="110" 
                             Grid.Column="1"
-                            VerticalOptions="Center"/>
+                            VerticalOptions="Center"
+                            FontFamily="OpenSansSemibold"
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            CornerRadius="8"
+                            Padding="10,5"
+                            BorderWidth="0">
+                        <Button.Background>
+                            <SolidColorBrush Color="Transparent"/>
+                        </Button.Background>
+                    </Button>
                 </Grid>
             </Border>
 
@@ -87,7 +98,8 @@
                             Command="{Binding PurchasePackCommand}"
                             CommandParameter="geography"
                             IsEnabled="{Binding IsGeographyPackPurchasable}"
-                            Style="{StaticResource PrimaryButton}"
+                            Style="{StaticResource StoreButton}"
+                            Loaded="OnStoreButtonLoaded"
                             HeightRequest="40"
                             WidthRequest="110"
                             Grid.Column="1"
@@ -117,7 +129,8 @@
                             Command="{Binding PurchasePackCommand}"
                             CommandParameter="food_drink"
                             IsEnabled="{Binding IsFoodPackPurchasable}"
-                            Style="{StaticResource PrimaryButton}"
+                            Style="{StaticResource StoreButton}"
+                            Loaded="OnStoreButtonLoaded"
                             HeightRequest="40"
                             WidthRequest="110"
                             Grid.Column="1"
@@ -147,7 +160,8 @@
                             Command="{Binding PurchasePackCommand}"
                             CommandParameter="emotions"
                             IsEnabled="{Binding IsEmotionsPackPurchasable}"
-                            Style="{StaticResource PrimaryButton}"
+                            Style="{StaticResource StoreButton}"
+                            Loaded="OnStoreButtonLoaded"
                             HeightRequest="40"
                             WidthRequest="110"
                             Grid.Column="1"
@@ -177,7 +191,8 @@
                             Command="{Binding PurchasePackCommand}"
                             CommandParameter="sports_hobbies"
                             IsEnabled="{Binding IsSportsHobbiesPackPurchasable}"
-                            Style="{StaticResource PrimaryButton}"
+                            Style="{StaticResource StoreButton}"
+                            Loaded="OnStoreButtonLoaded"
                             HeightRequest="40"
                             WidthRequest="110"
                             Grid.Column="1"
@@ -207,7 +222,8 @@
                 Command="{Binding PurchasePackCommand}"
                 CommandParameter="premium_themes"
                 IsEnabled="{Binding IsThemesPackPurchasable}"
-                Style="{StaticResource PrimaryButton}"
+                Style="{StaticResource StoreButton}"
+                Loaded="OnStoreButtonLoaded"
                 HeightRequest="40"
                 WidthRequest="110"
                 Grid.Column="1"
@@ -237,7 +253,8 @@
                             Command="{Binding PurchasePackCommand}"
                             CommandParameter="multiplayer"
                             IsEnabled="{Binding IsMultiplayerPurchasable}"
-                            Style="{StaticResource PrimaryButton}"
+                            Style="{StaticResource StoreButton}"
+                            Loaded="OnStoreButtonLoaded"
                             HeightRequest="40"
                             WidthRequest="110"
                             Grid.Column="1"
@@ -266,6 +283,32 @@
                         <Button Text="Restore Purchases" 
                                 Command="{Binding RestorePurchasesCommand}"
                                 Style="{StaticResource PrimaryButton}"/>
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <!-- DEBUG: Reset Purchases -->
+            <Border BackgroundColor="{DynamicResource CardBackground}"
+                    Opacity="0.95"
+                    Padding="15" 
+                    StrokeShape="RoundRectangle 10">
+                <Grid RowSpacing="10">
+                    <VerticalStackLayout>
+                        <Label Text="DEBUG: Reset All Purchases" 
+                               TextColor="Red"
+                               FontSize="16" 
+                               FontAttributes="Bold"
+                               Margin="0,0,0,5"/>
+
+                        <Label Text="⚠️ This will clear all purchased packs (for testing only)"
+                               TextColor="Red"
+                               FontSize="12"
+                               Margin="0,0,0,10"/>
+
+                        <Button Text="Clear All Purchases" 
+                                Clicked="OnClearPurchasesClicked"
+                                BackgroundColor="Red"
+                                TextColor="White"/>
                     </VerticalStackLayout>
                 </Grid>
             </Border>

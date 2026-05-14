@@ -310,16 +310,68 @@
 
                 <!-- Row 2: Multiplayer area -->
                 <Grid Grid.Row="2" IsVisible="{Binding IsMultiplayer}" RowDefinitions="Auto,*,Auto" VerticalOptions="Fill">
-                    <!-- Legend -->
-                    <Grid Grid.Row="0" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" RowSpacing="8" ColumnSpacing="8" Margin="0,0,0,6">
-                        <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource AnswerButton}" IsEnabled="False" Text="{Binding CurrentSign.Choices[0], StringFormat='1. {0}'}"/>
-                        <Button Grid.Row="0" Grid.Column="1" Style="{StaticResource AnswerButton}" IsEnabled="False" Text="{Binding CurrentSign.Choices[1], StringFormat='2. {0}'}"/>
-                        <Button Grid.Row="1" Grid.Column="0" Style="{StaticResource AnswerButton}" IsEnabled="False" Text="{Binding CurrentSign.Choices[2], StringFormat='3. {0}'}"/>
-                        <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource AnswerButton}" IsEnabled="False" Text="{Binding CurrentSign.Choices[3], StringFormat='4. {0}'}"/>
+                    <!-- Legend - Styled as non-interactive reference labels -->
+                    <Grid Grid.Row="0" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" RowSpacing="4" ColumnSpacing="6" Margin="0,0,0,8">
+                        <!-- Answer 1 -->
+                        <Border Grid.Row="0" Grid.Column="0"
+                                BackgroundColor="#30FFFFFF"
+                                StrokeShape="RoundRectangle 6"
+                                Stroke="#60FFFFFF"
+                                StrokeThickness="1"
+                                Padding="8,6">
+                            <Label Text="{Binding CurrentSign.Choices[0], StringFormat='1. {0}'}"
+                                   TextColor="White"
+                                   FontSize="13"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalTextAlignment="Center"/>
+                        </Border>
+
+                        <!-- Answer 2 -->
+                        <Border Grid.Row="0" Grid.Column="1"
+                                BackgroundColor="#30FFFFFF"
+                                StrokeShape="RoundRectangle 6"
+                                Stroke="#60FFFFFF"
+                                StrokeThickness="1"
+                                Padding="8,6">
+                            <Label Text="{Binding CurrentSign.Choices[1], StringFormat='2. {0}'}"
+                                   TextColor="White"
+                                   FontSize="13"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalTextAlignment="Center"/>
+                        </Border>
+
+                        <!-- Answer 3 -->
+                        <Border Grid.Row="1" Grid.Column="0"
+                                BackgroundColor="#30FFFFFF"
+                                StrokeShape="RoundRectangle 6"
+                                Stroke="#60FFFFFF"
+                                StrokeThickness="1"
+                                Padding="8,6">
+                            <Label Text="{Binding CurrentSign.Choices[2], StringFormat='3. {0}'}"
+                                   TextColor="White"
+                                   FontSize="13"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalTextAlignment="Center"/>
+                        </Border>
+
+                        <!-- Answer 4 -->
+                        <Border Grid.Row="1" Grid.Column="1"
+                                BackgroundColor="#30FFFFFF"
+                                StrokeShape="RoundRectangle 6"
+                                Stroke="#60FFFFFF"
+                                StrokeThickness="1"
+                                Padding="8,6">
+                            <Label Text="{Binding CurrentSign.Choices[3], StringFormat='4. {0}'}"
+                                   TextColor="White"
+                                   FontSize="13"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalTextAlignment="Center"/>
+                        </Border>
                     </Grid>
 
                     <!-- Players list: CollectionView in star row; reduce bottom margin -->
-                    <CollectionView Grid.Row="1"
+                    <CollectionView x:Name="MultiplayerPlayersCollectionView"
+                           Grid.Row="1"
                            ItemsSource="{Binding Players}"
                            ItemsLayout="VerticalList"
                            SelectionMode="None"

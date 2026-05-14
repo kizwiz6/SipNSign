@@ -128,6 +128,33 @@
         <Setter Property="BackgroundColor" Value="{DynamicResource Primary}" />
     </Style>
 
+    <!-- Store Button - Simplified for Store page (no gradient background) -->
+    <Style x:Key="StoreButton" TargetType="Button">
+        <Setter Property="FontFamily" Value="OpenSansSemibold"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="10,5" />
+        <!-- Explicitly clear the gradient by setting a simple background -->
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor" Value="Transparent" />
+        <Setter Property="BorderColor" Value="Transparent" />
+        <Setter Property="BorderWidth" Value="0" />
+        <!-- Disable the inherited VisualStateManager so code-behind has full control -->
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled" />
+                    <VisualState x:Name="Pressed" />
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+        <!-- Background and TextColor will be set in code based on state and theme -->
+    </Style>
+
+
     <!-- Secondary Button -->
     <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
         <Setter Property="BackgroundColor" Value="{DynamicResource Secondary}" />

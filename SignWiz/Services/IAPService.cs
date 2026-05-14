@@ -101,7 +101,9 @@
             try
             {
                 var purchasedPacks = GetPurchasedPacks();
-                return purchasedPacks.Contains(productId);
+                bool isPurchased = purchasedPacks.Contains(productId);
+                _logger.Debug($"IsProductPurchasedAsync({productId}): {isPurchased}");
+                return isPurchased;
             }
             catch (Exception ex)
             {
@@ -118,13 +120,25 @@
         private List<string> GetPurchasedPacks()
         {
             var json = Preferences.Get(PURCHASED_PACKS_KEY, "[]");
-            return System.Text.Json.JsonSerializer.Deserialize<List<string>>(json) ?? new List<string>();
+            var packs = System.Text.Json.JsonSerializer.Deserialize<List<string>>(json) ?? new List<string>();
+            _logger.Debug($"GetPurchasedPacks: JSON='{json}', Count={packs.Count}, Packs=[{string.Join(", ", packs)}]");
+            return packs;
         }
 
         private void SavePurchasedPacks(List<string> packs)
         {
             var json = System.Text.Json.JsonSerializer.Serialize(packs);
+            _logger.Debug($"SavePurchasedPacks: Count={packs.Count}, Packs=[{string.Join(", ", packs)}], JSON='{json}'");
             Preferences.Set(PURCHASED_PACKS_KEY, json);
+        }
+
+        /// <summary>
+        /// DEBUG ONLY: Clears all purchased packs from preferences
+        /// </summary>
+        public void ClearAllPurchases()
+        {
+            _logger.Debug("CLEARING ALL PURCHASES (DEBUG)");
+            Preferences.Remove(PURCHASED_PACKS_KEY);
         }
     }
 }

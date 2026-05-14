@@ -7,5 +7,6 @@
         Task<bool> RestorePurchasesAsync();
         Task<bool> IsProductPurchasedAsync(string productId);
         Task<Dictionary<string, decimal>> GetProductPricesAsync();
+        void ClearAllPurchases(); // DEBUG ONLY
     }
 }
