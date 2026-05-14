@@ -9,24 +9,18 @@
     <Grid Padding="20">
         <!-- Sign Video Card -->
         <Border StrokeThickness="2"
-                Stroke="#FFD700"
+                Stroke="{DynamicResource Primary}"
                 StrokeShape="RoundRectangle 24"
+                BackgroundColor="{DynamicResource CardBackground}"
                 Padding="24"
                 Margin="0,10"
                 VerticalOptions="Center"
                 Shadow="{Shadow Brush=Black, Offset='4,6', Radius=20, Opacity=0.5}">
-            <Border.Background>
-                <RadialGradientBrush Center="0.5,0.4" Radius="0.85">
-                    <GradientStop Color="#1a237e" Offset="0.0"/>
-                    <GradientStop Color="#0d1b5e" Offset="0.65"/>
-                    <GradientStop Color="#1a1a3e" Offset="1.0"/>
-                </RadialGradientBrush>
-            </Border.Background>
 
             <VerticalStackLayout Spacing="16">
                 <!-- Sign Name -->
                 <Label x:Name="SignNameLabel"
-                       TextColor="White"
+                       TextColor="{DynamicResource CardText}"
                        FontSize="28"
                        FontAttributes="Bold"
                        HorizontalOptions="Center"
@@ -34,7 +28,8 @@
 
                 <!-- Category -->
                 <Label x:Name="CategoryLabel"
-                       TextColor="#B0BEC5"
+                       TextColor="{DynamicResource CardText}"
+                       Opacity="0.7"
                        FontSize="16"
                        HorizontalOptions="Center"
                        HorizontalTextAlignment="Center"/>
@@ -60,8 +55,7 @@
                 <!-- Replay Button -->
                 <Button x:Name="ReplayButton"
                         Text="🔁  REPLAY"
-                        BackgroundColor="#FFD700"
-                        TextColor="#1a237e"
+                        Style="{StaticResource PrimaryButton}"
                         FontAttributes="Bold"
                         FontSize="16"
                         CornerRadius="16"
