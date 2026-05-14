@@ -36,10 +36,10 @@
             <Style x:Key="AnswerButton" TargetType="Button">
                 <Setter Property="BackgroundColor" Value="{DynamicResource Primary}" />
                 <Setter Property="TextColor" Value="White" />
-                <Setter Property="FontSize" Value="15" />
+                <Setter Property="FontSize" Value="14" />
                 <Setter Property="CornerRadius" Value="8" />
-                <Setter Property="Padding" Value="6" />
-                <Setter Property="Margin" Value="4" />
+                <Setter Property="Padding" Value="4" />
+                <Setter Property="Margin" Value="2" />
                 <!-- make buttons shorter by limiting width; horizontal centering keeps layout tidy -->
                 <Setter Property="WidthRequest" Value="140" />
                 <Setter Property="HorizontalOptions" Value="Fill" />
@@ -77,7 +77,7 @@
         </Grid.RowDefinitions>
 
         <!-- Top Section -->
-        <Grid Grid.Row="0" Padding="20,10" ColumnDefinitions="*,Auto">
+        <Grid Grid.Row="0" Padding="16,8" ColumnDefinitions="*,Auto">
             <!-- Progress Bar -->
             <Grid>
                 <ProgressBar x:Name="GameProgress"
@@ -150,24 +150,45 @@
 
         <!-- Guess Mode -->
         <Grid Grid.Row="1" IsVisible="{Binding IsGuessMode}">
-            <Grid RowDefinitions="Auto,Auto,*, Auto" Padding="12" RowSpacing="8">
-                <!-- Row 0: Video container -->
+            <!-- Single-player uses flexible video (row 0 = *), multiplayer uses fixed video (row 0 = Auto) -->
+            <Grid x:Name="GuessMainGrid" RowDefinitions="*,Auto,Auto" Padding="8" RowSpacing="6">
+                <Grid.Triggers>
+                    <DataTrigger TargetType="Grid" Binding="{Binding IsMultiplayer}" Value="True">
+                        <!-- In multiplayer: video=Auto (fixed), controls=Auto (compact but tappable) -->
+                        <Setter Property="RowDefinitions" Value="Auto,Auto,Auto,Auto" />
+                        <Setter Property="Padding" Value="6" />
+                        <Setter Property="RowSpacing" Value="6" />
+                    </DataTrigger>
+                </Grid.Triggers>
+
+                <!-- Row 0: Video container - takes available space in single-player, fixed in multiplayer -->
                 <Border Grid.Row="0"
                 x:Name="VideoGuessBorder"
                 Padding="0"
                 StrokeThickness="0"
                 Stroke="Transparent"
                 StrokeShape="RoundRectangle 20"
-                Background="Transparent"
-                HeightRequest="360">
+                Background="Black"
+                HorizontalOptions="Center"
+                VerticalOptions="Fill"
+                WidthRequest="360"
+                MaximumWidthRequest="360"
+                MaximumHeightRequest="480">
                     <Border.Triggers>
-                        <!-- Reduce frame height when in multiplayer -->
                         <DataTrigger TargetType="Border" Binding="{Binding IsMultiplayer}" Value="True">
-                            <Setter Property="HeightRequest" Value="300" />
+                            <Setter Property="HeightRequest" Value="280" />
+                            <Setter Property="MaximumHeightRequest" Value="280" />
+                            <Setter Property="VerticalOptions" Value="Start" />
                         </DataTrigger>
                     </Border.Triggers>
 
-                    <Grid>
+                    <Grid WidthRequest="360">
+                        <Grid.Triggers>
+                            <DataTrigger TargetType="Grid" Binding="{Binding IsMultiplayer}" Value="True">
+                                <Setter Property="HeightRequest" Value="280" />
+                            </DataTrigger>
+                        </Grid.Triggers>
+
                         <!-- Single-player video -->
                         <toolkit:MediaElement
             x:Name="SharedVideo"
@@ -175,7 +196,7 @@
             ShouldShowPlaybackControls="False"
             ShouldAutoPlay="True"
             ShouldLoopPlayback="True"
-            Aspect="AspectFit"
+            Aspect="AspectFill"
             HorizontalOptions="Fill"
             VerticalOptions="Fill"
             MediaOpened="OnMediaOpened"
@@ -245,22 +266,22 @@
                     </Grid>
                 </Border>
 
-                <!-- Row 1: Single-player answers (2 per row) - slightly less vertical gap -->
+                <!-- Row 1: Single-player answers (2 per row) - compact layout -->
                 <Grid x:Name="AnswerButtonsGrid"
                       Grid.Row="1"
       IsVisible="{Binding IsMultiplayer, Converter={StaticResource InverseBoolConverter}}"
       ColumnDefinitions="*,*"
       RowDefinitions="Auto,Auto"
-      ColumnSpacing="8"
+      ColumnSpacing="6"
       RowSpacing="6"
-      Margin="0,6,0,0">
+      Margin="0,4,0,0">
                     <Button x:Name="AnswerButton1"
                     Grid.Row="0" Grid.Column="0"
                     TextColor="White"
-                    FontSize="15"
+                    FontSize="14"
                     CornerRadius="8"
-                    Padding="6"
-                    Margin="4"
+                    Padding="4"
+                    Margin="2"
                     WidthRequest="140"
                     HorizontalOptions="Fill"
                     Text="{Binding CurrentSign.Choices[0]}"
@@ -270,10 +291,10 @@
                     <Button x:Name="AnswerButton2"
                     Grid.Row="0" Grid.Column="1"
                     TextColor="White"
-                    FontSize="15"
+                    FontSize="14"
                     CornerRadius="8"
-                    Padding="6"
-                    Margin="4"
+                    Padding="4"
+                    Margin="2"
                     WidthRequest="140"
                     HorizontalOptions="Fill"
                     Text="{Binding CurrentSign.Choices[1]}"
@@ -283,10 +304,10 @@
                     <Button x:Name="AnswerButton3"
                     Grid.Row="1" Grid.Column="0"
                     TextColor="White"
-                    FontSize="15"
+                    FontSize="14"
                     CornerRadius="8"
-                    Padding="6"
-                    Margin="4"
+                    Padding="4"
+                    Margin="2"
                     WidthRequest="140"
                     HorizontalOptions="Fill"
                     Text="{Binding CurrentSign.Choices[2]}"
@@ -296,10 +317,10 @@
                     <Button x:Name="AnswerButton4"
                     Grid.Row="1" Grid.Column="1"
                     TextColor="White"
-                    FontSize="15"
+                    FontSize="14"
                     CornerRadius="8"
-                    Padding="6"
-                    Margin="4"
+                    Padding="4"
+                    Margin="2"
                     WidthRequest="140"
                     HorizontalOptions="Fill"
                     Text="{Binding CurrentSign.Choices[3]}"
@@ -309,9 +330,9 @@
                 </Grid>
 
                 <!-- Row 2: Multiplayer area -->
-                <Grid Grid.Row="2" IsVisible="{Binding IsMultiplayer}" RowDefinitions="Auto,*,Auto" VerticalOptions="Fill">
+                <Grid Grid.Row="2" IsVisible="{Binding IsMultiplayer}" RowDefinitions="Auto,Auto,Auto" VerticalOptions="Start">
                     <!-- Legend - Styled as non-interactive reference labels -->
-                    <Grid Grid.Row="0" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" RowSpacing="4" ColumnSpacing="6" Margin="0,0,0,8">
+                    <Grid Grid.Row="0" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" RowSpacing="4" ColumnSpacing="4" Margin="0,0,0,6">
                         <!-- Answer 1 -->
                         <Border Grid.Row="0" Grid.Column="0"
                                 BackgroundColor="#30FFFFFF"
@@ -321,7 +342,7 @@
                                 Padding="8,6">
                             <Label Text="{Binding CurrentSign.Choices[0], StringFormat='1. {0}'}"
                                    TextColor="White"
-                                   FontSize="13"
+                                   FontSize="12"
                                    HorizontalTextAlignment="Center"
                                    VerticalTextAlignment="Center"/>
                         </Border>
@@ -335,7 +356,7 @@
                                 Padding="8,6">
                             <Label Text="{Binding CurrentSign.Choices[1], StringFormat='2. {0}'}"
                                    TextColor="White"
-                                   FontSize="13"
+                                   FontSize="12"
                                    HorizontalTextAlignment="Center"
                                    VerticalTextAlignment="Center"/>
                         </Border>
@@ -349,7 +370,7 @@
                                 Padding="8,6">
                             <Label Text="{Binding CurrentSign.Choices[2], StringFormat='3. {0}'}"
                                    TextColor="White"
-                                   FontSize="13"
+                                   FontSize="12"
                                    HorizontalTextAlignment="Center"
                                    VerticalTextAlignment="Center"/>
                         </Border>
@@ -363,31 +384,30 @@
                                 Padding="8,6">
                             <Label Text="{Binding CurrentSign.Choices[3], StringFormat='4. {0}'}"
                                    TextColor="White"
-                                   FontSize="13"
+                                   FontSize="12"
                                    HorizontalTextAlignment="Center"
                                    VerticalTextAlignment="Center"/>
                         </Border>
                     </Grid>
 
-                    <!-- Players list: CollectionView in star row; reduce bottom margin -->
+                    <!-- Players list: Compact list with larger tap targets -->
                     <CollectionView x:Name="MultiplayerPlayersCollectionView"
                            Grid.Row="1"
                            ItemsSource="{Binding Players}"
                            ItemsLayout="VerticalList"
                            SelectionMode="None"
-                           VerticalOptions="Fill"
-                           Margin="0,0,0,4">
+                           VerticalOptions="Start">
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="models:Player">
-                                <Grid Padding="10">
+                                <Grid Padding="6,4">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
 
-                                    <Label Text="{Binding Name}" FontSize="18" VerticalOptions="Center" TextColor="White"/>
+                                    <Label Text="{Binding Name}" FontSize="15" VerticalOptions="Center" TextColor="White"/>
 
-                                    <StackLayout Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalOptions="Center">
+                                    <StackLayout Grid.Column="1" Orientation="Horizontal" Spacing="5" VerticalOptions="Center">
                                         <Button x:Name="Player1Button1"
                                                 Text="1" 
                                                 Clicked="OnPlayerGuessAnswerClicked" 
@@ -434,6 +454,7 @@
                             TextColor="White"
                             Padding="10"
                             CornerRadius="10"
+                            Margin="0,6,0,0"
                             Style="{StaticResource PrimaryButton}">
                         <Button.Triggers>
                             <!-- Enabled state: visible, primary color -->
