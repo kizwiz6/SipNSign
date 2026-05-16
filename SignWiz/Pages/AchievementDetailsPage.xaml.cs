@@ -71,13 +71,16 @@ namespace com.kizwiz.signwiz.Pages
         }
 
         /// <summary>
-        /// Captures the achievement card Border as a PNG image stream.
+        /// Captures the share container (header + card) as a PNG image stream.
         /// </summary>
         private async Task<Stream?> CaptureAchievementCardAsync()
         {
             try
             {
-                var result = await AchievementCard.CaptureAsync();
+                // Wait for all rendering to complete
+                await Task.Delay(500);
+
+                var result = await ShareContainer.CaptureAsync();
                 if (result != null)
                 {
                     return await result.OpenReadAsync();

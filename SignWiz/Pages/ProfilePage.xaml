@@ -210,7 +210,11 @@
                                     <Image Source="{Binding Icon}"
                        HeightRequest="30"
                        WidthRequest="30"
-                       Grid.Column="0"/>
+                       Grid.Column="0">
+                                        <Image.Clip>
+                                            <EllipseGeometry Center="15,15" RadiusX="15" RadiusY="15"/>
+                                        </Image.Clip>
+                                    </Image>
                                     <VerticalStackLayout Grid.Column="1" 
                                    Margin="10,0">
                                         <Label Text="{Binding Title}"
