@@ -11,6 +11,7 @@ using CommunityToolkit.Maui.Views;
 using System.ComponentModel;
 using System.Diagnostics;
 using CommunityToolkit.Mvvm.Messaging;
+using static com.kizwiz.signwiz.Constants;
 
 namespace com.kizwiz.signwiz.Pages
 {
@@ -59,6 +60,7 @@ namespace com.kizwiz.signwiz.Pages
                     CurrentVideoSource = MediaSource.FromFile("again.mp4")
                 };
                 _viewModel.SignRevealRequested += OnSignRevealRequested;
+                _viewModel.PlayerStateReset += OnPlayerStateReset;
 
                 // Set page reference for animations
                 _viewModel.SetPageReference(this);
@@ -521,6 +523,45 @@ namespace com.kizwiz.signwiz.Pages
             }
         }
 
+        /// <summary>
+        /// Handles player state reset event - clears multiplayer button highlights for new sign
+        /// </summary>
+        private void OnPlayerStateReset(object? sender, EventArgs e)
+        {
+            if (_isDisposed) return;
+
+            try
+            {
+                Debug.WriteLine("=== OnPlayerStateReset EVENT FIRED ===");
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    Debug.WriteLine("=== OnPlayerStateReset: Clearing multiplayer button highlights ===");
+
+                    // Force the CollectionView to refresh its items first
+                    var collectionView = this.FindByName<CollectionView>("MultiplayerPlayersCollectionView");
+                    if (collectionView != null)
+                    {
+                        var currentItems = collectionView.ItemsSource;
+                        collectionView.ItemsSource = null;
+                        collectionView.ItemsSource = currentItems;
+                        Debug.WriteLine("CollectionView ItemsSource refreshed");
+                    }
+
+                    // Small delay to let the CollectionView recreate its items
+                    await Task.Delay(50);
+
+                    // Now reset all buttons
+                    await ImmediatelyResetAllMultiplayerButtons();
+
+                    Debug.WriteLine("=== OnPlayerStateReset: Complete ===");
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in OnPlayerStateReset: {ex.Message}");
+            }
+        }
+
         #region Lifecycle Methods
         protected override void OnAppearing()
         {
@@ -625,6 +666,13 @@ namespace com.kizwiz.signwiz.Pages
                 // Unregister lifecycle messages
                 WeakReferenceMessenger.Default.Unregister<AppSleepMessage>(this);
                 WeakReferenceMessenger.Default.Unregister<AppResumeMessage>(this);
+
+                // Unsubscribe from ViewModel events
+                if (_viewModel != null)
+                {
+                    _viewModel.SignRevealRequested -= OnSignRevealRequested;
+                    _viewModel.PlayerStateReset -= OnPlayerStateReset;
+                }
 
                 // Call Cleanup explicitly first
                 Cleanup();
@@ -1360,6 +1408,7 @@ namespace com.kizwiz.signwiz.Pages
                     foreach (var button in allButtons)
                     {
                         button.Background = defaultBrush;
+                        button.TextColor = ColorHelper.GetOptimalTextColor(defaultColor);
                         button.Scale = 1.0;
                         Debug.WriteLine($"  Reset button {button.CommandParameter} for {button.ClassId}");
                     }
@@ -1793,6 +1842,92 @@ namespace com.kizwiz.signwiz.Pages
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error in ShowMultiplayerPerformFeedback: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Shows timeout feedback in single-player Guess Mode using the CorrectAnswerBadge with premium styling
+        /// </summary>
+        public async Task ShowSinglePlayerGuessTimeoutFeedback(string message)
+        {
+            try
+            {
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    var feedbackBadge = this.FindByName<Border>("CorrectAnswerBadge");
+                    var feedbackText = this.FindByName<Label>("CorrectAnswerText");
+
+                    if (feedbackBadge != null && feedbackText != null)
+                    {
+                        // PREMIUM: Dark ruby gradient background for timeout (deep red to darker red)
+                        feedbackBadge.Background = new LinearGradientBrush
+                        {
+                            StartPoint = new Point(0, 0),
+                            EndPoint = new Point(1, 1),
+                            GradientStops = new GradientStopCollection
+                            {
+                                new GradientStop { Color = Color.FromArgb("#8B0000"), Offset = 0.0f },  // Dark red
+                                new GradientStop { Color = Color.FromArgb("#6B0000"), Offset = 1.0f }   // Even darker red
+                            }
+                        };
+
+                        // PREMIUM: Glowing gold border to match achievement cards
+                        feedbackBadge.Stroke = new LinearGradientBrush
+                        {
+                            StartPoint = new Point(0, 0),
+                            EndPoint = new Point(1, 1),
+                            GradientStops = new GradientStopCollection
+                            {
+                                new GradientStop { Color = Color.FromArgb("#FFD700"), Offset = 0.0f },  // Gold
+                                new GradientStop { Color = Color.FromArgb("#FFA500"), Offset = 0.5f },  // Orange
+                                new GradientStop { Color = Color.FromArgb("#FFD700"), Offset = 1.0f }   // Gold
+                            }
+                        };
+                        feedbackBadge.StrokeThickness = 3;
+
+                        // PREMIUM: Enhanced shadow for depth
+                        feedbackBadge.Shadow = new Shadow
+                        {
+                            Brush = Colors.Black,
+                            Offset = new Point(0, 4),
+                            Radius = 12,
+                            Opacity = 0.6f
+                        };
+
+                        // ACCESSIBILITY: White text on dark background for maximum contrast
+                        feedbackText.TextColor = Colors.White;
+                        feedbackText.FontAttributes = FontAttributes.Bold;
+                        feedbackText.FontSize = 18;
+
+                        // Add the message with better formatting
+                        feedbackText.Text = $"⏱️ {message}";
+
+                        feedbackBadge.Opacity = 0;
+                        feedbackBadge.IsVisible = true;
+
+                        // Fade in with slight scale animation for premium feel
+                        feedbackBadge.Scale = 0.9;
+                        var fadeInTask = feedbackBadge.FadeToAsync(1, 350);
+                        var scaleTask = feedbackBadge.ScaleToAsync(1.0, 350);
+                        await Task.WhenAll(fadeInTask, scaleTask);
+
+                        // Keep visible for the duration specified by user preferences
+                        int delay = Preferences.Get(INCORRECT_DELAY_KEY, DEFAULT_DELAY);
+                        await Task.Delay(delay);
+
+                        // Fade out with slight scale down
+                        var fadeOutTask = feedbackBadge.FadeToAsync(0, 350);
+                        var scaleOutTask = feedbackBadge.ScaleToAsync(0.95, 350);
+                        await Task.WhenAll(fadeOutTask, scaleOutTask);
+
+                        feedbackBadge.IsVisible = false;
+                        feedbackBadge.Scale = 1.0; // Reset scale for next use
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in ShowSinglePlayerGuessTimeoutFeedback: {ex.Message}");
             }
         }
 

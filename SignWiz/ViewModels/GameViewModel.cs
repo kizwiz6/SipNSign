@@ -77,6 +77,9 @@ namespace com.kizwiz.signwiz.ViewModels
         // Reference to the page for triggering animations
         private WeakReference<object>? _pageReference;
 
+        // Event to notify UI when player state is reset
+        public event EventHandler? PlayerStateReset;
+
         private int GetTotalQuestions() => Preferences.Get(Constants.GUESS_MODE_QUESTIONS_KEY, Constants.DEFAULT_QUESTIONS);
         public int TotalQuestions => GetTotalQuestions();
         private int _signsPlayed = 0;
@@ -999,19 +1002,24 @@ namespace com.kizwiz.signwiz.ViewModels
                 _consecutiveTimeouts++;
                 Debug.WriteLine($"Consecutive timeouts: {_consecutiveTimeouts}/{ConsecutiveTimeoutThreshold}");
 
-                if (Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true))
+                // Always show time's up feedback as a signal, using the page's visual feedback
+                string feedbackMessage = $"Time's up!\nThe sign means '{CurrentSign?.CorrectAnswer}'";
+
+                // Show feedback overlay on video if we have page reference
+                if (_pageReference != null && _pageReference.TryGetTarget(out var page) && page is Pages.GamePage gamePage)
                 {
+                    await gamePage.ShowSinglePlayerGuessTimeoutFeedback(feedbackMessage);
+                }
+                else
+                {
+                    // Fallback to old feedback style
                     FeedbackBackgroundColor = GetFeedbackColor(false);
-                    FeedbackText = $"Time's up!\n\nThe sign means '{CurrentSign?.CorrectAnswer}'.\n\nKeep practicing!";
+                    FeedbackText = feedbackMessage + "\n\nKeep practicing!";
                     IsFeedbackVisible = true;
+                    await Task.Delay(Preferences.Get(Constants.INCORRECT_DELAY_KEY, Constants.DEFAULT_DELAY));
+                    IsFeedbackVisible = false;
                 }
 
-                // Wait for feedback display duration
-                await Task.Delay(Preferences.Get(Constants.INCORRECT_DELAY_KEY, Constants.DEFAULT_DELAY));
-
-                // Move to next question
-                await Task.Delay(Preferences.Get(Constants.INCORRECT_DELAY_KEY, Constants.DEFAULT_DELAY));
-                IsFeedbackVisible = false;
                 await LogGameActivity(false);
 
                 // Check if user has timed out on multiple consecutive signs and game is still active
@@ -1628,11 +1636,14 @@ namespace com.kizwiz.signwiz.ViewModels
                     foreach (var player in Players)
                     {
                         player.ResetForNewSign();
-                        Debug.WriteLine($"Reset player {player.Name}: HasAnswered = false");
+                        Debug.WriteLine($"Reset player {player.Name}: HasAnswered = false, SelectedAnswer = 0");
                     }
 
                     OnPropertyChanged(nameof(Players));
                     OnPropertyChanged(nameof(HasAllPlayersAnswered));
+
+                    // Notify page to refresh multiplayer answer buttons
+                    PlayerStateReset?.Invoke(this, EventArgs.Empty);
                 }
 
                 if (_availableIndices.Count == 0)
