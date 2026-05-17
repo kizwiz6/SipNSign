@@ -17,230 +17,204 @@
 
     <ScrollView>
         <Grid Padding="20" RowDefinitions="Auto,Auto,Auto">
-            <!-- Share Container: Premium Framed Achievement -->
+            <!-- Share Container: Leonardo AI Background with Fixed Height -->
             <Border x:Name="ShareContainer"
                    StrokeThickness="0"
                    BackgroundColor="Transparent"
                    Padding="0"
-                   Margin="0,10">
-                <!-- CRITICAL: Strong outer shadow for depth and lift -->
+                   Margin="0,10"
+                   HeightRequest="540">
+                <!-- Strong outer shadow for depth -->
                 <Border.Shadow>
                     <Shadow Brush="#A0000000" Offset="0,10" Radius="25" Opacity="1.0"/>
                 </Border.Shadow>
 
-                <!-- Three-Layer Border: Outer Gold -> Black -> Inner Gold -->
-                <Border StrokeThickness="1" Stroke="#FFD700" StrokeShape="RoundRectangle 16" Padding="2">
-                    <Border StrokeThickness="2" Stroke="#1a1a1a" StrokeShape="RoundRectangle 15" Padding="1">
-                        <Border StrokeThickness="1" Stroke="#FFD700" StrokeShape="RoundRectangle 13">
+                <!-- Triple-Layer Border Frame -->
+                <Border StrokeThickness="1" 
+                       Stroke="#FFD700" 
+                       StrokeShape="RoundRectangle 16" 
+                       Padding="2">
+                    <Border StrokeThickness="2" 
+                           Stroke="#1a1a1a" 
+                           StrokeShape="RoundRectangle 15" 
+                           Padding="1">
+                        <Border StrokeThickness="1" 
+                               Stroke="#FFD700" 
+                               StrokeShape="RoundRectangle 13">
 
-                            <Grid RowDefinitions="Auto,Auto" RowSpacing="0">
-                                <!-- Header Banner with Enhanced Starfield -->
-                                <Border Grid.Row="0" StrokeThickness="0" Padding="0,36,0,36">
-                                    <Border.Background>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                            <GradientStop Color="#1a237e" Offset="0.0"/>
-                                            <GradientStop Color="#0d47a1" Offset="1.0"/>
+                            <!-- Unified Layout with Starfield Background -->
+                            <Grid RowDefinitions="Auto,*" RowSpacing="0">
+                                <!-- Deep space gradient background -->
+                                <BoxView Grid.RowSpan="2">
+                                    <BoxView.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#0A0E27" Offset="0.0" />
+                                            <GradientStop Color="#1B2768" Offset="0.4" />
+                                            <GradientStop Color="#0D1B4E" Offset="0.8" />
+                                            <GradientStop Color="#050A1F" Offset="1.0" />
                                         </LinearGradientBrush>
-                                    </Border.Background>
-                                    <Grid>
-                                        <!-- Enhanced Starfield - More Stars! -->
-                                        <Grid>
-                                            <!-- Top-left constellation -->
-                                            <Ellipse Fill="White" WidthRequest="2" HeightRequest="2" HorizontalOptions="Start" VerticalOptions="Start" Margin="25,12,0,0" Opacity="0.9"/>
-                                            <Ellipse Fill="White" WidthRequest="3" HeightRequest="3" HorizontalOptions="Start" VerticalOptions="Start" Margin="40,18,0,0" Opacity="0.7"/>
-                                            <Ellipse Fill="White" WidthRequest="2.5" HeightRequest="2.5" HorizontalOptions="Start" VerticalOptions="Start" Margin="55,10,0,0" Opacity="0.85"/>
-                                            <Ellipse Fill="White" WidthRequest="1.5" HeightRequest="1.5" HorizontalOptions="Start" VerticalOptions="Start" Margin="32,26,0,0" Opacity="0.8"/>
-                                            <Ellipse Fill="White" WidthRequest="2" HeightRequest="2" HorizontalOptions="Start" VerticalOptions="Start" Margin="48,32,0,0" Opacity="0.6"/>
-                                            <Ellipse Fill="White" WidthRequest="1.5" HeightRequest="1.5" HorizontalOptions="Start" VerticalOptions="Start" Margin="70,8,0,0" Opacity="0.75"/>
+                                    </BoxView.Background>
+                                </BoxView>
 
-                                            <!-- Top-right constellation -->
-                                            <Ellipse Fill="White" WidthRequest="2.5" HeightRequest="2.5" HorizontalOptions="End" VerticalOptions="Start" Margin="0,15,30,0" Opacity="0.85"/>
-                                            <Ellipse Fill="White" WidthRequest="3" HeightRequest="3" HorizontalOptions="End" VerticalOptions="Start" Margin="0,22,45,0" Opacity="0.9"/>
-                                            <Ellipse Fill="White" WidthRequest="2" HeightRequest="2" HorizontalOptions="End" VerticalOptions="Start" Margin="0,11,60,0" Opacity="0.7"/>
-                                            <Ellipse Fill="White" WidthRequest="1.5" HeightRequest="1.5" HorizontalOptions="End" VerticalOptions="Start" Margin="0,28,38,0" Opacity="0.8"/>
-                                            <Ellipse Fill="White" WidthRequest="2" HeightRequest="2" HorizontalOptions="End" VerticalOptions="Start" Margin="0,34,52,0" Opacity="0.65"/>
-                                            <Ellipse Fill="White" WidthRequest="1.5" HeightRequest="1.5" HorizontalOptions="End" VerticalOptions="Start" Margin="0,9,70,0" Opacity="0.75"/>
+                                <!-- Centered Branding Header -->
+                                <VerticalStackLayout Grid.Row="0"
+                                                    HorizontalOptions="Center" 
+                                                    VerticalOptions="Center" 
+                                                    Spacing="8"
+                                                    Padding="20"
+                                                    HeightRequest="120">
+                                    <!-- App Logo -->
+                                    <Image Source="logo_nobg.png" 
+                                           HeightRequest="100" 
+                                           WidthRequest="100" 
+                                           HorizontalOptions="Center"
+                                           Aspect="AspectFit">
+                                        <Image.Shadow>
+                                            <Shadow Brush="#FFD700" Offset="0,0" Radius="14" Opacity="0.7"/>
+                                        </Image.Shadow>
+                                    </Image>
 
-                                            <!-- Center scattered stars (above logo) -->
-                                            <Ellipse Fill="White" WidthRequest="2" HeightRequest="2" HorizontalOptions="Center" VerticalOptions="Start" Margin="-95,8,0,0" Opacity="0.7"/>
-                                            <Ellipse Fill="White" WidthRequest="1.5" HeightRequest="1.5" HorizontalOptions="Center" VerticalOptions="Start" Margin="100,16,0,0" Opacity="0.75"/>
-                                            <Ellipse Fill="White" WidthRequest="2.5" HeightRequest="2.5" HorizontalOptions="Center" VerticalOptions="Start" Margin="-70,20,0,0" Opacity="0.85"/>
-                                            <Ellipse Fill="White" WidthRequest="2" HeightRequest="2" HorizontalOptions="Center" VerticalOptions="Start" Margin="85,12,0,0" Opacity="0.65"/>
-                                            <Ellipse Fill="White" WidthRequest="1.5" HeightRequest="1.5" HorizontalOptions="Center" VerticalOptions="Start" Margin="-110,24,0,0" Opacity="0.8"/>
-                                            <Ellipse Fill="White" WidthRequest="2" HeightRequest="2" HorizontalOptions="Center" VerticalOptions="Start" Margin="110,28,0,0" Opacity="0.7"/>
+                                    <!-- SIGNWIZ Brand Text -->
+                                    <Label Text="SIGNWIZ" 
+                                           TextColor="#FFD700" 
+                                           FontFamily="Bangers" 
+                                           FontSize="36" 
+                                           CharacterSpacing="5" 
+                                           HorizontalOptions="Center"
+                                           HorizontalTextAlignment="Center">
+                                        <Label.Shadow>
+                                            <Shadow Brush="Black" Offset="0,2" Radius="14" Opacity="1.0"/>
+                                        </Label.Shadow>
+                                    </Label>
+                                </VerticalStackLayout>
 
-                                            <!-- Bottom scattered stars (below logo area) -->
-                                            <Ellipse Fill="White" WidthRequest="1.5" HeightRequest="1.5" HorizontalOptions="Start" VerticalOptions="End" Margin="35,0,0,8" Opacity="0.6"/>
-                                            <Ellipse Fill="White" WidthRequest="2" HeightRequest="2" HorizontalOptions="End" VerticalOptions="End" Margin="0,0,40,10" Opacity="0.7"/>
-                                            <Ellipse Fill="White" WidthRequest="1.5" HeightRequest="1.5" HorizontalOptions="Center" VerticalOptions="End" Margin="-75,0,0,12" Opacity="0.65"/>
-                                            <Ellipse Fill="White" WidthRequest="2" HeightRequest="2" HorizontalOptions="Center" VerticalOptions="End" Margin="80,0,0,9" Opacity="0.75"/>
-                                        </Grid>
+                                <!-- Achievement Content -->
+                                <VerticalStackLayout Grid.Row="1" 
+                                                    Padding="20,0,20,20" 
+                                                    Spacing="14"
+                                                    VerticalOptions="Center">
 
-                                        <!-- Logo and Title - No Circle, Better Spacing -->
-                                        <HorizontalStackLayout HorizontalOptions="Center" 
-                                                             VerticalOptions="Center" 
-                                                             Spacing="16"
-                                                             Padding="20,0">
-                                            <Image Source="logo_nobg.png" 
-                                                   HeightRequest="56" 
-                                                   WidthRequest="56" 
-                                                   VerticalOptions="Center" 
-                                                   Aspect="AspectFit">
-                                                <Image.Shadow>
-                                                    <Shadow Brush="#FFD700" Offset="0,0" Radius="12" Opacity="0.5"/>
-                                                </Image.Shadow>
-                                            </Image>
-                                            <Label Text="SIGNWIZ" 
-                                                   TextColor="#FFD700" 
-                                                   FontFamily="Bangers" 
-                                                   FontSize="40" 
-                                                   CharacterSpacing="6" 
-                                                   VerticalOptions="Center"
-                                                   Padding="0,0,8,0">
-                                                <Label.Shadow>
-                                                    <Shadow Brush="Black" Offset="0,1" Radius="10" Opacity="1.0"/>
-                                                </Label.Shadow>
-                                            </Label>
-                                        </HorizontalStackLayout>
-                                    </Grid>
-                                </Border>
-
-                                <!-- Achievement Card -->
-                                <Border Grid.Row="1" StrokeThickness="0" Padding="24">
-                                    <Border.Background>
-                                        <RadialGradientBrush Center="0.5,0.4" Radius="0.85">
-                                            <GradientStop Color="#1a237e" Offset="0.0"/>
-                                            <GradientStop Color="#0d1b5e" Offset="0.65"/>
-                                            <GradientStop Color="#1a1a3e" Offset="1.0"/>
-                                        </RadialGradientBrush>
-                                    </Border.Background>
-
-                <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="16">
-                    <!-- Glowing Icon Badge with Localized Golden Glow -->
-                    <Grid Grid.Row="0" 
-                          HeightRequest="130" 
-                          WidthRequest="130"
-                          HorizontalOptions="Center">
-
-                        <!-- Outer Glow Layer (Largest, most diffuse) -->
-                        <Border HeightRequest="130"
-                               WidthRequest="130"
-                               StrokeShape="RoundRectangle 65"
-                               StrokeThickness="0"
-                               BackgroundColor="Transparent">
-                            <Border.Shadow>
-                                <Shadow Brush="#FFD700" Offset="0,0" Radius="28" Opacity="0.5"/>
-                            </Border.Shadow>
-                        </Border>
-
-                        <!-- Medium Glow Layer -->
-                        <Border HeightRequest="120"
-                               WidthRequest="120"
-                               StrokeShape="RoundRectangle 60"
-                               StrokeThickness="0"
-                               BackgroundColor="Transparent"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center">
-                            <Border.Shadow>
-                                <Shadow Brush="#FFD700" Offset="0,0" Radius="18" Opacity="0.7"/>
-                            </Border.Shadow>
-                        </Border>
-
-                        <!-- Inner Badge with Tight Glow -->
-                        <Border HeightRequest="120"
-                               WidthRequest="120"
-                               StrokeShape="RoundRectangle 60"
-                               StrokeThickness="3"
-                               Stroke="#FFD700"
-                               BackgroundColor="#22FFD700"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center">
-                            <Border.Shadow>
-                                <Shadow Brush="#FFD700" Offset="0,0" Radius="10" Opacity="0.9"/>
-                            </Border.Shadow>
-                            <Image Source="{Binding Icon}"
-                                  HeightRequest="80"
-                                  WidthRequest="80"
-                                  HorizontalOptions="Center"
-                                  VerticalOptions="Center"/>
-                            </Border>
-                        </Grid>
-
-                        <!-- Achievement Title -->
-                        <Label Grid.Row="1"
-                          Text="{Binding Title}"
-                          TextColor="White"
-                          FontSize="26"
-                          FontAttributes="Bold"
-                          CharacterSpacing="1"
-                          HorizontalOptions="Center"
-                          HorizontalTextAlignment="Center">
-                        <Label.Shadow>
-                            <Shadow Brush="Black" Offset="0,0" Radius="8" Opacity="1.0"/>
-                            </Label.Shadow>
-                        </Label>
-
-                        <!-- Achievement Description -->
-                        <Label Grid.Row="2"
-                          Text="{Binding Description}"
-                          TextColor="#B0BEC5"
-                          FontSize="16"
-                          HorizontalOptions="Center"
-                          HorizontalTextAlignment="Center"
-                          Margin="8,0">
-                        <Label.Shadow>
-                            <Shadow Brush="Black" Offset="0,0" Radius="6" Opacity="0.9"/>
-                            </Label.Shadow>
-                        </Label>
-
-                        <!-- Progress Section -->
-                        <VerticalStackLayout Grid.Row="3"
-                                        IsVisible="{Binding IsUnlocked, Converter={StaticResource InverseBoolConverter}}"
-                                        Spacing="6">
-                        <Border StrokeShape="RoundRectangle 6"
-                               BackgroundColor="#1A1A3E"
-                               StrokeThickness="0"
-                               HeightRequest="12"
-                               Padding="0">
-                            <ProgressBar Progress="{Binding Progress}"
-                                        ProgressColor="#FFD700"
-                                        HeightRequest="12"/>
-                        </Border>
-                        <Label Text="{Binding ProgressText}"
-                              TextColor="#B0BEC5"
-                              FontSize="14"
-                              HorizontalOptions="Center">
-                            <Label.Shadow>
-                                <Shadow Brush="Black" Offset="0,0" Radius="5" Opacity="0.9"/>
-                                    </Label.Shadow>
-                                </Label>
-                            </VerticalStackLayout>
-
-                                                        <!-- Unlock Status -->
-                                                        <HorizontalStackLayout Grid.Row="4"
-                                                                     IsVisible="{Binding IsUnlocked}"
-                                                                     HorizontalOptions="Center"
-                                                                     Spacing="8">
-                                                            <Label Text="🏆"
-                                                                   FontSize="22"
-                                                                   VerticalOptions="Center"/>
-                                                            <Label Text="{Binding UnlockDateDisplay}"
-                                                                   TextColor="#FFD700"
-                                                                   FontSize="14"
-                                                                   FontAttributes="Bold"
-                                                                   VerticalOptions="Center">
-                                                                <Label.Shadow>
-                                                                    <Shadow Brush="Black" Offset="0,0" Radius="7" Opacity="1.0"/>
-                                                                </Label.Shadow>
-                                                            </Label>
-                                                        </HorizontalStackLayout>
-                                                    </Grid>
-                                                </Border>
-                                            </Grid>
+                                    <!-- Glowing Icon Badge -->
+                                    <Grid HeightRequest="120" 
+                                          WidthRequest="120"
+                                          HorizontalOptions="Center">
+                                        <!-- Outer Glow Layer -->
+                                        <Border HeightRequest="120"
+                                               WidthRequest="120"
+                                               StrokeShape="RoundRectangle 60"
+                                               StrokeThickness="0"
+                                               BackgroundColor="Transparent">
+                                            <Border.Shadow>
+                                                <Shadow Brush="#FFD700" Offset="0,0" Radius="28" Opacity="0.5"/>
+                                            </Border.Shadow>
                                         </Border>
-                                    </Border>
-                                </Border>
-                            </Border>
+                                        <!-- Medium Glow Layer -->
+                                        <Border HeightRequest="110"
+                                               WidthRequest="110"
+                                               StrokeShape="RoundRectangle 55"
+                                               StrokeThickness="0"
+                                               BackgroundColor="Transparent"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center">
+                                            <Border.Shadow>
+                                                <Shadow Brush="#FFD700" Offset="0,0" Radius="18" Opacity="0.7"/>
+                                            </Border.Shadow>
+                                        </Border>
+                                        <!-- Inner Badge with Icon -->
+                                        <Border HeightRequest="110"
+                                               WidthRequest="110"
+                                               StrokeShape="RoundRectangle 55"
+                                               StrokeThickness="3"
+                                               Stroke="#FFD700"
+                                               BackgroundColor="#22FFD700"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center">
+                                            <Border.Shadow>
+                                                <Shadow Brush="#FFD700" Offset="0,0" Radius="10" Opacity="0.9"/>
+                                            </Border.Shadow>
+                                            <Image Source="{Binding Icon}"
+                                                  HeightRequest="95"
+                                                  WidthRequest="95"
+                                                  HorizontalOptions="Center"
+                                                  VerticalOptions="Center"
+                                                  Aspect="AspectFill">
+                                                <Image.Clip>
+                                                    <EllipseGeometry Center="47.5,47.5" RadiusX="47.5" RadiusY="47.5"/>
+                                                </Image.Clip>
+                                            </Image>
+                                        </Border>
+                                    </Grid>
+
+                                    <!-- Achievement Title -->
+                                    <Label Text="{Binding Title}"
+                                          TextColor="White"
+                                          FontSize="24"
+                                          FontAttributes="Bold"
+                                          CharacterSpacing="1"
+                                          HorizontalOptions="Center"
+                                          HorizontalTextAlignment="Center">
+                                        <Label.Shadow>
+                                            <Shadow Brush="Black" Offset="0,3" Radius="12" Opacity="1.0"/>
+                                        </Label.Shadow>
+                                    </Label>
+
+                                    <!-- Achievement Description -->
+                                    <Label Text="{Binding Description}"
+                                          TextColor="White"
+                                          FontSize="15"
+                                          HorizontalOptions="Center"
+                                          HorizontalTextAlignment="Center"
+                                          Margin="8,0">
+                                        <Label.Shadow>
+                                            <Shadow Brush="Black" Offset="0,2" Radius="10" Opacity="1.0"/>
+                                        </Label.Shadow>
+                                    </Label>
+
+                                    <!-- Progress Section -->
+                                    <VerticalStackLayout IsVisible="{Binding IsUnlocked, Converter={StaticResource InverseBoolConverter}}"
+                                                        Spacing="6">
+                                        <Border StrokeShape="RoundRectangle 6"
+                                               BackgroundColor="#1A1A3E"
+                                               StrokeThickness="0"
+                                               HeightRequest="12"
+                                               Padding="0">
+                                            <ProgressBar Progress="{Binding Progress}"
+                                                        ProgressColor="#FFD700"
+                                                        HeightRequest="12"/>
+                                        </Border>
+                                        <Label Text="{Binding ProgressText}"
+                                              TextColor="White"
+                                              FontSize="13"
+                                              HorizontalOptions="Center">
+                                            <Label.Shadow>
+                                                <Shadow Brush="Black" Offset="0,2" Radius="8" Opacity="1.0"/>
+                                            </Label.Shadow>
+                                        </Label>
+                                    </VerticalStackLayout>
+
+                                    <!-- Unlock Status -->
+                                    <HorizontalStackLayout IsVisible="{Binding IsUnlocked}"
+                                                         HorizontalOptions="Center"
+                                                         Spacing="8">
+                                        <Label Text="🏆"
+                                               FontSize="20"
+                                               VerticalOptions="Center"/>
+                                        <Label Text="{Binding UnlockDateDisplay}"
+                                               TextColor="#FFD700"
+                                               FontSize="13"
+                                               FontAttributes="Bold"
+                                               VerticalOptions="Center">
+                                            <Label.Shadow>
+                                                <Shadow Brush="Black" Offset="0,2" Radius="10" Opacity="1.0"/>
+                                            </Label.Shadow>
+                                        </Label>
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+                    </Border>
+                </Border>
+            </Border>
 
             <!-- Share Button (outside the captured card) -->
             <Button Grid.Row="1"
