@@ -1,5 +1,6 @@
 using com.kizwiz.signwiz.Converters;
 using com.kizwiz.signwiz.Enums;
+using com.kizwiz.signwiz.Helpers;
 using com.kizwiz.signwiz.Messages;
 using com.kizwiz.signwiz.Models;
 using com.kizwiz.signwiz.Services;
@@ -1019,7 +1020,12 @@ namespace com.kizwiz.signwiz.Pages
                 Color themeColor = GetThemeColor();
                 var themeBrush = new SolidColorBrush(themeColor);
                 button.Background = themeBrush;
-                Debug.WriteLine($"Answer button '{button.Text}' loaded with theme color");
+
+                // PREMIUM: Use smart color detection for optimal text contrast
+                Color textColor = ColorHelper.GetOptimalTextColor(themeColor);
+                button.TextColor = textColor;
+
+                Debug.WriteLine($"Answer button '{button.Text}' loaded with theme color {themeColor} and optimal text color {textColor} (Contrast: {ColorHelper.GetContrastRatio(themeColor, textColor):F1}:1)");
             }
         }
 
@@ -1100,6 +1106,7 @@ namespace com.kizwiz.signwiz.Pages
                     // Apply selection highlight
                     Color selectedColor = Color.FromArgb("#4169E1"); // Royal Blue
                     button.Background = new SolidColorBrush(selectedColor);
+                    button.TextColor = Colors.White; // White text on blue is always accessible
                     button.Scale = 1.1;
                     Debug.WriteLine($">>> HIGHLIGHTED button {buttonAnswerNumber} for {playerName}");
                 }
@@ -1108,6 +1115,10 @@ namespace com.kizwiz.signwiz.Pages
                     // Apply default theme color
                     Color themeColor = GetThemeColor();
                     button.Background = new SolidColorBrush(themeColor);
+
+                    // PREMIUM: Use smart color detection for optimal text color
+                    button.TextColor = ColorHelper.GetOptimalTextColor(themeColor);
+
                     button.Scale = 1.0;
                     Debug.WriteLine($">>> DEFAULT theme for button {buttonAnswerNumber} for {playerName}");
                 }
@@ -1132,12 +1143,31 @@ namespace com.kizwiz.signwiz.Pages
                 // Use Background property instead of BackgroundColor to override the implicit style
                 var themeBrush = new SolidColorBrush(themeColor);
 
-                if (button1 != null) button1.Background = themeBrush;
-                if (button2 != null) button2.Background = themeBrush;
-                if (button3 != null) button3.Background = themeBrush;
-                if (button4 != null) button4.Background = themeBrush;
+                // PREMIUM: Use smart color detection for optimal contrast
+                Color textColor = ColorHelper.GetOptimalTextColor(themeColor);
 
-                Debug.WriteLine($"Answer buttons initialized: B1={button1 != null}, B2={button2 != null}, B3={button3 != null}, B4={button4 != null}");
+                if (button1 != null) 
+                {
+                    button1.Background = themeBrush;
+                    button1.TextColor = textColor;
+                }
+                if (button2 != null)
+                {
+                    button2.Background = themeBrush;
+                    button2.TextColor = textColor;
+                }
+                if (button3 != null)
+                {
+                    button3.Background = themeBrush;
+                    button3.TextColor = textColor;
+                }
+                if (button4 != null)
+                {
+                    button4.Background = themeBrush;
+                    button4.TextColor = textColor;
+                }
+
+                Debug.WriteLine($"Answer buttons initialized with optimal text color {textColor} (Contrast: {ColorHelper.GetContrastRatio(themeColor, textColor):F1}:1)");
             }
             catch (Exception ex)
             {

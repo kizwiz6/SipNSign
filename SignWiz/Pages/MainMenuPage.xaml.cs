@@ -1,4 +1,5 @@
 using com.kizwiz.signwiz.Enums;
+using com.kizwiz.signwiz.Helpers;
 using com.kizwiz.signwiz.Services;
 using System.Diagnostics;
 
@@ -163,7 +164,11 @@ namespace com.kizwiz.signwiz.Pages
                             if (button != null)
                             {
                                 button.BackgroundColor = themeColor;
-                                Debug.WriteLine($"Updated {styleId} button color to {themeColor}");
+
+                                // PREMIUM: Use smart color detection for optimal text contrast
+                                button.TextColor = ColorHelper.GetOptimalTextColor(themeColor);
+
+                                Debug.WriteLine($"Updated {styleId} button: BG={themeColor}, Text={button.TextColor} (Contrast: {ColorHelper.GetContrastRatio(themeColor, button.TextColor):F1}:1)");
                             }
                         }
                     }
@@ -199,6 +204,11 @@ namespace com.kizwiz.signwiz.Pages
                                     // Force color update by briefly setting to null then new color
                                     button.BackgroundColor = null;
                                     button.BackgroundColor = color;
+
+                                    // PREMIUM: Use smart color detection for optimal text color
+                                    button.TextColor = ColorHelper.GetOptimalTextColor(color);
+
+                                    Debug.WriteLine($"Button {button.StyleId}: BG={color}, Text={button.TextColor}");
                                 }
                             }
                         }

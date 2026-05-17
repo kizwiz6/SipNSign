@@ -19,6 +19,14 @@
         <Setter Property="TextColor" Value="{DynamicResource DarkText}" />
         <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="FontSize" Value="18" />
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow Brush="White" 
+                    Offset="0,1" 
+                    Opacity="0.3" 
+                    Radius="2" />
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <Style TargetType="ActivityIndicator">
@@ -40,7 +48,7 @@
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={DynamicResource Gray950}, Dark={DynamicResource Gray200}}" />
     </Style>
 
-    <!-- Existing Button Style -->
+    <!-- PREMIUM: Enhanced Button Style with Animations -->
     <Style TargetType="Button">
         <Setter Property="HeightRequest" Value="60" />
         <Setter Property="CornerRadius" Value="30" />
@@ -51,13 +59,14 @@
         <Setter Property="FontSize" Value="16"/>
         <Setter Property="FontAttributes" Value="Bold" />
 
-        <Setter Property="TextColor" Value="{AppThemeBinding Light=#1a237e, Dark=#FFFFFF}" />
+        <!-- Use DarkText for better contrast on gold/yellow buttons -->
+        <Setter Property="TextColor" Value="{DynamicResource DarkText}" />
 
         <Setter Property="Background">
             <Setter.Value>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                    <GradientStop Color="#FFD700" Offset="0.1" />
-                    <GradientStop Color="#FFA500" Offset="1.0" />
+                    <GradientStop Color="#F5C300" Offset="0.1" />
+                    <GradientStop Color="#E6A800" Offset="1.0" />
                 </LinearGradientBrush>
             </Setter.Value>
         </Setter>
@@ -65,29 +74,34 @@
         <Setter Property="BorderColor" Value="White" />
         <Setter Property="BorderWidth" Value="1.5" />
 
+        <!-- PREMIUM: Enhanced shadow for depth -->
         <Setter Property="Shadow">
             <Setter.Value>
                 <Shadow Brush="Black" 
-                    Offset="4,4" 
-                    Opacity="0.3" 
-                    Radius="8" />
+                    Offset="0,6" 
+                    Opacity="0.4" 
+                    Radius="12" />
             </Setter.Value>
         </Setter>
 
+        <!-- PREMIUM: Smooth animations and visual states -->
         <Setter Property="VisualStateManager.VisualStateGroups">
             <VisualStateGroupList>
                 <VisualStateGroup x:Name="CommonStates">
-                    <VisualState x:Name="Normal" />
+                    <!-- PREMIUM: Smooth press animation -->
                     <VisualState x:Name="Pressed">
                         <VisualState.Setters>
-                            <Setter Property="Scale" Value="0.95" />
+                            <Setter Property="Scale" Value="0.96" />
+                            <Setter Property="Opacity" Value="0.9" />
                         </VisualState.Setters>
                     </VisualState>
+
                     <VisualState x:Name="Disabled">
                         <VisualState.Setters>
                             <Setter Property="TextColor" Value="{AppThemeBinding Light={DynamicResource Gray400}, Dark={DynamicResource Gray600}}" />
                             <Setter Property="Background" Value="{AppThemeBinding Light={DynamicResource Gray200}, Dark={DynamicResource Gray900}}" />
                             <Setter Property="BorderColor" Value="Transparent" />
+                            <Setter Property="Opacity" Value="0.5" />
                         </VisualState.Setters>
                     </VisualState>
                 </VisualStateGroup>
@@ -141,16 +155,6 @@
         <Setter Property="TextColor" Value="Transparent" />
         <Setter Property="BorderColor" Value="Transparent" />
         <Setter Property="BorderWidth" Value="0" />
-        <!-- Disable the inherited VisualStateManager so code-behind has full control -->
-        <Setter Property="VisualStateManager.VisualStateGroups">
-            <VisualStateGroupList>
-                <VisualStateGroup x:Name="CommonStates">
-                    <VisualState x:Name="Normal" />
-                    <VisualState x:Name="Disabled" />
-                    <VisualState x:Name="Pressed" />
-                </VisualStateGroup>
-            </VisualStateGroupList>
-        </Setter>
         <!-- Background and TextColor will be set in code based on state and theme -->
     </Style>
 

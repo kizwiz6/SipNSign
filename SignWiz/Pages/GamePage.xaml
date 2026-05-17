@@ -23,7 +23,7 @@
             <converters:BoolToButtonColorConverter x:Key="BoolToButtonColorConverter"/>
 
             <Style x:Key="ScoreStyle" TargetType="Label">
-                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="TextColor" Value="{DynamicResource DarkText}"/>
                 <Setter Property="FontSize" Value="18"/>
                 <Setter Property="FontAttributes" Value="Bold"/>
                 <Setter Property="VerticalOptions" Value="Center"/>
@@ -35,8 +35,9 @@
             <!-- Answer button styles (smaller / shorter buttons) -->
             <Style x:Key="AnswerButton" TargetType="Button">
                 <Setter Property="BackgroundColor" Value="{DynamicResource Primary}" />
-                <Setter Property="TextColor" Value="White" />
+                <Setter Property="TextColor" Value="{DynamicResource DarkText}" />
                 <Setter Property="FontSize" Value="14" />
+                <Setter Property="FontAttributes" Value="Bold" />
                 <Setter Property="CornerRadius" Value="8" />
                 <Setter Property="Padding" Value="4" />
                 <Setter Property="Margin" Value="2" />
@@ -105,7 +106,7 @@
                         VerticalOptions="Center"
                         FontSize="20"
                         FontAttributes="Bold"
-                        TextColor="White">
+                        TextColor="{DynamicResource DarkText}">
                         <Label.Shadow>
                             <Shadow 
                                 Brush="Black"
@@ -244,7 +245,7 @@
                                 <Shadow Brush="Black" Offset="0,2" Radius="8" Opacity="0.4"/>
                             </Border.Shadow>
                             <Label x:Name="CorrectAnswerText"
-                                   TextColor="White"
+                                   TextColor="{DynamicResource DarkText}"
                                    FontSize="20"
                                    FontAttributes="Bold"
                                    HorizontalOptions="Center"/>
@@ -284,8 +285,9 @@
       Margin="0,4,0,0">
                     <Button x:Name="AnswerButton1"
                     Grid.Row="0" Grid.Column="0"
-                    TextColor="White"
+                    TextColor="{DynamicResource DarkText}"
                     FontSize="14"
+                    FontAttributes="Bold"
                     CornerRadius="8"
                     Padding="4"
                     Margin="2"
@@ -297,8 +299,9 @@
                     Loaded="OnAnswerButtonLoaded"/>
                     <Button x:Name="AnswerButton2"
                     Grid.Row="0" Grid.Column="1"
-                    TextColor="White"
+                    TextColor="{DynamicResource DarkText}"
                     FontSize="14"
+                    FontAttributes="Bold"
                     CornerRadius="8"
                     Padding="4"
                     Margin="2"
@@ -310,8 +313,9 @@
                     Loaded="OnAnswerButtonLoaded"/>
                     <Button x:Name="AnswerButton3"
                     Grid.Row="1" Grid.Column="0"
-                    TextColor="White"
+                    TextColor="{DynamicResource DarkText}"
                     FontSize="14"
+                    FontAttributes="Bold"
                     CornerRadius="8"
                     Padding="4"
                     Margin="2"
@@ -323,8 +327,9 @@
                     Loaded="OnAnswerButtonLoaded"/>
                     <Button x:Name="AnswerButton4"
                     Grid.Row="1" Grid.Column="1"
-                    TextColor="White"
+                    TextColor="{DynamicResource DarkText}"
                     FontSize="14"
+                    FontAttributes="Bold"
                     CornerRadius="8"
                     Padding="4"
                     Margin="2"

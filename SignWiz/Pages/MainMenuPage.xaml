@@ -22,7 +22,7 @@
                 <Setter Property="FontSize" Value="18"/>
                 <Setter Property="FontAttributes" Value="Bold"/>
                 <Setter Property="CharacterSpacing" Value="2"/>
-                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="TextColor" Value="{DynamicResource DarkText}"/>
                 <Setter Property="BorderColor" Value="#80FFFFFF"/>
                 <Setter Property="BorderWidth" Value="1.5"/>
                 <Setter Property="Shadow">
