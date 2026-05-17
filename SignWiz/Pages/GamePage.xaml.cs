@@ -1859,15 +1859,16 @@ namespace com.kizwiz.signwiz.Pages
 
                     if (feedbackBadge != null && feedbackText != null)
                     {
-                        // PREMIUM: Dark ruby gradient background for timeout (deep red to darker red)
-                        feedbackBadge.Background = new LinearGradientBrush
+                        // PREMIUM: Rich radial gradient - deep ruby crimson center fading to ultra-dark burgundy edges
+                        feedbackBadge.Background = new RadialGradientBrush
                         {
-                            StartPoint = new Point(0, 0),
-                            EndPoint = new Point(1, 1),
+                            Center = new Point(0.5, 0.5),
+                            Radius = 1.0,
                             GradientStops = new GradientStopCollection
                             {
-                                new GradientStop { Color = Color.FromArgb("#8B0000"), Offset = 0.0f },  // Dark red
-                                new GradientStop { Color = Color.FromArgb("#6B0000"), Offset = 1.0f }   // Even darker red
+                                new GradientStop { Color = Color.FromArgb("#800020"), Offset = 0.0f },  // Rich ruby crimson center
+                                new GradientStop { Color = Color.FromArgb("#6B0000"), Offset = 0.5f },  // Dark burgundy mid
+                                new GradientStop { Color = Color.FromArgb("#300000"), Offset = 1.0f }   // Ultra-dark edges
                             }
                         };
 
@@ -1885,22 +1886,47 @@ namespace com.kizwiz.signwiz.Pages
                         };
                         feedbackBadge.StrokeThickness = 3;
 
-                        // PREMIUM: Enhanced shadow for depth
+                        // PREMIUM: Enhanced internal padding for breathing room
+                        feedbackBadge.Padding = new Thickness(20, 12);
+
+                        // PREMIUM: Smooth floating shadow for depth
                         feedbackBadge.Shadow = new Shadow
                         {
                             Brush = Colors.Black,
                             Offset = new Point(0, 4),
                             Radius = 12,
-                            Opacity = 0.6f
+                            Opacity = 0.5f
                         };
 
                         // ACCESSIBILITY: White text on dark background for maximum contrast
                         feedbackText.TextColor = Colors.White;
                         feedbackText.FontAttributes = FontAttributes.Bold;
                         feedbackText.FontSize = 18;
+                        feedbackText.LineBreakMode = LineBreakMode.WordWrap;
+                        feedbackText.HorizontalTextAlignment = TextAlignment.Center;
 
-                        // Add the message with better formatting
-                        feedbackText.Text = $"⏱️ {message}";
+                        // PREMIUM: Use FormattedString with styled timer icon and message
+                        var formattedString = new FormattedString();
+
+                        // Timer icon with gold tint to match border
+                        formattedString.Spans.Add(new Span
+                        {
+                            Text = "⏱ ",
+                            FontSize = 22,
+                            TextColor = Color.FromArgb("#FFD700"), // Gold to match border
+                            FontAttributes = FontAttributes.None
+                        });
+
+                        // Message text
+                        formattedString.Spans.Add(new Span
+                        {
+                            Text = message,
+                            FontSize = 16,
+                            TextColor = Colors.White,
+                            FontAttributes = FontAttributes.Bold
+                        });
+
+                        feedbackText.FormattedText = formattedString;
 
                         feedbackBadge.Opacity = 0;
                         feedbackBadge.IsVisible = true;
@@ -1922,6 +1948,9 @@ namespace com.kizwiz.signwiz.Pages
 
                         feedbackBadge.IsVisible = false;
                         feedbackBadge.Scale = 1.0; // Reset scale for next use
+
+                        // Clear FormattedText to prevent reuse issues
+                        feedbackText.FormattedText = null;
                     }
                 });
             }
