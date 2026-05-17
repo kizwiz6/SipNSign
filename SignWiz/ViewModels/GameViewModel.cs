@@ -973,7 +973,7 @@ namespace com.kizwiz.signwiz.ViewModels
 
         private async void Timer_Tick(object? sender, EventArgs e)
         {
-            if (IsGamePaused) return;
+            if (IsGamePaused || !IsGameActive) return;
 
             if (RemainingTime > 0)
             {
@@ -991,7 +991,7 @@ namespace com.kizwiz.signwiz.ViewModels
         /// </summary>
         private async void HandleTimeOut()
         {
-            if (IsProcessingAnswer) return;
+            if (IsProcessingAnswer || !IsGameActive) return;
 
             try
             {
@@ -1014,8 +1014,8 @@ namespace com.kizwiz.signwiz.ViewModels
                 IsFeedbackVisible = false;
                 await LogGameActivity(false);
 
-                // Check if user has timed out on multiple consecutive signs
-                if (_consecutiveTimeouts >= ConsecutiveTimeoutThreshold)
+                // Check if user has timed out on multiple consecutive signs and game is still active
+                if (_consecutiveTimeouts >= ConsecutiveTimeoutThreshold && IsGameActive)
                 {
                     await MainThread.InvokeOnMainThreadAsync(async () =>
                     {
@@ -1736,6 +1736,7 @@ namespace com.kizwiz.signwiz.ViewModels
 
         public void Cleanup()
         {
+            IsGameActive = false;
             if (_timer != null)
             {
                 _timer.Stop();

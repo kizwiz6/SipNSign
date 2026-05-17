@@ -5,7 +5,8 @@
     /// </summary>
     public enum CustomAppTheme
     {
-        Blue,   // Default theme
+        Magic, // Default theme
+        Blue,
         Dark,
         Light,
         Sunset,
@@ -13,7 +14,6 @@
         Space,
         Ocean,
         Neon,
-        Monochrome,
-        Magic
+        Monochrome
     }
 }

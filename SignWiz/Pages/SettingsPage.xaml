@@ -158,6 +158,7 @@
             SelectedIndexChanged="OnThemeSelected">
                         <Picker.ItemsSource>
                             <x:Array Type="{x:Type x:String}">
+                                <x:String>Magic</x:String>
                                 <x:String>Blue</x:String>
                                 <x:String>Dark</x:String>
                                 <x:String>Light</x:String>
@@ -167,7 +168,6 @@
                                 <x:String>Neon</x:String>
                                 <x:String>Monochrome</x:String>
                                 <x:String>Space</x:String>
-                                <x:String>Magic</x:String>
                             </x:Array>
                         </Picker.ItemsSource>
                     </Picker>
