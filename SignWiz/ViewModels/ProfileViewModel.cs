@@ -197,7 +197,8 @@ namespace com.kizwiz.signwiz.ViewModels
                     Description = activity.Description ?? "Activity recorded",
                     TimeAgo = FormatTimeAgo(activity.Timestamp),
                     Score = score ?? "",
-                    SignName = activity.SignName
+                    SignName = activity.SignName,
+                    AchievementId = activity.AchievementId
                 });
             }
 

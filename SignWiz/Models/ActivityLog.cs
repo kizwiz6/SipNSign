@@ -34,6 +34,10 @@
         /// Name of the sign associated with this activity (e.g., "Hello")
         /// </summary>
         public string? SignName { get; set; }
+        /// <summary>
+        /// ID of the achievement associated with this activity (for achievement unlock events)
+        /// </summary>
+        public string? AchievementId { get; set; }
         #endregion
     }
 }

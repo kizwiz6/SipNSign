@@ -10,5 +10,9 @@
         /// Name of the sign associated with this activity, used for navigation to sign details.
         /// </summary>
         public string? SignName { get; set; }
+        /// <summary>
+        /// ID of the achievement associated with this activity, used for navigation to achievement details.
+        /// </summary>
+        public string? AchievementId { get; set; }
     }
 }

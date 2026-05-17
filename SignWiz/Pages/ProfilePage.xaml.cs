@@ -51,24 +51,129 @@ public partial class ProfilePage : ContentPage
     }
 
     /// <summary>
-    /// Event handler for activity tap events. Navigates to SignDetailsPage if the activity has an associated sign.
+    /// Event handler for activity selection in CollectionView. Navigates to SignDetailsPage if the activity has an associated sign,
+    /// or to AchievementDetailsPage if it's an achievement unlock activity.
     /// </summary>
-    private async void OnActivityTapped(object? sender, TappedEventArgs e)
+    private async void OnActivitySelected(object? sender, SelectionChangedEventArgs e)
     {
-        if (_isNavigating) return;
+        Debug.WriteLine("=== OnActivitySelected fired ===");
+
+        if (_isNavigating)
+        {
+            Debug.WriteLine("Already navigating, ignoring selection");
+            return;
+        }
 
         try
         {
             _isNavigating = true;
 
-            if (sender is VisualElement element &&
-                element.BindingContext is ActivityItem activityItem)
+            // Get the selected item
+            var selectedItem = e.CurrentSelection.FirstOrDefault() as ActivityItem;
+
+            if (selectedItem == null)
             {
-                if (string.IsNullOrEmpty(activityItem.SignName))
+                Debug.WriteLine("No item selected");
+                return;
+            }
+
+            Debug.WriteLine($"Selected ActivityItem: Description={selectedItem.Description}, AchievementId={selectedItem.AchievementId}, SignName={selectedItem.SignName}");
+
+            // Clear selection immediately for better UX
+            if (sender is CollectionView collectionView)
+            {
+                collectionView.SelectedItem = null;
+            }
+
+            // Check if this is an achievement activity
+            if (!string.IsNullOrEmpty(selectedItem.AchievementId))
+            {
+                Debug.WriteLine($"Navigating to achievement: {selectedItem.AchievementId}");
+
+                var services = Application.Current?.Handler?.MauiContext?.Services;
+                var progressService = services?.GetService<IProgressService>();
+
+                if (progressService == null)
                 {
-                    Debug.WriteLine("Activity has no associated sign - ignoring tap");
+                    Debug.WriteLine("ProgressService not available");
+                    await DisplayAlertAsync("Error", "Unable to load achievement data.", "OK");
                     return;
                 }
+
+                var userProgress = await progressService.GetUserProgressAsync();
+                var achievement = userProgress.Achievements.FirstOrDefault(a => a.Id == selectedItem.AchievementId);
+
+                if (achievement == null)
+                {
+                    Debug.WriteLine($"Achievement not found for ID: {selectedItem.AchievementId}");
+                    await DisplayAlertAsync("Error", "Achievement not found.", "OK");
+                    return;
+                }
+
+                var detailsPage = new AchievementDetailsPage(achievement);
+                await Navigation.PushAsync(detailsPage);
+                return;
+            }
+
+            // Fallback: Try to parse achievement from description for legacy activities
+            if (selectedItem.Description?.Contains("Achievement Unlocked:") == true ||
+                selectedItem.Description?.Contains("Unlocked '") == true)
+            {
+                Debug.WriteLine("Legacy achievement activity detected - trying to match by title");
+
+                var services = Application.Current?.Handler?.MauiContext?.Services;
+                var progressService = services?.GetService<IProgressService>();
+
+                if (progressService == null)
+                {
+                    Debug.WriteLine("ProgressService not available");
+                    await DisplayAlertAsync("Error", "Unable to load achievement data.", "OK");
+                    return;
+                }
+
+                var userProgress = await progressService.GetUserProgressAsync();
+
+                // Try to extract achievement title from description
+                string? achievementTitle = null;
+                if (selectedItem.Description.Contains("Achievement Unlocked:"))
+                {
+                    achievementTitle = selectedItem.Description.Replace("Achievement Unlocked:", "").Trim();
+                }
+                else if (selectedItem.Description.Contains("Unlocked '"))
+                {
+                    var startIdx = selectedItem.Description.IndexOf("'") + 1;
+                    var endIdx = selectedItem.Description.IndexOf("'", startIdx);
+                    if (startIdx > 0 && endIdx > startIdx)
+                    {
+                        achievementTitle = selectedItem.Description.Substring(startIdx, endIdx - startIdx);
+                    }
+                }
+
+                Debug.WriteLine($"Parsed achievement title: {achievementTitle}");
+
+                if (!string.IsNullOrEmpty(achievementTitle))
+                {
+                    var achievement = userProgress.Achievements.FirstOrDefault(a => 
+                        a.Title.Equals(achievementTitle, StringComparison.OrdinalIgnoreCase));
+
+                    if (achievement != null)
+                    {
+                        Debug.WriteLine($"Found achievement by title: {achievement.Id}");
+                        var detailsPage = new AchievementDetailsPage(achievement);
+                        await Navigation.PushAsync(detailsPage);
+                        return;
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"No achievement found matching title: {achievementTitle}");
+                    }
+                }
+            }
+
+            // Otherwise, check if it's a sign activity
+            if (!string.IsNullOrEmpty(selectedItem.SignName))
+            {
+                Debug.WriteLine($"Navigating to sign: {selectedItem.SignName}");
 
                 var services = Application.Current?.Handler?.MauiContext?.Services;
                 var signRepository = services?.GetService<SignRepository>();
@@ -80,24 +185,135 @@ public partial class ProfilePage : ContentPage
                     return;
                 }
 
-                var sign = signRepository.GetSignByName(activityItem.SignName);
+                var sign = signRepository.GetSignByName(selectedItem.SignName);
 
                 if (sign == null)
                 {
-                    Debug.WriteLine($"Sign not found for name: {activityItem.SignName}");
+                    Debug.WriteLine($"Sign not found for name: {selectedItem.SignName}");
                     await DisplayAlertAsync("Error", "Sign data not found.", "OK");
                     return;
                 }
 
-                var detailsPage = new SignDetailsPage(sign);
-                await Navigation.PushAsync(detailsPage);
+                var signDetailsPage = new SignDetailsPage(sign);
+                await Navigation.PushAsync(signDetailsPage);
+                return;
             }
+
+            Debug.WriteLine("Activity has no associated sign or achievement - ignoring selection");
         }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error in OnActivitySelected: {ex.Message}");
+            Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+            await DisplayAlertAsync("Error", "Unable to display details.", "OK");
+        }
+        finally
+        {
+            _isNavigating = false;
+        }
+    }
+
+    /// <summary>
+    /// Legacy event handler for activity tap events (kept for backwards compatibility).
+    /// </summary>
+    private async void OnActivityTapped(object? sender, TappedEventArgs e)
+    {
+        Debug.WriteLine("=== OnActivityTapped fired ===");
+
+        if (_isNavigating)
+        {
+            Debug.WriteLine("Already navigating, ignoring tap");
+            return;
+        }
+
+        try
+        {
+            _isNavigating = true;
+
+            Debug.WriteLine($"Sender type: {sender?.GetType().Name}");
+
+            if (sender is VisualElement element)
+            {
+                Debug.WriteLine($"BindingContext type: {element.BindingContext?.GetType().Name}");
+
+                if (element.BindingContext is ActivityItem activityItem)
+                {
+                    Debug.WriteLine($"ActivityItem: Description={activityItem.Description}, AchievementId={activityItem.AchievementId}, SignName={activityItem.SignName}");
+
+                    // Check if this is an achievement activity
+                    if (!string.IsNullOrEmpty(activityItem.AchievementId))
+                    {
+                        Debug.WriteLine($"Achievement activity tapped: {activityItem.AchievementId}");
+
+                    var services = Application.Current?.Handler?.MauiContext?.Services;
+                    var progressService = services?.GetService<IProgressService>();
+
+                    if (progressService == null)
+                    {
+                        Debug.WriteLine("ProgressService not available");
+                        await DisplayAlertAsync("Error", "Unable to load achievement data.", "OK");
+                        return;
+                    }
+
+                    var userProgress = await progressService.GetUserProgressAsync();
+                    var achievement = userProgress.Achievements.FirstOrDefault(a => a.Id == activityItem.AchievementId);
+
+                    if (achievement == null)
+                    {
+                        Debug.WriteLine($"Achievement not found for ID: {activityItem.AchievementId}");
+                        await DisplayAlertAsync("Error", "Achievement not found.", "OK");
+                        return;
+                    }
+
+                    var detailsPage = new AchievementDetailsPage(achievement);
+                    await Navigation.PushAsync(detailsPage);
+                    return;
+                }
+
+                            // Otherwise, check if it's a sign activity
+                            if (string.IsNullOrEmpty(activityItem.SignName))
+                            {
+                                Debug.WriteLine("Activity has no associated sign or achievement - ignoring tap");
+                                return;
+                            }
+
+                            var services2 = Application.Current?.Handler?.MauiContext?.Services;
+                            var signRepository = services2?.GetService<SignRepository>();
+
+                            if (signRepository == null)
+                            {
+                                Debug.WriteLine("SignRepository not available");
+                                await DisplayAlertAsync("Error", "Unable to load sign data.", "OK");
+                                return;
+                            }
+
+                            var sign = signRepository.GetSignByName(activityItem.SignName);
+
+                            if (sign == null)
+                            {
+                                Debug.WriteLine($"Sign not found for name: {activityItem.SignName}");
+                                await DisplayAlertAsync("Error", "Sign data not found.", "OK");
+                                return;
+                            }
+
+                            var signDetailsPage = new SignDetailsPage(sign);
+                            await Navigation.PushAsync(signDetailsPage);
+                        }
+                        else
+                        {
+                            Debug.WriteLine("BindingContext is not ActivityItem");
+                        }
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Sender is not VisualElement");
+                    }
+                }
         catch (Exception ex)
         {
             Debug.WriteLine($"Error in OnActivityTapped: {ex.Message}");
             Debug.WriteLine($"Stack trace: {ex.StackTrace}");
-            await DisplayAlertAsync("Error", "Unable to display sign details.", "OK");
+            await DisplayAlertAsync("Error", "Unable to display details.", "OK");
         }
         finally
         {

@@ -150,32 +150,45 @@
                     <CollectionView x:Name="RecentActivityList"
                                     ItemsSource="{Binding RecentActivities}"
                                     HeightRequest="200"
+                                    SelectionMode="Single"
+                                    SelectionChanged="OnActivitySelected"
                                     EmptyView="No activities yet - start playing to see your progress!">
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="models:ActivityItem">
-                                <Grid Padding="10" ColumnDefinitions="Auto,*,Auto">
-                                    <Grid.GestureRecognizers>
-                                        <TapGestureRecognizer 
-                                            Tapped="OnActivityTapped"
-                                            NumberOfTapsRequired="1"/>
-                                    </Grid.GestureRecognizers>
-                                    <Image Source="{Binding Icon}"
+                                <Grid Padding="10" 
+                                      ColumnDefinitions="Auto,*,Auto"
+                                      ColumnSpacing="10">
+                                    <!-- Circular Achievement Icon -->
+                                    <Border Grid.Column="0"
                                            HeightRequest="40"
                                            WidthRequest="40"
-                                           Grid.Column="0"/>
+                                           StrokeShape="RoundRectangle 20"
+                                           StrokeThickness="0"
+                                           BackgroundColor="Transparent">
+                                        <Image Source="{Binding Icon}"
+                                              HeightRequest="40"
+                                              WidthRequest="40"
+                                              Aspect="AspectFill">
+                                            <Image.Clip>
+                                                <EllipseGeometry Center="20,20" RadiusX="20" RadiusY="20"/>
+                                            </Image.Clip>
+                                        </Image>
+                                    </Border>
+
                                     <VerticalStackLayout Grid.Column="1" Margin="10,0">
                                         <Label Text="{Binding Description}"
                                                TextColor="{DynamicResource CardText}"
                                                FontAttributes="Bold"/>
                                         <Label Text="{Binding TimeAgo}"
-                                               TextColor="{DynamicResource CardText}"
-                                               Opacity="0.7"
-                                               FontSize="12"/>
+                                           TextColor="{DynamicResource CardText}"
+                                           Opacity="0.7"
+                                           FontSize="12"/>
                                     </VerticalStackLayout>
                                     <Label Grid.Column="2"
                                            Text="{Binding Score}"
                                            TextColor="{DynamicResource CardText}"
-                                           FontAttributes="Bold"/>
+                                           FontAttributes="Bold"
+                                           FontSize="18"/>
                                 </Grid>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>

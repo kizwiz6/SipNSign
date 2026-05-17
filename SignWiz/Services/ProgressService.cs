@@ -820,7 +820,8 @@ namespace com.kizwiz.signwiz.Services
                     Type = ActivityType.Achievement,
                     Description = $"Achievement Unlocked: {achievement.Title}",
                     IconName = iconName,
-                    Timestamp = DateTime.Now
+                    Timestamp = DateTime.Now,
+                    AchievementId = achievement.Id
                 });
             }
         }
