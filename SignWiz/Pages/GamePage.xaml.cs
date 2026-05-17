@@ -1905,16 +1905,18 @@ namespace com.kizwiz.signwiz.Pages
                         feedbackText.LineBreakMode = LineBreakMode.WordWrap;
                         feedbackText.HorizontalTextAlignment = TextAlignment.Center;
 
-                        // PREMIUM: Use FormattedString with styled timer icon and message
+                        // PREMIUM: Use FormattedString with clean gold-tinted timer icon
+                        // Using Unicode alarm clock (U+23F0) which renders as a simple outline, then we color it gold
                         var formattedString = new FormattedString();
 
-                        // Timer icon with gold tint to match border
+                        // Custom timer icon - using circled numbers for clean rendering
+                        // Alternative: "⏲" (timer clock) or "◷" (white hourglass) or custom text
                         formattedString.Spans.Add(new Span
                         {
-                            Text = "⏱ ",
-                            FontSize = 22,
-                            TextColor = Color.FromArgb("#FFD700"), // Gold to match border
-                            FontAttributes = FontAttributes.None
+                            Text = "◷ ",  // White hourglass - renders cleanly without emoji styling
+                            FontSize = 24,
+                            TextColor = Color.FromArgb("#FFD700"), // Brand gold to match border
+                            FontAttributes = FontAttributes.Bold
                         });
 
                         // Message text
