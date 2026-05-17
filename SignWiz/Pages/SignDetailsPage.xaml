@@ -35,7 +35,7 @@
                        HorizontalTextAlignment="Center"/>
 
                 <!-- Video Player -->
-                <Grid HeightRequest="300"
+                <Grid HeightRequest="365"
                       HorizontalOptions="FillAndExpand"
                       BackgroundColor="Black">
                     <toolkit:MediaElement x:Name="SignVideo"
