@@ -1002,13 +1002,25 @@ namespace com.kizwiz.signwiz.ViewModels
                 _consecutiveTimeouts++;
                 Debug.WriteLine($"Consecutive timeouts: {_consecutiveTimeouts}/{ConsecutiveTimeoutThreshold}");
 
+                // Disable answer buttons and make them red to show timeout
+                // Highlight the correct answer in green
+                int correctAnswerNumber = 0;
+                if (CurrentSign != null && CurrentSign.Choices != null)
+                {
+                    correctAnswerNumber = CurrentSign.Choices.IndexOf(CurrentSign.CorrectAnswer) + 1; // Convert 0-based to 1-based
+                }
+                if (_pageReference != null && _pageReference.TryGetTarget(out var page) && page is Pages.GamePage gamePage)
+                {
+                    await gamePage.DisableAnswerButtonsOnTimeout(correctAnswerNumber);
+                }
+
                 // Always show time's up feedback as a signal, using the page's visual feedback
                 string feedbackMessage = $"Time's up!\nThe sign means '{CurrentSign?.CorrectAnswer}'";
 
                 // Show feedback overlay on video if we have page reference
-                if (_pageReference != null && _pageReference.TryGetTarget(out var page) && page is Pages.GamePage gamePage)
+                if (_pageReference != null && _pageReference.TryGetTarget(out var page2) && page2 is Pages.GamePage gamePage2)
                 {
-                    await gamePage.ShowSinglePlayerGuessTimeoutFeedback(feedbackMessage);
+                    await gamePage2.ShowSinglePlayerGuessTimeoutFeedback(feedbackMessage);
                 }
                 else
                 {
@@ -1660,6 +1672,15 @@ namespace com.kizwiz.signwiz.ViewModels
 
                 _availableIndices.RemoveAt(randomIndex);
                 CurrentSign = _signs[selectedSignIndex];
+
+                // Re-enable answer buttons after timeout (single-player Guess Mode)
+                if (!IsMultiplayer && IsGuessMode && _pageReference != null && _pageReference.TryGetTarget(out var page) && page is GamePage gamePage)
+                {
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        gamePage.InitializeAnswerButtonColors();
+                    });
+                }
 
                 if (IsPerformMode)
                 {

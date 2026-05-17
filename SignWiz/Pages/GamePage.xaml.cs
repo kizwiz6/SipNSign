@@ -1176,7 +1176,7 @@ namespace com.kizwiz.signwiz.Pages
         /// <summary>
         /// Initializes answer button colors from the current theme
         /// </summary>
-        private void InitializeAnswerButtonColors()
+        public void InitializeAnswerButtonColors()
         {
             try
             {
@@ -1198,21 +1198,29 @@ namespace com.kizwiz.signwiz.Pages
                 {
                     button1.Background = themeBrush;
                     button1.TextColor = textColor;
+                    button1.IsEnabled = true; // Re-enable after timeout
+                    button1.Opacity = 1.0; // Reset opacity
                 }
                 if (button2 != null)
                 {
                     button2.Background = themeBrush;
                     button2.TextColor = textColor;
+                    button2.IsEnabled = true;
+                    button2.Opacity = 1.0;
                 }
                 if (button3 != null)
                 {
                     button3.Background = themeBrush;
                     button3.TextColor = textColor;
+                    button3.IsEnabled = true;
+                    button3.Opacity = 1.0;
                 }
                 if (button4 != null)
                 {
                     button4.Background = themeBrush;
                     button4.TextColor = textColor;
+                    button4.IsEnabled = true;
+                    button4.Opacity = 1.0;
                 }
 
                 Debug.WriteLine($"Answer buttons initialized with optimal text color {textColor} (Contrast: {ColorHelper.GetContrastRatio(themeColor, textColor):F1}:1)");
@@ -1842,6 +1850,61 @@ namespace com.kizwiz.signwiz.Pages
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error in ShowMultiplayerPerformFeedback: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Disables answer buttons and makes them red/semi-transparent when timer expires
+        /// Highlights the correct answer in green
+        /// </summary>
+        /// <param name="correctAnswerNumber">The button number (1-4) that is the correct answer</param>
+        public async Task DisableAnswerButtonsOnTimeout(int correctAnswerNumber)
+        {
+            try
+            {
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    // Find all four answer buttons
+                    var button1 = this.FindByName<Button>("AnswerButton1");
+                    var button2 = this.FindByName<Button>("AnswerButton2");
+                    var button3 = this.FindByName<Button>("AnswerButton3");
+                    var button4 = this.FindByName<Button>("AnswerButton4");
+
+                    var buttons = new[] { button1, button2, button3, button4 };
+
+                    for (int i = 0; i < buttons.Length; i++)
+                    {
+                        var button = buttons[i];
+                        int buttonNumber = i + 1; // Buttons are 1-indexed
+
+                        if (button != null)
+                        {
+                            // Disable the button to prevent clicks
+                            button.IsEnabled = false;
+
+                            if (buttonNumber == correctAnswerNumber)
+                            {
+                                // Make the correct answer semi-transparent green
+                                button.Background = new SolidColorBrush(Color.FromArgb("#8028a745")); // 50% opacity green
+                                button.TextColor = Colors.White;
+                                button.Opacity = 0.75; // Slightly more visible than wrong answers
+                                Debug.WriteLine($"Correct answer button: {button.Text} (#{buttonNumber})");
+                            }
+                            else
+                            {
+                                // Make wrong answers semi-transparent red
+                                button.Background = new SolidColorBrush(Color.FromArgb("#80B00020")); // 50% opacity dark red
+                                button.TextColor = Color.FromArgb("#AAFFFFFF"); // Slightly faded white text
+                                button.Opacity = 0.7;
+                                Debug.WriteLine($"Wrong answer button: {button.Text} (#{buttonNumber})");
+                            }
+                        }
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in DisableAnswerButtonsOnTimeout: {ex.Message}");
             }
         }
 
