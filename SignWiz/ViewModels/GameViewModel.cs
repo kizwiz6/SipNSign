@@ -479,7 +479,7 @@ namespace com.kizwiz.signwiz.ViewModels
 
         public bool IsFeedbackVisible
         {
-            get => _isFeedbackVisible && Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true);
+            get => _isFeedbackVisible;
             set
             {
                 if (_isFeedbackVisible != value)
@@ -820,12 +820,6 @@ namespace com.kizwiz.signwiz.ViewModels
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _progressService = progressService ?? throw new ArgumentNullException(nameof(progressService));
 
-            // Set default to colored feedback (false means colored)
-            if (!Preferences.ContainsKey(Constants.TRANSPARENT_FEEDBACK_KEY))
-            {
-                Preferences.Set(Constants.TRANSPARENT_FEEDBACK_KEY, false);
-            }
-
             // Initialize signs list first
             _signs = new SignRepository().GetSigns();
             _availableIndices = new List<int>();
@@ -877,26 +871,19 @@ namespace com.kizwiz.signwiz.ViewModels
                     _timer?.Stop();
                     CurrentScore++;
 
-                    if (Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true))
+                    // Show feedback overlay on video if we have page reference
+                    if (_pageReference != null && _pageReference.TryGetTarget(out var page) && page is Pages.GamePage gamePage)
                     {
-                        // Show feedback overlay on video if we have page reference
-                        if (_pageReference != null && _pageReference.TryGetTarget(out var page) && page is Pages.GamePage gamePage)
-                        {
-                            await gamePage.ShowSinglePlayerPerformFeedback("Correct! ✓", true);
-                        }
-                        else
-                        {
-                            // Fallback to old feedback style
-                            FeedbackText = GetFeedbackText(true);
-                            FeedbackBackgroundColor = GetFeedbackColor(true);
-                            IsFeedbackVisible = true;
-                            await Task.Delay(2000);
-                            IsFeedbackVisible = false;
-                        }
+                        await gamePage.ShowSinglePlayerPerformFeedback("Correct! ✓", true);
                     }
                     else
                     {
-                        await Task.Delay(500); // Short delay even without feedback
+                        // Fallback to old feedback style
+                        FeedbackText = GetFeedbackText(true);
+                        FeedbackBackgroundColor = GetFeedbackColor(true);
+                        IsFeedbackVisible = true;
+                        await Task.Delay(2000);
+                        IsFeedbackVisible = false;
                     }
 
                     IsSignHidden = true;
@@ -917,26 +904,19 @@ namespace com.kizwiz.signwiz.ViewModels
                     IsProcessingAnswer = true;
                     _timer?.Stop();
 
-                    if (Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true))
+                    // Show feedback overlay on video if we have page reference
+                    if (_pageReference != null && _pageReference.TryGetTarget(out var page) && page is Pages.GamePage gamePage)
                     {
-                        // Show feedback overlay on video if we have page reference
-                        if (_pageReference != null && _pageReference.TryGetTarget(out var page) && page is Pages.GamePage gamePage)
-                        {
-                            await gamePage.ShowSinglePlayerPerformFeedback("Keep practicing! ✗", false);
-                        }
-                        else
-                        {
-                            // Fallback to old feedback style
-                            FeedbackText = GetFeedbackText(false);
-                            FeedbackBackgroundColor = GetFeedbackColor(false);
-                            IsFeedbackVisible = true;
-                            await Task.Delay(2000);
-                            IsFeedbackVisible = false;
-                        }
+                        await gamePage.ShowSinglePlayerPerformFeedback("Keep practicing! ✗", false);
                     }
                     else
                     {
-                        await Task.Delay(500); // Short delay even without feedback
+                        // Fallback to old feedback style
+                        FeedbackText = GetFeedbackText(false);
+                        FeedbackBackgroundColor = GetFeedbackColor(false);
+                        IsFeedbackVisible = true;
+                        await Task.Delay(2000);
+                        IsFeedbackVisible = false;
                     }
 
                     IsSignHidden = true;
@@ -1160,22 +1140,13 @@ namespace com.kizwiz.signwiz.ViewModels
 
         public Color GetFeedbackColor(bool isCorrect)
         {
-            bool useTransparent = Preferences.Get(Constants.TRANSPARENT_FEEDBACK_KEY, false);
-            Color color = useTransparent ?
-                Colors.Black.WithAlpha(0.5f) :
-                (isCorrect ? Color.FromArgb("#28a745") : Color.FromArgb("#dc3545"));
-            Debug.WriteLine($"Current mode: {CurrentMode}, Transparent: {useTransparent}, IsCorrect: {isCorrect}, Color: {color}");
+            Color color = isCorrect ? Color.FromArgb("#28a745") : Color.FromArgb("#dc3545");
+            Debug.WriteLine($"Current mode: {CurrentMode}, IsCorrect: {isCorrect}, Color: {color}");
             return color;
         }
 
         private void ShowFeedback(bool isCorrect)
         {
-            // Only show feedback if enabled in settings
-            if (!Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true))
-            {
-                return;
-            }
-
             FeedbackBackgroundColor = GetFeedbackColor(isCorrect);
 
             // If in multiplayer, show a different message that doesn't target a specific player
@@ -1252,7 +1223,6 @@ namespace com.kizwiz.signwiz.ViewModels
             try
             {
                 IsProcessingAnswer = true;
-                Debug.WriteLine($"HandleCorrectPerform - Current transparency setting: {Preferences.Get(Constants.TRANSPARENT_FEEDBACK_KEY, false)}");
 
                 IsSignHidden = true;
                 _timer?.Stop();
@@ -1275,7 +1245,6 @@ namespace com.kizwiz.signwiz.ViewModels
             try
             {
                 IsProcessingAnswer = true;
-                Debug.WriteLine($"HandleIncorrectPerform - Current transparency setting: {Preferences.Get(Constants.TRANSPARENT_FEEDBACK_KEY, false)}");
 
                 IsSignHidden = true;
                 _timer?.Stop();

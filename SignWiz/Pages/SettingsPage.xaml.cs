@@ -29,28 +29,9 @@ namespace com.kizwiz.signwiz.Pages
             _themeService.ThemeChanged += OnThemeChanged;
             ThemePicker.SelectedItem = _themeService.GetCurrentTheme().ToString();
 
-            // Initialize switches with current preferences
-            TransparentFeedbackSwitch.IsToggled = Preferences.Get(Constants.TRANSPARENT_FEEDBACK_KEY, false);
-
             LoadSavedSettings();
         }
         #endregion
-
-        private void OnShowFeedbackToggled(object sender, ToggledEventArgs e)
-        {
-            Debug.WriteLine($"Show Feedback toggled: {e.Value}");
-            Preferences.Set(Constants.SHOW_FEEDBACK_KEY, e.Value);
-
-            // Update UI elements that depend on feedback visibility
-            TransparentFeedbackSwitch.IsEnabled = e.Value;
-
-            // If feedback is disabled, ensure transparent feedback is also disabled
-            if (!e.Value)
-            {
-                TransparentFeedbackSwitch.IsToggled = false;
-                Preferences.Set(Constants.TRANSPARENT_FEEDBACK_KEY, false);
-            }
-        }
 
         #region Settings Management
         /// <summary>
@@ -74,11 +55,6 @@ namespace com.kizwiz.signwiz.Pages
             DisableTimerCheckbox.IsChecked = savedDuration == 0;
             TimerSlider.IsEnabled = !DisableTimerCheckbox.IsChecked;
 
-            // Load feedback settings
-            bool showFeedback = Preferences.Get(Constants.SHOW_FEEDBACK_KEY, true);
-            ShowFeedbackSwitch.IsToggled = showFeedback;
-            TransparentFeedbackSwitch.IsEnabled = showFeedback;
-
             // Load delay settings
             DelaySlider.Value = _preferences.Get(Constants.INCORRECT_DELAY_KEY, Constants.DEFAULT_DELAY) / 1000.0;
 
@@ -87,8 +63,8 @@ namespace com.kizwiz.signwiz.Pages
 
             if (!hasPremiumThemes)
             {
-                // Lock to Blue theme only if premium themes not purchased
-                ThemePicker.SelectedItem = "Blue";
+                // Lock to Magic theme only if premium themes not purchased
+                ThemePicker.SelectedItem = "Magic";
                 ThemePicker.IsEnabled = false;
 
                 // Show the info label
@@ -152,18 +128,6 @@ namespace com.kizwiz.signwiz.Pages
             catch (Exception ex)
             {
                 await DisplayAlertAsync("Error", $"Failed to save settings: {ex.Message}", "OK");
-            }
-        }
-
-        private void OnTransparentFeedbackToggled(object sender, ToggledEventArgs e)
-        {
-            Debug.WriteLine($"Toggling transparency: {e.Value}");
-            Preferences.Set(Constants.TRANSPARENT_FEEDBACK_KEY, e.Value);
-            var gamePage = Shell.Current?.CurrentPage as GamePage;
-            if (gamePage?.ViewModel?.IsFeedbackVisible == true)
-            {
-                bool isCorrect = gamePage.ViewModel.FeedbackText.Contains("Correct");
-                gamePage.ViewModel.FeedbackBackgroundColor = gamePage.ViewModel.GetFeedbackColor(isCorrect);
             }
         }
 
@@ -236,14 +200,6 @@ namespace com.kizwiz.signwiz.Pages
             {
                 await DisplayAlertAsync("Error", $"Could not read logs: {ex.Message}", "OK");
             }
-        }
-
-        protected override void OnAppearing()
-        {
-            base.OnAppearing();
-            bool isTransparent = Preferences.Get(Constants.TRANSPARENT_FEEDBACK_KEY, false);
-            TransparentFeedbackSwitch.IsToggled = isTransparent;
-            Debug.WriteLine($"Settings Page - Current transparency setting: {isTransparent}");
         }
 
         protected override void OnDisappearing()

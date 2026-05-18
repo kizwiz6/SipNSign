@@ -17,12 +17,10 @@
         #endregion
 
         #region Feedback Settings
-        public const string SHOW_FEEDBACK_KEY = "show_feedback";
         public const string INCORRECT_DELAY_KEY = "IncorrectAnswerDelay";
         public const int DEFAULT_DELAY = 5000;
         public const int MIN_DELAY = 2000;
         public const int MAX_DELAY = 10000;
-        public const string TRANSPARENT_FEEDBACK_KEY = "TransparentFeedback";
         #endregion
 
         #region Game Settings

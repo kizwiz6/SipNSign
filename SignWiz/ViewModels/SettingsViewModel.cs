@@ -10,15 +10,6 @@ namespace com.kizwiz.signwiz.ViewModels
         #region Properties
         public bool IsToggled { get; set; }
         public double Value { get; set; }
-        public bool IsTransparentFeedback
-        {
-            get => Preferences.Get(Constants.TRANSPARENT_FEEDBACK_KEY, false);
-            set
-            {
-                Preferences.Set(Constants.TRANSPARENT_FEEDBACK_KEY, value);
-                OnPropertyChanged(nameof(IsTransparentFeedback));
-            }
-        }
         #endregion
 
         #region Events

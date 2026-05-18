@@ -99,30 +99,6 @@
                        FontSize="20" 
                        FontAttributes="Bold"/>
 
-                    <!-- Show Feedback Toggle -->
-                    <Label Text="Show Feedback Overlay"
-                       TextColor="{DynamicResource CardText}"
-                       FontAttributes="Bold"/>
-                    <Switch x:Name="ShowFeedbackSwitch" 
-                        IsToggled="True"
-                        Toggled="OnShowFeedbackToggled"/>
-                    <Label Text="Display feedback text over the video"
-                       TextColor="{DynamicResource CardText}"
-                       FontSize="14"/>
-
-                    <!-- Transparent Feedback -->
-                    <Label Text="Transparent Feedback"
-                       TextColor="{DynamicResource CardText}"
-                       FontAttributes="Bold"
-                       IsEnabled="{Binding Source={x:Reference ShowFeedbackSwitch}, Path=IsToggled}"/>
-                    <Switch x:Name="TransparentFeedbackSwitch" 
-                        IsToggled="{Binding IsTransparentFeedback}"
-                        Toggled="OnTransparentFeedbackToggled"
-                        IsEnabled="{Binding Source={x:Reference ShowFeedbackSwitch}, Path=IsToggled}"/>
-                    <Label Text="Makes feedback display transparent instead of colored"
-                       TextColor="{DynamicResource CardText}"
-                       FontSize="14"/>
-
                     <!-- Feedback Duration -->
                     <Label Text="Feedback Duration"
        TextColor="{DynamicResource CardText}"
